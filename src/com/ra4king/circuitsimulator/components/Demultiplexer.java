@@ -13,8 +13,6 @@ import com.ra4king.circuitsimulator.WireValue.State;
 public class Demultiplexer extends Component {
 	public Demultiplexer(Simulator simulator, String name, int bitSize, int numSelectBits) {
 		super(simulator, "Demux " + name + "(" + numSelectBits + "," + bitSize + ")", createBitSizeArray(bitSize, numSelectBits));
-		properties.put(PropertyType.BIT_SIZE, bitSize);
-		properties.put(PropertyType.MUX_NUM_SELECT_BITS, numSelectBits);
 	}
 	
 	private static int[] createBitSizeArray(int bitSize, int numSelectBits) {

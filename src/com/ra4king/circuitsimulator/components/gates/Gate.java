@@ -12,7 +12,6 @@ import com.ra4king.circuitsimulator.WireValue.State;
 public abstract class Gate extends Component {
 	public Gate(Simulator simulator, String name, int bitSize, int numInputs) {
 		super(simulator, name + "(" + bitSize + ")", Utils.getFilledArray(numInputs + 1, bitSize));
-		properties.put(PropertyType.BIT_SIZE, bitSize);
 	}
 	
 	@Override

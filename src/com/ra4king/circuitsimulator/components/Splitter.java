@@ -8,13 +8,16 @@ import com.ra4king.circuitsimulator.WireValue;
  * @author Roi Atalla
  */
 public class Splitter extends Component {
+	private final int[] bitFanIndices;
+	
 	public Splitter(Simulator simulator, String name, int bitSize, int fanouts) {
 		this(simulator, name, setupBitFanIndices(bitSize, fanouts));
 	}
 	
 	public Splitter(Simulator simulator, String name, int[] bitFanIndices) {
 		super(simulator, name, setupPortBitsizes(bitFanIndices));
-		properties.put(PropertyType.SPLITTER_BITS_PER_FAN, bitFanIndices);
+		
+		this.bitFanIndices = bitFanIndices;
 	}
 	
 	private static int[] setupBitFanIndices(int bitSize, int fanouts) {
@@ -54,8 +57,6 @@ public class Splitter extends Component {
 	
 	@Override
 	public void valueChanged(WireValue value, int portIndex) {
-		int[] bitFanIndices = (int[])properties.get(PropertyType.SPLITTER_BITS_PER_FAN);
-		
 		if(bitFanIndices.length != value.getBitSize()) {
 			throw new IllegalStateException(this + ": something went wrong somewhere. bitFanIndices = " + bitFanIndices.length + ", value.getBitSize() = " + value.getBitSize());
 		}

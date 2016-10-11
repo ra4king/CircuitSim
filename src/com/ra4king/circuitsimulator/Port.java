@@ -20,33 +20,18 @@ public class Port {
 		link.participants.put(this, new WireValue(bitSize));
 	}
 	
-	private void merge(Port port) {
-		if(port.link == this.link) return;
-		
-		Utils.ensureCompatible(this, link.value, port.link.value);
-		link.value.merge(port.link.value);
-		link.participants.putAll(port.link.participants);
-		
-		port.link = link;
-	}
-	
 	public WireValue getWireValue() {
 		return link.value;
 	}
 	
 	public Port linkPort(Port port) {
-		boolean propagateSignal = !port.link.value.equals(link.value);
-		HashMap<Port, WireValue> portParticipants = new HashMap<>(port.link.participants);
-		merge(port);
-		if(propagateSignal) {
-			portParticipants.keySet().stream().filter(p -> !p.equals(this))
-					.forEach(p -> p.component.valueChanged(link.value, p.port));
-		}
+		link.linkPort(port);
+		propagateSignal();
 		return this;
 	}
 	
 	public Port unlinkPort(Port port) {
-		link.participants.remove(port);
+		link.unlinkPort(port);
 		propagateSignal();
 		return this;
 	}
@@ -95,13 +80,47 @@ public class Port {
 		}
 	}
 	
-	private class Link {
+	public static class Link {
 		private HashMap<Port, WireValue> participants;
 		private WireValue value;
 		
 		Link(HashMap<Port, WireValue> participants, WireValue value) {
 			this.participants = participants;
 			this.value = value;
+		}
+		
+		private Link merge(Link other) {
+			if(this == other) throw new IllegalArgumentException("Link cannot merge with itself.");
+			
+			Utils.ensureCompatible(this, value, other.value);
+			value.merge(other.value);
+			participants.putAll(other.participants);
+			return this;
+		}
+		
+		public Link linkPort(Port port) {
+			if(participants.containsKey(port)) return this;
+			
+			boolean propagateSignal = !port.link.value.equals(value);
+			HashMap<Port, WireValue> portParticipants = new HashMap<>(port.link.participants);
+			
+			port.link = merge(port.link);
+			
+			if(propagateSignal) {
+				portParticipants.keySet().stream().forEach(p -> p.component.valueChanged(value, p.port));
+			}
+			
+			return this;
+		}
+		
+		public Link unlinkPort(Port port) {
+			if(!participants.containsKey(port)) return this;
+			
+			WireValue lastWireValue = participants.remove(port);
+			port.link = new Link(new HashMap<>(), lastWireValue);
+			port.link.participants.put(port, lastWireValue);
+			
+			return this;
 		}
 	}
 }

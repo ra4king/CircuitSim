@@ -1,24 +1,29 @@
 package com.ra4king.circuitsimulator;
 
-import java.util.HashMap;
-
 /**
  * @author Roi Atalla
  */
 public abstract class Component {
 	protected Simulator simulator;
 	protected Port[] ports;
-	protected HashMap<PropertyType, Object> properties;
+	private String name;
 	
 	protected Component(Simulator simulator, String name, int[] portBits) {
 		this.simulator = simulator;
-		this.ports = new Port[portBits.length];
-		properties = new HashMap<>();
-		properties.put(PropertyType.NAME, name);
+		this.name = name;
 		
+		ports = new Port[portBits.length];
 		for(int i = 0; i < portBits.length; i++) {
 			ports[i] = new Port(simulator, this, i, portBits[i]);
 		}
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 	public Port getPort(int portIndex) {
@@ -33,10 +38,6 @@ public abstract class Component {
 	
 	@Override
 	public String toString() {
-		return (String)properties.get(PropertyType.NAME);
-	}
-	
-	public enum PropertyType {
-		NAME, BIT_SIZE, PIN_IS_INPUT, MUX_NUM_SELECT_BITS, SPLITTER_BITS_PER_FAN
+		return name;
 	}
 }

@@ -37,6 +37,6 @@ public abstract class Component {
 	}
 	
 	public enum PropertyType {
-		NAME, BITSIZE, IS_INPUT, NUM_SELECT_BITS
+		NAME, BIT_SIZE, PIN_IS_INPUT, MUX_NUM_SELECT_BITS, SPLITTER_BITS_PER_FAN
 	}
 }

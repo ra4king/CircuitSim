@@ -17,7 +17,7 @@ public class Adder extends Component {
 	
 	public Adder(Simulator simulator, String name, int bitSize) {
 		super(simulator, name, new int[] { bitSize, bitSize, 1, bitSize, 1 });
-		properties.put(PropertyType.BITSIZE, bitSize);
+		properties.put(PropertyType.BIT_SIZE, bitSize);
 	}
 	
 	@Override

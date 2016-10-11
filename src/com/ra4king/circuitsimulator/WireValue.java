@@ -96,6 +96,19 @@ public class WireValue {
 		System.arraycopy(other.bits, 0, bits, 0, bits.length);
 	}
 	
+	public WireValue slice(int offset, int length) {
+		if(offset <= 0 || offset+length > bits.length) {
+			throw new IllegalArgumentException("Incorrect offset and length: " + offset + ", " + length);
+		}
+		
+		WireValue value = new WireValue(length);
+		for(int i = offset; i < offset + length; i++) {
+			value.setBit(i - offset, bits[i]);
+		}
+		
+		return value;
+	}
+	
 	public boolean isValidValue() {
 		if(bits.length == 0)
 			return false;

@@ -13,7 +13,7 @@ public class ControlledBuffer extends Component {
 	
 	public ControlledBuffer(Simulator simulator, String name, int bitSize) {
 		super(simulator, "Controlled Buffer " + name, new int[] { bitSize, 1, bitSize });
-		properties.put(PropertyType.BITSIZE, bitSize);
+		properties.put(PropertyType.BIT_SIZE, bitSize);
 		X_VALUE = new WireValue(bitSize);
 	}
 	

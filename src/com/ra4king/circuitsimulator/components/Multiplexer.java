@@ -13,8 +13,8 @@ import com.ra4king.circuitsimulator.WireValue.State;
 public class Multiplexer extends Component {
 	public Multiplexer(Simulator simulator, String name, int bitSize, int numSelectBits) {
 		super(simulator, "Mux " + name + "(" + numSelectBits + "," + bitSize + ")", createBitSizeArray(bitSize, numSelectBits));
-		properties.put(PropertyType.BITSIZE, bitSize);
-		properties.put(PropertyType.NUM_SELECT_BITS, numSelectBits);
+		properties.put(PropertyType.BIT_SIZE, bitSize);
+		properties.put(PropertyType.MUX_NUM_SELECT_BITS, numSelectBits);
 	}
 	
 	private static int[] createBitSizeArray(int bitSize, int numSelectBits) {
@@ -27,7 +27,7 @@ public class Multiplexer extends Component {
 	
 	@Override
 	public void valueChanged(WireValue value, int portIndex) {
-		int bitSize = (Integer)properties.get(PropertyType.BITSIZE);
+		int bitSize = (Integer)properties.get(PropertyType.BIT_SIZE);
 		
 		WireValue currentSelect = ports[ports.length - 2].getWireValue();
 		

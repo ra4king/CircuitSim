@@ -17,7 +17,7 @@ public class Register extends Component {
 	
 	public Register(Simulator simulator, String name, int bitSize) {
 		super(simulator, "Register " + name + "(" + bitSize + ")", new int[] { bitSize, 1, 1, 1, bitSize });
-		properties.put(PropertyType.BITSIZE, bitSize);
+		properties.put(PropertyType.BIT_SIZE, bitSize);
 		ports[PORT_OUT].pushValue(WireValue.of(0, bitSize));
 	}
 	
@@ -26,7 +26,7 @@ public class Register extends Component {
 		if(portIndex == PORT_OUT) return;
 		
 		if(ports[PORT_ZERO].getWireValue().getBit(0) == State.ONE) {
-			ports[PORT_OUT].pushValue(WireValue.of(0, (Integer)properties.get(PropertyType.BITSIZE)));
+			ports[PORT_OUT].pushValue(WireValue.of(0, (Integer)properties.get(PropertyType.BIT_SIZE)));
 		} else if(ports[PORT_ENABLE].getWireValue().getBit(0) != State.ZERO){
 			if(portIndex == PORT_CLK && value.getBit(0) == State.ONE) {
 				ports[PORT_OUT].pushValue(ports[PORT_IN].getWireValue());

@@ -1,7 +1,8 @@
 package com.ra4king.circuitsimulator.components;
 
+import com.ra4king.circuitsimulator.Circuit;
+import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.Component;
-import com.ra4king.circuitsimulator.Simulator;
 import com.ra4king.circuitsimulator.WireValue;
 
 /**
@@ -10,12 +11,12 @@ import com.ra4king.circuitsimulator.WireValue;
 public class Splitter extends Component {
 	private final int[] bitFanIndices;
 	
-	public Splitter(Simulator simulator, String name, int bitSize, int fanouts) {
-		this(simulator, name, setupBitFanIndices(bitSize, fanouts));
+	public Splitter(Circuit circuit, String name, int bitSize, int fanouts) {
+		this(circuit, name, setupBitFanIndices(bitSize, fanouts));
 	}
 	
-	public Splitter(Simulator simulator, String name, int[] bitFanIndices) {
-		super(simulator, name, setupPortBitsizes(bitFanIndices));
+	public Splitter(Circuit circuit, String name, int[] bitFanIndices) {
+		super(circuit, name, setupPortBitsizes(bitFanIndices));
 		
 		this.bitFanIndices = bitFanIndices;
 	}
@@ -56,31 +57,31 @@ public class Splitter extends Component {
 	}
 	
 	@Override
-	public void valueChanged(WireValue value, int portIndex) {
+	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		if(bitFanIndices.length != value.getBitSize()) {
 			throw new IllegalStateException(this + ": something went wrong somewhere. bitFanIndices = " + bitFanIndices.length + ", value.getBitSize() = " + value.getBitSize());
 		}
 		
 		if(portIndex == ports.length - 1) {
 			for(int i = 0; i < ports.length - 1; i++) {
-				WireValue result = new WireValue(ports[i].getWireValue().getBitSize());
+				WireValue result = new WireValue(ports[i].getLink().getBitSize());
 				int currBit = 0;
 				for(int j = 0; j < bitFanIndices.length; j++) {
 					if(bitFanIndices[j] == i) {
 						result.setBit(currBit++, value.getBit(j));
 					}
 				}
-				ports[i].pushValue(result);
+				state.pushValue(ports[i], result);
 			}
 		} else {
-			WireValue result = new WireValue(ports[ports.length - 1].getWireValue());
+			WireValue result = new WireValue(state.getValue(ports[ports.length - 1]));
 			int currBit = 0;
 			for(int i = 0; i < bitFanIndices.length; i++) {
 				if(bitFanIndices[i] == portIndex) {
 					result.setBit(i, value.getBit(currBit++));
 				}
 			}
-			ports[ports.length - 1].pushValue(result);
+			state.pushValue(ports[ports.length - 1], result);
 		}
 	}
 }

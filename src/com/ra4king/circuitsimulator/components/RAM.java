@@ -1,7 +1,8 @@
 package com.ra4king.circuitsimulator.components;
 
+import com.ra4king.circuitsimulator.Circuit;
+import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.Component;
-import com.ra4king.circuitsimulator.Simulator;
 import com.ra4king.circuitsimulator.WireValue;
 import com.ra4king.circuitsimulator.WireValue.State;
 
@@ -16,40 +17,47 @@ public class RAM extends Component {
 	public static final int PORT_CLEAR = 4;
 	public static final int PORT_DATA = 5;
 	
-	private WireValue[] memory;
+	private final int addressBits;
 	
-	public RAM(Simulator simulator, String name, int bitSize, int addressBits) {
-		super(simulator, "RAM " + name + "(" + bitSize + "," + addressBits + ")", new int[] {addressBits, 1, 1, 1, 1, bitSize });
+	public RAM(Circuit circuit, String name, int bitSize, int addressBits) {
+		super(circuit, "RAM " + name + "(" + bitSize + "," + addressBits + ")", new int[] {addressBits, 1, 1, 1, 1, bitSize });
 		
 		if(addressBits > 16 || addressBits <= 0) {
 			throw new IllegalArgumentException("Address bits cannot be more than 16 bits.");
 		}
 		
-		memory = new WireValue[1 << addressBits];
+		this.addressBits = addressBits;
 	}
 	
 	@Override
-	public void valueChanged(WireValue value, int portIndex) {
-		boolean enabled = ports[PORT_ENABLE].getWireValue().getBit(0) != State.ZERO;
-		boolean load = ports[PORT_LOAD].getWireValue().getBit(0) != State.ZERO;
-		boolean clear = ports[PORT_CLEAR].getWireValue().getBit(0) == State.ONE;
+	public void init(CircuitState circuitState) {
+		circuitState.putComponentProperty(this, new WireValue[1 << addressBits]);
+	}
+	
+	@Override
+	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
+		WireValue[] memory = (WireValue[])state.getComponentProperty(this);
 		
-		WireValue address = ports[PORT_ADDRESS].getWireValue();
+		boolean enabled = state.getValue(ports[PORT_ENABLE]).getBit(0) != State.ZERO;
+		boolean load = state.getValue(ports[PORT_LOAD]).getBit(0) != State.ZERO;
+		boolean clear = state.getValue(ports[PORT_CLEAR]).getBit(0) == State.ONE;
+		
+		WireValue address = state.getValue(ports[PORT_ADDRESS]);
 		
 		switch(portIndex) {
 			case PORT_ENABLE:
 			case PORT_LOAD:
 				if(!enabled || !load) {
-					ports[PORT_DATA].pushValue(new WireValue(memory[0].getBitSize()));
+					state.pushValue(ports[PORT_DATA], new WireValue(memory[0].getBitSize()));
 				}
 			case PORT_ADDRESS:
 				if(enabled && load && address.isValidValue()) {
-					ports[PORT_DATA].pushValue(memory[address.getValue()]);
+					state.pushValue(ports[PORT_DATA], memory[address.getValue()]);
 				}
 				break;
 			case PORT_CLK:
 				if(value.getBit(0) == State.ONE && address.isValidValue()) {
-					memory[address.getValue()].set(ports[PORT_DATA].getWireValue());
+					memory[address.getValue()].set(state.getValue(ports[PORT_DATA]));
 				}
 				break;
 			case PORT_CLEAR:

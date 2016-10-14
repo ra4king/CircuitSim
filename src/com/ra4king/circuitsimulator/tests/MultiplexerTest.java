@@ -1,5 +1,6 @@
 package com.ra4king.circuitsimulator.tests;
 
+import com.ra4king.circuitsimulator.Circuit;
 import com.ra4king.circuitsimulator.Simulator;
 import com.ra4king.circuitsimulator.WireValue;
 import com.ra4king.circuitsimulator.components.Multiplexer;
@@ -15,17 +16,18 @@ import com.ra4king.circuitsimulator.components.gates.XorGate;
 public class MultiplexerTest {
 	public static void main(String[] args) {
 		Simulator simulator = new Simulator();
+		Circuit circuit = new Circuit(simulator);
 		
-		Multiplexer mux = new Multiplexer(simulator, "", 4, 2);
-		AndGate andGate = new AndGate(simulator, "", 4, 2);
-		OrGate orGate = new OrGate(simulator, "", 4, 2);
-		XorGate xorGate = new XorGate(simulator, "", 4, 2);
-		NotGate notGate = new NotGate(simulator, "", 4);
+		Multiplexer mux = new Multiplexer(circuit, "", 4, 2);
+		AndGate andGate = new AndGate(circuit, "", 4, 2);
+		OrGate orGate = new OrGate(circuit, "", 4, 2);
+		XorGate xorGate = new XorGate(circuit, "", 4, 2);
+		NotGate notGate = new NotGate(circuit, "", 4);
 		
-		Pin in1 = new Pin(simulator, "A", 4, true);
-		Pin in2 = new Pin(simulator, "B", 4, true);
-		Pin sel = new Pin(simulator, "Sel", 2, true);
-		Pin out = new Pin(simulator, "Out", 4, false);
+		Pin in1 = new Pin(circuit, "A", 4);
+		Pin in2 = new Pin(circuit, "B", 4);
+		Pin sel = new Pin(circuit, "Sel", 2);
+		Pin out = new Pin(circuit, "Out", 4);
 		
 		in1.getPort(0)
 				.linkPort(andGate.getPort(0))
@@ -45,17 +47,17 @@ public class MultiplexerTest {
 		sel.getPort(0).linkPort(mux.getPort(4));
 		out.getPort(0).linkPort(mux.getPort(5));
 		
-		in1.setValue(WireValue.of(5, 4));
-		in2.setValue(WireValue.of(3, 4));
+		in1.setValue(circuit.getTopLevelState(), WireValue.of(5, 4));
+		in2.setValue(circuit.getTopLevelState(), WireValue.of(3, 4));
 		simulator.stepAll();
 		
-		sel.setValue(WireValue.of(0, 2));
+		sel.setValue(circuit.getTopLevelState(), WireValue.of(0, 2));
 		simulator.stepAll();
-		sel.setValue(WireValue.of(1, 2));
+		sel.setValue(circuit.getTopLevelState(), WireValue.of(1, 2));
 		simulator.stepAll();
-		sel.setValue(WireValue.of(2, 2));
+		sel.setValue(circuit.getTopLevelState(), WireValue.of(2, 2));
 		simulator.stepAll();
-		sel.setValue(WireValue.of(3, 2));
+		sel.setValue(circuit.getTopLevelState(), WireValue.of(3, 2));
 		simulator.stepAll();
 	}
 }

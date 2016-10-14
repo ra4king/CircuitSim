@@ -1,5 +1,6 @@
 package com.ra4king.circuitsimulator.tests;
 
+import com.ra4king.circuitsimulator.Circuit;
 import com.ra4king.circuitsimulator.Simulator;
 import com.ra4king.circuitsimulator.WireValue;
 import com.ra4king.circuitsimulator.components.Adder;
@@ -12,13 +13,15 @@ import com.ra4king.circuitsimulator.components.Register;
  */
 public class ClockTest {
 	public static void main(String[] args) {
-		Simulator sim = new Simulator();
-		Clock clock = new Clock(sim, "");
-		Register register = new Register(sim, "", 4);
-		Adder adder = new Adder(sim, "", 4);
-		Pin din = new Pin(sim, "", 4, true);
-		Pin cin = new Pin(sim, "", 1, true);
-		Pin out = new Pin(sim, "", 4, false);
+		Simulator simulator = new Simulator();
+		Circuit circuit = new Circuit(simulator);
+		
+		Clock clock = new Clock(circuit, "");
+		Register register = new Register(circuit, "", 32);
+		Adder adder = new Adder(circuit, "", 32);
+		Pin din = new Pin(circuit, "Din", 32);
+		Pin cin = new Pin(circuit, "Cin", 1);
+		Pin out = new Pin(circuit, "Out", 32);
 		
 		register.getPort(Register.PORT_IN).linkPort(adder.getPort(Adder.PORT_OUT));
 		register.getPort(Register.PORT_CLK).linkPort(clock.getPort(0));
@@ -26,13 +29,13 @@ public class ClockTest {
 		adder.getPort(Adder.PORT_B).linkPort(din.getPort(0));
 		adder.getPort(Adder.PORT_CARRY_IN).linkPort(cin.getPort(0));
 		
-		din.setValue(WireValue.of(1, 4));
-		cin.setValue(WireValue.of(0, 1));
+		din.setValue(circuit.getTopLevelState(), WireValue.of(1, 32));
+		cin.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		
-		clock.startClock(4);
+		Clock.startClock(4);
 		
 		while(true) {
-			sim.step();
+			simulator.step();
 		}
 	}
 }

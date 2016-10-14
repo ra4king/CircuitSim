@@ -30,7 +30,7 @@ public class WireValue {
 		System.arraycopy(value.bits, 0, bits, 0, bits.length);
 	}
 	
-	public void merge(WireValue value) {
+	public WireValue merge(WireValue value) {
 		if(getBitSize() != value.getBitSize()) {
 			throw new IllegalArgumentException("Cannot merge different bit-sized wires");
 		}
@@ -40,14 +40,14 @@ public class WireValue {
 		}
 		
 		for(int i = 0; i < getBitSize(); i++) {
-			if(getBit(i) == State.X && value.getBit(i) == State.X) {
-				setBit(i, State.X);
-			} else if(getBit(i) == State.X) {
+			if(getBit(i) == State.X) {
 				setBit(i, value.getBit(i));
 			} else {
 				setBit(i, getBit(i));
 			}
 		}
+		
+		return this;
 	}
 	
 	public static WireValue of(int value, int bitSize) {
@@ -88,12 +88,13 @@ public class WireValue {
 		bits[index] = state;
 	}
 	
-	public void set(WireValue other) {
+	public WireValue set(WireValue other) {
 		if(other.getBitSize() != getBitSize()) {
 			throw new IllegalArgumentException("Cannot set wire of different size bits. Wanted: " + bits.length + ", Found: " + other.bits.length);
 		}
 		
 		System.arraycopy(other.bits, 0, bits, 0, bits.length);
+		return this;
 	}
 	
 	public WireValue slice(int offset, int length) {

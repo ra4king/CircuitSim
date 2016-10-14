@@ -1,7 +1,8 @@
 package com.ra4king.circuitsimulator.components;
 
+import com.ra4king.circuitsimulator.Circuit;
+import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.Component;
-import com.ra4king.circuitsimulator.Simulator;
 import com.ra4king.circuitsimulator.WireValue;
 import com.ra4king.circuitsimulator.WireValue.State;
 
@@ -11,19 +12,19 @@ import com.ra4king.circuitsimulator.WireValue.State;
 public class ControlledBuffer extends Component {
 	private final WireValue X_VALUE;
 	
-	public ControlledBuffer(Simulator simulator, String name, int bitSize) {
-		super(simulator, "Controlled Buffer " + name, new int[] { bitSize, 1, bitSize });
+	public ControlledBuffer(Circuit circuit, String name, int bitSize) {
+		super(circuit, "Controlled Buffer " + name, new int[] { bitSize, 1, bitSize });
 		X_VALUE = new WireValue(bitSize);
 	}
 	
 	@Override
-	public void valueChanged(WireValue value, int portIndex) {
+	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		if(portIndex == 2) return;
 		
-		if(ports[1].getWireValue().getBit(0) == State.ONE) {
-			ports[2].pushValue(ports[0].getWireValue());
+		if(state.getValue(ports[1]).getBit(0) == State.ONE) {
+			state.pushValue(ports[2], state.getValue(ports[0]));
 		} else {
-			ports[2].pushValue(X_VALUE);
+			state.pushValue(ports[2], X_VALUE);
 		}
 	}
 }

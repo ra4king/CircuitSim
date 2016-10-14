@@ -1,43 +1,50 @@
 package com.ra4king.circuitsimulator.components;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.ra4king.circuitsimulator.Circuit;
+import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.Component;
-import com.ra4king.circuitsimulator.Simulator;
-import com.ra4king.circuitsimulator.Utils;
+import com.ra4king.circuitsimulator.utils.Utils;
 import com.ra4king.circuitsimulator.WireValue;
 
 /**
  * @author Roi Atalla
  */
 public class Clock extends Component {
-	private Timer timer;
-	private TimerTask currentClock;
-	private boolean clock;
+	private static final Timer timer = new Timer("clock", true);
+	private static TimerTask currentClock;
+	private static boolean clock;
+	private static List<Clock> clocks = new ArrayList<>();
 	
-	public Clock(Simulator simulator, String name) {
-		super(simulator, "Clock " + name, Utils.getFilledArray(1, 1));
+	public Clock(Circuit circuit, String name) {
+		super(circuit, "Clock " + name, Utils.getFilledArray(1, 1));
 		
-		timer = new Timer("clock", true);
+		clocks.add(this);
 	}
 	
-	public void startClock(int hertz) {
+	public static void startClock(int hertz) {
 		timer.scheduleAtFixedRate(currentClock = new TimerTask() {
 			@Override
 			public void run() {
 				clock = !clock;
-				ports[0].pushValue(WireValue.of(clock ? 1 : 0, 1));
+				WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
+				clocks.forEach(clock1 -> clock1.getCircuit().getCircuitStates().stream()
+						                         .forEach(state -> state.pushValue(clock1.getPort(0), clockValue)));
 			}
-		}, 10, hertz <= 1000 ? 1000 / hertz : 1);
+		}, 10, hertz <= 500 ? 500 / hertz : 1);
 	}
 	
-	public void stopClock() {
+	public static void stopClock() {
 		if(currentClock != null) {
 			currentClock.cancel();
+			currentClock = null;
 		}
 	}
 	
 	@Override
-	public void valueChanged(WireValue value, int portIndex) {}
+	public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
 }

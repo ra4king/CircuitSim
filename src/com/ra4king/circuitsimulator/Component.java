@@ -4,18 +4,22 @@ package com.ra4king.circuitsimulator;
  * @author Roi Atalla
  */
 public abstract class Component {
-	protected Simulator simulator;
-	protected Port[] ports;
+	protected final Circuit circuit;
+	protected final Port[] ports;
 	private String name;
 	
-	protected Component(Simulator simulator, String name, int[] portBits) {
-		this.simulator = simulator;
+	protected Component(Circuit circuit, String name, int[] portBits) {
+		this.circuit = circuit;
 		this.name = name;
 		
 		ports = new Port[portBits.length];
 		for(int i = 0; i < portBits.length; i++) {
-			ports[i] = new Port(simulator, this, i, portBits[i]);
+			ports[i] = new Port(this, i, portBits[i]);
 		}
+	}
+	
+	public Circuit getCircuit() {
+		return circuit;
 	}
 	
 	public void setName(String name) {
@@ -34,7 +38,9 @@ public abstract class Component {
 		return ports.length;
 	}
 	
-	public abstract void valueChanged(WireValue value, int portIndex);
+	public void init(CircuitState state) {}
+	
+	public abstract void valueChanged(CircuitState state, WireValue value, int portIndex);
 	
 	@Override
 	public String toString() {

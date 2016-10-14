@@ -1,6 +1,8 @@
-package com.ra4king.circuitsimulator;
+package com.ra4king.circuitsimulator.utils;
 
 import java.util.Arrays;
+
+import com.ra4king.circuitsimulator.WireValue;
 
 /**
  * @author Roi Atalla

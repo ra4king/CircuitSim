@@ -1,44 +1,49 @@
 package com.ra4king.circuitsimulator;
 
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author Roi Atalla
  */
-public class Circuit extends Component {
-	private HashSet<Component> components;
+public class Circuit {
+	private Simulator simulator;
 	
-	public Circuit(Simulator simulator, String name) {
-		super(simulator, name, new int[0]);
+	private Set<Component> components;
+	private Set<CircuitState> states;
+	private CircuitState topLevelState;
+	
+	public Circuit(Simulator simulator) {
+		this.simulator = simulator;
+		
 		components = new HashSet<>();
+		states = new HashSet<>();
+		
+		topLevelState = new CircuitState(this);
 	}
 	
-	@Override
-	public void valueChanged(WireValue value, int portIndex) {
-		if(components.isEmpty())
-			return;
+	public <T extends Component> T addComponent(T component) {
+		if(component.circuit != this)
+			throw new IllegalArgumentException("Component does not belong to this circuit.");
 		
-		Iterator<Component> iter = components.iterator();
-		Component curr = iter.next();
-		while(portIndex >= curr.ports.length) {
-			portIndex -= curr.ports.length;
-			
-			if(!iter.hasNext()) {
-				return;
-			}
-			
-			curr = iter.next();
-		}
-		
-		curr.valueChanged(value, portIndex);
-	}
-	
-	public void addComponent(Component component) {
 		components.add(component);
+		component.init(topLevelState);
+		return component;
 	}
 	
-	public void removeComponent(Component component) {
-		components.remove(component);
+	public Set<Component> getComponents() {
+		return components;
+	}
+	
+	public Simulator getSimulator() {
+		return simulator;
+	}
+	
+	public CircuitState getTopLevelState() {
+		return topLevelState;
+	}
+	
+	public Set<CircuitState> getCircuitStates() {
+		return states; 
 	}
 }

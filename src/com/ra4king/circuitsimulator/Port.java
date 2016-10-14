@@ -1,65 +1,56 @@
 package com.ra4king.circuitsimulator;
 
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Roi Atalla
  */
 public class Port {
-	private final Simulator simulator;
-	private final Component component;
-	private final int port;
+	public final Component component;
+	public final int portIndex;
 	private Link link;
 	
-	public Port(Simulator simulator, Component component, int port, int bitSize) {
-		this.simulator = simulator;
+	public Port(Component component, int portIndex, int bitSize) {
 		this.component = component;
-		this.port = port;
+		this.portIndex = portIndex;
 		
-		link = new Link(new HashMap<>(), new WireValue(bitSize));
-		link.participants.put(this, new WireValue(bitSize));
+		link = new Link(component.getCircuit(), new HashSet<>(), bitSize);
+		link.participants.add(this);
 	}
 	
-	public WireValue getWireValue() {
-		return link.value;
+	public Component getComponent() {
+		return component;
+	}
+	
+	public int getPortIndex() {
+		return portIndex;
+	}
+	
+	public Link getLink() {
+		return link;
 	}
 	
 	public Port linkPort(Port port) {
 		link.linkPort(port);
-		propagateSignal();
 		return this;
 	}
 	
 	public Port unlinkPort(Port port) {
 		link.unlinkPort(port);
-		propagateSignal();
 		return this;
-	}
-	
-	public void propagateSignal() {
-		WireValue newValue = new WireValue(link.value.getBitSize());
-		link.participants.entrySet().stream().forEach(entry -> {
-			Utils.ensureCompatible(Port.this, newValue, entry.getValue());
-			newValue.merge(entry.getValue());
-		});
-		
-		if(!newValue.equals(link.value)) {
-			link.value.set(newValue);
-			link.participants.keySet().stream().filter(port -> !port.equals(this))
-					.forEach(port -> port.component.valueChanged(link.value, port.port));
-		}
 	}
 	
 	@Override
 	public int hashCode() {
-		return component.hashCode() ^ port;
+		return component.hashCode() ^ portIndex;
 	}
 	
 	@Override
 	public boolean equals(Object other) {
 		if(other instanceof Port) {
 			Port port = (Port)other;
-			return port.component == this.component && port.port == this.port;
+			return port.component == this.component && port.portIndex == this.portIndex;
 		}
 		
 		return false;
@@ -67,58 +58,58 @@ public class Port {
 	
 	@Override
 	public String toString() {
-		return "Link(" + component + "[" + port + "])";
-	}
-	
-	public synchronized void pushValue(WireValue value) {
-		Utils.ensureBitSize(this, value, link.value.getBitSize());
-		
-		WireValue currentValue = link.participants.get(this);
-		if(!value.equals(currentValue)) {
-			currentValue.set(value);
-			simulator.valueChanged(this);
-		}
+		return "Port(" + component + "[" + portIndex + "])";
 	}
 	
 	public static class Link {
-		private HashMap<Port, WireValue> participants;
-		private WireValue value;
+		private final Circuit circuit;
+		private final Set<Port> participants;
+		private final int bitSize;
 		
-		Link(HashMap<Port, WireValue> participants, WireValue value) {
+		Link(Circuit circuit, Set<Port> participants, int bitSize) {
+			this.circuit = circuit;
 			this.participants = participants;
-			this.value = value;
+			this.bitSize = bitSize;
 		}
 		
-		private Link merge(Link other) {
-			if(this == other) throw new IllegalArgumentException("Link cannot merge with itself.");
-			
-			Utils.ensureCompatible(this, value, other.value);
-			value.merge(other.value);
-			participants.putAll(other.participants);
-			return this;
+		public Circuit getCircuit() {
+			return circuit;
+		}
+		
+		public int getBitSize() {
+			return bitSize;
+		}
+		
+		public Set<Port> getParticipants() {
+			return participants;
 		}
 		
 		public Link linkPort(Port port) {
-			if(participants.containsKey(port)) return this;
+			if(participants.contains(port)) return this;
 			
-			boolean propagateSignal = !port.link.value.equals(value);
-			HashMap<Port, WireValue> portParticipants = new HashMap<>(port.link.participants);
+			if(port.getLink().circuit != circuit)
+				throw new IllegalArgumentException("Links belong to different circuits.");
 			
-			port.link = merge(port.link);
+			circuit.getCircuitStates().forEach(state -> state.link(this, port.link));
 			
-			if(propagateSignal) {
-				portParticipants.keySet().stream().forEach(p -> p.component.valueChanged(value, p.port));
+			Set<Port> portParticipants = port.link.participants;
+			participants.addAll(portParticipants);
+			
+			for(Port p : portParticipants) {
+				p.link = this;
 			}
 			
 			return this;
 		}
 		
 		public Link unlinkPort(Port port) {
-			if(!participants.containsKey(port)) return this;
+			if(!participants.contains(port)) return this;
 			
-			WireValue lastWireValue = participants.remove(port);
-			port.link = new Link(new HashMap<>(), lastWireValue);
-			port.link.participants.put(port, lastWireValue);
+			participants.remove(port);
+			port.link = new Link(circuit, new HashSet<>(), bitSize);
+			port.link.participants.add(port);
+			
+			circuit.getCircuitStates().forEach(state -> state.unlink(this, port));
 			
 			return this;
 		}

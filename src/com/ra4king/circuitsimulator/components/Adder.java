@@ -1,7 +1,8 @@
 package com.ra4king.circuitsimulator.components;
 
+import com.ra4king.circuitsimulator.Circuit;
+import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.Component;
-import com.ra4king.circuitsimulator.Simulator;
 import com.ra4king.circuitsimulator.WireValue;
 import com.ra4king.circuitsimulator.WireValue.State;
 
@@ -15,20 +16,20 @@ public class Adder extends Component {
 	public static final int PORT_OUT = 3;
 	public static final int PORT_CARRY_OUT = 4;
 	
-	public Adder(Simulator simulator, String name, int bitSize) {
-		super(simulator, name, new int[] { bitSize, bitSize, 1, bitSize, 1 });
+	public Adder(Circuit circuit, String name, int bitSize) {
+		super(circuit, name, new int[] { bitSize, bitSize, 1, bitSize, 1 });
 	}
 	
 	@Override
-	public void valueChanged(WireValue value, int portIndex) {
+	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		if(portIndex == PORT_OUT || portIndex == PORT_CARRY_OUT) return;
 		
-		if(ports[PORT_A].getWireValue().isValidValue() &&
-				   ports[PORT_B].getWireValue().isValidValue() &&
-				   ports[PORT_CARRY_IN].getWireValue().isValidValue()) {
-			WireValue a = ports[PORT_A].getWireValue();
-			WireValue b = ports[PORT_B].getWireValue();
-			WireValue c = ports[PORT_CARRY_IN].getWireValue();
+		if(state.getValue(ports[PORT_A]).isValidValue() &&
+				   state.getValue(ports[PORT_B]).isValidValue() &&
+				   state.getValue(ports[PORT_CARRY_IN]).isValidValue()) {
+			WireValue a = state.getValue(ports[PORT_A]);
+			WireValue b = state.getValue(ports[PORT_B]);
+			WireValue c = state.getValue(ports[PORT_CARRY_IN]);
 			
 			WireValue sum = new WireValue(a.getBitSize());
 			
@@ -43,11 +44,12 @@ public class Adder extends Component {
 						        (bitB == State.ONE && carry == State.ONE) ? State.ONE : State.ZERO;
 			}
 			
-			ports[PORT_OUT].pushValue(sum);
-			ports[PORT_CARRY_OUT].pushValue(new WireValue(1, carry));
+			state.pushValue(ports[PORT_OUT], sum);
+			state.pushValue(ports[PORT_CARRY_OUT], new WireValue(1, carry));
 		} else {
-			ports[PORT_OUT].pushValue(new WireValue(ports[PORT_OUT].getWireValue().getBitSize()));
-			ports[PORT_CARRY_OUT].pushValue(new WireValue(1));
+			WireValue value1 = new WireValue(state.getValue(ports[PORT_OUT]).getBitSize());
+			state.pushValue(ports[PORT_OUT], value1);
+			state.pushValue(ports[PORT_CARRY_OUT], new WireValue(1));
 		}
 	}
 }

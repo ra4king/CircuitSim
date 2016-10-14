@@ -2,16 +2,17 @@ package com.ra4king.circuitsimulator.components;
 
 import java.util.Arrays;
 
+import com.ra4king.circuitsimulator.Circuit;
+import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.Component;
-import com.ra4king.circuitsimulator.Simulator;
 import com.ra4king.circuitsimulator.WireValue;
 
 /**
  * @author Roi Atalla
  */
 public class Multiplexer extends Component {
-	public Multiplexer(Simulator simulator, String name, int bitSize, int numSelectBits) {
-		super(simulator, "Mux " + name + "(" + numSelectBits + "," + bitSize + ")", createBitSizeArray(bitSize, numSelectBits));
+	public Multiplexer(Circuit circuit, String name, int bitSize, int numSelectBits) {
+		super(circuit, "Mux " + name + "(" + numSelectBits + "," + bitSize + ")", createBitSizeArray(bitSize, numSelectBits));
 	}
 	
 	private static int[] createBitSizeArray(int bitSize, int numSelectBits) {
@@ -23,23 +24,23 @@ public class Multiplexer extends Component {
 	}
 	
 	@Override
-	public void valueChanged(WireValue value, int portIndex) {
-		WireValue currentSelect = ports[ports.length - 2].getWireValue();
+	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
+		WireValue currentSelect = state.getValue(ports[ports.length - 2]);
 		
 		// len - 2 == select, len - 1 == output
 		if(portIndex == ports.length - 2) {
-			if(!value.isValidValue() || !ports[value.getValue()].getWireValue().isValidValue()) {
-				ports[ports.length - 1].pushValue(new WireValue(ports[ports.length - 1].getWireValue().getBitSize()));
+			if(!value.isValidValue() || !state.getValue(ports[value.getValue()]).isValidValue()) {
+				state.pushValue(ports[ports.length - 1], new WireValue(ports[ports.length - 1].getLink().getBitSize()));
 			} else {
-				ports[ports.length - 1].pushValue(ports[value.getValue()].getWireValue());
+				state.pushValue(ports[ports.length - 1], state.getValue(ports[value.getValue()]));
 			}
 		} else if(portIndex < ports.length - 2) {
 			if(currentSelect.isValidValue()) {
 				if(currentSelect.getValue() == portIndex) {
-					ports[ports.length - 1].pushValue(value);
+					state.pushValue(ports[ports.length - 1], value);
 				}
 			} else {
-				ports[ports.length - 1].pushValue(new WireValue(value.getBitSize()));
+				state.pushValue(ports[ports.length - 1], new WireValue(value.getBitSize()));
 			}
 		}
 	}

@@ -18,16 +18,16 @@ public class MultiplexerTest {
 		Simulator simulator = new Simulator();
 		Circuit circuit = new Circuit(simulator);
 		
-		Multiplexer mux = new Multiplexer(circuit, "", 4, 2);
-		AndGate andGate = new AndGate(circuit, "", 4, 2);
-		OrGate orGate = new OrGate(circuit, "", 4, 2);
-		XorGate xorGate = new XorGate(circuit, "", 4, 2);
-		NotGate notGate = new NotGate(circuit, "", 4);
+		Multiplexer mux = circuit.addComponent(new Multiplexer("", 4, 2));
+		AndGate andGate = circuit.addComponent(new AndGate("", 4, 2));
+		OrGate orGate = circuit.addComponent(new OrGate("", 4, 2));
+		XorGate xorGate = circuit.addComponent(new XorGate("", 4, 2));
+		NotGate notGate = circuit.addComponent(new NotGate("", 4));
 		
-		Pin in1 = new Pin(circuit, "A", 4);
-		Pin in2 = new Pin(circuit, "B", 4);
-		Pin sel = new Pin(circuit, "Sel", 2);
-		Pin out = new Pin(circuit, "Out", 4);
+		Pin in1 = circuit.addComponent(new Pin("A", 4));
+		Pin in2 = circuit.addComponent(new Pin("B", 4));
+		Pin sel = circuit.addComponent(new Pin("Sel", 2));
+		Pin out = circuit.addComponent(new Pin("Out", 4));
 		
 		in1.getPort(0)
 				.linkPort(andGate.getPort(0))

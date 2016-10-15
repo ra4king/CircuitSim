@@ -1,14 +1,13 @@
 package com.ra4king.circuitsimulator.components.gates;
 
-import com.ra4king.circuitsimulator.Circuit;
 import com.ra4king.circuitsimulator.WireValue.State;
 
 /**
  * @author Roi Atalla
  */
 public class AndGate extends Gate {
-	public AndGate(Circuit circuit, String name, int bitSize, int numInputs) {
-		super(circuit, "AND " + name, bitSize, numInputs);
+	public AndGate(String name, int bitSize, int numInputs) {
+		super("AND " + name, bitSize, numInputs);
 	}
 	
 	@Override

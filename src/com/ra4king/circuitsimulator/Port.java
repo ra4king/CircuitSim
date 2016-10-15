@@ -12,6 +12,10 @@ public class Port {
 	private Link link;
 	
 	public Port(Component component, int portIndex, int bitSize) {
+		if(component.getCircuit() == null) {
+			throw new NullPointerException("Cannot create a Port without a circuit.");
+		}
+		
 		this.component = component;
 		this.portIndex = portIndex;
 		

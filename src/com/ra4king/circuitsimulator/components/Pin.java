@@ -3,12 +3,11 @@ package com.ra4king.circuitsimulator.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ra4king.circuitsimulator.Circuit;
 import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.Component;
+import com.ra4king.circuitsimulator.WireValue;
 import com.ra4king.circuitsimulator.utils.Pair;
 import com.ra4king.circuitsimulator.utils.Utils;
-import com.ra4king.circuitsimulator.WireValue;
 
 /**
  * @author Roi Atalla
@@ -16,8 +15,8 @@ import com.ra4king.circuitsimulator.WireValue;
 public class Pin extends Component {
 	private List<Pair<CircuitState, PinChangeListener>> pinChangeListeners;
 	
-	public Pin(Circuit circuit, String name, int bitSize) {
-		super(circuit, "Pin " + name + "(" + bitSize + ")", Utils.getFilledArray(1, bitSize));
+	public Pin(String name, int bitSize) {
+		super("Pin " + name + "(" + bitSize + ")", Utils.getFilledArray(1, bitSize));
 		pinChangeListeners = new ArrayList<>();
 	}
 	
@@ -31,7 +30,7 @@ public class Pin extends Component {
 	
 	public void setValue(CircuitState state, WireValue value) {
 		System.out.println(this + ": value changed = " + value);
-		state.pushValue(ports[0], value);
+		state.pushValue(getPort(0), value);
 	}
 	
 	@Override

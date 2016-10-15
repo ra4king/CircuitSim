@@ -1,14 +1,13 @@
 package com.ra4king.circuitsimulator.components.gates;
 
-import com.ra4king.circuitsimulator.Circuit;
 import com.ra4king.circuitsimulator.WireValue.State;
 
 /**
  * @author Roi Atalla
  */
 public class XnorGate extends Gate {
-	public XnorGate(Circuit circuit, String name, int bitSize, int numInputs) {
-		super(circuit, "XNOR " + name, bitSize, numInputs);
+	public XnorGate(String name, int bitSize, int numInputs) {
+		super("XNOR " + name, bitSize, numInputs);
 	}
 	
 	@Override

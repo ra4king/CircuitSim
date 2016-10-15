@@ -11,11 +11,19 @@ public class CircuitState {
 	private final HashMap<Link, LinkState> linkStates;
 	
 	public CircuitState(Circuit circuit) {
+		if(circuit == null) {
+			throw new NullPointerException("Circuit cannot be null.");
+		}
+		
 		this.circuit = circuit;
 		componentProperties = new HashMap<>();
 		linkStates = new HashMap<>();
 		
 		circuit.getCircuitStates().add(this);
+	}
+	
+	public Circuit getCircuit() {
+		return circuit;
 	}
 	
 	public Object getComponentProperty(Component component) {

@@ -23,11 +23,14 @@ public class Circuit {
 	}
 	
 	public <T extends Component> T addComponent(T component) {
-		if(component.circuit != this)
-			throw new IllegalArgumentException("Component does not belong to this circuit.");
+		if(component.getCircuit() != null)
+			throw new IllegalArgumentException("Component already belongs to a circuit.");
 		
 		components.add(component);
-		component.init(topLevelState);
+		component.setCircuit(this);
+		
+		states.forEach(component::init);
+		
 		return component;
 	}
 	

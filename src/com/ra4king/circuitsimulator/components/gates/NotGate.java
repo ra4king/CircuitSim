@@ -1,6 +1,5 @@
 package com.ra4king.circuitsimulator.components.gates;
 
-import com.ra4king.circuitsimulator.Circuit;
 import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.WireValue;
 import com.ra4king.circuitsimulator.WireValue.State;
@@ -9,8 +8,8 @@ import com.ra4king.circuitsimulator.WireValue.State;
  * @author Roi Atalla
  */
 public class NotGate extends Gate {
-	public NotGate(Circuit circuit, String name, int bitSize) {
-		super(circuit, "NOT", bitSize, 1);
+	public NotGate(String name, int bitSize) {
+		super("NOT", bitSize, 1);
 	}
 	
 	@Override
@@ -23,6 +22,6 @@ public class NotGate extends Gate {
 			result.setBit(i, bit == State.X ? State.X : bit == State.ONE ? State.ZERO : State.ONE);
 		}
 		
-		state.pushValue(ports[1], result);
+		state.pushValue(getPort(1), result);
 	}
 }

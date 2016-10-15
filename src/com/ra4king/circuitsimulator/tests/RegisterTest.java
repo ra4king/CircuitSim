@@ -14,11 +14,11 @@ public class RegisterTest {
 		Simulator sim = new Simulator();
 		Circuit circuit = new Circuit(sim);
 		
-		Register register = new Register(circuit, "", 4);
-		Pin dataIn = new Pin(circuit, "In", 4);
-		Pin enable = new Pin(circuit, "Enable", 1);
-		Pin clk = new Pin(circuit, "Clk", 1);
-		Pin dataOut = new Pin(circuit, "Out", 4);
+		Register register = circuit.addComponent(new Register("", 4));
+		Pin dataIn = circuit.addComponent(new Pin("In", 4));
+		Pin enable = circuit.addComponent(new Pin("Enable", 1));
+		Pin clk = circuit.addComponent(new Pin("Clk", 1));
+		Pin dataOut = circuit.addComponent(new Pin("Out", 4));
 		
 		register.getPort(Register.PORT_IN).linkPort(dataIn.getPort(0));
 		register.getPort(Register.PORT_ENABLE).linkPort(enable.getPort(0));

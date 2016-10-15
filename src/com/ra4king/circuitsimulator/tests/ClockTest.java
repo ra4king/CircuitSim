@@ -16,12 +16,12 @@ public class ClockTest {
 		Simulator simulator = new Simulator();
 		Circuit circuit = new Circuit(simulator);
 		
-		Clock clock = new Clock(circuit, "");
-		Register register = new Register(circuit, "", 32);
-		Adder adder = new Adder(circuit, "", 32);
-		Pin din = new Pin(circuit, "Din", 32);
-		Pin cin = new Pin(circuit, "Cin", 1);
-		Pin out = new Pin(circuit, "Out", 32);
+		Clock clock = circuit.addComponent(new Clock(""));
+		Register register = circuit.addComponent(new Register("", 32));
+		Adder adder = circuit.addComponent(new Adder("", 32));
+		Pin din = circuit.addComponent(new Pin("Din", 32));
+		Pin cin = circuit.addComponent(new Pin("Cin", 1));
+		Pin out = circuit.addComponent(new Pin("Out", 32));
 		
 		register.getPort(Register.PORT_IN).linkPort(adder.getPort(Adder.PORT_OUT));
 		register.getPort(Register.PORT_CLK).linkPort(clock.getPort(0));

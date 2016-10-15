@@ -14,12 +14,12 @@ public class SRLatchTest {
 		Simulator sim = new Simulator();
 		Circuit circuit = new Circuit(sim);
 		
-		NorGate nor1 = new NorGate(circuit, "A", 1, 2);
-		NorGate nor2 = new NorGate(circuit, "B", 1, 2);
-		Pin in1 = new Pin(circuit, "A", 1);
-		Pin in2 = new Pin(circuit, "B", 1);
-		Pin out1 = new Pin(circuit, "Out", 1);
-		Pin out2 = new Pin(circuit, "~Out", 1);
+		NorGate nor1 = circuit.addComponent(new NorGate("A", 1, 2));
+		NorGate nor2 = circuit.addComponent(new NorGate("B", 1, 2));
+		Pin in1 = circuit.addComponent(new Pin("A", 1));
+		Pin in2 = circuit.addComponent(new Pin("B", 1));
+		Pin out1 = circuit.addComponent(new Pin("Out", 1));
+		Pin out2 = circuit.addComponent(new Pin("~Out", 1));
 		
 		in1.getPort(0).linkPort(nor1.getPort(0));
 		in2.getPort(0).linkPort(nor2.getPort(0));

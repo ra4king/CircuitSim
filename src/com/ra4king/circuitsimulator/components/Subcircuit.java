@@ -16,12 +16,12 @@ public class Subcircuit extends Component {
 	private Circuit subcircuit;
 	private List<Pin> pins;
 	
-	public Subcircuit(Circuit circuit, String name, Circuit subcircuit) {
-		this(circuit, name, subcircuit, getCircuitPins(subcircuit));
+	public Subcircuit(String name, Circuit subcircuit) {
+		this(name, subcircuit, getCircuitPins(subcircuit));
 	}
 	
-	private Subcircuit(Circuit circuit, String name, Circuit subcircuit, List<Pin> pins) {
-		super(circuit, "Subcircuit " + name, setupPortBits(pins));
+	private Subcircuit(String name, Circuit subcircuit, List<Pin> pins) {
+		super("Subcircuit " + name, setupPortBits(pins));
 		
 		this.subcircuit = subcircuit;
 		this.pins = pins;
@@ -29,6 +29,7 @@ public class Subcircuit extends Component {
 	
 	@Override
 	public void init(CircuitState circuitState) {
+		super.init(circuitState);
 		CircuitState subcircuitState = new CircuitState(subcircuit);
 		circuitState.putComponentProperty(this, subcircuitState);
 		

@@ -16,10 +16,10 @@ public class GateTest {
 		Simulator simulator = new Simulator();
 		Circuit circuit = new Circuit(simulator);
 		
-		AndGate andGate = new AndGate(circuit, "", 1, 2);
-		Pin in1 = new Pin(circuit, "A", 1);
-		Pin in2 = new Pin(circuit, "B", 1);
-		Pin out = new Pin(circuit, "Out", 1);
+		AndGate andGate = circuit.addComponent(new AndGate("", 1, 2));
+		Pin in1 = circuit.addComponent(new Pin("A", 1));
+		Pin in2 = circuit.addComponent(new Pin("B", 1));
+		Pin out = circuit.addComponent(new Pin("Out", 1));
 		
 		andGate.getPort(0).linkPort(in1.getPort(0));
 		andGate.getPort(1).linkPort(in2.getPort(0));
@@ -34,8 +34,8 @@ public class GateTest {
 		in2.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
 		simulator.stepAll();
 		
-		XorGate xorGate = new XorGate(circuit, "", 1, 2);
-		OrGate orGate = new OrGate(circuit, "", 1, 2);
+		XorGate xorGate = circuit.addComponent(new XorGate("", 1, 2));
+		OrGate orGate = circuit.addComponent(new OrGate("", 1, 2));
 		xorGate.getPort(0).linkPort(in1.getPort(0));
 		xorGate.getPort(1).linkPort(orGate.getPort(2));
 		orGate.getPort(0).linkPort(xorGate.getPort(2));

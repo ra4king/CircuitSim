@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.ra4king.circuitsimulator.Circuit;
 import com.ra4king.circuitsimulator.CircuitState;
 import com.ra4king.circuitsimulator.Component;
-import com.ra4king.circuitsimulator.utils.Utils;
 import com.ra4king.circuitsimulator.WireValue;
+import com.ra4king.circuitsimulator.utils.Utils;
 
 /**
  * @author Roi Atalla
@@ -20,8 +19,8 @@ public class Clock extends Component {
 	private static boolean clock;
 	private static List<Clock> clocks = new ArrayList<>();
 	
-	public Clock(Circuit circuit, String name) {
-		super(circuit, "Clock " + name, Utils.getFilledArray(1, 1));
+	public Clock(String name) {
+		super("Clock " + name, Utils.getFilledArray(1, 1));
 		
 		clocks.add(this);
 	}

@@ -4,13 +4,22 @@ package com.ra4king.circuitsimulator;
  * @author Roi Atalla
  */
 public abstract class Component {
-	protected final Circuit circuit;
-	protected final Port[] ports;
+	private Circuit circuit;
+	private int[] portBits;
+	private Port[] ports;
 	private String name;
 	
-	protected Component(Circuit circuit, String name, int[] portBits) {
-		this.circuit = circuit;
+	protected Component(String name, int[] portBits) {
 		this.name = name;
+		this.portBits = portBits;
+	}
+	
+	public void setCircuit(Circuit circuit) {
+		if(this.circuit != null) {
+			throw new IllegalStateException(this + ": already part of a circuit.");
+		}
+		
+		this.circuit = circuit;
 		
 		ports = new Port[portBits.length];
 		for(int i = 0; i < portBits.length; i++) {
@@ -31,14 +40,22 @@ public abstract class Component {
 	}
 	
 	public Port getPort(int portIndex) {
+		if(ports == null) {
+			throw new IllegalStateException(this + ": component not part of a circuit.");
+		}
+		
 		return ports[portIndex];
 	}
 	
 	public int getNumPorts() {
+		if(ports == null) {
+			throw new IllegalStateException(this + ": component not part of a circuit.");
+		}
+		
 		return ports.length;
 	}
 	
-	public void init(CircuitState state) {}
+	public void init(CircuitState circuitState) {}
 	
 	public abstract void valueChanged(CircuitState state, WireValue value, int portIndex);
 	

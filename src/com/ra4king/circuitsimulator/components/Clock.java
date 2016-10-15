@@ -19,6 +19,8 @@ public class Clock extends Component {
 	private static boolean clock;
 	private static List<Clock> clocks = new ArrayList<>();
 	
+	public static final int PORT_OUT = 0;
+	
 	public Clock(String name) {
 		super("Clock " + name, Utils.getFilledArray(1, 1));
 		
@@ -32,7 +34,7 @@ public class Clock extends Component {
 				clock = !clock;
 				WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 				clocks.forEach(clock1 -> clock1.getCircuit().getCircuitStates().stream()
-						                         .forEach(state -> state.pushValue(clock1.getPort(0), clockValue)));
+						                         .forEach(state -> state.pushValue(clock1.getPort(PORT_OUT), clockValue)));
 			}
 		}, 10, hertz <= 500 ? 500 / hertz : 1);
 	}

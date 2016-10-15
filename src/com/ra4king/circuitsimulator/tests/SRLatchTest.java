@@ -21,10 +21,10 @@ public class SRLatchTest {
 		Pin out1 = circuit.addComponent(new Pin("Out", 1));
 		Pin out2 = circuit.addComponent(new Pin("~Out", 1));
 		
-		in1.getPort(0).linkPort(nor1.getPort(0));
-		in2.getPort(0).linkPort(nor2.getPort(0));
-		out1.getPort(0).linkPort(nor1.getPort(2)).linkPort(nor2.getPort(1));
-		out2.getPort(0).linkPort(nor2.getPort(2)).linkPort(nor1.getPort(1));
+		in1.getPort(Pin.PORT).linkPort(nor1.getPort(0));
+		in2.getPort(Pin.PORT).linkPort(nor2.getPort(0));
+		out1.getPort(Pin.PORT).linkPort(nor1.getPort(nor1.PORT_OUT)).linkPort(nor2.getPort(1));
+		out2.getPort(Pin.PORT).linkPort(nor2.getPort(nor2.PORT_OUT)).linkPort(nor1.getPort(1));
 		
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
 		sim.stepAll();

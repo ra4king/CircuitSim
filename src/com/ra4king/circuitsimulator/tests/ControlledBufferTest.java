@@ -30,19 +30,19 @@ public class ControlledBufferTest {
 		Pin selC = circuit.addComponent(new Pin("Enable C", 1));
 		Pin out = circuit.addComponent(new Pin("Out", 4));
 		
-		inA.getPort(0).linkPort(andGate.getPort(0)).linkPort(orGate.getPort(0)).linkPort(xorGate.getPort(0));
-		inB.getPort(0).linkPort(andGate.getPort(1)).linkPort(orGate.getPort(1)).linkPort(xorGate.getPort(1));
-		bufferA.getPort(0).linkPort(andGate.getPort(2));
-		bufferA.getPort(1).linkPort(selA.getPort(0));
-		bufferA.getPort(2).linkPort(out.getPort(0));
+		inA.getPort(Pin.PORT).linkPort(andGate.getPort(0)).linkPort(orGate.getPort(0)).linkPort(xorGate.getPort(0));
+		inB.getPort(Pin.PORT).linkPort(andGate.getPort(1)).linkPort(orGate.getPort(1)).linkPort(xorGate.getPort(1));
+		bufferA.getPort(ControlledBuffer.PORT_IN).linkPort(andGate.getPort(andGate.PORT_OUT));
+		bufferA.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selA.getPort(Pin.PORT));
+		bufferA.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
-		bufferB.getPort(0).linkPort(orGate.getPort(2));
-		bufferB.getPort(1).linkPort(selB.getPort(0));
-		bufferB.getPort(2).linkPort(out.getPort(0));
+		bufferB.getPort(ControlledBuffer.PORT_IN).linkPort(orGate.getPort(orGate.PORT_OUT));
+		bufferB.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selB.getPort(Pin.PORT));
+		bufferB.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
-		bufferC.getPort(0).linkPort(xorGate.getPort(2));
-		bufferC.getPort(1).linkPort(selC.getPort(0));
-		bufferC.getPort(2).linkPort(out.getPort(0));
+		bufferC.getPort(ControlledBuffer.PORT_IN).linkPort(xorGate.getPort(xorGate.PORT_OUT));
+		bufferC.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selC.getPort(Pin.PORT));
+		bufferC.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
 		System.out.println("Selecting 1:");
 		inA.setValue(circuit.getTopLevelState(), WireValue.of(5, 4));

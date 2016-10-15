@@ -35,10 +35,7 @@ public class Subcircuit extends Component {
 		
 		for(int i = 0; i < pins.size(); i++) {
 			Port port = getPort(i);
-			pins.get(i).addChangeListener(subcircuitState, value -> {
-				System.out.println("subcircuit state produced value: " + port + " = " + value);
-				circuitState.pushValue(port, value);
-			});
+			pins.get(i).addChangeListener(subcircuitState, value -> circuitState.pushValue(port, value));
 		}
 		
 		for(Component component : subcircuit.getComponents()) {
@@ -69,7 +66,6 @@ public class Subcircuit extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		System.out.println("Value changed, sending to subcircuit: " + pins.get(portIndex) + " = " + value);
 		CircuitState subcircuitState = (CircuitState)state.getComponentProperty(this);
 		subcircuitState.pushValue(pins.get(portIndex).getPort(0), value);
 	}

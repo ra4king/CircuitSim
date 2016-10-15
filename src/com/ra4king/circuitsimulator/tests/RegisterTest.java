@@ -20,10 +20,10 @@ public class RegisterTest {
 		Pin clk = circuit.addComponent(new Pin("Clk", 1));
 		Pin dataOut = circuit.addComponent(new Pin("Out", 4));
 		
-		register.getPort(Register.PORT_IN).linkPort(dataIn.getPort(0));
-		register.getPort(Register.PORT_ENABLE).linkPort(enable.getPort(0));
-		register.getPort(Register.PORT_CLK).linkPort(clk.getPort(0));
-		register.getPort(Register.PORT_OUT).linkPort(dataOut.getPort(0));
+		register.getPort(Register.PORT_IN).linkPort(dataIn.getPort(Pin.PORT));
+		register.getPort(Register.PORT_ENABLE).linkPort(enable.getPort(Pin.PORT));
+		register.getPort(Register.PORT_CLK).linkPort(clk.getPort(Pin.PORT));
+		register.getPort(Register.PORT_OUT).linkPort(dataOut.getPort(Pin.PORT));
 		
 		final WireValue ONE = WireValue.of(1, 1);
 		final WireValue ZERO = WireValue.of(0, 1);

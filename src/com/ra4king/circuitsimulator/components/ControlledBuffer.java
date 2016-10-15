@@ -11,6 +11,10 @@ import com.ra4king.circuitsimulator.WireValue.State;
 public class ControlledBuffer extends Component {
 	private final WireValue X_VALUE;
 	
+	public static final int PORT_IN = 0;
+	public static final int PORT_ENABLE = 1;
+	public static final int PORT_OUT = 2;
+	
 	public ControlledBuffer(String name, int bitSize) {
 		super("Controlled Buffer " + name, new int[] { bitSize, 1, bitSize });
 		X_VALUE = new WireValue(bitSize);
@@ -18,12 +22,12 @@ public class ControlledBuffer extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == 2) return;
+		if(portIndex == PORT_OUT) return;
 		
-		if(state.getValue(getPort(1)).getBit(0) == State.ONE) {
-			state.pushValue(getPort(2), state.getValue(getPort(0)));
+		if(state.getValue(getPort(PORT_ENABLE)).getBit(0) == State.ONE) {
+			state.pushValue(getPort(PORT_OUT), state.getValue(getPort(PORT_IN)));
 		} else {
-			state.pushValue(getPort(2), X_VALUE);
+			state.pushValue(getPort(PORT_OUT), X_VALUE);
 		}
 	}
 }

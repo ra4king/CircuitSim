@@ -11,8 +11,16 @@ import com.ra4king.circuitsimulator.WireValue.State;
  * @author Roi Atalla
  */
 public class Demultiplexer extends Component {
+	public final int NUM_OUT_PORTS;
+	public final int PORT_SEL;
+	public final int PORT_IN;
+	
 	public Demultiplexer(String name, int bitSize, int numSelectBits) {
 		super("Demux " + name + "(" + numSelectBits + "," + bitSize + ")", createBitSizeArray(bitSize, numSelectBits));
+		
+		NUM_OUT_PORTS = 1 << numSelectBits;
+		PORT_SEL = NUM_OUT_PORTS;
+		PORT_IN = PORT_SEL + 1;
 	}
 	
 	private static int[] createBitSizeArray(int bitSize, int numSelectBits) {
@@ -26,14 +34,14 @@ public class Demultiplexer extends Component {
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		// len - 2 == select, len - 1 == input
-		if(portIndex == getNumPorts() - 2) {
+		if(portIndex == PORT_SEL) {
 			if(!value.isValidValue()) {
-				for(int i = 0; i < getNumPorts() - 2; i++) {
+				for(int i = 0; i < NUM_OUT_PORTS; i++) {
 					state.pushValue(getPort(i), new WireValue(value.getBitSize(), State.X));
 				}
 			} else {
 				int selectedPort = value.getValue();
-				for(int i = 0; i < getNumPorts() - 2; i++) {
+				for(int i = 0; i < NUM_OUT_PORTS; i++) {
 					if(i == selectedPort) {
 						state.pushValue(getPort(value.getValue()), state.getValue(getPort(getNumPorts() - 1)));
 					} else {
@@ -41,8 +49,8 @@ public class Demultiplexer extends Component {
 					}
 				}
 			}
-		} else if(portIndex == getNumPorts() - 1 && state.getValue(getPort(getNumPorts() - 2)).isValidValue()) {
-			int selectedPort = state.getValue(getPort(getNumPorts() - 2)).getValue();
+		} else if(portIndex == PORT_IN && state.getValue(getPort(PORT_SEL)).isValidValue()) {
+			int selectedPort = state.getValue(getPort(PORT_SEL)).getValue();
 			state.pushValue(getPort(selectedPort), value);
 		}
 	}

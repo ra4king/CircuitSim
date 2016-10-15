@@ -24,10 +24,10 @@ public class ClockTest {
 		Pin out = circuit.addComponent(new Pin("Out", 32));
 		
 		register.getPort(Register.PORT_IN).linkPort(adder.getPort(Adder.PORT_OUT));
-		register.getPort(Register.PORT_CLK).linkPort(clock.getPort(0));
-		adder.getPort(Adder.PORT_A).linkPort(register.getPort(Register.PORT_OUT)).linkPort(out.getPort(0));
-		adder.getPort(Adder.PORT_B).linkPort(din.getPort(0));
-		adder.getPort(Adder.PORT_CARRY_IN).linkPort(cin.getPort(0));
+		register.getPort(Register.PORT_CLK).linkPort(clock.getPort(Clock.PORT_OUT));
+		adder.getPort(Adder.PORT_A).linkPort(register.getPort(Register.PORT_OUT)).linkPort(out.getPort(Pin.PORT));
+		adder.getPort(Adder.PORT_B).linkPort(din.getPort(Pin.PORT));
+		adder.getPort(Adder.PORT_CARRY_IN).linkPort(cin.getPort(Pin.PORT));
 		
 		din.setValue(circuit.getTopLevelState(), WireValue.of(1, 32));
 		cin.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));

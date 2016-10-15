@@ -10,8 +10,16 @@ import com.ra4king.circuitsimulator.WireValue;
  * @author Roi Atalla
  */
 public class Multiplexer extends Component {
+	public final int NUM_IN_PORTS;
+	public final int PORT_SEL;
+	public final int PORT_OUT;
+	
 	public Multiplexer(String name, int bitSize, int numSelectBits) {
 		super("Mux " + name + "(" + numSelectBits + "," + bitSize + ")", createBitSizeArray(bitSize, numSelectBits));
+		
+		NUM_IN_PORTS = 1 << numSelectBits;
+		PORT_SEL = NUM_IN_PORTS;
+		PORT_OUT = PORT_SEL + 1;
 	}
 	
 	private static int[] createBitSizeArray(int bitSize, int numSelectBits) {
@@ -26,20 +34,19 @@ public class Multiplexer extends Component {
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		WireValue currentSelect = state.getValue(getPort(getNumPorts() - 2));
 		
-		// len - 2 == select, len - 1 == output
-		if(portIndex == getNumPorts() - 2) {
+		if(portIndex == PORT_SEL) {
 			if(!value.isValidValue() || !state.getValue(getPort(value.getValue())).isValidValue()) {
-				state.pushValue(getPort(getNumPorts() - 1), new WireValue(getPort(getNumPorts() - 1).getLink().getBitSize()));
+				state.pushValue(getPort(PORT_OUT), new WireValue(getPort(PORT_OUT).getLink().getBitSize()));
 			} else {
-				state.pushValue(getPort(getNumPorts() - 1), state.getValue(getPort(value.getValue())));
+				state.pushValue(getPort(PORT_OUT), state.getValue(getPort(value.getValue())));
 			}
-		} else if(portIndex < getNumPorts() - 2) {
+		} else if(portIndex < NUM_IN_PORTS) {
 			if(currentSelect.isValidValue()) {
 				if(currentSelect.getValue() == portIndex) {
-					state.pushValue(getPort(getNumPorts() - 1), value);
+					state.pushValue(getPort(PORT_OUT), value);
 				}
 			} else {
-				state.pushValue(getPort(getNumPorts() - 1), new WireValue(value.getBitSize()));
+				state.pushValue(getPort(PORT_OUT), new WireValue(value.getBitSize()));
 			}
 		}
 	}

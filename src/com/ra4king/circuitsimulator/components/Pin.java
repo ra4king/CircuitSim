@@ -15,6 +15,8 @@ import com.ra4king.circuitsimulator.utils.Utils;
 public class Pin extends Component {
 	private List<Pair<CircuitState, PinChangeListener>> pinChangeListeners;
 	
+	public static final int PORT = 0;
+	
 	public Pin(String name, int bitSize) {
 		super("Pin " + name + "(" + bitSize + ")", Utils.getFilledArray(1, bitSize));
 		pinChangeListeners = new ArrayList<>();
@@ -30,7 +32,7 @@ public class Pin extends Component {
 	
 	public void setValue(CircuitState state, WireValue value) {
 		System.out.println(this + ": value changed = " + value);
-		state.pushValue(getPort(0), value);
+		state.pushValue(getPort(PORT), value);
 	}
 	
 	@Override

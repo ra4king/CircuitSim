@@ -9,6 +9,8 @@ import com.ra4king.circuitsimulator.WireValue;
 public class Constant extends Pin {
 	private final WireValue value;
 	
+	public static final int PORT_OUT = 0;
+	
 	public Constant(String name, WireValue value) {
 		super(name, value.getBitSize());
 		this.value = new WireValue(value);
@@ -17,12 +19,12 @@ public class Constant extends Pin {
 	@Override
 	public void setValue(CircuitState circuitState, WireValue value) {
 		this.value.set(value);
-		circuitState.getCircuit().getCircuitStates().forEach(state -> state.pushValue(getPort(0), value));
+		circuitState.getCircuit().getCircuitStates().forEach(state -> state.pushValue(getPort(PORT_OUT), value));
 	}
 	
 	@Override
 	public void init(CircuitState circuitState) {
 		super.init(circuitState);
-		circuitState.pushValue(getPort(0), value);
+		circuitState.pushValue(getPort(PORT_OUT), value);
 	}
 }

@@ -29,23 +29,23 @@ public class MultiplexerTest {
 		Pin sel = circuit.addComponent(new Pin("Sel", 2));
 		Pin out = circuit.addComponent(new Pin("Out", 4));
 		
-		in1.getPort(0)
+		in1.getPort(Pin.PORT)
 				.linkPort(andGate.getPort(0))
 				.linkPort(orGate.getPort(0))
 				.linkPort(xorGate.getPort(0))
-				.linkPort(notGate.getPort(0));
-		in2.getPort(0)
+				.linkPort(notGate.getPort(NotGate.PORT_IN));
+		in2.getPort(Pin.PORT)
 				.linkPort(andGate.getPort(1))
 				.linkPort(orGate.getPort(1))
 				.linkPort(xorGate.getPort(1));
 		
-		andGate.getPort(2).linkPort(mux.getPort(0));
-		orGate.getPort(2).linkPort(mux.getPort(1));
-		xorGate.getPort(2).linkPort(mux.getPort(2));
-		notGate.getPort(1).linkPort(mux.getPort(3));
+		andGate.getPort(andGate.PORT_OUT).linkPort(mux.getPort(0));
+		orGate.getPort(orGate.PORT_OUT).linkPort(mux.getPort(1));
+		xorGate.getPort(xorGate.PORT_OUT).linkPort(mux.getPort(2));
+		notGate.getPort(NotGate.PORT_OUT).linkPort(mux.getPort(3));
 		
-		sel.getPort(0).linkPort(mux.getPort(4));
-		out.getPort(0).linkPort(mux.getPort(5));
+		sel.getPort(Pin.PORT).linkPort(mux.getPort(mux.PORT_SEL));
+		out.getPort(Pin.PORT).linkPort(mux.getPort(mux.PORT_OUT));
 		
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(5, 4));
 		in2.setValue(circuit.getTopLevelState(), WireValue.of(3, 4));

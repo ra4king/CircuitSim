@@ -31,7 +31,7 @@ public class Pin extends Component {
 	}
 	
 	public void setValue(CircuitState state, WireValue value) {
-		System.out.println(this + ": value changed = " + value);
+		System.out.println(this + ": value set = " + value);
 		state.pushValue(getPort(PORT), value);
 	}
 	

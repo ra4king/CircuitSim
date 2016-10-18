@@ -17,6 +17,7 @@ public class RAM extends Component {
 	public static final int PORT_DATA = 5;
 	
 	private final int addressBits;
+	private final int dataBits;
 	
 	public RAM(String name, int bitSize, int addressBits) {
 		super("RAM " + name + "(" + bitSize + "," + addressBits + ")", new int[] {addressBits, 1, 1, 1, 1, bitSize });
@@ -26,6 +27,26 @@ public class RAM extends Component {
 		}
 		
 		this.addressBits = addressBits;
+		this.dataBits = bitSize;
+	}
+	
+	public void store(CircuitState circuitState, int address, WireValue data) {
+		WireValue[] memory = (WireValue[])circuitState.getComponentProperty(this);
+		if(memory[address] == null) {
+			if(!data.isValidValue() || data.getValue() != 0) {
+				memory[address] = new WireValue(data);
+			}
+		} else if(data.isValidValue() && data.getValue() == 0) {
+			memory[address] = null;
+		} else {
+			memory[address].set(data);
+		}
+	}
+	
+	public WireValue load(CircuitState circuitState, int address) {
+		WireValue[] memory = (WireValue[])circuitState.getComponentProperty(this);
+		WireValue data = memory[address];
+		return data == null ? new WireValue(dataBits, State.ZERO) : new WireValue(data);
 	}
 	
 	@Override
@@ -48,22 +69,24 @@ public class RAM extends Component {
 			case PORT_ENABLE:
 			case PORT_LOAD:
 				if(!enabled || !load) {
-					state.pushValue(getPort(PORT_DATA), new WireValue(memory[0].getBitSize()));
+					state.pushValue(getPort(PORT_DATA), new WireValue(dataBits));
 				}
 			case PORT_ADDRESS:
 				if(enabled && load && address.isValidValue()) {
-					state.pushValue(getPort(PORT_DATA), memory[address.getValue()]);
+					state.pushValue(getPort(PORT_DATA), load(state, address.getValue()));
 				}
 				break;
 			case PORT_CLK:
-				if(value.getBit(0) == State.ONE && address.isValidValue()) {
-					memory[address.getValue()].set(state.getValue(getPort(PORT_DATA)));
+				if(!load && value.getBit(0) == State.ONE && address.isValidValue()) {
+					store(state, address.getValue(), state.getValue(getPort(PORT_DATA)));
 				}
 				break;
 			case PORT_CLEAR:
 				if(clear) {
 					for(WireValue wireValue : memory) {
-						wireValue.setAllBits(State.ZERO);
+						if(wireValue != null) {
+							wireValue.setAllBits(State.ZERO);
+						}
 					}
 				}
 				break;

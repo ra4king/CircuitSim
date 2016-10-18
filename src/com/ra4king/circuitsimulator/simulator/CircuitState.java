@@ -88,8 +88,9 @@ public class CircuitState {
 		Utils.ensureBitSize(this, value, linkState.value.getBitSize());
 		
 		WireValue currentValue = linkState.participantValues.get(port);
-		if(!value.equals(currentValue)) {
-			currentValue.set(value);
+		boolean changed = !value.equals(currentValue);
+		currentValue.set(value);
+		if(changed) {
 			circuit.getSimulator().valueChanged(port, this);
 		}
 	}

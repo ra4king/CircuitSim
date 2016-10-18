@@ -15,6 +15,7 @@ public class Circuit {
 	
 	public Circuit(Simulator simulator) {
 		this.simulator = simulator;
+		simulator.addCircuit(this);
 		
 		components = new HashSet<>();
 		states = new HashSet<>();

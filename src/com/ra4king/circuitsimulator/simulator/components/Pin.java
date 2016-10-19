@@ -6,6 +6,7 @@ import java.util.List;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
+import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 import com.ra4king.circuitsimulator.simulator.utils.Utils;
 
@@ -14,12 +15,24 @@ import com.ra4king.circuitsimulator.simulator.utils.Utils;
  */
 public class Pin extends Component {
 	private List<Pair<CircuitState, PinChangeListener>> pinChangeListeners;
+	private int bitSize = 0;
+	private boolean isInput;
 	
 	public static final int PORT = 0;
 	
-	public Pin(String name, int bitSize) {
-		super("Pin " + name + "(" + bitSize + ")", Utils.getFilledArray(1, bitSize));
+	public Pin(String name, int bitSize, boolean isInput) {
+		super((isInput ? "Input" : "Output") + " Pin " + name + "(" + bitSize + ")", Utils.getFilledArray(1, bitSize));
 		pinChangeListeners = new ArrayList<>();
+		this.bitSize = bitSize;
+		this.isInput = isInput;
+	}
+	
+	public int getBitSize() {
+		return bitSize;
+	}
+	
+	public boolean isInput() {
+		return isInput;
 	}
 	
 	public void addChangeListener(CircuitState state, PinChangeListener listener) {
@@ -33,6 +46,15 @@ public class Pin extends Component {
 	public void setValue(CircuitState state, WireValue value) {
 		System.out.println(this + ": value set = " + value);
 		state.pushValue(getPort(PORT), value);
+	}
+	
+	@Override
+	public void init(CircuitState circuitState) {
+		super.init(circuitState);
+		
+		if(isInput) {
+			circuitState.pushValue(getPort(PORT), new WireValue(bitSize, State.ZERO));
+		}
 	}
 	
 	@Override

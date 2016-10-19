@@ -122,6 +122,15 @@ public class CircuitState {
 			return newValue;
 		}
 		
+		boolean isShortCircuit() {
+			try {
+				getCurrentValue();
+				return true;
+			} catch(Exception exc) {
+				return false;
+			}
+		}
+		
 		HashMap<Port, WireValue> getParticipantValues() {
 			return participantValues;
 		}

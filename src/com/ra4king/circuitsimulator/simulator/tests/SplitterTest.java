@@ -25,7 +25,7 @@ public class SplitterTest {
 		
 		Pin[] ins = new Pin[inputs];
 		for(int i = 0; i < ins.length; i++) {
-			ins[i] = circuit.addComponent(new Pin(String.valueOf(i), bits));
+			ins[i] = circuit.addComponent(new Pin(String.valueOf(i), bits, true));
 		}
 		
 		Splitter[] splitters = new Splitter[inputs];
@@ -34,7 +34,7 @@ public class SplitterTest {
 		}
 		
 		Splitter joiner = circuit.addComponent(new Splitter("Joiner", bits, bits));
-		Pin out = circuit.addComponent(new Pin("Out", bits));
+		Pin out = circuit.addComponent(new Pin("Out", bits, false));
 		
 		out.getPort(Pin.PORT).linkPort(joiner.getPort(joiner.PORT_JOINED));
 		

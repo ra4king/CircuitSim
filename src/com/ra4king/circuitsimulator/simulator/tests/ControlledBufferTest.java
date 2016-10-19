@@ -23,12 +23,12 @@ public class ControlledBufferTest {
 		ControlledBuffer bufferA = circuit.addComponent(new ControlledBuffer("A", 4));
 		ControlledBuffer bufferB = circuit.addComponent(new ControlledBuffer("B", 4));
 		ControlledBuffer bufferC = circuit.addComponent(new ControlledBuffer("C", 4));
-		Pin inA = circuit.addComponent(new Pin("A", 4));
-		Pin inB = circuit.addComponent(new Pin("B", 4));
-		Pin selA = circuit.addComponent(new Pin("Enable A", 1));
-		Pin selB = circuit.addComponent(new Pin("Enable B", 1));
-		Pin selC = circuit.addComponent(new Pin("Enable C", 1));
-		Pin out = circuit.addComponent(new Pin("Out", 4));
+		Pin inA = circuit.addComponent(new Pin("A", 4, true));
+		Pin inB = circuit.addComponent(new Pin("B", 4, true));
+		Pin selA = circuit.addComponent(new Pin("Enable A", 1, true));
+		Pin selB = circuit.addComponent(new Pin("Enable B", 1, true));
+		Pin selC = circuit.addComponent(new Pin("Enable C", 1, true));
+		Pin out = circuit.addComponent(new Pin("Out", 4, false));
 		
 		inA.getPort(Pin.PORT).linkPort(andGate.getPort(0)).linkPort(orGate.getPort(0)).linkPort(xorGate.getPort(0));
 		inB.getPort(Pin.PORT).linkPort(andGate.getPort(1)).linkPort(orGate.getPort(1)).linkPort(xorGate.getPort(1));

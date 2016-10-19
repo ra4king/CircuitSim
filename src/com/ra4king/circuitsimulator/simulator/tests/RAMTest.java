@@ -15,10 +15,10 @@ public class RAMTest {
 		
 		Circuit circuit = new Circuit(sim);
 		RAM ram = circuit.addComponent(new RAM("", 8, 8));
-		Pin address = circuit.addComponent(new Pin("Address", 8));
-		Pin clk = circuit.addComponent(new Pin("clk", 1));
-		Pin data = circuit.addComponent(new Pin("data", 8));
-		Pin load = circuit.addComponent(new Pin("load", 1));
+		Pin address = circuit.addComponent(new Pin("Address", 8, true));
+		Pin clk = circuit.addComponent(new Pin("clk", 1, true));
+		Pin data = circuit.addComponent(new Pin("data", 8, false));
+		Pin load = circuit.addComponent(new Pin("load", 1, false));
 		
 		ram.getPort(RAM.PORT_ADDRESS).linkPort(address.getPort(Pin.PORT));
 		ram.getPort(RAM.PORT_CLK).linkPort(clk.getPort(Pin.PORT));

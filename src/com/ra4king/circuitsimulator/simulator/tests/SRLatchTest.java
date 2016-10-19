@@ -16,10 +16,10 @@ public class SRLatchTest {
 		
 		NorGate nor1 = circuit.addComponent(new NorGate("A", 1, 2));
 		NorGate nor2 = circuit.addComponent(new NorGate("B", 1, 2));
-		Pin in1 = circuit.addComponent(new Pin("A", 1));
-		Pin in2 = circuit.addComponent(new Pin("B", 1));
-		Pin out1 = circuit.addComponent(new Pin("Out", 1));
-		Pin out2 = circuit.addComponent(new Pin("~Out", 1));
+		Pin in1 = circuit.addComponent(new Pin("A", 1, true));
+		Pin in2 = circuit.addComponent(new Pin("B", 1, true));
+		Pin out1 = circuit.addComponent(new Pin("Out", 1, false));
+		Pin out2 = circuit.addComponent(new Pin("~Out", 1, false));
 		
 		in1.getPort(Pin.PORT).linkPort(nor1.getPort(0));
 		in2.getPort(Pin.PORT).linkPort(nor2.getPort(0));

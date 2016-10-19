@@ -17,9 +17,9 @@ public class GateTest {
 		Circuit circuit = new Circuit(simulator);
 		
 		AndGate andGate = circuit.addComponent(new AndGate("", 1, 2));
-		Pin in1 = circuit.addComponent(new Pin("A", 1));
-		Pin in2 = circuit.addComponent(new Pin("B", 1));
-		Pin out = circuit.addComponent(new Pin("Out", 1));
+		Pin in1 = circuit.addComponent(new Pin("A", 1, true));
+		Pin in2 = circuit.addComponent(new Pin("B", 1, true));
+		Pin out = circuit.addComponent(new Pin("Out", 1, false));
 		
 		andGate.getPort(0).linkPort(in1.getPort(Pin.PORT));
 		andGate.getPort(1).linkPort(in2.getPort(Pin.PORT));

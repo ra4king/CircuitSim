@@ -19,9 +19,9 @@ public class ClockTest {
 		Clock clock = circuit.addComponent(new Clock(""));
 		Register register = circuit.addComponent(new Register("", 32));
 		Adder adder = circuit.addComponent(new Adder("", 32));
-		Pin din = circuit.addComponent(new Pin("Din", 32));
-		Pin cin = circuit.addComponent(new Pin("Cin", 1));
-		Pin out = circuit.addComponent(new Pin("Out", 32));
+		Pin din = circuit.addComponent(new Pin("Din", 32, true));
+		Pin cin = circuit.addComponent(new Pin("Cin", 1, true));
+		Pin out = circuit.addComponent(new Pin("Out", 32, false));
 		
 		register.getPort(Register.PORT_IN).linkPort(adder.getPort(Adder.PORT_OUT));
 		register.getPort(Register.PORT_CLK).linkPort(clock.getPort(Clock.PORT_OUT));

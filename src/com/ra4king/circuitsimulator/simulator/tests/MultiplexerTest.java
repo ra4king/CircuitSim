@@ -24,10 +24,10 @@ public class MultiplexerTest {
 		XorGate xorGate = circuit.addComponent(new XorGate("", 4, 2));
 		NotGate notGate = circuit.addComponent(new NotGate("", 4));
 		
-		Pin in1 = circuit.addComponent(new Pin("A", 4));
-		Pin in2 = circuit.addComponent(new Pin("B", 4));
-		Pin sel = circuit.addComponent(new Pin("Sel", 2));
-		Pin out = circuit.addComponent(new Pin("Out", 4));
+		Pin in1 = circuit.addComponent(new Pin("A", 4, true));
+		Pin in2 = circuit.addComponent(new Pin("B", 4, true));
+		Pin sel = circuit.addComponent(new Pin("Sel", 2, true));
+		Pin out = circuit.addComponent(new Pin("Out", 4, false));
 		
 		in1.getPort(Pin.PORT)
 				.linkPort(andGate.getPort(0))

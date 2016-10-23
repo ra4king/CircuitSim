@@ -9,6 +9,12 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
  * @author Roi Atalla
  */
 public class GuiUtils {
+	public static final int BLOCK_SIZE = 10;
+	
+	public static int getNearestCoord(int a) {
+		return GuiUtils.BLOCK_SIZE * (a / GuiUtils.BLOCK_SIZE);
+	}
+	
 	public interface Drawable {
 		void draw(int x, int y, int width, int height);
 	}

@@ -19,7 +19,7 @@ public class Port {
 		this.component = component;
 		this.portIndex = portIndex;
 		
-		link = new Link(component.getCircuit(), new HashSet<>(), bitSize);
+		link = new Link(component.getCircuit(), bitSize);
 		link.participants.add(this);
 	}
 	
@@ -70,9 +70,9 @@ public class Port {
 		private final Set<Port> participants;
 		private final int bitSize;
 		
-		Link(Circuit circuit, Set<Port> participants, int bitSize) {
+		public Link(Circuit circuit, int bitSize) {
 			this.circuit = circuit;
-			this.participants = participants;
+			this.participants = new HashSet<>();
 			this.bitSize = bitSize;
 		}
 		
@@ -110,7 +110,7 @@ public class Port {
 			if(!participants.contains(port)) return this;
 			
 			participants.remove(port);
-			port.link = new Link(circuit, new HashSet<>(), bitSize);
+			port.link = new Link(circuit, bitSize);
 			port.link.participants.add(port);
 			
 			circuit.getCircuitStates().forEach(state -> state.unlink(this, port));

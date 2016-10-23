@@ -44,7 +44,7 @@ public class Pin extends Component {
 	}
 	
 	public void setValue(CircuitState state, WireValue value) {
-		System.out.println(this + ": value set = " + value);
+//		System.out.println(this + ": value set = " + value);
 		state.pushValue(getPort(PORT), value);
 	}
 	
@@ -59,7 +59,7 @@ public class Pin extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		System.out.println(this + ": value changed = " + value);
+//		System.out.println(this + ": value changed = " + value);
 		
 		pinChangeListeners.stream().filter(pair -> state == pair.first)
 				.forEach(pair -> pair.second.valueChanged(value));

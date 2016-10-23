@@ -19,7 +19,9 @@ public class Clock extends Component {
 	private static boolean clock;
 	private static List<Clock> clocks = new ArrayList<>();
 	
-	public static final int PORT_OUT = 0;
+	private static List<ClockChangeListener> clockChangeListeners = new ArrayList<>();
+	
+	public static final int PORT = 0;
 	
 	public Clock(String name) {
 		super("Clock " + name, Utils.getFilledArray(1, 1));
@@ -34,9 +36,16 @@ public class Clock extends Component {
 				clock = !clock;
 				WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 				clocks.forEach(clock1 -> clock1.getCircuit().getCircuitStates().stream()
-						                         .forEach(state -> state.pushValue(clock1.getPort(PORT_OUT), clockValue)));
+						                         .forEach(state -> state.pushValue(clock1.getPort(PORT), clockValue)));
+				for(ClockChangeListener listener : clockChangeListeners) {
+					listener.valueChanged(clockValue);
+				}
 			}
 		}, 10, hertz <= 500 ? 500 / hertz : 1);
+	}
+	
+	public static boolean isRunning() {
+		return currentClock != null;
 	}
 	
 	public static void stopClock() {
@@ -48,4 +57,16 @@ public class Clock extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
+	
+	public static void addChangeListener(ClockChangeListener listener) {
+		clockChangeListeners.add(listener);
+	}
+	
+	public static void removeChangeListener(ClockChangeListener listener) {
+		clockChangeListeners.remove(listener);
+	}
+	
+	public interface ClockChangeListener {
+		void valueChanged(WireValue value);
+	}
 }

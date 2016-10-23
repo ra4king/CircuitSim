@@ -35,6 +35,11 @@ public class Circuit {
 		return component;
 	}
 	
+	public void removeComponent(Component component) {
+		components.remove(component);
+		states.forEach(state -> state.removeComponentProperty(component));
+	}
+	
 	public Set<Component> getComponents() {
 		return components;
 	}

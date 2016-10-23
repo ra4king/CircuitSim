@@ -16,7 +16,7 @@ public class Adder extends Component {
 	public static final int PORT_CARRY_OUT = 4;
 	
 	public Adder(String name, int bitSize) {
-		super(name, new int[] { bitSize, bitSize, 1, bitSize, 1 });
+		super("Adder " + name + "(" + bitSize + ")", new int[] { bitSize, bitSize, 1, bitSize, 1 });
 	}
 	
 	@Override

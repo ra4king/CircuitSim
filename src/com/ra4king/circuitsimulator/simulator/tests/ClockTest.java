@@ -24,7 +24,7 @@ public class ClockTest {
 		Pin out = circuit.addComponent(new Pin("Out", 32, false));
 		
 		register.getPort(Register.PORT_IN).linkPort(adder.getPort(Adder.PORT_OUT));
-		register.getPort(Register.PORT_CLK).linkPort(clock.getPort(Clock.PORT_OUT));
+		register.getPort(Register.PORT_CLK).linkPort(clock.getPort(Clock.PORT));
 		adder.getPort(Adder.PORT_A).linkPort(register.getPort(Register.PORT_OUT)).linkPort(out.getPort(Pin.PORT));
 		adder.getPort(Adder.PORT_B).linkPort(din.getPort(Pin.PORT));
 		adder.getPort(Adder.PORT_CARRY_IN).linkPort(cin.getPort(Pin.PORT));

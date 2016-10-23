@@ -10,24 +10,17 @@ import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
+import com.ra4king.circuitsimulator.simulator.components.Clock;
 
 /**
  * @author Roi Atalla
  */
-public class GatePeer extends ComponentPeer<Gate> {
+public class ClockPeer extends ComponentPeer<Clock> {
 	private List<Connection> connections = new ArrayList<>();
 	
-	public GatePeer(Gate gate, int x, int y) {
-		super(gate, x, y, 3 * GuiUtils.BLOCK_SIZE, 2 * ((gate.getNumPorts() + 1) / 2) * GuiUtils.BLOCK_SIZE);
-		
-		int gates = gate.getNumPorts() - 1;
-		for(int i = 0; i < gates; i++) {
-			int add = (gates % 2 == 0 && i >= gates / 2) ? 2 : 1;
-			connections.add(new PortConnection(this, gate.getPort(i), 0, (i + add) * GuiUtils.BLOCK_SIZE));
-		}
-		
-		connections.add(new PortConnection(this, gate.getPort(gates), getWidth(), (gates / 2 + 1) * GuiUtils.BLOCK_SIZE));
+	public ClockPeer(Clock clock, int x, int y) {
+		super(clock, x, y, 2 * GuiUtils.BLOCK_SIZE, 2 * GuiUtils.BLOCK_SIZE);
+		connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth(), GuiUtils.BLOCK_SIZE));
 	}
 	
 	@Override
@@ -37,8 +30,9 @@ public class GatePeer extends ComponentPeer<Gate> {
 	
 	@Override
 	public void paint(Graphics2D g, CircuitState circuitState) {
+		GuiUtils.setBitColor(g, circuitState.getValue(getComponent().getPort(Clock.PORT)), Color.WHITE);
+		GuiUtils.drawShape(g::fillRect, this);
 		g.setColor(Color.BLACK);
 		GuiUtils.drawShape(g::drawRect, this);
-		g.drawString(getComponent().toString(), getX() + 2, getY() + getHeight() / 2 + 5);
 	}
 }

@@ -44,10 +44,6 @@ public class Splitter extends Component {
 				totalFans = bitFanIdx;
 		}
 		
-		if(totalFans == 0) {
-			throw new IllegalArgumentException("Must have at least one bit going to a fanout.");
-		}
-		
 		int[] fanouts = new int[totalFans + 2];
 		fanouts[totalFans + 1] = bitFanIndices.length;
 		

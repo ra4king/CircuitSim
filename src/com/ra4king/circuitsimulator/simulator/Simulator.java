@@ -12,13 +12,15 @@ import com.ra4king.circuitsimulator.simulator.utils.Pair;
  */
 public class Simulator {
 	private Set<Circuit> circuits;
-	private List<Pair<Port, CircuitState>> linksToUpdate, temp;
+	private List<Pair<Port, CircuitState>> linksToUpdate, temp, shortCircuited;
+	private ShortCircuitException lastShortCircuit;
 	private final Set<List<Pair<Port, CircuitState>>> history;
 	
 	public Simulator() {
 		circuits = new HashSet<>();
 		linksToUpdate = new ArrayList<>();
 		temp = new ArrayList<>();
+		shortCircuited = new ArrayList<>();
 		history = new HashSet<>();
 	}
 	
@@ -35,8 +37,24 @@ public class Simulator {
 		linksToUpdate = temp;
 		temp = tmp;
 		
-		temp.forEach(pair -> pair.second.propagateSignal(pair.first));
-		temp.clear();
+		linksToUpdate.clear();
+		shortCircuited.clear();
+		
+		temp.forEach(pair -> {
+			try {
+				pair.second.propagateSignal(pair.first);
+			}
+			catch(ShortCircuitException exc) {
+				shortCircuited.add(pair);
+				lastShortCircuit = exc;
+			}
+		});
+		
+		if(shortCircuited.size() > 0 && linksToUpdate.size() == 0) {
+			throw lastShortCircuit;
+		} else {
+			linksToUpdate.addAll(shortCircuited);
+		}
 	}
 	
 	public synchronized void stepAll() {
@@ -46,9 +64,9 @@ public class Simulator {
 			history.add(new ArrayList<>(linksToUpdate));
 			step();
 			
-			if(history.contains(linksToUpdate)) {
-				throw new IllegalStateException("Oscillation apparent.");
-			}
+//			if(history.contains(linksToUpdate)) {
+//				throw new IllegalStateException("Oscillation apparent.");
+//			}
 		}
 		
 		history.clear();

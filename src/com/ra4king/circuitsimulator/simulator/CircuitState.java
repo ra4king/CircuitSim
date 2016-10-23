@@ -34,6 +34,10 @@ public class CircuitState {
 		componentProperties.put(component, property);
 	}
 	
+	public void removeComponentProperty(Component component) {
+		componentProperties.remove(component);
+	}
+	
 	public WireValue getValue(Port port) {
 		return getValue(port.getLink());
 	}
@@ -45,8 +49,13 @@ public class CircuitState {
 	public WireValue getCurrentValue(Port port) {
 		return getCurrentValue(port.getLink());
 	}
+	
 	public WireValue getCurrentValue(Link link) {
 		return get(link).getCurrentValue();
+	}
+	
+	public boolean isShortCircuited(Link link) {
+		return get(link).isShortCircuit();
 	}
 	
 	private LinkState get(Link link) {
@@ -125,9 +134,9 @@ public class CircuitState {
 		boolean isShortCircuit() {
 			try {
 				getCurrentValue();
-				return true;
-			} catch(Exception exc) {
 				return false;
+			} catch(Exception exc) {
+				return true;
 			}
 		}
 		
@@ -138,7 +147,7 @@ public class CircuitState {
 		void link(LinkState other) {
 			if(this == other) return;
 			
-			Utils.ensureCompatible(this, value, other.value);
+			Utils.ensureCompatible(link, value, other.value);
 			
 			WireValue newValue = new WireValue(value);
 			newValue.merge(other.value);
@@ -150,6 +159,7 @@ public class CircuitState {
 			}
 			
 			if(!newValue.equals(other.value)) {
+				other.value.set(newValue);
 				other.participantValues.keySet().stream()
 						.forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
 			}
@@ -163,6 +173,18 @@ public class CircuitState {
 			
 			WireValue value = participantValues.remove(port);
 			get(port.getLink()).participantValues.put(port, value);
+			get(port.getLink()).value.set(value);
+			
+			if(!this.value.equals(value)) {
+				port.component.valueChanged(CircuitState.this, value, port.portIndex);
+			}
+			
+			WireValue newValue = getCurrentValue();
+			if(!newValue.equals(this.value)) {
+				this.value.set(newValue);
+				participantValues.keySet().stream()
+						.forEach(port1 -> port1.component.valueChanged(CircuitState.this, newValue, port1.portIndex));
+			}
 		}
 	}
 }

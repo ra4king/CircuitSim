@@ -81,5 +81,9 @@ public abstract class Connection extends GuiElement {
 		public Link getLink() {
 			return ((Wire)getParent()).getLinkWires().getLink();
 		}
+		
+		public LinkWires getLinkWires() {
+			return ((Wire)getParent()).getLinkWires();
+		}
 	}
 }

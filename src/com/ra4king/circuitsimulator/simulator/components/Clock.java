@@ -29,11 +29,17 @@ public class Clock extends Component {
 		clocks.add(this);
 	}
 	
+	public static void tick() {
+		synchronized(timer) {
+			clock = !clock;
+		}
+	}
+	
 	public static void startClock(int hertz) {
 		timer.scheduleAtFixedRate(currentClock = new TimerTask() {
 			@Override
 			public void run() {
-				clock = !clock;
+				tick();
 				WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 				clocks.forEach(clock1 -> clock1.getCircuit().getCircuitStates().stream()
 						                         .forEach(state -> state.pushValue(clock1.getPort(PORT), clockValue)));
@@ -53,6 +59,13 @@ public class Clock extends Component {
 			currentClock.cancel();
 			currentClock = null;
 		}
+	}
+	
+	@Override
+	public void init(CircuitState circuitState) {
+		super.init(circuitState);
+		
+		circuitState.pushValue(getPort(PORT), WireValue.of(clock ? 1 : 0, 1));
 	}
 	
 	@Override

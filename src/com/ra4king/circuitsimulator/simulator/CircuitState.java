@@ -46,12 +46,16 @@ public class CircuitState {
 		return get(link).getLastPropagatedValue();
 	}
 	
-	public WireValue getCurrentValue(Port port) {
-		return getCurrentValue(port.getLink());
+	public WireValue getMergedValue(Port port) {
+		return getMergedValue(port.getLink());
 	}
 	
-	public WireValue getCurrentValue(Link link) {
-		return get(link).getCurrentValue();
+	public WireValue getMergedValue(Link link) {
+		return get(link).getMergedValue();
+	}
+	
+	public WireValue getLastPushedValue(Port port) {
+		return get(port.getLink()).getParticipantValues().get(port);
 	}
 	
 	public boolean isShortCircuited(Link link) {
@@ -83,7 +87,7 @@ public class CircuitState {
 	void propagateSignal(Port port) {
 		LinkState linkState = get(port.getLink());
 		
-		WireValue newValue = linkState.getCurrentValue();
+		WireValue newValue = linkState.getMergedValue();
 		if(!newValue.equals(linkState.value)) {
 			linkState.getLastPropagatedValue().set(newValue);
 			linkState.getParticipantValues().keySet().stream().filter(participantPort -> !participantPort.equals(port))
@@ -122,7 +126,7 @@ public class CircuitState {
 			return value;
 		}
 		
-		WireValue getCurrentValue() {
+		WireValue getMergedValue() {
 			WireValue newValue = new WireValue(link.getBitSize());
 			participantValues.entrySet().forEach(entry -> {
 				Utils.ensureCompatible(link, newValue, entry.getValue());
@@ -133,7 +137,7 @@ public class CircuitState {
 		
 		boolean isShortCircuit() {
 			try {
-				getCurrentValue();
+				getMergedValue();
 				return false;
 			} catch(Exception exc) {
 				return true;
@@ -147,21 +151,23 @@ public class CircuitState {
 		void link(LinkState other) {
 			if(this == other) return;
 			
-			Utils.ensureCompatible(link, value, other.value);
+			//Utils.ensureCompatible(link, value, other.value);
 			
-			WireValue newValue = new WireValue(value);
-			newValue.merge(other.value);
-			
-			if(!newValue.equals(value)) {
-				value.set(newValue);
-				participantValues.keySet().stream()
-						.forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
-			}
-			
-			if(!newValue.equals(other.value)) {
-				other.value.set(newValue);
-				other.participantValues.keySet().stream()
-						.forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
+			if(value.isCompatible(other.value)) {
+				WireValue newValue = new WireValue(value);
+				newValue.merge(other.value);
+				
+				if(!newValue.equals(value)) {
+					value.set(newValue);
+					participantValues.keySet().stream()
+							.forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
+				}
+				
+				if(!newValue.equals(other.value)) {
+					other.value.set(newValue);
+					other.participantValues.keySet().stream()
+							.forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
+				}
 			}
 			
 			participantValues.putAll(other.participantValues);
@@ -179,11 +185,13 @@ public class CircuitState {
 				port.component.valueChanged(CircuitState.this, value, port.portIndex);
 			}
 			
-			WireValue newValue = getCurrentValue();
-			if(!newValue.equals(this.value)) {
-				this.value.set(newValue);
-				participantValues.keySet().stream()
-						.forEach(port1 -> port1.component.valueChanged(CircuitState.this, newValue, port1.portIndex));
+			if(!isShortCircuit()) {
+				WireValue newValue = getMergedValue();
+				if(!newValue.equals(this.value)) {
+					this.value.set(newValue);
+					participantValues.keySet().stream()
+							.forEach(port1 -> port1.component.valueChanged(CircuitState.this, newValue, port1.portIndex));
+				}
 			}
 		}
 	}

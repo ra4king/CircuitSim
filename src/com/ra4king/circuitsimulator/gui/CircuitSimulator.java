@@ -186,7 +186,12 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 		
 		for(GuiElement selectedElement : selectedElements) {
 			g.setColor(Color.RED);
-			GuiUtils.drawShape(g2::drawRect, selectedElement);
+			if(selectedElement instanceof Wire) {
+				g.drawRect(selectedElement.getX() - 2, selectedElement.getY() - 2,
+						selectedElement.getWidth(), selectedElement.getHeight());
+			} else {
+				GuiUtils.drawShape(g2::drawRect, selectedElement);
+			}
 		}
 	}
 	
@@ -201,7 +206,7 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 	private ComponentPeer<?> createComponent(Circuit circuit, int x, int y) {
 		switch(componentMode) {
 			case 1:
-				return new GatePeer(circuit.addComponent(new AndGate("", bitSize, 2)), x, y);
+				return new GatePeer(circuit.addComponent(new AndGate("", 1, bitSize)), x, y);
 			case 2:
 				return new PinPeer(circuit.addComponent(new Pin("", bitSize, true)), x, y);
 			case 3:
@@ -245,7 +250,7 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 				if(selectedElements.size() == 1 && (selectedElem = selectedElements.iterator().next()) instanceof PinPeer) {
 					PinPeer selectedPin = (PinPeer)selectedElem;
 					WireValue currentValue = new WireValue(circuit.getTopLevelState()
-							                                      .getCurrentValue(selectedPin
+							                                      .getMergedValue(selectedPin
 									                                                       .getComponent()
 									                                                       .getPort(Pin.PORT)));
 					for(int i = currentValue.getBitSize() - 1; i > 0; i--) {
@@ -313,8 +318,8 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 							}
 						}
 					}
-					runSim();
 				}
+				runSim();
 			case KeyEvent.VK_ESCAPE:
 				componentMode = 0;
 				selectedElements.clear();
@@ -382,7 +387,11 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 		int y = GuiUtils.getNearestCoord(e.getY());
 		
 		if(startConnection != null) {
-			draggedPoint = new Point(e.getX(), e.getY());
+			if(draggedPoint != null) {
+				draggedPoint.setLocation(x, y);
+			} else {
+				draggedPoint = new Point(x, y);
+			}
 		} else if(potentialComponent != null) {
 			for(ComponentPeer<?> component : componentPeers) {
 				if(component.contains(x, y)) {
@@ -399,6 +408,15 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 						if(attached instanceof WireConnection) {
 							LinkWires linkWires = ((WireConnection)attached).getLinkWires();
 							linkWires.addPort((PortConnection)connection);
+						} else {
+							if(linkWiresMap.containsKey(attached.getLink())) {
+								handleConnection(connection, linkWiresMap.remove(attached.getLink()));
+							} else {
+								LinkWires linkWires = new LinkWires();
+								linkWires.addPort((PortConnection)connection);
+								linkWires.addPort((PortConnection)attached);
+								linkWiresMap.put(linkWires.getLink(), linkWires);
+							}
 						}
 					}
 				}
@@ -420,7 +438,7 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 				selectedElements.add(selectedElement);
 				if(selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
 					Pin pin = ((PinPeer)selectedElement).getComponent();
-					WireValue value = circuit.getTopLevelState().getValue(pin.getPort(Pin.PORT));
+					WireValue value = circuit.getTopLevelState().getLastPushedValue(pin.getPort(Pin.PORT));
 					if(value.getBitSize() == 1) {
 						pin.setValue(circuit.getTopLevelState(), new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
 					}
@@ -477,18 +495,18 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 			
 			if(endMidX - selectedMidX != 0 && endMidY - selectedMidY != 0) {
 				if(isDraggedHorizontally) {
-					link.addWire(link.new Wire(selectedMidX, selectedMidY, endMidX - selectedMidX, true));
-					link.addWire(link.new Wire(endMidX, selectedMidY, endMidY - selectedMidY, false));
+					link.addWire(new Wire(link, selectedMidX, selectedMidY, endMidX - selectedMidX, true));
+					link.addWire(new Wire(link, endMidX, selectedMidY, endMidY - selectedMidY, false));
 				} else {
-					link.addWire(link.new Wire(selectedMidX, selectedMidY, endMidY - selectedMidY, false));
-					link.addWire(link.new Wire(selectedMidX, endMidY, endMidX - selectedMidX, true));
+					link.addWire(new Wire(link, selectedMidX, selectedMidY, endMidY - selectedMidY, false));
+					link.addWire(new Wire(link, selectedMidX, endMidY, endMidX - selectedMidX, true));
 				}
 			}
-			else if(endMidX - selectedMidX != 0) {
-				link.addWire(link.new Wire(selectedMidX, selectedMidY, endMidX - selectedMidX, true));
+			else if(Math.abs(endMidX - selectedMidX) >= GuiUtils.BLOCK_SIZE) {
+				link.addWire(new Wire(link, selectedMidX, selectedMidY, endMidX - selectedMidX, true));
 			}
-			else if(endMidY - selectedMidY != 0) {
-				link.addWire(link.new Wire(endMidX, selectedMidY, endMidY - selectedMidY, false));
+			else if(Math.abs(endMidY - selectedMidY) >= GuiUtils.BLOCK_SIZE) {
+				link.addWire(new Wire(link, endMidX, selectedMidY, endMidY - selectedMidY, false));
 			} else {
 				createLink = false;
 			}
@@ -555,7 +573,7 @@ public class CircuitSimulator extends JComponent implements KeyListener, MouseLi
 			}
 			
 			draggedPoint.setLocation(GuiUtils.getNearestCoord(e.getX()), GuiUtils.getNearestCoord(e.getY()));
-			endConnection = findConnection(e.getX(), e.getY());
+			endConnection = findConnection(draggedPoint.x, draggedPoint.y);
 			repaint();
 		}
 	}

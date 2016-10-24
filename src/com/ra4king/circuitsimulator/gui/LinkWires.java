@@ -13,7 +13,6 @@ import java.util.Set;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
@@ -35,7 +34,11 @@ public class LinkWires {
 	}
 	
 	public void addWire(Wire wire) {
-		wires.add(wire.getLinkWires() != this ? new Wire(wire) : wire);
+		if(wire.getLinkWires() != this) {
+			wire.linkWires = this;
+		}
+		
+		wires.add(wire);
 	}
 	
 	public Set<Wire> getWires() {
@@ -166,17 +169,16 @@ public class LinkWires {
 		}
 	}
 	
-	public class Wire extends GuiElement {
+	public static class Wire extends GuiElement {
+		private LinkWires linkWires;
 		private int length;
 		private boolean horizontal;
 		private List<Connection> connections = new ArrayList<>();
 		
-		public Wire(Wire wire) {
-			this(wire.getX(), wire.getY(), wire.length, wire.horizontal);
-		}
-		
-		public Wire(int startX, int startY, int length, boolean horizontal) {
+		public Wire(LinkWires linkWires, int startX, int startY, int length, boolean horizontal) {
 			super(startX, startY, horizontal ? Math.abs(length) : 2, horizontal ? 2 : Math.abs(length));
+			
+			this.linkWires = linkWires;
 			
 			if(length == 0)
 				throw new IllegalArgumentException("Length cannot be 0");
@@ -205,7 +207,7 @@ public class LinkWires {
 		}
 		
 		public LinkWires getLinkWires() {
-			return LinkWires.this;
+			return linkWires;
 		}
 		
 		public int getLength() {
@@ -239,12 +241,13 @@ public class LinkWires {
 		@Override
 		public void paint(Graphics2D g, CircuitState circuitState) {
 			g.setStroke(new BasicStroke(2));
-			if(ports.size() > 0) {
-				Port port = ports.iterator().next().getPort();
-				if(circuitState.isShortCircuited(port.getLink())) {
+			Link link = linkWires.getLink();
+			if(link != null) {
+				if(circuitState.isShortCircuited(link)) {
 					g.setColor(Color.RED);
+				} else {
+					GuiUtils.setBitColor(g, circuitState.getValue(link));
 				}
-				GuiUtils.setBitColor(g, circuitState.getValue(port));
 			} else {
 				GuiUtils.setBitColor(g, new WireValue(1));
 			}

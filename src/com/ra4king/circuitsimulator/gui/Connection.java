@@ -1,5 +1,6 @@
 package com.ra4king.circuitsimulator.gui;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,12 @@ public abstract class Connection extends GuiElement {
 	
 	@Override
 	public void paint(Graphics2D g, CircuitState circuitState) {
-		GuiUtils.setBitColor(g, getLink() == null ? new WireValue(1) : circuitState.getValue(getLink()));
+		if(getLink() != null && circuitState.isShortCircuited(getLink())) {
+			g.setColor(Color.RED);
+		} else {
+			GuiUtils.setBitColor(g, getLink() == null ? new WireValue(1) : circuitState.getValue(getLink()));
+		}
+		
 		GuiUtils.drawShape(g::fillOval, this);
 	}
 	

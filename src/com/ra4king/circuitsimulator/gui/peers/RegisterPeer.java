@@ -19,7 +19,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public RegisterPeer(Register register, int x, int y) {
-		super(register, x, y, 3 * GuiUtils.BLOCK_SIZE, 4 * GuiUtils.BLOCK_SIZE);
+		super(register, x, y, 4 * GuiUtils.BLOCK_SIZE, 4 * GuiUtils.BLOCK_SIZE);
 		
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), 0, 2 * GuiUtils.BLOCK_SIZE));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_ENABLE), 0, 3 * GuiUtils.BLOCK_SIZE));

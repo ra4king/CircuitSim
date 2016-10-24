@@ -20,7 +20,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public PinPeer(Pin pin, int x, int y) {
-		super(pin, x, y, Math.max(GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE * pin.getBitSize() - 2 * pin.getBitSize() / GuiUtils.BLOCK_SIZE), GuiUtils.BLOCK_SIZE * 2);
+		super(pin, x, y, Math.max(2 * GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE * pin.getBitSize()), GuiUtils.BLOCK_SIZE * 2);
 		
 		connections.add(new PortConnection(this, pin.getPort(0), isInput() ? getWidth() : 0, GuiUtils.BLOCK_SIZE));
 	}
@@ -36,8 +36,13 @@ public class PinPeer extends ComponentPeer<Pin> {
 	
 	@Override
 	public void paint(Graphics2D g, CircuitState circuitState) {
-		WireValue value = circuitState.getValue(getComponent().getPort(0));
-		GuiUtils.setBitColor(g, value, Color.WHITE);
+		WireValue value = isInput() ? circuitState.getLastPushedValue(getComponent().getPort(0)) :
+								  circuitState.getValue(getComponent().getPort(0));
+		if(circuitState.isShortCircuited(getComponent().getPort(0).getLink())) {
+			g.setColor(Color.RED);
+		} else {
+			GuiUtils.setBitColor(g, value, Color.WHITE);
+		}
 		GuiUtils.drawShape(isInput() ? g::fillRect : g::fillOval, this);
 		
 		g.setColor(value.getBitSize() > 1 ? Color.BLACK : Color.WHITE);

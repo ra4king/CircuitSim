@@ -12,7 +12,7 @@ public class GuiUtils {
 	public static final int BLOCK_SIZE = 10;
 	
 	public static int getNearestCoord(int a) {
-		return GuiUtils.BLOCK_SIZE * (a / GuiUtils.BLOCK_SIZE);
+		return BLOCK_SIZE * ((a + BLOCK_SIZE / 2) / BLOCK_SIZE);
 	}
 	
 	public interface Drawable {

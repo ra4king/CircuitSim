@@ -1,7 +1,5 @@
 package com.ra4king.circuitsimulator.gui.peers;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +8,11 @@ import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
+import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
@@ -29,10 +31,15 @@ public class ClockPeer extends ComponentPeer<Clock> {
 	}
 	
 	@Override
-	public void paint(Graphics2D g, CircuitState circuitState) {
-		GuiUtils.setBitColor(g, circuitState.getValue(getComponent().getPort(Clock.PORT)), Color.WHITE);
-		GuiUtils.drawShape(g::fillRect, this);
-		g.setColor(Color.BLACK);
-		GuiUtils.drawShape(g::drawRect, this);
+	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		Port port = getComponent().getPort(Clock.PORT);
+		if(circuitState.isShortCircuited(port.getLink())) {
+			graphics.setFill(Color.RED);
+		} else {
+			GuiUtils.setBitColor(graphics, circuitState.getValue(port), Color.WHITE);
+		}
+		GuiUtils.drawShape(graphics::fillRect, this);
+		graphics.setStroke(Color.BLACK);
+		GuiUtils.drawShape(graphics::strokeRect, this);
 	}
 }

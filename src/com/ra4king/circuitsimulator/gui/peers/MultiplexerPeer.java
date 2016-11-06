@@ -8,7 +8,7 @@ import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.ControlledBuffer;
+import com.ra4king.circuitsimulator.simulator.components.Multiplexer;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -16,15 +16,18 @@ import javafx.scene.paint.Color;
 /**
  * @author Roi Atalla
  */
-public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
+public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 	private List<Connection> connections = new ArrayList<>();
 	
-	public ControlledBufferPeer(ControlledBuffer buffer, int x, int y) {
-		super(buffer, x, y, GuiUtils.BLOCK_SIZE * 2, GuiUtils.BLOCK_SIZE * 2);
+	public MultiplexerPeer(Multiplexer mux, int x, int y) {
+		super(mux, x, y, 2 * GuiUtils.BLOCK_SIZE, (mux.NUM_IN_PORTS + 1) * GuiUtils.BLOCK_SIZE);
 		
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), GuiUtils.BLOCK_SIZE, 0));
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_ENABLE), 0, GuiUtils.BLOCK_SIZE));
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT), GuiUtils.BLOCK_SIZE, getHeight()));
+		for(int i = 0; i < mux.NUM_IN_PORTS; i++) {
+			connections.add(new PortConnection(this, mux.getPort(i), 0, (i + 1) * GuiUtils.BLOCK_SIZE));
+		}
+		
+		connections.add(new PortConnection(this, mux.getPort(mux.PORT_SEL), GuiUtils.BLOCK_SIZE, getHeight()));
+		connections.add(new PortConnection(this, mux.getPort(mux.PORT_OUT), 2 * GuiUtils.BLOCK_SIZE, ((mux.NUM_IN_PORTS + 1) / 2) * GuiUtils.BLOCK_SIZE));
 	}
 	
 	@Override
@@ -36,7 +39,10 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);
+		
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
+		
+		graphics.strokeText(getComponent().toString(), getX() + 2, getY() + getHeight() / 2 + 5);
 	}
 }

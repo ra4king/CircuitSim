@@ -1,7 +1,5 @@
 package com.ra4king.circuitsimulator.gui.peers;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +8,12 @@ import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
+import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
@@ -20,7 +22,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public PinPeer(Pin pin, int x, int y) {
-		super(pin, x, y, Math.max(2 * GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE * pin.getBitSize()), GuiUtils.BLOCK_SIZE * 2);
+		super(pin, x, y, GuiUtils.BLOCK_SIZE * Math.max(2, Math.min(8, pin.getBitSize())), GuiUtils.BLOCK_SIZE * (2 + 7 * ((pin.getBitSize() - 1) / 8) / 4));
 		
 		connections.add(new PortConnection(this, pin.getPort(0), isInput() ? getWidth() : 0, GuiUtils.BLOCK_SIZE));
 	}
@@ -35,20 +37,25 @@ public class PinPeer extends ComponentPeer<Pin> {
 	}
 	
 	@Override
-	public void paint(Graphics2D g, CircuitState circuitState) {
-		WireValue value = isInput() ? circuitState.getLastPushedValue(getComponent().getPort(0)) :
-								  circuitState.getValue(getComponent().getPort(0));
-		if(circuitState.isShortCircuited(getComponent().getPort(0).getLink())) {
-			g.setColor(Color.RED);
+	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		Port port = getComponent().getPort(Pin.PORT);
+		WireValue value = isInput() ? circuitState.getLastPushedValue(port): circuitState.getValue(port);
+		if(circuitState.isShortCircuited(port.getLink())) {
+			graphics.setFill(Color.RED);
 		} else {
-			GuiUtils.setBitColor(g, value, Color.WHITE);
+			GuiUtils.setBitColor(graphics, value, Color.WHITE);
 		}
-		GuiUtils.drawShape(isInput() ? g::fillRect : g::fillOval, this);
+		GuiUtils.drawShape(isInput() ? graphics::fillRect : graphics::fillOval, this);
+		graphics.setStroke(Color.BLACK);
+		GuiUtils.drawShape(isInput() ? graphics::strokeRect : graphics::strokeOval, this);
 		
-		g.setColor(value.getBitSize() > 1 ? Color.BLACK : Color.WHITE);
-		g.drawString(value.toString(), getX() + 2, getY() + getHeight() - 5);
+		graphics.setStroke(value.getBitSize() > 1 ? Color.BLACK : Color.WHITE);
 		
-		g.setColor(Color.BLACK);
-		GuiUtils.drawShape(isInput() ? g::drawRect : g::drawOval, this);
+		String string = value.toString();
+		for(int i = 0, row = 1; i < string.length(); row++) {
+			String sub = string.substring(i, i + Math.min(8, string.length() - i));
+			i += sub.length();
+			graphics.strokeText(sub, getX() + 2, getY() + 14 * row);
+		}
 	}
 }

@@ -1,9 +1,9 @@
 package com.ra4king.circuitsimulator.gui;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-
 import com.ra4king.circuitsimulator.simulator.WireValue;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
@@ -11,8 +11,8 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
 public class GuiUtils {
 	public static final int BLOCK_SIZE = 10;
 	
-	public static int getNearestCoord(int a) {
-		return BLOCK_SIZE * ((a + BLOCK_SIZE / 2) / BLOCK_SIZE);
+	public static int getNearestCoord(double a) {
+		return BLOCK_SIZE * (((int)Math.round(a) + BLOCK_SIZE / 2) / BLOCK_SIZE);
 	}
 	
 	public interface Drawable {
@@ -23,25 +23,29 @@ public class GuiUtils {
 		drawable.draw(element.getX(), element.getY(), element.getWidth(), element.getHeight());
 	}
 	
-	public static void setBitColor(Graphics2D g, WireValue value) {
-		setBitColor(g, value, Color.BLACK);
+	public static void setBitColor(GraphicsContext graphics, WireValue value) {
+		setBitColor(graphics, value, Color.BLACK);
 	}
 	
-	public static void setBitColor(Graphics2D g, WireValue value, Color defaultColor) {
+	public static void setBitColor(GraphicsContext graphics, WireValue value, Color defaultColor) {
 		if(value.getBitSize() == 1) {
 			switch(value.getBit(0)) {
 				case ONE:
-					g.setColor(Color.GREEN);
+					graphics.setStroke(Color.GREEN.brighter());
+					graphics.setFill(Color.GREEN.brighter());
 					break;
 				case ZERO:
-					g.setColor(Color.GREEN.darker().darker());
+					graphics.setStroke(Color.GREEN.darker());
+					graphics.setFill(Color.GREEN.darker());
 					break;
 				case X:
-					g.setColor(Color.BLUE.brighter().brighter());
+					graphics.setStroke(Color.BLUE.brighter());
+					graphics.setFill(Color.BLUE.brighter());
 					break;
 			}
 		} else {
-			g.setColor(defaultColor);
+			graphics.setStroke(defaultColor);
+			graphics.setFill(defaultColor);
 		}
 	}
 }

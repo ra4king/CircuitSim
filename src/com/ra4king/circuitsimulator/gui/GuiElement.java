@@ -1,9 +1,10 @@
 package com.ra4king.circuitsimulator.gui;
 
-import java.awt.Graphics2D;
 import java.util.List;
 
 import com.ra4king.circuitsimulator.simulator.CircuitState;
+
+import javafx.scene.canvas.GraphicsContext;
 
 /**
  * @author Roi Atalla
@@ -55,6 +56,26 @@ public abstract class GuiElement {
 		return x >= getX() && x < getX() + getWidth() && y >= getY() && y < getY() + getHeight();
 	}
 	
+	public boolean contains(GuiElement element) {
+		return contains(element.getX(), element.getY(), element.getWidth(), element.getHeight());
+	}
+	
+	public boolean contains(int x, int y, int width, int height) {
+		return x >= getX() && x + width <= getX() + getWidth() && y >= getY() && y + height <= getY() + getHeight();
+	}
+	
+	public boolean isContainedIn(GuiElement element) {
+		return isContainedIn(element.getX(), element.getY(), element.getWidth(), element.getHeight());
+	}
+	
+	public boolean isContainedIn(int x, int y, int width, int height) {
+		return getX() >= x && getX() + getWidth() <= x + width && getY() >= y && getY() + getHeight() <= y + height;
+	}
+	
+	public boolean intersects(GuiElement element) {
+		return intersects(element.getX(), element.getY(), element.getWidth(), element.getHeight());
+	}
+	
 	public boolean intersects(int x, int y, int width, int height) {
 		return !(x >= getX() + getWidth() ||
 				         getX() >= x + width ||
@@ -64,5 +85,5 @@ public abstract class GuiElement {
 	
 	public abstract List<Connection> getConnections();
 	
-	public abstract void paint(Graphics2D g, CircuitState circuitState);
+	public abstract void paint(GraphicsContext graphics, CircuitState circuitState);
 }

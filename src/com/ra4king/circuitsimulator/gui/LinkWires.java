@@ -1,8 +1,5 @@
 package com.ra4king.circuitsimulator.gui;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,6 +14,9 @@ import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
 /**
  * @author Roi Atalla
  */
@@ -24,9 +24,21 @@ public class LinkWires {
 	private Set<PortConnection> ports;
 	private Set<Wire> wires;
 	
+	private Set<PortConnection> badPorts;
+	
 	public LinkWires() {
 		ports = new HashSet<>();
 		wires = new HashSet<>();
+		
+		badPorts = new HashSet<>();
+	}
+	
+	public boolean isLinkGood() {
+		return badPorts.size() == 0;
+	}
+	
+	public boolean isEmpty() {
+		return ports.size() == 0 && wires.size() == 0 && badPorts.size() == 0;
 	}
 	
 	public Link getLink() {
@@ -34,10 +46,7 @@ public class LinkWires {
 	}
 	
 	public void addWire(Wire wire) {
-		if(wire.getLinkWires() != this) {
-			wire.linkWires = this;
-		}
-		
+		wire.setLinkWires(this);
 		wires.add(wire);
 	}
 	
@@ -72,6 +81,14 @@ public class LinkWires {
 			attachedConnections.first.forEach(linkWires::addWire);
 			attachedConnections.second.forEach(linkWires::addPort);
 			newLinkWires.add(linkWires);
+		}
+		
+		while(ports.size() != 0) {
+			removePort(ports.iterator().next());
+		}
+		
+		while(badPorts.size() != 0) {
+			removePort(badPorts.iterator().next());
 		}
 		
 		return newLinkWires;
@@ -119,26 +136,35 @@ public class LinkWires {
 			attachedPorts.addAll(attachedConnections.second);
 		}
 		
-		for(Iterator<PortConnection> iter = ports.iterator(); iter.hasNext();) {
-			PortConnection port = iter.next();
-			
+		Set<PortConnection> allPorts = new HashSet<>();
+		allPorts.addAll(ports);
+		allPorts.addAll(badPorts);
+		allPorts.forEach(port -> {
 			for(Connection c : wire.getConnections()) {
 				if(port.getX() == c.getX() && port.getY() == c.getY()) {
 					attachedPorts.add(port);
-					iter.remove();
+					removePort(port);
 					break;
 				}
 			}
-		}
+		});
 		
 		return new Pair<>(attachedWires, attachedPorts);
 	}
 	
 	public void addPort(PortConnection port) {
+		port.setLinkWires(this);
+		
 		if(ports.size() > 0) {
 			Link link = getLink();
 			if(port.getLink() != link) {
-				link.linkPort(port.getPort());
+				try {
+					link.linkPort(port.getPort());
+				} catch(Exception exc) {
+					exc.printStackTrace();
+					badPorts.add(port);
+					return;
+				}
 			}
 		}
 		
@@ -149,23 +175,34 @@ public class LinkWires {
 		return ports;
 	}
 	
+	public Set<PortConnection> getBadPorts() {
+		return badPorts;
+	}
+	
 	public void removePort(PortConnection port) {
-		if(!ports.contains(port))
+		if(!ports.contains(port)) {
+			if(badPorts.remove(port)) {
+				port.setLinkWires(null);
+			}
+			
 			return;
+		}
 		
 		getLink().unlinkPort(port.getPort());
 		ports.remove(port);
+		port.setLinkWires(null);
 	}
 	
 	public LinkWires merge(LinkWires other) {
 		other.ports.forEach(this::addPort);
+		other.badPorts.forEach(this::addPort);
 		other.wires.forEach(this::addWire);
 		return this;
 	}
 	
-	public void paint(Graphics2D g, CircuitState circuitState) {
+	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		for(Wire wire : wires) {
-			wire.paint(g, circuitState);
+			wire.paint(graphics, circuitState);
 		}
 	}
 	
@@ -210,6 +247,14 @@ public class LinkWires {
 			return linkWires;
 		}
 		
+		public void setLinkWires(LinkWires linkWires) {
+			this.linkWires = linkWires;
+			
+			for(Connection connection : connections) {
+				connection.setLinkWires(linkWires);
+			}
+		}
+		
 		public int getLength() {
 			return length;
 		}
@@ -239,19 +284,23 @@ public class LinkWires {
 		}
 		
 		@Override
-		public void paint(Graphics2D g, CircuitState circuitState) {
-			g.setStroke(new BasicStroke(2));
-			Link link = linkWires.getLink();
-			if(link != null) {
-				if(circuitState.isShortCircuited(link)) {
-					g.setColor(Color.RED);
+		public void paint(GraphicsContext graphics, CircuitState circuitState) {
+			graphics.setLineWidth(2);
+			if(linkWires.isLinkGood()) {
+				Link link = linkWires.getLink();
+				if(link != null) {
+					if(circuitState.isShortCircuited(link)) {
+						graphics.setStroke(Color.RED);
+					} else {
+						GuiUtils.setBitColor(graphics, circuitState.getValue(link));
+					}
 				} else {
-					GuiUtils.setBitColor(g, circuitState.getValue(link));
+					GuiUtils.setBitColor(graphics, new WireValue(1));
 				}
 			} else {
-				GuiUtils.setBitColor(g, new WireValue(1));
+				graphics.setStroke(Color.ORANGE);
 			}
-			g.drawLine(getX(), getY(), horizontal ? getX() + length : getX(), horizontal ? getY() : getY() + length);
+			graphics.strokeLine(getX(), getY(), horizontal ? getX() + length : getX(), horizontal ? getY() : getY() + length);
 		}
 	}
 }

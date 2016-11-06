@@ -1,8 +1,5 @@
 package com.ra4king.circuitsimulator.gui.peers;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +9,9 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Splitter;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
@@ -29,15 +29,15 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 	}
 	
 	@Override
-	public void paint(Graphics2D g, CircuitState circuitState) {
-		g.setStroke(new BasicStroke(2));
-		g.setColor(Color.BLACK);
-		g.drawLine(getX(), getY(), getX() + GuiUtils.BLOCK_SIZE, getY() + getHeight());
-		g.drawLine(getX() + GuiUtils.BLOCK_SIZE, getY() + getHeight(), getX() + getWidth(), getY() + getHeight());
+	public List<Connection> getConnections() {
+		return connections;
 	}
 	
 	@Override
-	public List<Connection> getConnections() {
-		return connections;
+	public void paint(GraphicsContext g, CircuitState circuitState) {
+		g.setLineWidth(2);
+		g.setStroke(Color.BLACK);
+		g.strokeLine(getX(), getY(), getX() + GuiUtils.BLOCK_SIZE, getY() + getHeight());
+		g.strokeLine(getX() + GuiUtils.BLOCK_SIZE, getY() + getHeight(), getX() + getWidth(), getY() + getHeight());
 	}
 }

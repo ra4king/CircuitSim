@@ -1,7 +1,5 @@
 package com.ra4king.circuitsimulator.gui;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,19 +9,31 @@ import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
 /**
  * @author Roi Atalla
  */
 public abstract class Connection extends GuiElement {
 	private GuiElement parent;
+	private LinkWires linkWires;
 	
 	public Connection(GuiElement parent, int x, int y) {
-		super(x, y, 6, 6);
+		super(GuiUtils.getNearestCoord(x), GuiUtils.getNearestCoord(y), 6, 6);
 		this.parent = parent;
 	}
 	
 	public GuiElement getParent() {
 		return parent;
+	}
+	
+	public LinkWires getLinkWires() {
+		return linkWires;
+	}
+	
+	public void setLinkWires(LinkWires linkWires) {
+		this.linkWires = linkWires;
 	}
 	
 	public int getX() {
@@ -50,14 +60,16 @@ public abstract class Connection extends GuiElement {
 	}
 	
 	@Override
-	public void paint(Graphics2D g, CircuitState circuitState) {
-		if(getLink() != null && circuitState.isShortCircuited(getLink())) {
-			g.setColor(Color.RED);
+	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		if(getLinkWires() != null && !getLinkWires().isLinkGood()) {
+			graphics.setFill(Color.ORANGE);
+		} else if(getLink() != null && circuitState.isShortCircuited(getLink())) {
+			graphics.setFill(Color.RED);
 		} else {
-			GuiUtils.setBitColor(g, getLink() == null ? new WireValue(1) : circuitState.getValue(getLink()));
+			GuiUtils.setBitColor(graphics, getLink() == null ? new WireValue(1) : circuitState.getValue(getLink()));
 		}
 		
-		GuiUtils.drawShape(g::fillOval, this);
+		GuiUtils.drawShape(graphics::fillOval, this);
 	}
 	
 	public static class PortConnection extends Connection {
@@ -81,15 +93,12 @@ public abstract class Connection extends GuiElement {
 	public static class WireConnection extends Connection {
 		public WireConnection(Wire parent, int x, int y) {
 			super(parent, x, y);
+			setLinkWires(parent.getLinkWires());
 		}
 		
 		@Override
 		public Link getLink() {
 			return ((Wire)getParent()).getLinkWires().getLink();
-		}
-		
-		public LinkWires getLinkWires() {
-			return ((Wire)getParent()).getLinkWires();
 		}
 	}
 }

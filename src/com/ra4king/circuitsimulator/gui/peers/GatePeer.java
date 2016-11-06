@@ -1,7 +1,5 @@
 package com.ra4king.circuitsimulator.gui.peers;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +9,9 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
@@ -36,9 +37,13 @@ public class GatePeer extends ComponentPeer<Gate> {
 	}
 	
 	@Override
-	public void paint(Graphics2D g, CircuitState circuitState) {
-		g.setColor(Color.BLACK);
-		GuiUtils.drawShape(g::drawRect, this);
-		g.drawString(getComponent().toString(), getX() + 2, getY() + getHeight() / 2 + 5);
+	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		graphics.setFill(Color.WHITE);
+		GuiUtils.drawShape(graphics::fillRect, this);
+		
+		graphics.setStroke(Color.BLACK);
+		GuiUtils.drawShape(graphics::strokeRect, this);
+		
+		graphics.strokeText(getComponent().toString(), getX() + 3, getY() + getHeight() / 2 + 5);
 	}
 }

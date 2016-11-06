@@ -16,4 +16,9 @@ public abstract class ComponentPeer<C extends Component> extends GuiElement {
 	public C getComponent() {
 		return component;
 	}
+	
+	@Override
+	public String toString() {
+		return getComponent().toString();
+	}
 }

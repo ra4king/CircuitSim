@@ -1,7 +1,5 @@
 package com.ra4king.circuitsimulator.gui.peers;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +9,9 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Adder;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
@@ -34,12 +35,12 @@ public class AdderPeer extends ComponentPeer<Adder> {
 	}
 	
 	@Override
-	public void paint(Graphics2D g, CircuitState circuitState) {
-		g.setColor(Color.WHITE);
-		GuiUtils.drawShape(g::fillRect, this);
-		g.setColor(Color.BLACK);
-		GuiUtils.drawShape(g::drawRect, this);
+	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		graphics.setFill(Color.WHITE);
+		graphics.setStroke(Color.BLACK);
+		GuiUtils.drawShape(graphics::fillRect, this);
+		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		g.drawString("+", getX() + getWidth() / 2 - 2, getY() + getHeight() / 2 + 2);
+		graphics.strokeText("+", getX() + getWidth() / 2 - 2, getY() + getHeight() / 2 + 2);
 	}
 }

@@ -1,6 +1,8 @@
 package com.ra4king.circuitsimulator.simulator;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -12,6 +14,8 @@ public class Circuit {
 	private Set<Component> components;
 	private Set<CircuitState> states;
 	private CircuitState topLevelState;
+	
+	private List<CircuitChangeListener> listeners = new ArrayList<>();
 	
 	public Circuit(Simulator simulator) {
 		this.simulator = simulator;
@@ -32,12 +36,15 @@ public class Circuit {
 		
 		states.forEach(component::init);
 		
+		listeners.forEach(listener -> listener.circuitChanged(this));
+		
 		return component;
 	}
 	
 	public void removeComponent(Component component) {
 		components.remove(component);
 		states.forEach(state -> state.removeComponentProperty(component));
+		listeners.forEach(listener -> listener.circuitChanged(this));
 	}
 	
 	public Set<Component> getComponents() {
@@ -54,5 +61,17 @@ public class Circuit {
 	
 	public Set<CircuitState> getCircuitStates() {
 		return states; 
+	}
+	
+	public void addListener(CircuitChangeListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeListener(CircuitChangeListener listener) {
+		listeners.remove(listener);
+	}
+	
+	public interface CircuitChangeListener {
+		void circuitChanged(Circuit circuit);
 	}
 }

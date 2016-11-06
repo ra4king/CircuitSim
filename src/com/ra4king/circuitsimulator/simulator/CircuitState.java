@@ -104,7 +104,7 @@ public class CircuitState {
 		boolean changed = !value.equals(currentValue);
 		currentValue.set(value);
 		if(changed) {
-			circuit.getSimulator().valueChanged(port, this);
+			circuit.getSimulator().valueChanged(this, port);
 		}
 	}
 	
@@ -139,8 +139,10 @@ public class CircuitState {
 			try {
 				getMergedValue();
 				return false;
-			} catch(Exception exc) {
+			} catch(ShortCircuitException exc) {
 				return true;
+			} catch(Throwable t) {
+				return false;
 			}
 		}
 		

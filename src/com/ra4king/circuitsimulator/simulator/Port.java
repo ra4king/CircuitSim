@@ -94,6 +94,9 @@ public class Port {
 			if(port.getLink().circuit != circuit)
 				throw new IllegalArgumentException("Links belong to different circuits.");
 			
+			if(port.getLink().bitSize != bitSize)
+				throw new IllegalArgumentException("Links have different bit sizes.");
+			
 			circuit.getCircuitStates().forEach(state -> state.link(this, port.link));
 			
 			Set<Port> portParticipants = port.link.participants;

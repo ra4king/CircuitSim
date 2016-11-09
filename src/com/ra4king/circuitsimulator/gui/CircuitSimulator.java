@@ -10,6 +10,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ComboBox;
@@ -33,6 +34,8 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private Simulator simulator;
+
+	private GridPane panelButtons;
 	
 	private ComboBox<Integer> bitSizeSelect, secondaryOptionSelect;
 	
@@ -71,8 +74,10 @@ public class CircuitSimulator extends Application {
 		button.addEventHandler(ActionEvent.ACTION, (e) -> {
 			if(componentMode != componentId) {
 				componentMode = componentId;
-				modifiedSelection();
+			} else {
+				componentMode = 0;
 			}
+			modifiedSelection();
 		});
 		return button;
 	}
@@ -82,6 +87,7 @@ public class CircuitSimulator extends Application {
 		final int buttonSize = 75;
 		
 		GridPane buttons = new GridPane();
+		panelButtons = buttons;
 		buttons.setAlignment(Pos.BASELINE_CENTER);
 		
 		ToggleGroup group = new ToggleGroup();
@@ -135,7 +141,7 @@ public class CircuitSimulator extends Application {
 		
 		HBox hBox = new HBox(buttons, canvasTabPane);
 		Scene scene = new Scene(hBox);
-		
+
 		for(int i = 0; i < 3; i++) {
 			Canvas canvas = new Canvas(800, 600) {
 				{
@@ -239,6 +245,11 @@ public class CircuitSimulator extends Application {
 				break;
 			case ESCAPE:
 				componentMode = 0;
+				for(Node n : panelButtons.getChildren()) {
+					if(n instanceof ToggleButton) {
+						((ToggleButton) n).setSelected(false);
+					}
+				}
 				modifiedSelection();
 				break;
 		}

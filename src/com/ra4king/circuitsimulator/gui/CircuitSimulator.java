@@ -71,8 +71,10 @@ public class CircuitSimulator extends Application {
 		button.addEventHandler(ActionEvent.ACTION, (e) -> {
 			if(componentMode != componentId) {
 				componentMode = componentId;
-				modifiedSelection();
+			} else {
+				componentMode = 0;
 			}
+			modifiedSelection();
 		});
 		return button;
 	}

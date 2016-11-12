@@ -22,9 +22,9 @@ public class PinPeer extends ComponentPeer<Pin> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public PinPeer(Pin pin, int x, int y) {
-		super(pin, x, y, GuiUtils.BLOCK_SIZE * Math.max(2, Math.min(8, pin.getBitSize())), GuiUtils.BLOCK_SIZE * (2 + 7 * ((pin.getBitSize() - 1) / 8) / 4));
+		super(pin, x, y, Math.max(2, Math.min(8, pin.getBitSize())), 2 + 7 * ((pin.getBitSize() - 1) / 8) / 4);
 		
-		connections.add(new PortConnection(this, pin.getPort(0), isInput() ? getWidth() : 0, GuiUtils.BLOCK_SIZE));
+		connections.add(new PortConnection(this, pin.getPort(0), isInput() ? getWidth() : 0, 1));
 	}
 	
 	public boolean isInput() {
@@ -51,8 +51,8 @@ public class PinPeer extends ComponentPeer<Pin> {
 			GuiUtils.drawShape(graphics::fillRect, this);
 			GuiUtils.drawShape(graphics::strokeRect, this);
 		} else {
-			graphics.fillRoundRect(getX(), getY(), getWidth(), getHeight(), 20, 20);
-			graphics.strokeRoundRect(getX(), getY(), getWidth(), getHeight(), 20, 20);
+			graphics.fillRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 20, 20);
+			graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 20, 20);
 		}
 		
 		graphics.setStroke(value.getBitSize() > 1 ? Color.BLACK : Color.WHITE);
@@ -61,7 +61,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		for(int i = 0, row = 1; i < string.length(); row++) {
 			String sub = string.substring(i, i + Math.min(8, string.length() - i));
 			i += sub.length();
-			graphics.strokeText(sub, getX() + 2, getY() + 14 * row);
+			graphics.strokeText(sub, getScreenX() + 2, getScreenY() + 14 * row);
 		}
 	}
 }

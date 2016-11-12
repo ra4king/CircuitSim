@@ -52,6 +52,26 @@ public abstract class GuiElement {
 		this.height = height;
 	}
 	
+	public int getScreenX() {
+		return getX() * GuiUtils.BLOCK_SIZE;
+	}
+	
+	public int getScreenY() {
+		return getY() * GuiUtils.BLOCK_SIZE;
+	}
+	
+	public int getScreenWidth() {
+		return getWidth() * GuiUtils.BLOCK_SIZE;
+	}
+	
+	public int getScreenHeight() {
+		return getHeight() * GuiUtils.BLOCK_SIZE;
+	}
+	
+	public boolean containsScreenCoord(int x, int y) {
+		return contains(x / GuiUtils.BLOCK_SIZE, y / GuiUtils.BLOCK_SIZE);
+	}
+	
 	public boolean contains(int x, int y) {
 		return x >= getX() && x < getX() + getWidth() && y >= getY() && y < getY() + getHeight();
 	}
@@ -68,12 +88,24 @@ public abstract class GuiElement {
 		return isContainedIn(element.getX(), element.getY(), element.getWidth(), element.getHeight());
 	}
 	
+	public boolean isContainedInScreenCoord(int x, int y, int width, int height) {
+		return getScreenX() >= x && getScreenX() + getScreenWidth() <= x + width &&
+				       getScreenY() >= y && getScreenY() + getScreenHeight() <= y + height;
+	}
+	
 	public boolean isContainedIn(int x, int y, int width, int height) {
 		return getX() >= x && getX() + getWidth() <= x + width && getY() >= y && getY() + getHeight() <= y + height;
 	}
 	
 	public boolean intersects(GuiElement element) {
 		return intersects(element.getX(), element.getY(), element.getWidth(), element.getHeight());
+	}
+	
+	public boolean intersectsScreenCoord(int x, int y, int width, int height) {
+		return !(x >= getScreenX() + getScreenWidth() ||
+				         getScreenX() >= x + width ||
+				         y >= getScreenY() + getScreenHeight() ||
+				         getScreenY() >= y + height);
 	}
 	
 	public boolean intersects(int x, int y, int width, int height) {

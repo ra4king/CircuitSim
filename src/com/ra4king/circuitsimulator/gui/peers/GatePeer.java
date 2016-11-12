@@ -20,15 +20,15 @@ public class GatePeer extends ComponentPeer<Gate> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public GatePeer(Gate gate, int x, int y) {
-		super(gate, x, y, 3 * GuiUtils.BLOCK_SIZE, 2 * ((gate.getNumPorts() + 1) / 2) * GuiUtils.BLOCK_SIZE);
+		super(gate, x, y, 3, 2 * ((gate.getNumPorts() + 1) / 2));
 		
 		int gates = gate.getNumPorts() - 1;
 		for(int i = 0; i < gates; i++) {
 			int add = (gates % 2 == 0 && i >= gates / 2) ? 2 : 1;
-			connections.add(new PortConnection(this, gate.getPort(i), 0, (i + add) * GuiUtils.BLOCK_SIZE));
+			connections.add(new PortConnection(this, gate.getPort(i), 0, i + add));
 		}
 		
-		connections.add(new PortConnection(this, gate.getPort(gates), getWidth(), (gates / 2 + 1) * GuiUtils.BLOCK_SIZE));
+		connections.add(new PortConnection(this, gate.getPort(gates), getWidth(), gates / 2 + 1));
 	}
 	
 	@Override
@@ -44,6 +44,6 @@ public class GatePeer extends ComponentPeer<Gate> {
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.strokeText(getComponent().toString(), getX() + 3, getY() + getHeight() / 2 + 5);
+		graphics.strokeText(getComponent().toString(), getScreenX() + 3, getScreenY() + getScreenHeight() / 2 + 5);
 	}
 }

@@ -21,8 +21,8 @@ public class ClockPeer extends ComponentPeer<Clock> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public ClockPeer(Clock clock, int x, int y) {
-		super(clock, x, y, 2 * GuiUtils.BLOCK_SIZE, 2 * GuiUtils.BLOCK_SIZE);
-		connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth(), GuiUtils.BLOCK_SIZE));
+		super(clock, x, y, 2, 2);
+		connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth(), getHeight() / 2));
 	}
 	
 	@Override

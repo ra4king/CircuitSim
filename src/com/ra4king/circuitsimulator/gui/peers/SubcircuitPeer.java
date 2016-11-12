@@ -20,11 +20,11 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public SubcircuitPeer(Subcircuit subcircuit, int x, int y) {
-		super(subcircuit, x, y, 2 * GuiUtils.BLOCK_SIZE, subcircuit.getNumPorts() / 2 * GuiUtils.BLOCK_SIZE);
+		super(subcircuit, x, y, 2, subcircuit.getNumPorts() / 2);
 		
 		for(int i = 0; i < subcircuit.getNumPorts(); i++) {
 			int connX = i < subcircuit.getNumPorts() / 2 ? 0 : getWidth();
-			int connY = (1 + (i % (subcircuit.getNumPorts() / 2))) * GuiUtils.BLOCK_SIZE;
+			int connY = 1 + (i % (subcircuit.getNumPorts() / 2));
 			connections.add(new PortConnection(this, subcircuit.getPort(i), connX, connY));
 		}
 	}

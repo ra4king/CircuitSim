@@ -20,7 +20,7 @@ public abstract class Connection extends GuiElement {
 	private LinkWires linkWires;
 	
 	public Connection(GuiElement parent, int x, int y) {
-		super(GuiUtils.getNearestCoord(x), GuiUtils.getNearestCoord(y), 6, 6);
+		super(x, y, 0, 0);
 		this.parent = parent;
 	}
 	
@@ -37,7 +37,15 @@ public abstract class Connection extends GuiElement {
 	}
 	
 	public int getX() {
-		return parent.getX() + super.getX() - getWidth() / 2;
+		return parent.getX() + super.getX();
+	}
+	
+	public int getScreenX() {
+		return super.getScreenX() - 3;
+	}
+	
+	public int getScreenWidth() {
+		return 6;
 	}
 	
 	public int getXOffset() {
@@ -45,7 +53,15 @@ public abstract class Connection extends GuiElement {
 	}
 	
 	public int getY() {
-		return parent.getY() + super.getY() - getHeight() / 2;
+		return parent.getY() + super.getY();
+	}
+	
+	public int getScreenY() {
+		return super.getScreenY() - 3;
+	}
+	
+	public int getScreenHeight() {
+		return 6;
 	}
 	
 	public int getYOffset() {

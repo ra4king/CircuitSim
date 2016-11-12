@@ -20,11 +20,11 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public ControlledBufferPeer(ControlledBuffer buffer, int x, int y) {
-		super(buffer, x, y, GuiUtils.BLOCK_SIZE * 2, GuiUtils.BLOCK_SIZE * 2);
+		super(buffer, x, y, 2, 2);
 		
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), GuiUtils.BLOCK_SIZE, 0));
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_ENABLE), 0, GuiUtils.BLOCK_SIZE));
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT), GuiUtils.BLOCK_SIZE, getHeight()));
+		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), 1, 0));
+		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_ENABLE), 0, 1));
+		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT), 1, getHeight()));
 	}
 	
 	@Override

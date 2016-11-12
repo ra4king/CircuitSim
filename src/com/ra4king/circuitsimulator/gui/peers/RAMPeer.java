@@ -20,14 +20,14 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public RAMPeer(RAM ram, int x, int y) {
-		super(ram, x, y, 5 * GuiUtils.BLOCK_SIZE, 4 * GuiUtils.BLOCK_SIZE);
+		super(ram, x, y, 5, 4);
 		
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), 0, 2 * GuiUtils.BLOCK_SIZE));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLK), GuiUtils.BLOCK_SIZE, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), 2 * GuiUtils.BLOCK_SIZE, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), 3 * GuiUtils.BLOCK_SIZE, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), 4 * GuiUtils.BLOCK_SIZE, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA), getWidth(), 2 * GuiUtils.BLOCK_SIZE));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), 0, 2));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLK), 1, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), 2, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), 3, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), 4, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA), getWidth(), 2));
 	}
 	
 	@Override
@@ -43,6 +43,6 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.strokeText("RAM", getX() + getWidth() / 2 - 15, getY() + getHeight() / 2 + 5);
+		graphics.strokeText("RAM", getScreenX() + getScreenWidth() / 2 - 15, getScreenY() + getScreenHeight() / 2 + 5);
 	}
 }

@@ -20,11 +20,11 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public SplitterPeer(Splitter splitter, int x, int y) {
-		super(splitter, x, y, (splitter.getNumPorts() - 1) * GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
+		super(splitter, x, y, Math.max(2, splitter.getNumPorts() - 1), 1);
 		
 		connections.add(new PortConnection(this, splitter.getPort(splitter.PORT_JOINED), 0, 0));
 		for(int i = 0; i < splitter.getNumPorts() - 1; i++) {
-			connections.add(new PortConnection(this, splitter.getPort(splitter.getNumPorts() - 2 - i), (i + 1) * GuiUtils.BLOCK_SIZE, getHeight()));
+			connections.add(new PortConnection(this, splitter.getPort(splitter.getNumPorts() - 2 - i), i + 1, getHeight()));
 		}
 	}
 	
@@ -37,7 +37,7 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 	public void paint(GraphicsContext g, CircuitState circuitState) {
 		g.setLineWidth(2);
 		g.setStroke(Color.BLACK);
-		g.strokeLine(getX(), getY(), getX() + GuiUtils.BLOCK_SIZE, getY() + getHeight());
-		g.strokeLine(getX() + GuiUtils.BLOCK_SIZE, getY() + getHeight(), getX() + getWidth(), getY() + getHeight());
+		g.strokeLine(getScreenX(), getScreenY(), getScreenX() + GuiUtils.BLOCK_SIZE, getScreenY() + getScreenHeight());
+		g.strokeLine(getScreenX() + GuiUtils.BLOCK_SIZE, getScreenY() + getScreenHeight(), getScreenX() + getScreenWidth(), getScreenY() + getScreenHeight());
 	}
 }

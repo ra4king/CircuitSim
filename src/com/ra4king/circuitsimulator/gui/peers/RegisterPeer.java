@@ -20,13 +20,13 @@ public class RegisterPeer extends ComponentPeer<Register> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public RegisterPeer(Register register, int x, int y) {
-		super(register, x, y, 4 * GuiUtils.BLOCK_SIZE, 4 * GuiUtils.BLOCK_SIZE);
+		super(register, x, y, 4, 4);
 		
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), 0, 2 * GuiUtils.BLOCK_SIZE));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_ENABLE), 0, 3 * GuiUtils.BLOCK_SIZE));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_CLK), GuiUtils.BLOCK_SIZE, getHeight()));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_ZERO), 2 * GuiUtils.BLOCK_SIZE, getHeight()));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_OUT), getWidth(), 2 * GuiUtils.BLOCK_SIZE));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), 0, 2));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_ENABLE), 0, 3));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_CLK), 1, getHeight()));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_ZERO), 2, getHeight()));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_OUT), getWidth(), 2));
 	}
 	
 	@Override
@@ -41,9 +41,9 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		
 		graphics.setStroke(Color.BLACK);
 		String value = circuitState.getValue(getComponent().getPort(Register.PORT_OUT)).toString();
-		graphics.strokeText(value.length() <= 4 ? value : value.substring(0, 4), getX() + 2, getY() + 15);
+		graphics.strokeText(value.length() <= 4 ? value : value.substring(0, 4), getScreenX() + 2, getScreenY() + 15);
 		if(value.length() > 4) {
-			graphics.strokeText(value.substring(4), getX() + 2, getY() + 25);
+			graphics.strokeText(value.substring(4), getScreenX() + 2, getScreenY() + 25);
 		}
 		GuiUtils.drawShape(graphics::strokeRect, this);
 	}

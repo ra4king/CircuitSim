@@ -213,7 +213,7 @@ public class LinkWires {
 		private List<Connection> connections = new ArrayList<>();
 		
 		public Wire(LinkWires linkWires, int startX, int startY, int length, boolean horizontal) {
-			super(startX, startY, horizontal ? Math.abs(length) : 2, horizontal ? 2 : Math.abs(length));
+			super(startX, startY, horizontal ? Math.abs(length) : 0, horizontal ? 0 : Math.abs(length));
 			
 			this.linkWires = linkWires;
 			
@@ -234,13 +234,12 @@ public class LinkWires {
 			
 			this.horizontal = horizontal;
 			
-			int count = Math.max(1, length / GuiUtils.BLOCK_SIZE);
-			int xOffset = horizontal ? GuiUtils.BLOCK_SIZE : 0;
-			int yOffset = horizontal ? 0 : GuiUtils.BLOCK_SIZE;
-			for(int i = 0; i < count; i++) {
+			int xOffset = horizontal ? 1 : 0;
+			int yOffset = horizontal ? 0 : 1;
+			for(int i = 0; i < length; i++) {
 				connections.add(new WireConnection(this, i * xOffset, i * yOffset));
 			}
-			connections.add(new WireConnection(this, length * (xOffset != 0 ? 1 : 0), length * (yOffset != 0 ? 1 : 0)));
+			connections.add(new WireConnection(this, length * xOffset, length * yOffset));
 		}
 		
 		public LinkWires getLinkWires() {
@@ -300,7 +299,7 @@ public class LinkWires {
 			} else {
 				graphics.setStroke(Color.ORANGE);
 			}
-			graphics.strokeLine(getX(), getY(), horizontal ? getX() + length : getX(), horizontal ? getY() : getY() + length);
+			graphics.strokeLine(getScreenX(), getScreenY(), getScreenX() + getScreenWidth(), getScreenY() + getScreenHeight());
 		}
 	}
 }

@@ -11,8 +11,12 @@ import javafx.scene.paint.Color;
 public class GuiUtils {
 	public static final int BLOCK_SIZE = 10;
 	
-	public static int getNearestCoord(double a) {
-		return BLOCK_SIZE * (((int)Math.round(a) + BLOCK_SIZE / 2) / BLOCK_SIZE);
+	public static int getCircuitCoord(double a) {
+		return ((int)Math.round(a) + BLOCK_SIZE / 2) / BLOCK_SIZE;
+	}
+	
+	public static int getScreenCircuitCoord(double a) {
+		return getCircuitCoord(a) * BLOCK_SIZE;
 	}
 	
 	public interface Drawable {
@@ -20,7 +24,7 @@ public class GuiUtils {
 	}
 	
 	public static void drawShape(Drawable drawable, GuiElement element) {
-		drawable.draw(element.getX(), element.getY(), element.getWidth(), element.getHeight());
+		drawable.draw(element.getScreenX(), element.getScreenY(), element.getScreenWidth(), element.getScreenHeight());
 	}
 	
 	public static void setBitColor(GraphicsContext graphics, WireValue value) {

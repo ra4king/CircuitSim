@@ -110,10 +110,13 @@ public class CircuitManager {
 		this.secondaryOption = secondaryOption;
 		
 		dummyCircuit.getComponents().clear();
-		potentialComponent = createComponent(dummyCircuit, (int)lastMousePosition.getX(), (int)lastMousePosition.getY());
+		potentialComponent =
+				createComponent(dummyCircuit, (int)lastMousePosition.getX(), (int)lastMousePosition.getY());
 		if(potentialComponent != null) {
-			potentialComponent.setX(GuiUtils.getNearestCoord(potentialComponent.getX() - potentialComponent.getWidth() / 2));
-			potentialComponent.setY(GuiUtils.getNearestCoord(potentialComponent.getY() - potentialComponent.getHeight() / 2));
+			potentialComponent.setX(
+					GuiUtils.getNearestCoord(potentialComponent.getX() - potentialComponent.getWidth() / 2));
+			potentialComponent.setY(
+					GuiUtils.getNearestCoord(potentialComponent.getY() - potentialComponent.getHeight() / 2));
 		}
 	}
 	
@@ -153,7 +156,8 @@ public class CircuitManager {
 	}
 	
 	public void runSim() {
-		if((badLinks = allLinkWires.stream().filter(link -> !link.isLinkGood()).collect(Collectors.toSet())).size() != 0) {
+		if((badLinks =
+				    allLinkWires.stream().filter(link -> !link.isLinkGood()).collect(Collectors.toSet())).size() != 0) {
 			return;
 		}
 		
@@ -276,13 +280,13 @@ public class CircuitManager {
 			for(LinkWires linkWires : badLinks) {
 				Stream.concat(linkWires.getPorts().stream(), linkWires.getBadPorts().stream()).forEach(port -> {
 					graphics.setStroke(Color.BLACK);
-					graphics.strokeText(String.valueOf(port.getLink().getBitSize()), port.getX() + 11, port.getY() + 
-							                                                                                   21);
+					graphics.strokeText(
+							String.valueOf(port.getLink().getBitSize()), port.getX() + 11, port.getY() + 21);
 					
 					graphics.setStroke(Color.ORANGE);
 					graphics.strokeOval(port.getX() - 2, port.getY() - 2, 10, 10);
-					graphics.strokeText(String.valueOf(port.getLink().getBitSize()), port.getX() + 10, port.getY() + 
-							                                                                                   20);
+					graphics.strokeText(
+							String.valueOf(port.getLink().getBitSize()), port.getX() + 10, port.getY() + 20);
 				});
 			}
 		}
@@ -309,13 +313,13 @@ public class CircuitManager {
 				int value = e.getText().charAt(0) - '0';
 				
 				GuiElement selectedElem;
-				if(selectedElements.size() == 1 && (selectedElem = selectedElements.iterator().next()) instanceof
-						                                   PinPeer) {
+				if(selectedElements.size() == 1 &&
+						   (selectedElem = selectedElements.iterator().next()) instanceof PinPeer) {
 					PinPeer selectedPin = (PinPeer)selectedElem;
-					WireValue currentValue = new WireValue(circuit.getTopLevelState()
-							                                       .getMergedValue(selectedPin
-									                                                       .getComponent()
-									                                                       .getPort(Pin.PORT)));
+					WireValue currentValue =
+							new WireValue(circuit.getTopLevelState()
+									              .getMergedValue(selectedPin.getComponent().getPort(Pin.PORT)));
+					
 					for(int i = currentValue.getBitSize() - 1; i > 0; i--) {
 						currentValue.setBit(i, currentValue.getBit(i - 1));
 					}
@@ -401,9 +405,12 @@ public class CircuitManager {
 			startPoint = new Point2D(e.getX(), e.getY());
 			draggedPoint = new Point2D(e.getX(), e.getY());
 			
-			Optional<GuiElement> clickedComponent = Stream.concat(componentPeers.stream(), allLinkWires.stream().flatMap(link -> link.getWires().stream()))
-					                                        .filter(peer -> peer.contains((int)e.getX(), (int)e.getY()))
-					                                        .findAny();
+			Optional<GuiElement> clickedComponent =
+					Stream.concat(componentPeers.stream(), allLinkWires
+							                                       .stream()
+							                                       .flatMap(link -> link.getWires().stream()))
+							.filter(peer -> peer.contains((int)e.getX(), (int)e.getY()))
+							.findAny();
 			if(clickedComponent.isPresent()) {
 				GuiElement selectedElement = clickedComponent.get();
 				selectedElements.clear();
@@ -412,7 +419,8 @@ public class CircuitManager {
 					Pin pin = ((PinPeer)selectedElement).getComponent();
 					WireValue value = circuit.getTopLevelState().getLastPushedValue(pin.getPort(Pin.PORT));
 					if(value.getBitSize() == 1) {
-						pin.setValue(circuit.getTopLevelState(), new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
+						pin.setValue(circuit.getTopLevelState(),
+								new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
 					}
 					runSim();
 				}
@@ -444,8 +452,12 @@ public class CircuitManager {
 			
 			int selectedMidX = startConnection.getX() + startConnection.getWidth() / 2;
 			int selectedMidY = startConnection.getY() + startConnection.getHeight() / 2;
-			int endMidX = endConnection == null ? GuiUtils.getNearestCoord(draggedPoint.getX()) : endConnection.getX() + endConnection.getWidth() / 2;
-			int endMidY = endConnection == null ? GuiUtils.getNearestCoord(draggedPoint.getY()) : endConnection.getY() + endConnection.getHeight() / 2;
+			int endMidX = endConnection == null
+					              ? GuiUtils.getNearestCoord(draggedPoint.getX())
+					              : endConnection.getX() + endConnection.getWidth() / 2;
+			int endMidY = endConnection == null
+					              ? GuiUtils.getNearestCoord(draggedPoint.getY())
+					              : endConnection.getY() + endConnection.getHeight() / 2;
 			
 			if(endMidX - selectedMidX != 0 && endMidY - selectedMidY != 0) {
 				if(isDraggedHorizontally) {
@@ -502,17 +514,21 @@ public class CircuitManager {
 				int currDiffY = (GuiUtils.getNearestCoord(e.getY()) - startConnection.getY())/GuiUtils.BLOCK_SIZE;
 				int prevDiffY = (int)(draggedPoint.getY() - startConnection.getY())/GuiUtils.BLOCK_SIZE;
 				
-				if(currDiffX == 0 || prevDiffX == 0 || currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
+				if(currDiffX == 0 || prevDiffX == 0 ||
+						   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
 					isDraggedHorizontally = false;
 				}
 				
-				if(currDiffY == 0 || prevDiffY == 0 || currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
+				if(currDiffY == 0 || prevDiffY == 0 ||
+						   currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
 					isDraggedHorizontally = true;
 				}
 			}
 			
 			draggedPoint = new Point2D(e.getX(), e.getY());
-			endConnection = findConnection(GuiUtils.getNearestCoord(draggedPoint.getX()), GuiUtils.getNearestCoord(draggedPoint.getY()));
+			endConnection = findConnection(
+					GuiUtils.getNearestCoord(draggedPoint.getX()),
+					GuiUtils.getNearestCoord(draggedPoint.getY()));
 		}
 		
 		repaint();

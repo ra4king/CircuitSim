@@ -34,6 +34,7 @@ public class CircuitSimulator extends Application {
 	
 	private Simulator simulator;
 	
+	private ToggleGroup buttonsToggleGroup;
 	private ComboBox<Integer> bitSizeSelect, secondaryOptionSelect;
 	
 	private TabPane canvasTabPane;
@@ -46,17 +47,17 @@ public class CircuitSimulator extends Application {
 		simulator = new Simulator();
 		circuitManagers = new HashMap<>();
 		Clock.addChangeListener(value -> {
-			getCurrentSelection().runSim();
-			getCurrentSelection().repaint();
+			getCurrentCircuit().runSim();
+			getCurrentCircuit().repaint();
 		});
 	}
 	
-	private CircuitManager getCurrentSelection() {
+	private CircuitManager getCurrentCircuit() {
 		return circuitManagers.get(canvasTabPane.getSelectionModel().getSelectedItem());
 	}
 	
 	private void modifiedSelection() {
-		CircuitManager current = getCurrentSelection();
+		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
 			current.modifiedSelection(componentMode, bitSizeSelect.getValue(), secondaryOptionSelect.getValue());
 			current.repaint();
@@ -71,8 +72,10 @@ public class CircuitSimulator extends Application {
 		button.addEventHandler(ActionEvent.ACTION, (e) -> {
 			if(componentMode != componentId) {
 				componentMode = componentId;
-				modifiedSelection();
+			} else {
+				componentMode = 0;
 			}
+			modifiedSelection();
 		});
 		return button;
 	}
@@ -84,14 +87,14 @@ public class CircuitSimulator extends Application {
 		GridPane buttons = new GridPane();
 		buttons.setAlignment(Pos.BASELINE_CENTER);
 		
-		ToggleGroup group = new ToggleGroup();
-		buttons.addRow(0, setupButton(group, buttonSize, "Input", 2), setupButton(group, buttonSize, "Output", 3));
-		buttons.addRow(1, setupButton(group, buttonSize, "AND", 1), setupButton(group, buttonSize, "OR", 4));
-		buttons.addRow(2, setupButton(group, buttonSize, "NOR", 5), setupButton(group, buttonSize, "XOR", 6));
-		buttons.addRow(3, setupButton(group, buttonSize, "NOT", 7), setupButton(group, buttonSize, "Buffer", 8));
-		buttons.addRow(4, setupButton(group, buttonSize, "Clock", 9), setupButton(group, buttonSize, "Register", 10));
-		buttons.addRow(5, setupButton(group, buttonSize, "Adder", 11), setupButton(group, buttonSize, "Splitter", 12));
-		buttons.addRow(6, setupButton(group, buttonSize, "Mux", 13), setupButton(group, buttonSize, "RAM", 14));
+		buttonsToggleGroup = new ToggleGroup();
+		buttons.addRow(0, setupButton(buttonsToggleGroup, buttonSize, "Input", 2), setupButton(buttonsToggleGroup, buttonSize, "Output", 3));
+		buttons.addRow(1, setupButton(buttonsToggleGroup, buttonSize, "AND", 1), setupButton(buttonsToggleGroup, buttonSize, "OR", 4));
+		buttons.addRow(2, setupButton(buttonsToggleGroup, buttonSize, "NOR", 5), setupButton(buttonsToggleGroup, buttonSize, "XOR", 6));
+		buttons.addRow(3, setupButton(buttonsToggleGroup, buttonSize, "NOT", 7), setupButton(buttonsToggleGroup, buttonSize, "Buffer", 8));
+		buttons.addRow(4, setupButton(buttonsToggleGroup, buttonSize, "Clock", 9), setupButton(buttonsToggleGroup, buttonSize, "Register", 10));
+		buttons.addRow(5, setupButton(buttonsToggleGroup, buttonSize, "Adder", 11), setupButton(buttonsToggleGroup, buttonSize, "Splitter", 12));
+		buttons.addRow(6, setupButton(buttonsToggleGroup, buttonSize, "Mux", 13), setupButton(buttonsToggleGroup, buttonSize, "RAM", 14));
 		
 		bitSizeSelect = new ComboBox<>();
 		bitSizeSelect.setMinWidth(buttonSize);
@@ -140,13 +143,13 @@ public class CircuitSimulator extends Application {
 			Canvas canvas = new Canvas(800, 600) {
 				{
 					widthProperty().addListener(evt -> {
-						CircuitManager manager = getCurrentSelection();
+						CircuitManager manager = getCurrentCircuit();
 						if(manager != null) {
 							manager.repaint();
 						}
 					});
 					heightProperty().addListener(evt -> {
-						CircuitManager manager = getCurrentSelection();
+						CircuitManager manager = getCurrentCircuit();
 						if(manager != null) {
 							manager.repaint();
 						}
@@ -238,12 +241,15 @@ public class CircuitSimulator extends Application {
 				}
 				break;
 			case ESCAPE:
+				if(buttonsToggleGroup.getSelectedToggle() != null) {
+					buttonsToggleGroup.getSelectedToggle().setSelected(false);
+				}
 				componentMode = 0;
 				modifiedSelection();
 				break;
 		}
 		
-		getCurrentSelection().keyPressed(e);
+		getCurrentCircuit().keyPressed(e);
 	}
 	
 	public void keyReleased(KeyEvent e) {}
@@ -253,19 +259,19 @@ public class CircuitSimulator extends Application {
 	public void mouseClicked(MouseEvent e) {}
 	
 	public void mousePressed(MouseEvent e) {
-		getCurrentSelection().mousePressed(e);
+		getCurrentCircuit().mousePressed(e);
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		getCurrentSelection().mouseReleased(e);
+		getCurrentCircuit().mouseReleased(e);
 	}
 	
 	public void mouseMoved(MouseEvent e) {
-		getCurrentSelection().mouseMoved(e);
+		getCurrentCircuit().mouseMoved(e);
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-		getCurrentSelection().mouseDragged(e);
+		getCurrentCircuit().mouseDragged(e);
 	}
 	
 	public void mouseEntered(MouseEvent e) {}

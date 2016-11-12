@@ -111,6 +111,10 @@ public class CircuitManager {
 		
 		dummyCircuit.getComponents().clear();
 		potentialComponent = createComponent(dummyCircuit, (int)lastMousePosition.getX(), (int)lastMousePosition.getY());
+		if(potentialComponent != null) {
+			potentialComponent.setX(GuiUtils.getNearestCoord(potentialComponent.getX() - potentialComponent.getWidth() / 2));
+			potentialComponent.setY(GuiUtils.getNearestCoord(potentialComponent.getY() - potentialComponent.getHeight() / 2));
+		}
 	}
 	
 	private ComponentPeer<?> createComponent(Circuit circuit, int x, int y) {
@@ -170,6 +174,8 @@ public class CircuitManager {
 	}
 	
 	public void paint(GraphicsContext graphics) {
+		graphics.save();
+		
 		graphics.setFont(Font.font("monospace", 13));
 		
 		graphics.save();
@@ -290,6 +296,8 @@ public class CircuitManager {
 				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
 			}
 		}
+		
+		graphics.restore();
 	}
 	
 	public void keyPressed(KeyEvent e) {
@@ -354,9 +362,6 @@ public class CircuitManager {
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		int x = GuiUtils.getNearestCoord(e.getX());
-		int y = GuiUtils.getNearestCoord(e.getY());
-		
 		if(startConnection != null) {
 			draggedPoint = new Point2D(e.getX(), e.getY());
 		} else if(potentialComponent != null) {
@@ -366,7 +371,7 @@ public class CircuitManager {
 				}
 			}
 			
-			ComponentPeer<?> peer = createComponent(circuit, x, y);
+			ComponentPeer<?> peer = createComponent(circuit, potentialComponent.getX(), potentialComponent.getY());
 			
 			if(peer != null) {
 				for(Connection connection : peer.getConnections()) {
@@ -514,14 +519,11 @@ public class CircuitManager {
 	}
 	
 	public void mouseMoved(MouseEvent e) {
-		int x = GuiUtils.getNearestCoord(e.getX());
-		int y = GuiUtils.getNearestCoord(e.getY());
-		
 		boolean repaint = false;
-		lastMousePosition = new Point2D(x, y);
+		lastMousePosition = new Point2D(GuiUtils.getNearestCoord(e.getX()), GuiUtils.getNearestCoord(e.getY()));
 		if(potentialComponent != null) {
-			potentialComponent.setX(x);
-			potentialComponent.setY(y);
+			potentialComponent.setX(GuiUtils.getNearestCoord(e.getX() - potentialComponent.getWidth() / 2));
+			potentialComponent.setY(GuiUtils.getNearestCoord(e.getY() - potentialComponent.getHeight() / 2));
 			repaint = true;
 		}
 		

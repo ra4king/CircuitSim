@@ -128,9 +128,9 @@ public class CircuitState {
 		
 		WireValue getMergedValue() {
 			WireValue newValue = new WireValue(link.getBitSize());
-			participantValues.entrySet().forEach(entry -> {
-				Utils.ensureCompatible(link, newValue, entry.getValue());
-				newValue.merge(entry.getValue());
+			participantValues.values().forEach(value-> {
+				Utils.ensureCompatible(link, newValue, value);
+				newValue.merge(value);
 			});
 			return newValue;
 		}

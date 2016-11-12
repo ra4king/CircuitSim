@@ -27,7 +27,7 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 		}
 		
 		connections.add(new PortConnection(this, mux.getPort(mux.PORT_SEL), GuiUtils.BLOCK_SIZE, getHeight()));
-		connections.add(new PortConnection(this, mux.getPort(mux.PORT_OUT), 2 * GuiUtils.BLOCK_SIZE, ((mux.NUM_IN_PORTS + 1) / 2) * GuiUtils.BLOCK_SIZE));
+		connections.add(new PortConnection(this, mux.getPort(mux.PORT_OUT), getWidth(), ((mux.NUM_IN_PORTS + 1) / 2) * GuiUtils.BLOCK_SIZE));
 	}
 	
 	@Override

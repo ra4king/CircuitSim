@@ -45,9 +45,15 @@ public class PinPeer extends ComponentPeer<Pin> {
 		} else {
 			GuiUtils.setBitColor(graphics, value, Color.WHITE);
 		}
-		GuiUtils.drawShape(isInput() ? graphics::fillRect : graphics::fillOval, this);
 		graphics.setStroke(Color.BLACK);
-		GuiUtils.drawShape(isInput() ? graphics::strokeRect : graphics::strokeOval, this);
+		
+		if(isInput()) {
+			GuiUtils.drawShape(graphics::fillRect, this);
+			GuiUtils.drawShape(graphics::strokeRect, this);
+		} else {
+			graphics.fillRoundRect(getX(), getY(), getWidth(), getHeight(), 20, 20);
+			graphics.strokeRoundRect(getX(), getY(), getWidth(), getHeight(), 20, 20);
+		}
 		
 		graphics.setStroke(value.getBitSize() > 1 ? Color.BLACK : Color.WHITE);
 		

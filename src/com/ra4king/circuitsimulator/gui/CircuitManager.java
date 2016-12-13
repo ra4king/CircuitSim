@@ -7,18 +7,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
-import com.ra4king.circuitsimulator.gui.peers.AdderPeer;
-import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
-import com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer;
-import com.ra4king.circuitsimulator.gui.peers.GatePeer;
-import com.ra4king.circuitsimulator.gui.peers.MultiplexerPeer;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
-import com.ra4king.circuitsimulator.gui.peers.RAMPeer;
-import com.ra4king.circuitsimulator.gui.peers.RegisterPeer;
-import com.ra4king.circuitsimulator.gui.peers.SplitterPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
@@ -27,19 +20,7 @@ import com.ra4king.circuitsimulator.simulator.ShortCircuitException;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
-import com.ra4king.circuitsimulator.simulator.components.Adder;
-import com.ra4king.circuitsimulator.simulator.components.Clock;
-import com.ra4king.circuitsimulator.simulator.components.ControlledBuffer;
-import com.ra4king.circuitsimulator.simulator.components.Multiplexer;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
-import com.ra4king.circuitsimulator.simulator.components.RAM;
-import com.ra4king.circuitsimulator.simulator.components.Register;
-import com.ra4king.circuitsimulator.simulator.components.Splitter;
-import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.NorGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.NotGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.OrGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.XorGate;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
@@ -58,7 +39,7 @@ public class CircuitManager {
 	private Circuit circuit;
 	
 	private Set<ComponentPeer<?>> componentPeers;
-	private Set<LinkWires> allLinkWires;
+	private Set<LinkWires> allLinkWires = new HashSet<>();
 	private Set<LinkWires> badLinks;
 	
 	private Point2D lastMousePosition = new Point2D(0, 0);
@@ -80,20 +61,17 @@ public class CircuitManager {
 	
 	private Set<GuiElement> selectedElements = new HashSet<>();
 	
-	private int componentMode = 0;
-	private int bitSize = 1;
-	private int secondaryOption = 0;
+	private ComponentCreator componentCreator;
 	
 	public CircuitManager(Canvas canvas, Simulator simulator) {
 		this.canvas = canvas;
 		circuit = new Circuit(simulator);
 		
 		componentPeers = new HashSet<>();
-		allLinkWires = new HashSet<>();
 	}
 	
-	public Canvas getCanvas() {
-		return canvas;
+	public Circuit getCircuit() {
+		return circuit;
 	}
 	
 	public Point2D getLastMousePosition() {
@@ -104,53 +82,18 @@ public class CircuitManager {
 		this.lastMousePosition = lastMousePosition;
 	}
 	
-	public void modifiedSelection(int componentMode, int bitSize, int secondaryOption) {
-		this.componentMode = componentMode;
-		this.bitSize = bitSize;
-		this.secondaryOption = secondaryOption;
+	public void modifiedSelection(ComponentCreator componentCreator) {
+		this.componentCreator = componentCreator;
 		
 		dummyCircuit.getComponents().clear();
-		potentialComponent =
-				createComponent(dummyCircuit, GuiUtils.getCircuitCoord(lastMousePosition.getX()), GuiUtils.getCircuitCoord(lastMousePosition.getY()));
-		if(potentialComponent != null) {
+		
+		if(componentCreator != null) {
+			potentialComponent = componentCreator.createComponent(dummyCircuit, GuiUtils.getCircuitCoord(lastMousePosition.getX()), GuiUtils.getCircuitCoord(lastMousePosition.getY()));
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(potentialComponent.getY() - potentialComponent.getHeight() / 2);
+		} else {
+			potentialComponent = null;
 		}
-	}
-	
-	private ComponentPeer<?> createComponent(Circuit circuit, int x, int y) {
-		switch(componentMode) {
-			case 1:
-				return new GatePeer(circuit.addComponent(new AndGate("", bitSize, Math.max(2, secondaryOption))), x, y);
-			case 2:
-				return new PinPeer(circuit.addComponent(new Pin("", bitSize, true)), x, y);
-			case 3:
-				return new PinPeer(circuit.addComponent(new Pin("", bitSize, false)), x, y);
-			case 4:
-				return new GatePeer(circuit.addComponent(new OrGate("", bitSize, Math.max(2, secondaryOption))), x, y);
-			case 5:
-				return new GatePeer(circuit.addComponent(new NorGate("", bitSize, Math.max(2, secondaryOption))), x, y);
-			case 6:
-				return new GatePeer(circuit.addComponent(new XorGate("", bitSize, Math.max(2, secondaryOption))), x, y);
-			case 7:
-				return new GatePeer(circuit.addComponent(new NotGate("", bitSize)), x, y);
-			case 8:
-				return new ControlledBufferPeer(circuit.addComponent(new ControlledBuffer("", bitSize)), x, y);
-			case 9:
-				return new ClockPeer(circuit.addComponent(new Clock("")), x, y);
-			case 10:
-				return new RegisterPeer(circuit.addComponent(new Register("", bitSize)), x, y);
-			case 11:
-				return new AdderPeer(circuit.addComponent(new Adder("", bitSize)), x, y);
-			case 12:
-				return new SplitterPeer(circuit.addComponent(new Splitter("", bitSize, secondaryOption)), x, y);
-			case 13:
-				return new MultiplexerPeer(circuit.addComponent(new Multiplexer("", bitSize, secondaryOption)), x, y);
-			case 14:
-				return new RAMPeer(circuit.addComponent(new RAM("", bitSize, secondaryOption)), x, y);
-		}
-		
-		return null;
 	}
 	
 	public void runSim() {
@@ -337,6 +280,7 @@ public class CircuitManager {
 							if(linkWires != null) {
 								linkWires.removePort(portConnection);
 								if(linkWires.isEmpty()) {
+									linkWires.clear();
 									allLinkWires.remove(linkWires);
 								}
 							}
@@ -373,9 +317,9 @@ public class CircuitManager {
 				}
 			}
 			
-			ComponentPeer<?> peer = createComponent(circuit, potentialComponent.getX(), potentialComponent.getY());
-			
-			if(peer != null) {
+			if(componentCreator != null) {
+				ComponentPeer<?> peer = componentCreator.createComponent(circuit, potentialComponent.getX(), potentialComponent.getY());
+				
 				for(Connection connection : peer.getConnections()) {
 					Connection attached = findConnection(connection.getX(), connection.getY());
 					if(attached != null) {
@@ -396,9 +340,9 @@ public class CircuitManager {
 				}
 				
 				componentPeers.add(peer);
+				
+				runSim();
 			}
-			
-			runSim();
 		} else {
 			startPoint = new Point2D(e.getX(), e.getY());
 			draggedPoint = new Point2D(e.getX(), e.getY());
@@ -442,11 +386,35 @@ public class CircuitManager {
 		allLinkWires.add(linkWires);
 	}
 	
+	private void addWire(LinkWires linkWires, int x, int y, int length, boolean horizontal) {
+		Connection lastConnection = findConnection(x, y);
+		handleConnection(lastConnection, linkWires);
+		
+		int sign = length / Math.abs(length);
+		for(int i = sign; Math.abs(i) <= Math.abs(length); i += sign) {
+			int xOff = horizontal ? i: 0;
+			int yOff = horizontal ? 0 : i;
+			Connection currConnection = findConnection(x + xOff, y + yOff);
+			if(currConnection != null) {
+				if(lastConnection != null) {
+					int len = horizontal ? currConnection.getX() - lastConnection.getX()
+							          : currConnection.getY() - lastConnection.getY();
+					linkWires.addWire(new Wire(linkWires, lastConnection.getX(), lastConnection.getY(), len, horizontal));
+				}
+				
+				handleConnection(currConnection, linkWires);
+				lastConnection = currConnection;
+			} else if(i == length) {
+				int len = horizontal ? x + xOff - lastConnection.getX()
+						          : y + yOff - lastConnection.getY();
+				linkWires.addWire(new Wire(linkWires, lastConnection.getX(), lastConnection.getY(), len, horizontal));
+			}
+		}
+	}
+	
 	public void mouseReleased(MouseEvent e) {
 		if(draggedPoint != null && startConnection != null) {
 			LinkWires link = new LinkWires();
-			
-			boolean createLink = true;
 			
 			int endMidX = endConnection == null
 					              ? GuiUtils.getCircuitCoord(draggedPoint.getX())
@@ -457,29 +425,19 @@ public class CircuitManager {
 			
 			if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
 				if(isDraggedHorizontally) {
-					link.addWire(new Wire(link, startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true));
-					link.addWire(new Wire(link, endMidX, startConnection.getY(), endMidY - startConnection.getY(), false));
+					addWire(link, startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true);
+					addWire(link, endMidX, startConnection.getY(), endMidY - startConnection.getY(), false);
 				} else {
-					link.addWire(new Wire(link, startConnection.getX(), startConnection.getY(), endMidY - startConnection.getY(), false));
-					link.addWire(new Wire(link, startConnection.getX(), endMidY, endMidX - startConnection.getX(), true));
+					addWire(link, startConnection.getX(), startConnection.getY(), endMidY - startConnection.getY(), false);
+					addWire(link, startConnection.getX(), endMidY, endMidX - startConnection.getX(), true);
 				}
 			} else if(endMidX - startConnection.getX() != 0) {
-				link.addWire(new Wire(link, startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true));
+				addWire(link, startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true);
 			} else if(endMidY - startConnection.getY() != 0) {
-				link.addWire(new Wire(link, endMidX, startConnection.getY(), endMidY - startConnection.getY(), false));
-			} else {
-				createLink = false;
+				addWire(link, endMidX, startConnection.getY(), endMidY - startConnection.getY(), false);
 			}
 			
-			if(createLink) {
-				handleConnection(startConnection, link);
-				
-				if(endConnection != null) {
-					handleConnection(endConnection, link);
-				}
-				
-				runSim();
-			}
+			runSim();
 		}
 		
 		startConnection = null;
@@ -558,10 +516,6 @@ public class CircuitManager {
 						componentPeers.stream().flatMap(peer -> peer.getConnections().stream()))
 						.filter(c -> c.getX() == x && c.getY() == y).findAny();
 		
-		if(optionalSelected.isPresent()) {
-			return optionalSelected.get();
-		} else {
-			return null;
-		}
+		return optionalSelected.orElse(null);
 	}
 }

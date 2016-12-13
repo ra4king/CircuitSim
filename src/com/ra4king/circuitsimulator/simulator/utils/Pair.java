@@ -16,7 +16,8 @@ public class Pair<A, B> {
 	public boolean equals(Object other) {
 		if(other instanceof Pair) {
 			Pair pair = (Pair)other;
-			return pair.first == this.first && pair.second == this.second;
+			return (pair.first == this.first || (pair.first != null && pair.first.equals(this.first)))
+					       && (pair.second == this.second || (pair.second != null && pair.second.equals(this.second)));
 		}
 		return false;
 	}

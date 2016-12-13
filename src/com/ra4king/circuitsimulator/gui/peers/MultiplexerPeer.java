@@ -20,10 +20,10 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 	private List<Connection> connections = new ArrayList<>();
 	
 	public MultiplexerPeer(Multiplexer mux, int x, int y) {
-		super(mux, x, y, 2 , (mux.NUM_IN_PORTS + 1) * GuiUtils.BLOCK_SIZE);
+		super(mux, x, y, 2 , mux.NUM_IN_PORTS + 1);
 		
 		for(int i = 0; i < mux.NUM_IN_PORTS; i++) {
-			connections.add(new PortConnection(this, mux.getPort(i), 0, (i + 1) * GuiUtils.BLOCK_SIZE));
+			connections.add(new PortConnection(this, mux.getPort(i), 0, i + 1));
 		}
 		
 		connections.add(new PortConnection(this, mux.getPort(mux.PORT_SEL), 1, getHeight()));

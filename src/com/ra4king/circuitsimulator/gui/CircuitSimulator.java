@@ -34,13 +34,15 @@ public class CircuitSimulator extends Application {
 	
 	private Simulator simulator;
 	
+	private ComponentManager componentManager;
+	
 	private ToggleGroup buttonsToggleGroup;
 	private ComboBox<Integer> bitSizeSelect, secondaryOptionSelect;
 	
 	private TabPane canvasTabPane;
 	private HashMap<Tab, CircuitManager> circuitManagers;
 	
-	private int componentMode = 0;
+	private String componentMode;
 	
 	@Override
 	public void init() {
@@ -59,21 +61,21 @@ public class CircuitSimulator extends Application {
 	private void modifiedSelection() {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
-			current.modifiedSelection(componentMode, bitSizeSelect.getValue(), secondaryOptionSelect.getValue());
+			current.modifiedSelection(componentManager.getComponentCreator(componentMode, bitSizeSelect.getValue(), secondaryOptionSelect.getValue()));
 			current.repaint();
 		}
 	}
 	
-	private ToggleButton setupButton(ToggleGroup group, int size, String componentName, int componentId) {
+	private ToggleButton setupButton(ToggleGroup group, int size, String componentName) {
 		ToggleButton button = new ToggleButton(componentName);
 		group.getToggles().add(button);
 		button.setMinWidth(size);
 		button.setMinHeight(2 * size / 3);
 		button.addEventHandler(ActionEvent.ACTION, (e) -> {
-			if(componentMode != componentId) {
-				componentMode = componentId;
+			if(componentMode != componentName) {
+				componentMode = componentName;
 			} else {
-				componentMode = 0;
+				componentMode = null;
 			}
 			modifiedSelection();
 		});
@@ -88,13 +90,7 @@ public class CircuitSimulator extends Application {
 		buttons.setAlignment(Pos.BASELINE_CENTER);
 		
 		buttonsToggleGroup = new ToggleGroup();
-		buttons.addRow(0, setupButton(buttonsToggleGroup, buttonSize, "Input", 2), setupButton(buttonsToggleGroup, buttonSize, "Output", 3));
-		buttons.addRow(1, setupButton(buttonsToggleGroup, buttonSize, "AND", 1), setupButton(buttonsToggleGroup, buttonSize, "OR", 4));
-		buttons.addRow(2, setupButton(buttonsToggleGroup, buttonSize, "NOR", 5), setupButton(buttonsToggleGroup, buttonSize, "XOR", 6));
-		buttons.addRow(3, setupButton(buttonsToggleGroup, buttonSize, "NOT", 7), setupButton(buttonsToggleGroup, buttonSize, "Buffer", 8));
-		buttons.addRow(4, setupButton(buttonsToggleGroup, buttonSize, "Clock", 9), setupButton(buttonsToggleGroup, buttonSize, "Register", 10));
-		buttons.addRow(5, setupButton(buttonsToggleGroup, buttonSize, "Adder", 11), setupButton(buttonsToggleGroup, buttonSize, "Splitter", 12));
-		buttons.addRow(6, setupButton(buttonsToggleGroup, buttonSize, "Mux", 13), setupButton(buttonsToggleGroup, buttonSize, "RAM", 14));
+		componentManager = new ComponentManager();
 		
 		bitSizeSelect = new ComboBox<>();
 		bitSizeSelect.setMinWidth(buttonSize);
@@ -111,16 +107,6 @@ public class CircuitSimulator extends Application {
 		}
 		secondaryOptionSelect.setValue(1);
 		secondaryOptionSelect.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> modifiedSelection());
-		
-		Label bitSizeLabel = new Label("Bit size:");
-		Label secondaryLabel = new Label("Secondary:");
-		GridPane.setHalignment(bitSizeLabel, HPos.CENTER);
-		GridPane.setHalignment(secondaryLabel, HPos.CENTER);
-		buttons.addRow(7, bitSizeLabel, secondaryLabel);
-		buttons.addRow(8, bitSizeSelect, secondaryOptionSelect);
-		
-		buttons.setMinWidth(150);
-		buttons.setMinHeight(600);
 		
 		canvasTabPane = new TabPane();
 		canvasTabPane.setMinWidth(800);
@@ -187,14 +173,31 @@ public class CircuitSimulator extends Application {
 			canvas.addEventHandler(KeyEvent.KEY_TYPED, this::keyTyped);
 			canvas.addEventHandler(KeyEvent.KEY_RELEASED, this::keyReleased);
 			
-			DraggableTab canvasTab = new DraggableTab("New Circuit " + i, canvas);
+			DraggableTab canvasTab = new DraggableTab("Circuit " + i, canvas);
 			canvasTab.setDetachable(false);
 			canvasTab.setClosable(false);
 			
-			circuitManagers.put(canvasTab, new CircuitManager(canvas, simulator));
+			CircuitManager circuitManager = new CircuitManager(canvas, simulator);
+			circuitManagers.put(canvasTab, circuitManager);
+			componentManager.addCircuit("Circuit " + i, circuitManager);
 			
 			canvasTabPane.getTabs().addAll(canvasTab);
 		}
+		
+		int count = 0;
+		for(String component : componentManager.getComponentNames()) {
+			buttons.addRow(count++ / 2, setupButton(buttonsToggleGroup, buttonSize, component));
+		}
+		
+		Label bitSizeLabel = new Label("Bit size:");
+		Label secondaryLabel = new Label("Secondary:");
+		GridPane.setHalignment(bitSizeLabel, HPos.CENTER);
+		GridPane.setHalignment(secondaryLabel, HPos.CENTER);
+		buttons.addRow(count++, bitSizeLabel, secondaryLabel);
+		buttons.addRow(count, bitSizeSelect, secondaryOptionSelect);
+		
+		buttons.setMinWidth(150);
+		buttons.setMinHeight(600);
 		
 		stage.setScene(scene);
 		stage.setTitle("Circuit Simulator");
@@ -244,7 +247,7 @@ public class CircuitSimulator extends Application {
 				if(buttonsToggleGroup.getSelectedToggle() != null) {
 					buttonsToggleGroup.getSelectedToggle().setSelected(false);
 				}
-				componentMode = 0;
+				componentMode = null;
 				modifiedSelection();
 				break;
 		}

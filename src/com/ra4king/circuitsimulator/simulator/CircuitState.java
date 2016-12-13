@@ -87,9 +87,9 @@ public class CircuitState {
 	void propagateSignal(Port port) {
 		LinkState linkState = get(port.getLink());
 		
-		WireValue newValue = linkState.getMergedValue();
-		if(!newValue.equals(linkState.value)) {
-			linkState.getLastPropagatedValue().set(newValue);
+		WireValue value = linkState.getMergedValue();
+		if(!value.equals(linkState.value)) {
+			linkState.getLastPropagatedValue().set(value);
 			linkState.getParticipantValues().keySet().stream().filter(participantPort -> !participantPort.equals(port))
 					.forEach(participantPort -> participantPort.component.valueChanged(this, linkState.value, participantPort.portIndex));
 		}
@@ -161,14 +161,12 @@ public class CircuitState {
 				
 				if(!newValue.equals(value)) {
 					value.set(newValue);
-					participantValues.keySet().stream()
-							.forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
+					participantValues.keySet().forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
 				}
 				
 				if(!newValue.equals(other.value)) {
 					other.value.set(newValue);
-					other.participantValues.keySet().stream()
-							.forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
+					other.participantValues.keySet().forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
 				}
 			}
 			
@@ -191,8 +189,7 @@ public class CircuitState {
 				WireValue newValue = getMergedValue();
 				if(!newValue.equals(this.value)) {
 					this.value.set(newValue);
-					participantValues.keySet().stream()
-							.forEach(port1 -> port1.component.valueChanged(CircuitState.this, newValue, port1.portIndex));
+					participantValues.keySet().forEach(port1 -> port1.component.valueChanged(CircuitState.this, newValue, port1.portIndex));
 				}
 			}
 		}

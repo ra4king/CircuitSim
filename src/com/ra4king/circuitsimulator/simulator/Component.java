@@ -5,7 +5,7 @@ package com.ra4king.circuitsimulator.simulator;
  */
 public abstract class Component {
 	private Circuit circuit;
-	protected final int[] portBits;
+	private final int[] portBits;
 	private Port[] ports;
 	private String name;
 	

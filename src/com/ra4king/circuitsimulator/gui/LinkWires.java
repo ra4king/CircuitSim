@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
@@ -38,7 +39,7 @@ public class LinkWires {
 	}
 	
 	public boolean isEmpty() {
-		return ports.size() == 0 && wires.size() == 0 && badPorts.size() == 0;
+		return ports.size() <= 1 && wires.size() == 0 && badPorts.size() <= 1;
 	}
 	
 	public Link getLink() {
@@ -191,6 +192,11 @@ public class LinkWires {
 		getLink().unlinkPort(port.getPort());
 		ports.remove(port);
 		port.setLinkWires(null);
+	}
+	
+	public void clear() {
+		Stream.concat(new HashSet<>(ports).stream(), new HashSet<>(badPorts).stream()).forEach(this::removePort);
+		new HashSet<>(wires).forEach(this::removeWire);
 	}
 	
 	public LinkWires merge(LinkWires other) {

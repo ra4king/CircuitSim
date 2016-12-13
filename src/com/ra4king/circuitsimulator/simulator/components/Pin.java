@@ -6,7 +6,6 @@ import java.util.List;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 import com.ra4king.circuitsimulator.simulator.utils.Utils;
 
@@ -52,9 +51,9 @@ public class Pin extends Component {
 	public void init(CircuitState circuitState) {
 		super.init(circuitState);
 		
-		if(isInput) {
-			circuitState.pushValue(getPort(PORT), new WireValue(bitSize, State.ZERO));
-		}
+//		if(isInput) {
+//			circuitState.pushValue(getPort(PORT), new WireValue(bitSize, State.ZERO));
+//		}
 	}
 	
 	@Override

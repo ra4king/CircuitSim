@@ -33,6 +33,7 @@ public abstract class Connection extends GuiElement {
 	}
 	
 	public void setLinkWires(LinkWires linkWires) {
+		System.out.println("Setting LinkWires on " + parent + ": " + linkWires);
 		this.linkWires = linkWires;
 	}
 	

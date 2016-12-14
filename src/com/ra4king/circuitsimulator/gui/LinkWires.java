@@ -268,6 +268,12 @@ public class LinkWires {
 			return horizontal;
 		}
 		
+		public boolean isWithin(Wire wire) {
+			return wire.horizontal == this.horizontal &&
+					       this.getX() >= wire.getX() && this.getX() + this.getWidth() <= wire.getX() + wire.getWidth() &&
+						   this.getY() >= wire.getY() && this.getY() + this.getHeight() <= wire.getY() + wire.getHeight();
+		}
+		
 		@Override
 		public List<Connection> getConnections() {
 			return connections;

@@ -1,22 +1,18 @@
 package com.ra4king.circuitsimulator.gui;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
-import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
-import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
-import com.ra4king.circuitsimulator.simulator.ShortCircuitException;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
@@ -36,11 +32,7 @@ import javafx.scene.text.Font;
  */
 public class CircuitManager {
 	private Canvas canvas;
-	private Circuit circuit;
-	
-	private Set<ComponentPeer<?>> componentPeers;
-	private Set<LinkWires> allLinkWires = new HashSet<>();
-	private Set<LinkWires> badLinks;
+	private CircuitBoard circuitBoard;
 	
 	private Point2D lastMousePosition = new Point2D(0, 0);
 	private ComponentPeer potentialComponent;
@@ -65,13 +57,15 @@ public class CircuitManager {
 	
 	public CircuitManager(Canvas canvas, Simulator simulator) {
 		this.canvas = canvas;
-		circuit = new Circuit(simulator);
-		
-		componentPeers = new HashSet<>();
+		circuitBoard = new CircuitBoard(simulator);
 	}
 	
 	public Circuit getCircuit() {
-		return circuit;
+		return circuitBoard.getCircuit();
+	}
+	
+	public CircuitBoard getCircuitBoard() {
+		return circuitBoard;
 	}
 	
 	public Point2D getLastMousePosition() {
@@ -93,20 +87,6 @@ public class CircuitManager {
 			potentialComponent.setY(potentialComponent.getY() - potentialComponent.getHeight() / 2);
 		} else {
 			potentialComponent = null;
-		}
-	}
-	
-	public void runSim() {
-		if((badLinks =
-				    allLinkWires.stream().filter(link -> !link.isLinkGood()).collect(Collectors.toSet())).size() != 0) {
-			return;
-		}
-		
-		try {
-			circuit.getSimulator().stepAll();
-		}
-		catch(ShortCircuitException exc) {
-			exc.printStackTrace();
 		}
 	}
 	
@@ -136,39 +116,7 @@ public class CircuitManager {
 		
 		graphics.restore();
 		
-		for(ComponentPeer<?> peer : componentPeers) {
-			graphics.save();
-			peer.paint(graphics, circuit.getTopLevelState());
-			graphics.restore();
-			
-			for(Connection connection : peer.getConnections()) {
-				graphics.save();
-				connection.paint(graphics, circuit.getTopLevelState());
-				graphics.restore();
-			}
-		}
-		
-		allLinkWires.forEach(linkWire -> {
-			graphics.save();
-			linkWire.paint(graphics, circuit.getTopLevelState());
-			graphics.restore();
-			
-			for(Wire wire : linkWire.getWires()) {
-				graphics.save();
-				wire.paint(graphics, circuit.getTopLevelState());
-				graphics.restore();
-				
-				List<Connection> connections = wire.getConnections();
-				
-				graphics.save();
-				connections.get(0).paint(graphics, circuit.getTopLevelState());
-				graphics.restore();
-				
-				graphics.save();
-				connections.get(connections.size() - 1).paint(graphics, circuit.getTopLevelState());
-				graphics.restore();
-			}
-		});
+		circuitBoard.paint(graphics);
 		
 		if(startConnection != null) {
 			graphics.save();
@@ -217,21 +165,6 @@ public class CircuitManager {
 			graphics.strokeRect(startX, startY, width, height);
 		}
 		
-		if(badLinks != null) {
-			for(LinkWires linkWires : badLinks) {
-				Stream.concat(linkWires.getPorts().stream(), linkWires.getBadPorts().stream()).forEach(port -> {
-					graphics.setStroke(Color.BLACK);
-					graphics.strokeText(
-							String.valueOf(port.getLink().getBitSize()), port.getScreenX() + 11, port.getScreenY() + 21);
-					
-					graphics.setStroke(Color.ORANGE);
-					graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-					graphics.strokeText(
-							String.valueOf(port.getLink().getBitSize()), port.getScreenX() + 10, port.getScreenY() + 20);
-				});
-			}
-		}
-		
 		for(GuiElement selectedElement : selectedElements) {
 			graphics.setStroke(Color.RED);
 			if(selectedElement instanceof Wire) {
@@ -258,43 +191,26 @@ public class CircuitManager {
 						   (selectedElem = selectedElements.iterator().next()) instanceof PinPeer) {
 					PinPeer selectedPin = (PinPeer)selectedElem;
 					WireValue currentValue =
-							new WireValue(circuit.getTopLevelState()
+							new WireValue(getCircuit().getTopLevelState()
 									              .getMergedValue(selectedPin.getComponent().getPort(Pin.PORT)));
 					
 					for(int i = currentValue.getBitSize() - 1; i > 0; i--) {
 						currentValue.setBit(i, currentValue.getBit(i - 1));
 					}
 					currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
-					selectedPin.getComponent().setValue(circuit.getTopLevelState(), currentValue);
-					runSim();
+					selectedPin.getComponent().setValue(getCircuit().getTopLevelState(), currentValue);
+					circuitBoard.runSim();
 					break;
 				}
 			case BACK_SPACE:
 			case DELETE:
 				for(GuiElement selectedElement : selectedElements) {
-					List<Connection> connections = selectedElement.getConnections();
-					if(selectedElement instanceof ComponentPeer<?>) {
-						for(Connection connection : connections) {
-							PortConnection portConnection = (PortConnection)connection;
-							LinkWires linkWires = portConnection.getLinkWires();
-							if(linkWires != null) {
-								linkWires.removePort(portConnection);
-								if(linkWires.isEmpty()) {
-									linkWires.clear();
-									allLinkWires.remove(linkWires);
-								}
-							}
-						}
-						componentPeers.remove(selectedElement);
-						circuit.removeComponent(((ComponentPeer)selectedElement).getComponent());
+					if(selectedElement instanceof ComponentPeer) {
+						circuitBoard.removeComponent((ComponentPeer)selectedElement);
 					} else if(selectedElement instanceof Wire) {
-						Wire wire = (Wire)selectedElement;
-						LinkWires linkWires = wire.getLinkWires();
-						allLinkWires.remove(linkWires);
-						allLinkWires.addAll(linkWires.removeWire(wire));
+						circuitBoard.removeWire((Wire)selectedElement);
 					}
 				}
-				runSim();
 			case ESCAPE:
 				selectedElements.clear();
 				startConnection = null;
@@ -308,114 +224,44 @@ public class CircuitManager {
 	}
 	
 	public void mousePressed(MouseEvent e) {
+		selectedElements.clear();
+		
 		if(startConnection != null) {
 			draggedPoint = new Point2D(e.getX(), e.getY());
 		} else if(potentialComponent != null) {
-			for(ComponentPeer<?> component : componentPeers) {
-				if(component.intersects(potentialComponent)) {
-					return;
-				}
-			}
-			
 			if(componentCreator != null) {
-				ComponentPeer<?> peer = componentCreator.createComponent(circuit, potentialComponent.getX(), potentialComponent.getY());
-				
-				for(Connection connection : peer.getConnections()) {
-					Connection attached = findConnection(connection.getX(), connection.getY());
-					if(attached != null) {
-						LinkWires linkWires = attached.getLinkWires();
-						if(attached instanceof WireConnection) {
-							linkWires.addPort((PortConnection)connection);
-						} else {
-							if(linkWires == null) {
-								linkWires = new LinkWires();
-								linkWires.addPort((PortConnection)connection);
-								linkWires.addPort((PortConnection)attached);
-								allLinkWires.add(linkWires);
-							} else if(allLinkWires.remove(linkWires)) {
-								handleConnection(connection, linkWires);
-							}
-						}
-					}
-				}
-				
-				componentPeers.add(peer);
-				
-				runSim();
+				circuitBoard.createComponent(componentCreator, potentialComponent.getX(), potentialComponent.getY());
 			}
 		} else {
 			startPoint = new Point2D(e.getX(), e.getY());
 			draggedPoint = new Point2D(e.getX(), e.getY());
 			
 			Optional<GuiElement> clickedComponent =
-					Stream.concat(componentPeers.stream(), allLinkWires
+					Stream.concat(circuitBoard.getComponents().stream(), circuitBoard.getLinks()
 							                                       .stream()
 							                                       .flatMap(link -> link.getWires().stream()))
 							.filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
 							.findAny();
 			if(clickedComponent.isPresent()) {
 				GuiElement selectedElement = clickedComponent.get();
-				selectedElements.clear();
 				selectedElements.add(selectedElement);
 				if(selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
 					Pin pin = ((PinPeer)selectedElement).getComponent();
-					WireValue value = circuit.getTopLevelState().getLastPushedValue(pin.getPort(Pin.PORT));
+					WireValue value = getCircuit().getTopLevelState().getLastPushedValue(pin.getPort(Pin.PORT));
 					if(value.getBitSize() == 1) {
-						pin.setValue(circuit.getTopLevelState(),
+						pin.setValue(getCircuit().getTopLevelState(),
 								new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
 					}
-					runSim();
+					circuitBoard.runSim();
 				}
-			} else {
-				selectedElements.clear();
 			}
 		}
 		
 		repaint();
 	}
 	
-	private void handleConnection(Connection connection, LinkWires linkWires) {
-		if(connection instanceof PortConnection) {
-			linkWires.addPort((PortConnection)connection);
-		} else if(connection instanceof WireConnection) {
-			LinkWires selectedLink = ((Wire)connection.getParent()).getLinkWires();
-			allLinkWires.remove(selectedLink);
-			linkWires.merge(selectedLink);
-		}
-		
-		allLinkWires.add(linkWires);
-	}
-	
-	private void addWire(LinkWires linkWires, int x, int y, int length, boolean horizontal) {
-		Connection lastConnection = findConnection(x, y);
-		handleConnection(lastConnection, linkWires);
-		
-		int sign = length / Math.abs(length);
-		for(int i = sign; Math.abs(i) <= Math.abs(length); i += sign) {
-			int xOff = horizontal ? i: 0;
-			int yOff = horizontal ? 0 : i;
-			Connection currConnection = findConnection(x + xOff, y + yOff);
-			if(currConnection != null) {
-				if(lastConnection != null) {
-					int len = horizontal ? currConnection.getX() - lastConnection.getX()
-							          : currConnection.getY() - lastConnection.getY();
-					linkWires.addWire(new Wire(linkWires, lastConnection.getX(), lastConnection.getY(), len, horizontal));
-				}
-				
-				handleConnection(currConnection, linkWires);
-				lastConnection = currConnection;
-			} else if(i == length) {
-				int len = horizontal ? x + xOff - lastConnection.getX()
-						          : y + yOff - lastConnection.getY();
-				linkWires.addWire(new Wire(linkWires, lastConnection.getX(), lastConnection.getY(), len, horizontal));
-			}
-		}
-	}
-	
 	public void mouseReleased(MouseEvent e) {
 		if(draggedPoint != null && startConnection != null) {
-			LinkWires link = new LinkWires();
-			
 			int endMidX = endConnection == null
 					              ? GuiUtils.getCircuitCoord(draggedPoint.getX())
 					              : endConnection.getX();
@@ -425,19 +271,17 @@ public class CircuitManager {
 			
 			if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
 				if(isDraggedHorizontally) {
-					addWire(link, startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true);
-					addWire(link, endMidX, startConnection.getY(), endMidY - startConnection.getY(), false);
+					circuitBoard.addWire(startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true);
+					circuitBoard.addWire(endMidX, startConnection.getY(), endMidY - startConnection.getY(), false);
 				} else {
-					addWire(link, startConnection.getX(), startConnection.getY(), endMidY - startConnection.getY(), false);
-					addWire(link, startConnection.getX(), endMidY, endMidX - startConnection.getX(), true);
+					circuitBoard.addWire(startConnection.getX(), startConnection.getY(), endMidY - startConnection.getY(), false);
+					circuitBoard.addWire(startConnection.getX(), endMidY, endMidX - startConnection.getX(), true);
 				}
 			} else if(endMidX - startConnection.getX() != 0) {
-				addWire(link, startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true);
+				circuitBoard.addWire(startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true);
 			} else if(endMidY - startConnection.getY() != 0) {
-				addWire(link, endMidX, startConnection.getY(), endMidY - startConnection.getY(), false);
+				circuitBoard.addWire(endMidX, startConnection.getY(), endMidY - startConnection.getY(), false);
 			}
-			
-			runSim();
 		}
 		
 		startConnection = null;
@@ -456,8 +300,8 @@ public class CircuitManager {
 			int height = (int)Math.abs(draggedPoint.getY() - startPoint.getY());
 			
 			selectedElements =
-					Stream.concat(componentPeers.stream(),
-							allLinkWires.stream().flatMap(link -> link.getWires().stream()))
+					Stream.concat(circuitBoard.getComponents().stream(),
+							circuitBoard.getLinks().stream().flatMap(link -> link.getWires().stream()))
 							.filter(peer -> peer.intersectsScreenCoord(startX, startY, width, height)).collect(Collectors.toSet());
 		}
 		
@@ -480,7 +324,7 @@ public class CircuitManager {
 			}
 			
 			draggedPoint = new Point2D(e.getX(), e.getY());
-			endConnection = findConnection(
+			endConnection = circuitBoard.findConnection(
 					GuiUtils.getCircuitCoord(draggedPoint.getX()),
 					GuiUtils.getCircuitCoord(draggedPoint.getY()));
 		}
@@ -497,7 +341,7 @@ public class CircuitManager {
 			repaint = true;
 		}
 		
-		Connection selected = findConnection(GuiUtils.getCircuitCoord(e.getX()), GuiUtils.getCircuitCoord(e.getY()));
+		Connection selected = circuitBoard.findConnection(GuiUtils.getCircuitCoord(e.getX()), GuiUtils.getCircuitCoord(e.getY()));
 		
 		if(selected != startConnection) {
 			startConnection = selected;
@@ -507,15 +351,5 @@ public class CircuitManager {
 		if(repaint) repaint();
 	}
 	
-	private Connection findConnection(int x, int y) {
-		Optional<Connection> optionalSelected =
-				Stream.concat(
-						allLinkWires.stream()
-								.flatMap(link -> link.getWires().stream())
-								.flatMap(wire -> wire.getConnections().stream()),
-						componentPeers.stream().flatMap(peer -> peer.getConnections().stream()))
-						.filter(c -> c.getX() == x && c.getY() == y).findAny();
-		
-		return optionalSelected.orElse(null);
-	}
+	
 }

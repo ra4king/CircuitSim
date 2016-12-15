@@ -153,7 +153,11 @@ public class CircuitBoard {
 			int xOff = horizontal ? i : 0;
 			int yOff = horizontal ? 0 : i;
 			Connection currConnection = findConnection(x + xOff, y + yOff);
-			if(currConnection != null) {
+			
+			if(currConnection != null && (i == length ||
+					   currConnection == currConnection.getParent().getConnections().get(0) ||
+					   currConnection == currConnection.getParent().getConnections().get(currConnection.getParent()
+							                                                                     .getConnections().size() - 1))) {
 				int len = horizontal ? currConnection.getX() - lastX
 						          : currConnection.getY() - lastY;
 				Wire wire = new Wire(linkWires, lastX, lastY, len, horizontal);

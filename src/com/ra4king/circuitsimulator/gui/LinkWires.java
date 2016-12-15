@@ -39,7 +39,7 @@ public class LinkWires {
 	}
 	
 	public boolean isEmpty() {
-		return ports.size() <= 1 && wires.size() == 0 && badPorts.size() <= 1;
+		return (ports.size() + badPorts.size()) <= 1 && wires.size() == 0;
 	}
 	
 	public Link getLink() {
@@ -84,12 +84,32 @@ public class LinkWires {
 			newLinkWires.add(linkWires);
 		}
 		
-		while(ports.size() != 0) {
-			removePort(ports.iterator().next());
-		}
+		Set<PortConnection> portsLeft = new HashSet<>(ports);
+		portsLeft.addAll(badPorts);
 		
-		while(badPorts.size() != 0) {
-			removePort(badPorts.iterator().next());
+		while(portsLeft.size() != 0) {
+			LinkWires linkWires = new LinkWires();
+			
+			PortConnection nextPort = portsLeft.iterator().next();
+			portsLeft.remove(nextPort);
+			removePort(nextPort);
+			linkWires.addPort(nextPort);
+			
+			for(Iterator<PortConnection> iter = portsLeft.iterator(); iter.hasNext(); ) {
+				PortConnection otherPort = iter.next();
+				
+				if(nextPort.getX() == otherPort.getX() && nextPort.getY() == otherPort.getY()) {
+					iter.remove();
+					removePort(otherPort);
+					linkWires.addPort(otherPort);
+				}
+			}
+			
+			if(linkWires.isEmpty()) {
+				linkWires.clear();
+			} else {
+				newLinkWires.add(linkWires);
+			}
 		}
 		
 		return newLinkWires;

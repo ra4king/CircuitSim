@@ -90,7 +90,8 @@ public class CircuitState {
 		if(!value.equals(linkState.value)) {
 			linkState.getLastPropagatedValue().set(value);
 			linkState.getParticipantValues().keySet().stream().filter(participantPort -> !participantPort.equals(port))
-					.forEach(participantPort -> participantPort.component.valueChanged(this, linkState.value, participantPort.portIndex));
+					.forEach(participantPort -> participantPort.component.valueChanged(this, linkState.value,
+							participantPort.portIndex));
 		}
 	}
 	
@@ -127,7 +128,7 @@ public class CircuitState {
 		
 		WireValue getMergedValue() {
 			WireValue newValue = new WireValue(link.getBitSize());
-			participantValues.values().forEach(value-> {
+			participantValues.values().forEach(value -> {
 				Utils.ensureCompatible(link, newValue, value);
 				newValue.merge(value);
 			});
@@ -138,9 +139,11 @@ public class CircuitState {
 			try {
 				getMergedValue();
 				return false;
-			} catch(ShortCircuitException exc) {
+			}
+			catch(ShortCircuitException exc) {
 				return true;
-			} catch(Throwable t) {
+			}
+			catch(Throwable t) {
 				return false;
 			}
 		}
@@ -160,12 +163,14 @@ public class CircuitState {
 				
 				if(!newValue.equals(value)) {
 					value.set(newValue);
-					participantValues.keySet().forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
+					participantValues.keySet().forEach(port -> port.component.valueChanged(CircuitState.this,
+							newValue, port.portIndex));
 				}
 				
 				if(!newValue.equals(other.value)) {
 					other.value.set(newValue);
-					other.participantValues.keySet().forEach(port -> port.component.valueChanged(CircuitState.this, newValue, port.portIndex));
+					other.participantValues.keySet().forEach(port -> port.component.valueChanged(CircuitState.this,
+							newValue, port.portIndex));
 				}
 			}
 			
@@ -188,7 +193,8 @@ public class CircuitState {
 				WireValue newValue = getMergedValue();
 				if(!newValue.equals(this.value)) {
 					this.value.set(newValue);
-					participantValues.keySet().forEach(port1 -> port1.component.valueChanged(CircuitState.this, newValue, port1.portIndex));
+					participantValues.keySet().forEach(port1 -> port1.component.valueChanged(CircuitState.this,
+							newValue, port1.portIndex));
 				}
 			}
 		}

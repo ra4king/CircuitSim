@@ -45,7 +45,8 @@ public class Simulator {
 		temp.forEach(pair -> {
 			try {
 				values.put(pair, pair.first.getMergedValue(pair.second));
-			} catch(ShortCircuitException exc) {
+			}
+			catch(ShortCircuitException exc) {
 				shortCircuited.add(pair);
 				lastShortCircuit = exc;
 			}

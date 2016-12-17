@@ -84,10 +84,9 @@ public class CircuitState {
 		get(link).unlink(port);
 	}
 	
-	void propagateSignal(Port port) {
+	void propagateSignal(Port port, WireValue value) {
 		LinkState linkState = get(port.getLink());
 		
-		WireValue value = linkState.getMergedValue();
 		if(!value.equals(linkState.value)) {
 			linkState.getLastPropagatedValue().set(value);
 			linkState.getParticipantValues().keySet().stream().filter(participantPort -> !participantPort.equals(port))

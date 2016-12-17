@@ -350,6 +350,4 @@ public class CircuitManager {
 		
 		if(repaint) repaint();
 	}
-	
-	
 }

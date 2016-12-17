@@ -1,6 +1,7 @@
 package com.ra4king.circuitsimulator.simulator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,9 +41,19 @@ public class Simulator {
 		linksToUpdate.clear();
 		shortCircuited.clear();
 		
+		HashMap<Pair<CircuitState, Port>, WireValue> values = new HashMap<>();
 		temp.forEach(pair -> {
 			try {
-				pair.first.propagateSignal(pair.second);
+				values.put(pair, pair.first.getMergedValue(pair.second));
+			} catch(ShortCircuitException exc) {
+				shortCircuited.add(pair);
+				lastShortCircuit = exc;
+			}
+		});
+		
+		temp.forEach(pair -> {
+			try {
+				pair.first.propagateSignal(pair.second, values.get(pair));
 			}
 			catch(ShortCircuitException exc) {
 				shortCircuited.add(pair);

@@ -106,6 +106,13 @@ public class CircuitBoard {
 		runSim();
 	}
 	
+	public void moveComponent(ComponentPeer<?> componentPeer, int x, int y) {
+		removeComponent(componentPeer);
+		componentPeer.setX(x);
+		componentPeer.setY(y);
+		addComponent(componentPeer);
+	}
+	
 	private boolean wireAlreadyExists(Wire wire) {
 		Set<Connection> connections = connectionsMap.get(new Pair<>(wire.getX(), wire.getY()));
 		if(connections == null || connections.isEmpty()) {
@@ -221,6 +228,10 @@ public class CircuitBoard {
 	
 	public void removeWire(Wire wire) {
 		LinkWires linkWires = wire.getLinkWires();
+		if(linkWires == null || !links.contains(linkWires)) {
+			return;
+		}
+		
 		links.remove(linkWires);
 		links.addAll(linkWires.removeWire(wire));
 		

@@ -60,6 +60,8 @@ public class LinkWires {
 			return Collections.singletonList(this);
 		}
 		
+		wire.setLinkWires(null);
+		
 		wires.remove(wire);
 		
 		Link link = getLink();

@@ -101,7 +101,7 @@ public class CircuitManager {
 	public void paint(GraphicsContext graphics) {
 		graphics.save();
 		
-		graphics.setFont(Font.font("monospace", 13));
+		graphics.setFont(Font.font("monospace", 15));
 		
 		graphics.save();
 		graphics.setFill(Color.LIGHTGRAY);
@@ -246,12 +246,13 @@ public class CircuitManager {
 				GuiElement selectedElement = clickedComponent.get();
 				selectedElements.add(selectedElement);
 				if(selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
-					Pin pin = ((PinPeer)selectedElement).getComponent();
-					WireValue value = getCircuit().getTopLevelState().getLastPushedValue(pin.getPort(Pin.PORT));
-					if(value.getBitSize() == 1) {
-						pin.setValue(getCircuit().getTopLevelState(),
-								new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
-					}
+					((PinPeer)selectedElement).clicked(getCircuit().getTopLevelState(), (int)e.getX(), (int)e.getY());
+//					Pin pin = ((PinPeer)selectedElement).getComponent();
+//					WireValue value = getCircuit().getTopLevelState().getLastPushedValue(pin.getPort(Pin.PORT));
+//					if(value.getBitSize() == 1) {
+//						pin.setValue(getCircuit().getTopLevelState(),
+//								new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
+//					}
 					circuitBoard.runSim();
 				}
 			}

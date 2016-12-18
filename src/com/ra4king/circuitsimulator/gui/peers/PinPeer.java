@@ -10,6 +10,7 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
+import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -34,6 +35,35 @@ public class PinPeer extends ComponentPeer<Pin> {
 	@Override
 	public List<Connection> getConnections() {
 		return connections;
+	}
+	
+	public void clicked(CircuitState state, int x, int y) {
+		if(!isInput())
+			return;
+		
+		Pin pin = getComponent();
+		
+		WireValue value = state.getLastPushedValue(pin.getPort(Pin.PORT));
+		if(pin.getBitSize() == 1) {
+			pin.setValue(state,
+					new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
+		} else {
+			int xOff = x - getScreenX();
+			int yOff = y - getScreenY();
+			
+			double bitWidth = getScreenWidth() / Math.min(8.0, pin.getBitSize());
+			double bitHeight = getScreenHeight() / ((pin.getBitSize() - 1) / 8 + 1.0);
+			
+			int bitCol = (int)(xOff / bitWidth);
+			int bitRow = (int)(yOff / bitHeight);
+			
+			int bit = pin.getBitSize() - 1 - (bitCol + bitRow * 8);
+			if(bit >= 0 && bit < pin.getBitSize()) {
+				WireValue newValue = new WireValue(value);
+				newValue.setBit(bit, value.getBit(bit) == State.ONE ? State.ZERO : State.ONE);
+				pin.setValue(state, newValue);
+			}
+		}
 	}
 	
 	@Override

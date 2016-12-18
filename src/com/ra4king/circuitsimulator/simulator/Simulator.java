@@ -53,6 +53,9 @@ public class Simulator {
 		});
 		
 		temp.forEach(pair -> {
+			if(!values.containsKey(pair))
+				return;
+			
 			try {
 				pair.first.propagateSignal(pair.second, values.get(pair));
 			}

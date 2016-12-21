@@ -1,7 +1,6 @@
 package com.ra4king.circuitsimulator.gui;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +12,6 @@ import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -23,27 +21,25 @@ import javafx.scene.paint.Color;
  */
 public class LinkWires {
 	private Set<PortConnection> ports;
+	private Set<PortConnection> invalidPorts;
 	private Set<Wire> wires;
-	
-	private Set<PortConnection> badPorts;
 	
 	public LinkWires() {
 		ports = new HashSet<>();
+		invalidPorts = new HashSet<>();
 		wires = new HashSet<>();
-		
-		badPorts = new HashSet<>();
 	}
 	
-	public boolean isLinkGood() {
-		return badPorts.size() == 0;
+	public boolean isLinkValid() {
+		return invalidPorts.isEmpty();
 	}
 	
 	public boolean isEmpty() {
-		return (ports.size() + badPorts.size()) <= 1 && wires.size() == 0;
+		return (ports.size() + invalidPorts.size()) <= 1 && wires.size() == 0;
 	}
 	
 	public Link getLink() {
-		return ports.size() > 0 ? ports.iterator().next().getLink() : null;
+		return ports.size() > 0 ? ports.iterator().next().getPort().getLink() : null;
 	}
 	
 	public void addWire(Wire wire) {
@@ -51,43 +47,42 @@ public class LinkWires {
 		wires.add(wire);
 	}
 	
+	public void removeWire(Wire wire) {
+		if(wires.contains(wire)) {
+			wire.setLinkWires(null);
+			wires.remove(wire);
+		} else {
+			throw new IllegalStateException("Wire isn't even in here");
+		}
+	}
+	
 	public Set<Wire> getWires() {
 		return wires;
 	}
 	
-	public List<LinkWires> removeWire(Wire wire) {
-		if(!wires.contains(wire)) {
-			return Collections.singletonList(this);
-		}
-		
-		wire.setLinkWires(null);
-		
-		wires.remove(wire);
+	public Set<LinkWires> splitWires(Set<Wire> toRemove) {
+		toRemove.forEach(wire -> wire.setLinkWires(null));
+		wires.removeAll(toRemove);
 		
 		Link link = getLink();
 		if(link != null) {
-			for(PortConnection portConnection : ports) {
-				link.unlinkPort(portConnection.getPort());
+			for(PortConnection port : ports) {
+				link.unlinkPort(port.getPort());
 			}
 		}
 		
-		List<LinkWires> newLinkWires = new ArrayList<>();
+		Set<LinkWires> newLinkWires = new HashSet<>();
 		
-		while(wires.size() != 0) {
+		while(!wires.isEmpty()) {
 			Wire nextWire = wires.iterator().next();
 			wires.remove(nextWire);
-			
-			Pair<List<Wire>, List<PortConnection>> attachedConnections = findAttachedConnections(nextWire);
-			
-			LinkWires linkWires = new LinkWires();
+			LinkWires linkWires = findAttachedConnections(nextWire);
 			linkWires.addWire(nextWire);
-			attachedConnections.first.forEach(linkWires::addWire);
-			attachedConnections.second.forEach(linkWires::addPort);
 			newLinkWires.add(linkWires);
 		}
 		
 		Set<PortConnection> portsLeft = new HashSet<>(ports);
-		portsLeft.addAll(badPorts);
+		portsLeft.addAll(invalidPorts);
 		
 		while(portsLeft.size() != 0) {
 			LinkWires linkWires = new LinkWires();
@@ -117,9 +112,8 @@ public class LinkWires {
 		return newLinkWires;
 	}
 	
-	private Pair<List<Wire>, List<PortConnection>> findAttachedConnections(Wire wire) {
-		List<Wire> attachedWires = new ArrayList<>();
-		List<PortConnection> attachedPorts = new ArrayList<>();
+	private LinkWires findAttachedConnections(Wire wire) {
+		LinkWires linkWires = new LinkWires();
 		
 		Connection start = wire.getConnections().get(0);
 		Connection end = wire.getConnections().get(wire.getConnections().size() - 1);
@@ -131,7 +125,7 @@ public class LinkWires {
 			for(Connection c : w.getConnections()) {
 				if((c.getX() == start.getX() && c.getY() == start.getY()) ||
 						   (c.getX() == end.getX() && c.getY() == end.getY())) {
-					attachedWires.add(w);
+					linkWires.addWire(w);
 					iter.remove();
 					added = true;
 					break;
@@ -145,7 +139,7 @@ public class LinkWires {
 				for(Connection c : wire.getConnections()) {
 					if((c.getX() == wStart.getX() && c.getY() == wStart.getY()) ||
 							   (c.getX() == wEnd.getX() && c.getY() == wEnd.getY())) {
-						attachedWires.add(w);
+						linkWires.addWire(w);
 						iter.remove();
 						break;
 					}
@@ -153,26 +147,24 @@ public class LinkWires {
 			}
 		}
 		
-		for(Wire attachedWire : new ArrayList<>(attachedWires)) {
-			Pair<List<Wire>, List<PortConnection>> attachedConnections = findAttachedConnections(attachedWire);
-			attachedWires.addAll(attachedConnections.first);
-			attachedPorts.addAll(attachedConnections.second);
+		for(Wire attachedWire : new ArrayList<>(linkWires.getWires())) {
+			linkWires.merge(findAttachedConnections(attachedWire));
 		}
 		
 		Set<PortConnection> allPorts = new HashSet<>();
 		allPorts.addAll(ports);
-		allPorts.addAll(badPorts);
+		allPorts.addAll(invalidPorts);
 		allPorts.forEach(port -> {
 			for(Connection c : wire.getConnections()) {
 				if(port.getX() == c.getX() && port.getY() == c.getY()) {
-					attachedPorts.add(port);
 					removePort(port);
+					linkWires.addPort(port);
 					break;
 				}
 			}
 		});
 		
-		return new Pair<>(attachedWires, attachedPorts);
+		return linkWires;
 	}
 	
 	public void addPort(PortConnection port) {
@@ -180,14 +172,12 @@ public class LinkWires {
 		
 		if(ports.size() > 0) {
 			Link link = getLink();
-			if(port.getLink() != link) {
-				try {
-					link.linkPort(port.getPort());
-				} catch(Exception exc) {
-					exc.printStackTrace();
-					badPorts.add(port);
-					return;
-				}
+			try {
+				link.linkPort(port.getPort());
+			} catch(Exception exc) {
+				exc.printStackTrace();
+				invalidPorts.add(port);
+				return;
 			}
 		}
 		
@@ -198,13 +188,13 @@ public class LinkWires {
 		return ports;
 	}
 	
-	public Set<PortConnection> getBadPorts() {
-		return badPorts;
+	public Set<PortConnection> getInvalidPorts() {
+		return invalidPorts;
 	}
 	
 	public void removePort(PortConnection port) {
 		if(!ports.contains(port)) {
-			if(badPorts.remove(port)) {
+			if(invalidPorts.remove(port)) {
 				port.setLinkWires(null);
 			}
 			
@@ -217,13 +207,13 @@ public class LinkWires {
 	}
 	
 	public void clear() {
-		Stream.concat(new HashSet<>(ports).stream(), new HashSet<>(badPorts).stream()).forEach(this::removePort);
+		Stream.concat(new HashSet<>(ports).stream(), new HashSet<>(invalidPorts).stream()).forEach(this::removePort);
 		new HashSet<>(wires).forEach(this::removeWire);
 	}
 	
 	public LinkWires merge(LinkWires other) {
 		other.ports.forEach(this::addPort);
-		other.badPorts.forEach(this::addPort);
+		other.invalidPorts.forEach(this::addPort);
 		other.wires.forEach(this::addWire);
 		return this;
 	}
@@ -243,7 +233,7 @@ public class LinkWires {
 		public Wire(LinkWires linkWires, int startX, int startY, int length, boolean horizontal) {
 			super(startX, startY, horizontal ? Math.abs(length) : 0, horizontal ? 0 : Math.abs(length));
 			
-			this.linkWires = linkWires;
+			setLinkWires(linkWires);
 			
 			if(length == 0)
 				throw new IllegalArgumentException("Length cannot be 0");
@@ -275,11 +265,12 @@ public class LinkWires {
 		}
 		
 		public void setLinkWires(LinkWires linkWires) {
-			this.linkWires = linkWires;
-			
-			for(Connection connection : connections) {
-				connection.setLinkWires(linkWires);
+			if(linkWires == null) {
+				linkWires = new LinkWires();
+				linkWires.addWire(this);
 			}
+			
+			this.linkWires = linkWires;
 		}
 		
 		public int getLength() {
@@ -294,6 +285,14 @@ public class LinkWires {
 			return wire.horizontal == this.horizontal &&
 					       this.getX() >= wire.getX() && this.getX() + this.getWidth() <= wire.getX() + wire.getWidth() &&
 						   this.getY() >= wire.getY() && this.getY() + this.getHeight() <= wire.getY() + wire.getHeight();
+		}
+		
+		public Connection getStartConnection() {
+			return connections.get(0);
+		}
+		
+		public Connection getEndConnection() {
+			return connections.get(connections.size() - 1);
 		}
 		
 		@Override
@@ -319,7 +318,7 @@ public class LinkWires {
 		@Override
 		public void paint(GraphicsContext graphics, CircuitState circuitState) {
 			graphics.setLineWidth(2);
-			if(linkWires.isLinkGood()) {
+			if(linkWires.isLinkValid()) {
 				Link link = linkWires.getLink();
 				if(link != null) {
 					if(circuitState.isShortCircuited(link)) {

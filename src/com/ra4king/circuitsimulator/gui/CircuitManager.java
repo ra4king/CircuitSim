@@ -220,13 +220,7 @@ public class CircuitManager {
 				}
 			case BACK_SPACE:
 			case DELETE:
-				for(GuiElement selectedElement : selectedElementsMap.keySet()) {
-					if(selectedElement instanceof ComponentPeer) {
-						circuitBoard.removeComponent((ComponentPeer)selectedElement);
-					} else if(selectedElement instanceof Wire) {
-						circuitBoard.removeWire((Wire)selectedElement);
-					}
-				}
+				circuitBoard.removeElements(selectedElementsMap.keySet());
 			case ESCAPE:
 				selectedElementsMap.clear();
 				reset();
@@ -309,11 +303,12 @@ public class CircuitManager {
 		if(selecting && !selectedElementsMap.isEmpty()) {
 			for(Entry<GuiElement, Point2D> entry : selectedElementsMap.entrySet()) {
 				Point2D diff = draggedPoint.subtract(startPoint).multiply(1.0 / GuiUtils.BLOCK_SIZE);
+				int newX = (int)(entry.getValue().getX() + diff.getX());
+				int newY = (int)(entry.getValue().getY() + diff.getY());
 				
-				if(entry.getKey() instanceof ComponentPeer) {
-					circuitBoard.moveComponent((ComponentPeer<?>)entry.getKey(),
-							(int)(entry.getValue().getX() + diff.getX()),
-							(int)(entry.getValue().getY() + diff.getY()));
+				if(entry.getKey() instanceof ComponentPeer
+				   && (entry.getKey().getX() != newX || entry.getKey().getY() != newY)) {
+					circuitBoard.moveComponent((ComponentPeer<?>)entry.getKey(), newX, newY);
 				}
 			}
 		}

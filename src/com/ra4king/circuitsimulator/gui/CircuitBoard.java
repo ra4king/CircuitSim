@@ -91,13 +91,9 @@ public class CircuitBoard {
 					if(attached instanceof WireConnection) {
 						linkWires.addPort((PortConnection)connection);
 						toReAdd.add((Wire)attached.getParent());
-					} else if(linkWires == null) {
-						linkWires = new LinkWires();
+					} else if(attached instanceof PortConnection) {
 						linkWires.addPort((PortConnection)connection);
-						linkWires.addPort((PortConnection)attached);
 						links.add(linkWires);
-					} else if(links.remove(linkWires)) {
-						handleConnection(connection, linkWires);
 					}
 				}
 			}
@@ -117,12 +113,32 @@ public class CircuitBoard {
 		runSim();
 	}
 	
-	public void moveComponent(ComponentPeer<?> componentPeer, int x, int y) {
-		removeComponent(componentPeer);
-		componentPeer.setX(x);
-		componentPeer.setY(y);
-		addComponent(componentPeer);
+	public void moveElements(Set<GuiElement> elements, int dx, int dy) {
+		removeElements(elements);
+		
+		for(GuiElement element : elements) {
+			element.setX(element.getX() + dx);
+			element.setY(element.getY() + dy);
+			
+			if(element instanceof ComponentPeer<?>) {
+				addComponent((ComponentPeer<?>)element);
+			} else if(element instanceof Wire) {
+				Wire wire = (Wire)element;
+				addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+			}
+		}
 	}
+	
+//	private void moveComponent(ComponentPeer<?> componentPeer, int dx, int dy) {
+//		removeComponent(componentPeer);
+//		componentPeer.setX(componentPeer.getX() + dx);
+//		componentPeer.setY(componentPeer.getY() + dy);
+//		addComponent(componentPeer);
+//	}
+//	
+//	private void moveWire(Wire wire, int dx, int y) {
+//		removeWire(wire);
+//	}
 	
 	public void removeElements(Set<GuiElement> elements) {
 		Map<LinkWires, Set<Wire>> wiresToRemove = new HashMap<>();
@@ -132,15 +148,27 @@ public class CircuitBoard {
 				removeComponent((ComponentPeer<?>)element);
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
+				if(!links.contains(wire.getLinkWires())) {
+					outer:
+					for(LinkWires link : links) {
+						for(Wire w : link.getWires()) {
+							if(w.equals(wire)) {
+								wire = w;
+								break outer;
+							}
+						}
+					}
+					
+					if(wire == element) {
+						continue;
+					}
+				}
+				
 				wire.getConnections().forEach(this::removeConnection);
 				
 				LinkWires linkWires = wire.getLinkWires();
 				if(linkWires == null) {
 					continue;
-				}
-				
-				if(!links.contains(linkWires)) {
-					throw new IllegalStateException("This is pretty bad. Please save this entire log and contact the devs.");
 				}
 				
 				Set<Wire> set = wiresToRemove.containsKey(linkWires) ? wiresToRemove.get(linkWires) : new HashSet<>();

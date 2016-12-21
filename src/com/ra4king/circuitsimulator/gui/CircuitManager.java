@@ -2,7 +2,6 @@ package com.ra4king.circuitsimulator.gui;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -239,7 +238,9 @@ public class CircuitManager {
 			}
 		} else {
 			startPoint = new Point2D(e.getX(), e.getY());
-			draggedPoint = new Point2D(e.getX(), e.getY());
+			draggedPoint = startPoint;
+			lastDx = 0;
+			lastDy = 0;
 			
 			Optional<GuiElement> clickedComponent =
 					Stream.concat(circuitBoard.getComponents().stream(), circuitBoard.getLinks()
@@ -299,17 +300,21 @@ public class CircuitManager {
 		repaint();
 	}
 	
+	private int lastDx;
+	private int lastDy;
+	
 	public void mouseDragged(MouseEvent e) {
+		Point2D curPos = new Point2D(e.getX(), e.getY());
+		
 		if(selecting && !selectedElementsMap.isEmpty()) {
-			for(Entry<GuiElement, Point2D> entry : selectedElementsMap.entrySet()) {
-				Point2D diff = draggedPoint.subtract(startPoint).multiply(1.0 / GuiUtils.BLOCK_SIZE);
-				int newX = (int)(entry.getValue().getX() + diff.getX());
-				int newY = (int)(entry.getValue().getY() + diff.getY());
-				
-				if(entry.getKey() instanceof ComponentPeer
-				   && (entry.getKey().getX() != newX || entry.getKey().getY() != newY)) {
-					circuitBoard.moveComponent((ComponentPeer<?>)entry.getKey(), newX, newY);
-				}
+			Point2D diff = curPos.subtract(startPoint).multiply(1.0 / GuiUtils.BLOCK_SIZE);
+			int dx = (int)diff.getX() - lastDx;
+			int dy = (int)diff.getY() - lastDy;
+			
+			if(dx != 0 || dy != 0) {
+				circuitBoard.moveElements(selectedElementsMap.keySet(), dx, dy);
+				lastDx += dx;
+				lastDy += dy;
 			}
 		}
 		else if(startPoint != null) {
@@ -342,7 +347,7 @@ public class CircuitManager {
 				}
 			}
 			
-			draggedPoint = new Point2D(e.getX(), e.getY());
+			draggedPoint = curPos;
 			endConnection = circuitBoard.findConnection(
 					GuiUtils.getCircuitCoord(draggedPoint.getX()),
 					GuiUtils.getCircuitCoord(draggedPoint.getY()));

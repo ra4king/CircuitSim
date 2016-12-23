@@ -48,7 +48,7 @@ public class CircuitManager {
 	};
 	
 	private Connection startConnection, endConnection;
-	private Point2D startPoint, draggedPoint;
+	private Point2D startPoint, curDraggedPoint, draggedDelta;
 	private boolean isDraggedHorizontally;
 	
 	private boolean ctrlDown;
@@ -132,11 +132,11 @@ public class CircuitManager {
 				graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10, 10);
 			}
 			
-			if(draggedPoint != null) {
+			if(curDraggedPoint != null) {
 				int startX = startConnection.getScreenX() + startConnection.getScreenWidth() / 2;
 				int startY = startConnection.getScreenY() + startConnection.getScreenHeight() / 2;
-				int pointX = GuiUtils.getScreenCircuitCoord(draggedPoint.getX());
-				int pointY = GuiUtils.getScreenCircuitCoord(draggedPoint.getY());
+				int pointX = GuiUtils.getScreenCircuitCoord(curDraggedPoint.getX());
+				int pointY = GuiUtils.getScreenCircuitCoord(curDraggedPoint.getY());
 				graphics.setStroke(Color.BLACK);
 				if(isDraggedHorizontally) {
 					graphics.strokeLine(startX, startY, pointX, startY);
@@ -159,10 +159,10 @@ public class CircuitManager {
 				graphics.restore();
 			}
 		} else if(!selecting && startPoint != null) {
-			double startX = startPoint.getX() < draggedPoint.getX() ? startPoint.getX() : draggedPoint.getX();
-			double startY = startPoint.getY() < draggedPoint.getY() ? startPoint.getY() : draggedPoint.getY();
-			double width = Math.abs(draggedPoint.getX() - startPoint.getX());
-			double height = Math.abs(draggedPoint.getY() - startPoint.getY());
+			double startX = startPoint.getX() < curDraggedPoint.getX() ? startPoint.getX() : curDraggedPoint.getX();
+			double startY = startPoint.getY() < curDraggedPoint.getY() ? startPoint.getY() : curDraggedPoint.getY();
+			double width = Math.abs(curDraggedPoint.getX() - startPoint.getX());
+			double height = Math.abs(curDraggedPoint.getY() - startPoint.getY());
 			
 			graphics.setStroke(Color.GREEN.darker());
 			graphics.strokeRect(startX, startY, width, height);
@@ -171,8 +171,8 @@ public class CircuitManager {
 		for(GuiElement selectedElement : selectedElementsMap.keySet()) {
 			graphics.setStroke(Color.RED);
 			if(selectedElement instanceof Wire) {
-				graphics.strokeRect(selectedElement.getScreenX() - 1, selectedElement.getScreenY() - 1,
-						selectedElement.getScreenWidth() + 2, selectedElement.getScreenHeight() + 2);
+				graphics.strokeRect(selectedElement.getScreenX() - 2, selectedElement.getScreenY() - 2,
+						selectedElement.getScreenWidth() + 4, selectedElement.getScreenHeight() + 4);
 			} else {
 				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
 			}
@@ -186,7 +186,7 @@ public class CircuitManager {
 		startConnection = null;
 		endConnection = null;
 		startPoint = null;
-		draggedPoint = null;
+		curDraggedPoint = null;
 		selecting = false;
 	}
 	
@@ -220,8 +220,16 @@ public class CircuitManager {
 			case BACK_SPACE:
 			case DELETE:
 				circuitBoard.removeElements(selectedElementsMap.keySet());
-			case ESCAPE:
 				selectedElementsMap.clear();
+			case ESCAPE:
+				if(!selectedElementsMap.isEmpty()) {
+					if(draggedDelta != null) {
+						circuitBoard.moveElements(-(int)draggedDelta.getX(), -(int)draggedDelta.getY());
+						circuitBoard.finalizeMove();
+						draggedDelta = null;
+					}
+					selectedElementsMap.clear();
+				}
 				reset();
 				break;
 		}
@@ -231,16 +239,15 @@ public class CircuitManager {
 	
 	public void mousePressed(MouseEvent e) {
 		if(startConnection != null) {
-			draggedPoint = new Point2D(e.getX(), e.getY());
+			curDraggedPoint = new Point2D(e.getX(), e.getY());
 		} else if(potentialComponent != null) {
 			if(componentCreator != null) {
 				circuitBoard.createComponent(componentCreator, potentialComponent.getX(), potentialComponent.getY());
 			}
 		} else {
 			startPoint = new Point2D(e.getX(), e.getY());
-			draggedPoint = startPoint;
-			lastDx = 0;
-			lastDy = 0;
+			curDraggedPoint = startPoint;
+			draggedDelta = null;
 			
 			Optional<GuiElement> clickedComponent =
 					Stream.concat(circuitBoard.getComponents().stream(), circuitBoard.getLinks()
@@ -272,12 +279,17 @@ public class CircuitManager {
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		if(draggedPoint != null && startConnection != null) {
+		if(selecting && !selectedElementsMap.isEmpty() && draggedDelta != null) {
+			circuitBoard.finalizeMove();
+			draggedDelta = null;
+		}
+		
+		if(curDraggedPoint != null && startConnection != null) {
 			int endMidX = endConnection == null
-					              ? GuiUtils.getCircuitCoord(draggedPoint.getX())
+					              ? GuiUtils.getCircuitCoord(curDraggedPoint.getX())
 					              : endConnection.getX();
 			int endMidY = endConnection == null
-					              ? GuiUtils.getCircuitCoord(draggedPoint.getY())
+					              ? GuiUtils.getCircuitCoord(curDraggedPoint.getY())
 					              : endConnection.getY();
 			
 			if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
@@ -300,41 +312,42 @@ public class CircuitManager {
 		repaint();
 	}
 	
-	private int lastDx;
-	private int lastDy;
-	
 	public void mouseDragged(MouseEvent e) {
 		Point2D curPos = new Point2D(e.getX(), e.getY());
 		
 		if(selecting && !selectedElementsMap.isEmpty()) {
+			if(draggedDelta == null) {
+				circuitBoard.initMove(selectedElementsMap.keySet());
+				draggedDelta = new Point2D(0, 0);
+			}
+			
 			Point2D diff = curPos.subtract(startPoint).multiply(1.0 / GuiUtils.BLOCK_SIZE);
-			int dx = (int)diff.getX() - lastDx;
-			int dy = (int)diff.getY() - lastDy;
+			int dx = (int)(diff.getX() - draggedDelta.getX());
+			int dy = (int)(diff.getY() - draggedDelta.getY());
 			
 			if(dx != 0 || dy != 0) {
-				circuitBoard.moveElements(selectedElementsMap.keySet(), dx, dy);
-				lastDx += dx;
-				lastDy += dy;
+				circuitBoard.moveElements(dx, dy);
+				draggedDelta = draggedDelta.add(dx, dy);
 			}
 		}
 		else if(startPoint != null) {
-			int startX = (int)(startPoint.getX() < draggedPoint.getX() ? startPoint.getX() : draggedPoint.getX());
-			int startY = (int)(startPoint.getY() < draggedPoint.getY() ? startPoint.getY() : draggedPoint.getY());
-			int width = (int)Math.abs(draggedPoint.getX() - startPoint.getX());
-			int height = (int)Math.abs(draggedPoint.getY() - startPoint.getY());
+			int startX = (int)(startPoint.getX() < curDraggedPoint.getX() ? startPoint.getX() : curDraggedPoint.getX());
+			int startY = (int)(startPoint.getY() < curDraggedPoint.getY() ? startPoint.getY() : curDraggedPoint.getY());
+			int width = (int)Math.abs(curDraggedPoint.getX() - startPoint.getX());
+			int height = (int)Math.abs(curDraggedPoint.getY() - startPoint.getY());
 			
 			selectedElementsMap = Stream.concat(circuitBoard.getComponents().stream(),
 							circuitBoard.getLinks().stream().flatMap(link -> link.getWires().stream()))
-							.filter(peer -> peer.intersectsScreenCoord(startX, startY, width, height))
+							.filter(peer -> peer.isWithinScreenCoord(startX, startY, width, height))
 							.collect(Collectors.toMap(peer -> peer, peer -> new Point2D(peer.getX(), peer.getY())));
 		}
 		
-		if(draggedPoint != null) {
+		if(curDraggedPoint != null) {
 			if(startConnection != null) {
 				int currDiffX = GuiUtils.getCircuitCoord(e.getX()) - startConnection.getX();
-				int prevDiffX = GuiUtils.getCircuitCoord(draggedPoint.getX()) - startConnection.getX();
+				int prevDiffX = GuiUtils.getCircuitCoord(curDraggedPoint.getX()) - startConnection.getX();
 				int currDiffY = GuiUtils.getCircuitCoord(e.getY()) - startConnection.getY();
-				int prevDiffY = GuiUtils.getCircuitCoord(draggedPoint.getY()) - startConnection.getY();
+				int prevDiffY = GuiUtils.getCircuitCoord(curDraggedPoint.getY()) - startConnection.getY();
 				
 				if(currDiffX == 0 || prevDiffX == 0 ||
 						   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
@@ -347,10 +360,10 @@ public class CircuitManager {
 				}
 			}
 			
-			draggedPoint = curPos;
+			curDraggedPoint = curPos;
 			endConnection = circuitBoard.findConnection(
-					GuiUtils.getCircuitCoord(draggedPoint.getX()),
-					GuiUtils.getCircuitCoord(draggedPoint.getY()));
+					GuiUtils.getCircuitCoord(curDraggedPoint.getX()),
+					GuiUtils.getCircuitCoord(curDraggedPoint.getY()));
 		}
 		
 		repaint();

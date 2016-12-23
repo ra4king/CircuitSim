@@ -84,16 +84,16 @@ public abstract class GuiElement {
 		return x >= getX() && x + width <= getX() + getWidth() && y >= getY() && y + height <= getY() + getHeight();
 	}
 	
-	public boolean isContainedIn(GuiElement element) {
-		return isContainedIn(element.getX(), element.getY(), element.getWidth(), element.getHeight());
+	public boolean isWithin(GuiElement element) {
+		return isWithin(element.getX(), element.getY(), element.getWidth(), element.getHeight());
 	}
 	
-	public boolean isContainedInScreenCoord(int x, int y, int width, int height) {
+	public boolean isWithinScreenCoord(int x, int y, int width, int height) {
 		return getScreenX() >= x && getScreenX() + getScreenWidth() <= x + width &&
 				       getScreenY() >= y && getScreenY() + getScreenHeight() <= y + height;
 	}
 	
-	public boolean isContainedIn(int x, int y, int width, int height) {
+	public boolean isWithin(int x, int y, int width, int height) {
 		return getX() >= x && getX() + getWidth() <= x + width && getY() >= y && getY() + getHeight() <= y + height;
 	}
 	

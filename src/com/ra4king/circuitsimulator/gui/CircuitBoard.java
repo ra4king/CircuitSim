@@ -31,6 +31,8 @@ public class CircuitBoard {
 	private Set<LinkWires> links;
 	private Set<LinkWires> badLinks;
 	
+	private Set<GuiElement> moveElements;
+	
 	private Map<Pair<Integer, Integer>, Set<Connection>> connectionsMap;
 	
 	public CircuitBoard(Simulator simulator) {
@@ -88,12 +90,14 @@ public class CircuitBoard {
 			if(connections != null) {
 				for(Connection attached : connections) {
 					LinkWires linkWires = attached.getLinkWires();
+					linkWires.addPort((PortConnection)connection);
+					links.add(linkWires);
+					
 					if(attached instanceof WireConnection) {
-						linkWires.addPort((PortConnection)connection);
-						toReAdd.add((Wire)attached.getParent());
-					} else if(attached instanceof PortConnection) {
-						linkWires.addPort((PortConnection)connection);
-						links.add(linkWires);
+						Wire wire = (Wire)attached.getParent();
+						if(attached != wire.getStartConnection() && attached != wire.getEndConnection()) {
+							toReAdd.add(wire);
+						}
 					}
 				}
 			}
@@ -113,13 +117,26 @@ public class CircuitBoard {
 		runSim();
 	}
 	
-	public void moveElements(Set<GuiElement> elements, int dx, int dy) {
-		removeElements(elements);
+	public void initMove(Set<GuiElement> elements) {
+		if(moveElements != null) {
+			finalizeMove();
+		}
 		
-		for(GuiElement element : elements) {
+		moveElements = elements;
+		removeElements(elements);
+	}
+	
+	public void moveElements(int dx, int dy) {
+		for(GuiElement element : moveElements) {
 			element.setX(element.getX() + dx);
 			element.setY(element.getY() + dy);
-			
+		}
+		
+		// TODO: Add wires to attach connections
+	}
+	
+	public void finalizeMove() {
+		for(GuiElement element : moveElements) {
 			if(element instanceof ComponentPeer<?>) {
 				addComponent((ComponentPeer<?>)element);
 			} else if(element instanceof Wire) {
@@ -127,18 +144,9 @@ public class CircuitBoard {
 				addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
 			}
 		}
+		
+		moveElements = null;
 	}
-	
-//	private void moveComponent(ComponentPeer<?> componentPeer, int dx, int dy) {
-//		removeComponent(componentPeer);
-//		componentPeer.setX(componentPeer.getX() + dx);
-//		componentPeer.setY(componentPeer.getY() + dy);
-//		addComponent(componentPeer);
-//	}
-//	
-//	private void moveWire(Wire wire, int dx, int y) {
-//		removeWire(wire);
-//	}
 	
 	public void removeElements(Set<GuiElement> elements) {
 		Map<LinkWires, Set<Wire>> wiresToRemove = new HashMap<>();
@@ -306,6 +314,7 @@ public class CircuitBoard {
 	
 	private void addWire(LinkWires linkWires, Wire wire) {
 		linkWires.addWire(wire);
+		links.add(linkWires);
 		wire.getConnections().forEach(this::addConnection);
 	}
 	
@@ -321,6 +330,8 @@ public class CircuitBoard {
 	}
 	
 	private void rejoinWires() {
+		Set<Boolean> changed = new HashSet<>();
+		
 		links.forEach(linkWires -> {
 			Set<Wire> removed = new HashSet<>();
 			for(Wire wire : new HashSet<>(linkWires.getWires())) {
@@ -378,9 +389,14 @@ public class CircuitBoard {
 					removeWire(wire);
 					removed.add(wire);
 					addWire(linkWires, new Wire(linkWires, x, y, length, wire.isHorizontal()));
+					changed.add(true);
 				}
 			}
 		});
+		
+		if(!changed.isEmpty()) {
+			rejoinWires();
+		}
 	}
 	
 	private void removeComponent(ComponentPeer<?> component) {
@@ -450,14 +466,12 @@ public class CircuitBoard {
 				wire.paint(graphics, circuit.getTopLevelState());
 				graphics.restore();
 				
-				List<Connection> connections = wire.getConnections();
-				
 				graphics.save();
-				connections.get(0).paint(graphics, circuit.getTopLevelState());
+				wire.getStartConnection().paint(graphics, circuit.getTopLevelState());
 				graphics.restore();
 				
 				graphics.save();
-				connections.get(connections.size() - 1).paint(graphics, circuit.getTopLevelState());
+				wire.getEndConnection().paint(graphics, circuit.getTopLevelState());
 				graphics.restore();
 			}
 		});
@@ -477,6 +491,10 @@ public class CircuitBoard {
 							                                                                     20);
 				});
 			});
+		}
+		
+		if(moveElements != null) {
+			moveElements.forEach(element -> element.paint(graphics, circuit.getTopLevelState()));
 		}
 	}
 	

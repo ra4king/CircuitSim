@@ -68,16 +68,26 @@ public abstract class Connection {
 	
 	public static class PortConnection extends Connection {
 		private Port port;
+		private String name;
 		private LinkWires linkWires;
 		
 		public PortConnection(ComponentPeer<?> parent, Port port, int x, int y) {
+			this(parent, port, "", x, y);
+		}
+		
+		public PortConnection(ComponentPeer<?> parent, Port port, String name, int x, int y) {
 			super(parent, x, y);
 			this.port = port;
+			this.name = name;
 			setLinkWires(null);
 		}
 		
 		public Port getPort() {
 			return port;
+		}
+		
+		public String getName() {
+			return name;
 		}
 		
 		public void setLinkWires(LinkWires linkWires) {

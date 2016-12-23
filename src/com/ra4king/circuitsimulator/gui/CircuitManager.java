@@ -3,10 +3,12 @@ package com.ra4king.circuitsimulator.gui;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
+import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
@@ -19,6 +21,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 
 import javafx.application.Platform;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -26,6 +29,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 /**
  * @author Roi Atalla
@@ -144,6 +148,27 @@ public class CircuitManager {
 				} else {
 					graphics.strokeLine(startX, startY, startX, pointY);
 					graphics.strokeLine(startX, pointY, pointX, pointY);
+				}
+			} else if(startConnection instanceof PortConnection) {
+				PortConnection portConnection = (PortConnection)startConnection;
+				String name = portConnection.getName();
+				if(!name.isEmpty()) {
+					Text text = new Text(name);
+					text.setFont(graphics.getFont());
+					Bounds bounds = text.getLayoutBounds();
+					
+					double x = startConnection.getScreenX() - bounds.getWidth() / 2 - 3;
+					double y = startConnection.getScreenY() + 30;
+					double width = bounds.getWidth() + 6;
+					double height = bounds.getHeight() + 3;
+					
+					graphics.setLineWidth(1);
+					graphics.setStroke(Color.BLACK);
+					graphics.setFill(Color.ORANGE.brighter());
+					graphics.fillRect(x, y, width, height);
+					graphics.strokeRect(x, y, width, height);
+					
+					graphics.strokeText(name, x + 3, y + height - 5);
 				}
 			}
 			
@@ -378,7 +403,20 @@ public class CircuitManager {
 			repaint = true;
 		}
 		
-		Connection selected = circuitBoard.findConnection(GuiUtils.getCircuitCoord(e.getX()), GuiUtils.getCircuitCoord(e.getY()));
+		Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()), GuiUtils.getCircuitCoord(e.getY()));
+		
+		Connection selected = null;
+		
+		for(Connection connection : selectedConns) {
+			if(connection instanceof PortConnection) {
+				selected = connection;
+				break;
+			}
+		}
+		
+		if(selected == null && !selectedConns.isEmpty()) {
+			selected = selectedConns.iterator().next();
+		}
 		
 		if(selected != startConnection) {
 			startConnection = selected;

@@ -22,11 +22,11 @@ public class AdderPeer extends ComponentPeer<Adder> {
 	public AdderPeer(Adder adder, int x, int y) {
 		super(adder, x, y, 2, 3);
 		
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_A), 0, 1));
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_B), 0, 2));
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_IN), 1, 0));
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_OUT), getWidth(), 1));
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_OUT), 1, getHeight()));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_A), "A", 0, 1));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_B), "B", 0, 2));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_IN), "Carry in", 1, 0));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_OUT), "Out", getWidth(), 1));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_OUT), "Carry out", 1, getHeight()));
 	}
 	
 	@Override

@@ -22,12 +22,12 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	public RAMPeer(RAM ram, int x, int y) {
 		super(ram, x, y, 5, 4);
 		
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), 0, 2));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLK), 1, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), 2, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), 3, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), 4, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA), getWidth(), 2));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), "Address", 0, 2));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLK), "Clock", 1, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), "Enable", 2, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), "Load", 3, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), "Clear", 4, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA), "Data", getWidth(), 2));
 	}
 	
 	@Override

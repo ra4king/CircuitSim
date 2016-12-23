@@ -440,7 +440,7 @@ public class CircuitBoard {
 	
 	public Set<Connection> getConnections(int x, int y) {
 		Pair<Integer, Integer> pair = new Pair<>(x, y);
-		return connectionsMap.containsKey(pair) ? connectionsMap.get(pair) : null;
+		return connectionsMap.containsKey(pair) ? connectionsMap.get(pair) : Collections.emptySet();
 	}
 	
 	public void paint(GraphicsContext graphics) {

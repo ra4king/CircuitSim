@@ -22,9 +22,9 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 	public ControlledBufferPeer(ControlledBuffer buffer, int x, int y) {
 		super(buffer, x, y, 2, 2);
 		
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), 1, 0));
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_ENABLE), 0, 1));
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT), 1, getHeight()));
+		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), "In", 1, 0));
+		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_ENABLE), "Enable", 0, 1));
+		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT), "Out", 1, getHeight()));
 	}
 	
 	@Override

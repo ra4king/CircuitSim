@@ -22,6 +22,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
 /**
@@ -109,8 +110,8 @@ public class CircuitSimulator extends Application {
 		secondaryOptionSelect.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> modifiedSelection());
 		
 		canvasTabPane = new TabPane();
-		canvasTabPane.setMinWidth(800);
-		canvasTabPane.setMinHeight(600);
+		canvasTabPane.setPrefWidth(800);
+		canvasTabPane.setPrefHeight(600);
 		
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			if(oldValue != null) {
@@ -121,9 +122,6 @@ public class CircuitSimulator extends Application {
 			
 			modifiedSelection();
 		});
-		
-		HBox hBox = new HBox(buttons, canvasTabPane);
-		Scene scene = new Scene(hBox);
 		
 		for(int i = 0; i < 3; i++) {
 			Canvas canvas = new Canvas(800, 600) {
@@ -148,18 +146,18 @@ public class CircuitSimulator extends Application {
 				}
 				
 				@Override
-				public double prefWidth(double height) {
+				public double prefWidth(double width) {
 					return getWidth();
 				}
 				
 				@Override
-				public double prefHeight(double width) {
+				public double prefHeight(double height) {
 					return getHeight();
 				}
 			};
 			
-			canvas.widthProperty().bind(scene.widthProperty());
-			canvas.heightProperty().bind(scene.heightProperty());
+			canvas.widthProperty().bind(canvasTabPane.widthProperty());
+			canvas.heightProperty().bind(canvasTabPane.heightProperty());
 			
 			canvas.addEventHandler(MouseEvent.ANY, e -> canvas.requestFocus());
 			canvas.addEventHandler(MouseEvent.MOUSE_MOVED, this::mouseMoved);
@@ -198,6 +196,10 @@ public class CircuitSimulator extends Application {
 		
 		buttons.setMinWidth(150);
 		buttons.setMinHeight(600);
+		
+		HBox hBox = new HBox(buttons, canvasTabPane);
+		HBox.setHgrow(canvasTabPane, Priority.ALWAYS);
+		Scene scene = new Scene(hBox);
 		
 		stage.setScene(scene);
 		stage.setTitle("Circuit Simulator");

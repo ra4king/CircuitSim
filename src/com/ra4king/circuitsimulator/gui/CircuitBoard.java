@@ -444,37 +444,9 @@ public class CircuitBoard {
 	}
 	
 	public void paint(GraphicsContext graphics) {
-		components.forEach(peer -> {
-			graphics.save();
-			peer.paint(graphics, circuit.getTopLevelState());
-			graphics.restore();
-			
-			for(Connection connection : peer.getConnections()) {
-				graphics.save();
-				connection.paint(graphics, circuit.getTopLevelState());
-				graphics.restore();
-			}
-		});
+		components.forEach(component -> paintComponent(graphics, component));
 		
-		links.forEach(linkWire -> {
-			graphics.save();
-			linkWire.paint(graphics, circuit.getTopLevelState());
-			graphics.restore();
-			
-			for(Wire wire : linkWire.getWires()) {
-				graphics.save();
-				wire.paint(graphics, circuit.getTopLevelState());
-				graphics.restore();
-				
-				graphics.save();
-				wire.getStartConnection().paint(graphics, circuit.getTopLevelState());
-				graphics.restore();
-				
-				graphics.save();
-				wire.getEndConnection().paint(graphics, circuit.getTopLevelState());
-				graphics.restore();
-			}
-		});
+		links.forEach(linkWire -> linkWire.getWires().forEach(wire -> paintWire(graphics, wire)));
 		
 		if(badLinks != null) {
 			badLinks.forEach(badLink -> {
@@ -494,8 +466,45 @@ public class CircuitBoard {
 		}
 		
 		if(moveElements != null) {
-			moveElements.forEach(element -> element.paint(graphics, circuit.getTopLevelState()));
+			graphics.save();
+			graphics.setGlobalAlpha(0.5);
+			
+			moveElements.forEach(element -> {
+				if(element instanceof ComponentPeer<?>) {
+					paintComponent(graphics, (ComponentPeer<?>)element);
+				} else if(element instanceof Wire) {
+					paintWire(graphics, (Wire)element);
+				}
+			});
+			
+			graphics.restore();
 		}
+	}
+	
+	private void paintComponent(GraphicsContext graphics, ComponentPeer<?> component) {
+		graphics.save();
+		component.paint(graphics, circuit.getTopLevelState());
+		graphics.restore();
+		
+		for(Connection connection : component.getConnections()) {
+			graphics.save();
+			connection.paint(graphics, circuit.getTopLevelState());
+			graphics.restore();
+		}
+	}
+	
+	private void paintWire(GraphicsContext graphics, Wire wire) {
+		graphics.save();
+		wire.paint(graphics, circuit.getTopLevelState());
+		graphics.restore();
+		
+		graphics.save();
+		wire.getStartConnection().paint(graphics, circuit.getTopLevelState());
+		graphics.restore();
+		
+		graphics.save();
+		wire.getEndConnection().paint(graphics, circuit.getTopLevelState());
+		graphics.restore();
 	}
 	
 	private void addConnection(Connection connection) {

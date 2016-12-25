@@ -218,12 +218,6 @@ public class LinkWires {
 		return this;
 	}
 	
-	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		for(Wire wire : wires) {
-			wire.paint(graphics, circuitState);
-		}
-	}
-	
 	public static class Wire extends GuiElement {
 		private LinkWires linkWires;
 		private int length;

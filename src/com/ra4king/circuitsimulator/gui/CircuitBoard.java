@@ -122,7 +122,7 @@ public class CircuitBoard {
 		}
 		
 		moveElements = elements;
-		removeElements(elements);
+		removeElements(elements, false);
 	}
 	
 	public void moveElements(int dx, int dy) {
@@ -148,11 +148,15 @@ public class CircuitBoard {
 	}
 	
 	public void removeElements(Set<GuiElement> elements) {
+		removeElements(elements, true);
+	}
+	
+	private void removeElements(Set<GuiElement> elements, boolean removeFromCircuit) {
 		Map<LinkWires, Set<Wire>> wiresToRemove = new HashMap<>();
 		
 		for(GuiElement element : elements) {
 			if(element instanceof ComponentPeer<?>) {
-				removeComponent((ComponentPeer<?>)element);
+				removeComponent((ComponentPeer<?>)element, removeFromCircuit);
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
 				if(!links.contains(wire.getLinkWires())) {
@@ -399,7 +403,7 @@ public class CircuitBoard {
 		}
 	}
 	
-	private void removeComponent(ComponentPeer<?> component) {
+	private void removeComponent(ComponentPeer<?> component, boolean removeFromCircuit) {
 		for(Connection connection : component.getConnections()) {
 			removeConnection(connection);
 			
@@ -414,7 +418,10 @@ public class CircuitBoard {
 			}
 		}
 		components.remove(component);
-		circuit.removeComponent(component.getComponent());
+		
+		if(removeFromCircuit) {
+			circuit.removeComponent(component.getComponent());
+		}
 	}
 	
 	private void handleConnection(Connection connection, LinkWires linkWires) {

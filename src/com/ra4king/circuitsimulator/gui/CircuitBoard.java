@@ -63,8 +63,7 @@ public class CircuitBoard {
 		
 		try {
 			circuit.getSimulator().stepAll();
-		}
-		catch(ShortCircuitException exc) {
+		} catch(ShortCircuitException exc) {
 			exc.printStackTrace();
 		}
 	}
@@ -309,7 +308,8 @@ public class CircuitBoard {
 		int len = connection.getX() == wire.getX() ? connection.getY() - wire.getY()
 		                                           : connection.getX() - wire.getX();
 		addWire(links, new Wire(links, wire.getX(), wire.getY(), len, wire.isHorizontal()));
-		addWire(links, new Wire(links, connection.getX(), connection.getY(), wire.getLength() - len, wire.isHorizontal()));
+		addWire(links,
+		        new Wire(links, connection.getX(), connection.getY(), wire.getLength() - len, wire.isHorizontal()));
 	}
 	
 	private void addWire(LinkWires linkWires, Wire wire) {
@@ -347,10 +347,10 @@ public class CircuitBoard {
 				Set<Connection> startConns = getConnections(start.getX(), start.getY());
 				if(startConns != null && startConns.size() == 2) {
 					List<Wire> startWires = startConns.stream()
-					                                  .filter(conn -> conn != start && conn instanceof WireConnection)
-					                                  .map(conn -> (Wire)conn.getParent())
-					                                  .filter(w -> w.isHorizontal() == wire.isHorizontal())
-					                                  .collect(Collectors.toList());
+							                        .filter(conn -> conn != start && conn instanceof WireConnection)
+							                        .map(conn -> (Wire)conn.getParent())
+							                        .filter(w -> w.isHorizontal() == wire.isHorizontal())
+							                        .collect(Collectors.toList());
 					
 					if(startWires.size() == 1) {
 						Wire startWire = startWires.get(0);
@@ -371,10 +371,10 @@ public class CircuitBoard {
 				Set<Connection> endConns = getConnections(end.getX(), end.getY());
 				if(endConns != null && endConns.size() == 2) {
 					List<Wire> endWires = endConns.stream()
-					                              .filter(conn -> conn != end && conn instanceof WireConnection)
-					                              .map(conn -> (Wire)conn.getParent())
-					                              .filter(w -> w.isHorizontal() == wire.isHorizontal())
-					                              .collect(Collectors.toList());
+							                      .filter(conn -> conn != end && conn instanceof WireConnection)
+							                      .map(conn -> (Wire)conn.getParent())
+							                      .filter(w -> w.isHorizontal() == wire.isHorizontal())
+							                      .collect(Collectors.toList());
 					
 					if(endWires.size() == 1) {
 						Wire endWire = endWires.get(0);
@@ -480,15 +480,15 @@ public class CircuitBoard {
 			badLinks.forEach(badLink -> {
 				Stream.concat(badLink.getPorts().stream(), badLink.getInvalidPorts().stream()).forEach(port -> {
 					graphics.setStroke(Color.BLACK);
-					graphics.strokeText(
-							String.valueOf(port.getLinkWires().getLink().getBitSize()), port.getScreenX() + 11, port.getScreenY() +
-							                                                                     21);
+					graphics.strokeText(String.valueOf(port.getLinkWires().getLink().getBitSize()),
+					                    port.getScreenX() + 11,
+					                    port.getScreenY() + 21);
 					
 					graphics.setStroke(Color.ORANGE);
 					graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-					graphics.strokeText(
-							String.valueOf(port.getLinkWires().getLink().getBitSize()), port.getScreenX() + 10, port.getScreenY() +
-							                                                                     20);
+					graphics.strokeText(String.valueOf(port.getLinkWires().getLink().getBitSize()),
+					                    port.getScreenX() + 10,
+					                    port.getScreenY() + 20);
 				});
 			});
 		}

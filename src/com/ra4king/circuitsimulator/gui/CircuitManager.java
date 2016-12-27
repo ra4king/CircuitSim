@@ -13,8 +13,6 @@ import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.Port;
-import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
@@ -41,15 +39,7 @@ public class CircuitManager {
 	private Point2D lastMousePosition = new Point2D(0, 0);
 	private ComponentPeer potentialComponent;
 	private Circuit dummyCircuit = new Circuit(new Simulator());
-	private CircuitState dummyCircuitState = new CircuitState(dummyCircuit) {
-		@Override
-		public synchronized void pushValue(Port port, WireValue value) {}
-		
-		@Override
-		public WireValue getValue(Link link) {
-			return new WireValue(link.getBitSize());
-		}
-	};
+	private CircuitState dummyCircuitState = new CircuitState(dummyCircuit);
 	
 	private Connection startConnection, endConnection;
 	private Point2D startPoint, curDraggedPoint, draggedDelta;

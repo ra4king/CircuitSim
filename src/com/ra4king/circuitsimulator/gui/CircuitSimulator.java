@@ -265,7 +265,9 @@ public class CircuitSimulator extends Application {
 		getCurrentCircuit().keyPressed(e);
 	}
 	
-	public void keyReleased(KeyEvent e) {}
+	public void keyReleased(KeyEvent e) {
+		getCurrentCircuit().keyReleased(e);
+	}
 	
 	public void keyTyped(KeyEvent e) {}
 	

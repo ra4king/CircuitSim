@@ -69,7 +69,8 @@ public abstract class GuiElement {
 	}
 	
 	public boolean containsScreenCoord(int x, int y) {
-		return contains(x / GuiUtils.BLOCK_SIZE, y / GuiUtils.BLOCK_SIZE);
+		return x >= getScreenX() && x < getScreenX() + getScreenWidth() && y >= getScreenY() && y < getScreenY() + 
+				                                                                                            getScreenHeight(); 
 	}
 	
 	public boolean contains(int x, int y) {

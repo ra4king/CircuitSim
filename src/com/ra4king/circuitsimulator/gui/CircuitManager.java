@@ -192,8 +192,8 @@ public class CircuitManager {
 		for(GuiElement selectedElement : selectedElementsMap.keySet()) {
 			graphics.setStroke(Color.RED);
 			if(selectedElement instanceof Wire) {
-				graphics.strokeRect(selectedElement.getScreenX() - 2, selectedElement.getScreenY() - 2,
-				                    selectedElement.getScreenWidth() + 4, selectedElement.getScreenHeight() + 4);
+				graphics.strokeRect(selectedElement.getScreenX() - 1, selectedElement.getScreenY() - 1,
+				                    selectedElement.getScreenWidth() + 2, selectedElement.getScreenHeight() + 2);
 			} else {
 				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
 			}
@@ -240,7 +240,7 @@ public class CircuitManager {
 	public void keyPressed(KeyEvent e) {
 		switch(e.getCode()) {
 			case CONTROL:
-				ctrlDown = e.getEventType() != KeyEvent.KEY_RELEASED;
+				ctrlDown = true;
 				break;
 			case NUMPAD0:
 			case NUMPAD1:
@@ -285,6 +285,14 @@ public class CircuitManager {
 		repaint();
 	}
 	
+	public void keyReleased(KeyEvent e) {
+		switch(e.getCode()) {
+			case CONTROL:
+				ctrlDown = false;
+				break;
+		}
+	}
+	
 	public void mousePressed(MouseEvent e) {
 		if(startConnection != null) {
 			curDraggedPoint = new Point2D(e.getX(), e.getY());
@@ -319,7 +327,7 @@ public class CircuitManager {
 					((PinPeer)selectedElement).clicked(getCircuit().getTopLevelState(), (int)e.getX(), (int)e.getY());
 					mayThrow(() -> circuitBoard.runSim());
 				}
-			} else {
+			} else if(!ctrlDown) {
 				selecting = false;
 				selectedElementsMap.clear();
 			}
@@ -360,10 +368,27 @@ public class CircuitManager {
 			} else if(endMidY - startConnection.getY() != 0) {
 				mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(), endMidY - startConnection.getY(),
 				                                    false));
+			} else {
+				Set<Connection> connections = circuitBoard.getConnections(startConnection.getX(),
+				                                                          startConnection.getY());
+				if(!ctrlDown) {
+					selectedElementsMap.clear();
+				}
+				
+				selecting = true;
+				selectedElementsMap.putAll(connections.stream()
+				                                      .collect(Collectors.toMap(Connection::getParent,
+				                                                                conn -> new Point2D(conn.getParent()
+				                                                                                        .getX(),
+				                                                                                    conn.getParent().getY()))));
 			}
 		}
 		
-		reset();
+		startConnection = null;
+		endConnection = null;
+		startPoint = null;
+		curDraggedPoint = null;
+		
 		mouseMoved(e);
 		repaint();
 	}
@@ -392,13 +417,17 @@ public class CircuitManager {
 			int width = (int)Math.abs(curDraggedPoint.getX() - startPoint.getX());
 			int height = (int)Math.abs(curDraggedPoint.getY() - startPoint.getY());
 			
-			selectedElementsMap = Stream.concat(circuitBoard.getComponents().stream(),
+			if(!ctrlDown) {
+				selectedElementsMap.clear();
+			}
+			
+			selectedElementsMap.putAll(Stream.concat(circuitBoard.getComponents().stream(),
 			                                    circuitBoard.getLinks()
 			                                                .stream()
 			                                                .flatMap(link -> link.getWires().stream()))
 			                            .filter(peer -> peer.isWithinScreenCoord(startX, startY, width, height))
 			                            .collect(Collectors.toMap(peer -> peer,
-			                                                      peer -> new Point2D(peer.getX(), peer.getY())));
+			                                                      peer -> new Point2D(peer.getX(), peer.getY()))));
 		}
 		
 		if(curDraggedPoint != null) {
@@ -437,25 +466,29 @@ public class CircuitManager {
 			repaint = true;
 		}
 		
-		Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()),
-		                                                            GuiUtils.getCircuitCoord(e.getY()));
-		
-		Connection selected = null;
-		
-		for(Connection connection : selectedConns) {
-			if(connection instanceof PortConnection) {
-				selected = connection;
-				break;
+		if(selectedElementsMap.isEmpty()) {
+			Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()),
+			                                                            GuiUtils.getCircuitCoord(e.getY()));
+			
+			Connection selected = null;
+			
+			for(Connection connection : selectedConns) {
+				if(connection instanceof PortConnection) {
+					selected = connection;
+					break;
+				}
 			}
-		}
-		
-		if(selected == null && !selectedConns.isEmpty()) {
-			selected = selectedConns.iterator().next();
-		}
-		
-		if(selected != startConnection) {
-			startConnection = selected;
-			repaint = true;
+			
+			if(selected == null && !selectedConns.isEmpty()) {
+				selected = selectedConns.iterator().next();
+			}
+			
+			if(selected != startConnection) {
+				startConnection = selected;
+				repaint = true;
+			}
+		} else {
+			startConnection = null;
 		}
 		
 		if(repaint) repaint();

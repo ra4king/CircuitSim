@@ -267,6 +267,26 @@ public class LinkWires {
 			connections.add(new WireConnection(this, length * xOffset, length * yOffset));
 		}
 		
+		@Override
+		public int getScreenX() {
+			return super.getScreenX() - (horizontal ? 0 : 1);
+		}
+		
+		@Override
+		public int getScreenY() {
+			return super.getScreenY() - (horizontal ? 1 : 0);
+		}
+		
+		@Override
+		public int getScreenWidth() {
+			return horizontal ? super.getScreenWidth() : 2;
+		}
+		
+		@Override
+		public int getScreenHeight() {
+			return horizontal ? 2 : super.getScreenHeight();
+		}
+		
 		public LinkWires getLinkWires() {
 			return linkWires;
 		}
@@ -324,9 +344,8 @@ public class LinkWires {
 		
 		@Override
 		public void paint(GraphicsContext graphics, CircuitState circuitState) {
-			graphics.setLineWidth(2);
 			GuiUtils.setBitColor(graphics, circuitState, linkWires);
-			graphics.strokeLine(getScreenX(), getScreenY(), getScreenX() + getScreenWidth(), getScreenY() + getScreenHeight());
+			GuiUtils.drawShape(graphics::fillRect, this);
 		}
 	}
 }

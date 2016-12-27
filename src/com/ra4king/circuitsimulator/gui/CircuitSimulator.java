@@ -1,6 +1,7 @@
 package com.ra4king.circuitsimulator.gui;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
@@ -12,10 +13,14 @@ import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
@@ -120,7 +125,7 @@ public class CircuitSimulator extends Application {
 		canvasTabPane = new TabPane();
 		canvasTabPane.setPrefWidth(800);
 		canvasTabPane.setPrefHeight(600);
-		
+		canvasTabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			if(oldValue != null) {
 				CircuitManager oldManager = circuitManagers.get(oldValue);
@@ -181,7 +186,17 @@ public class CircuitSimulator extends Application {
 			
 			DraggableTab canvasTab = new DraggableTab("Circuit " + i, canvas);
 			canvasTab.setDetachable(false);
-			canvasTab.setClosable(false);
+			canvasTab.setOnCloseRequest(event -> {
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Delete this circuit?");
+				alert.setHeaderText("Delete this circuit?");
+				alert.setContentText("Are you sure you want to delete this circuit?");
+				
+				Optional<ButtonType> result = alert.showAndWait();
+				if(!result.isPresent() || result.get() != ButtonType.OK) {
+					event.consume();
+				}
+			});
 			
 			CircuitManager circuitManager = new CircuitManager(canvas, simulator);
 			circuitManagers.put(canvasTab, circuitManager);

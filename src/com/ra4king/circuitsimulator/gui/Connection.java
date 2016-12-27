@@ -3,10 +3,8 @@ package com.ra4king.circuitsimulator.gui;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
-import com.ra4king.circuitsimulator.simulator.WireValue;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
@@ -53,16 +51,7 @@ public abstract class Connection {
 	}
 	
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		if(getLinkWires() == null || getLinkWires().getLink() == null) {
-			GuiUtils.setBitColor(graphics, new WireValue(1));
-		} else if(!getLinkWires().isLinkValid()) {
-			graphics.setFill(Color.ORANGE);
-		} else if(circuitState.isShortCircuited(getLinkWires().getLink())) {
-			graphics.setFill(Color.RED);
-		} else {
-			GuiUtils.setBitColor(graphics, circuitState.getValue(getLinkWires().getLink()));
-		}
-		
+		GuiUtils.setBitColor(graphics, circuitState, getLinkWires());
 		graphics.fillOval(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight());
 	}
 	

@@ -14,7 +14,6 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.simulator.Circuit;
-import com.ra4king.circuitsimulator.simulator.ShortCircuitException;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
@@ -56,19 +55,15 @@ public class CircuitBoard {
 		return links;
 	}
 	
-	public void runSim() {
+	public void runSim() throws Exception {
 		if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(Collectors.toSet())).size() != 0) {
-			return;
+			throw badLinks.iterator().next().getLastException();
 		}
 		
-		try {
-			circuit.getSimulator().stepAll();
-		} catch(ShortCircuitException exc) {
-			exc.printStackTrace();
-		}
+		circuit.getSimulator().stepAll();
 	}
 	
-	public void createComponent(ComponentCreator creator, int x, int y) {
+	public void createComponent(ComponentCreator creator, int x, int y) throws Exception {
 		ComponentPeer<?> component = creator.createComponent(circuit, x, y);
 		
 		for(ComponentPeer<?> c : components) {
@@ -81,7 +76,7 @@ public class CircuitBoard {
 		addComponent(component);
 	}
 	
-	public void addComponent(ComponentPeer<?> component) {
+	public void addComponent(ComponentPeer<?> component) throws Exception {
 		Set<Wire> toReAdd = new HashSet<>();
 		
 		for(Connection connection : component.getConnections()) {
@@ -108,7 +103,10 @@ public class CircuitBoard {
 		
 		toReAdd.forEach(wire -> {
 			removeWire(wire);
-			addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+			try {
+				addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+			} catch(Exception exc) {
+			}
 		});
 		
 		rejoinWires();
@@ -116,9 +114,12 @@ public class CircuitBoard {
 		runSim();
 	}
 	
-	public void initMove(Set<GuiElement> elements) {
+	public void initMove(Set<GuiElement> elements) throws Exception {
 		if(moveElements != null) {
-			finalizeMove();
+			try {
+				finalizeMove();
+			} catch(Exception exc) {
+			}
 		}
 		
 		moveElements = elements;
@@ -134,24 +135,32 @@ public class CircuitBoard {
 		// TODO: Add wires to attach connections
 	}
 	
-	public void finalizeMove() {
+	public void finalizeMove() throws Exception {
 		for(GuiElement element : moveElements) {
 			if(element instanceof ComponentPeer<?>) {
-				addComponent((ComponentPeer<?>)element);
+				try {
+					addComponent((ComponentPeer<?>)element);
+				} catch(Exception exc) {
+				}
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
-				addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+				try {
+					addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+				} catch(Exception exc) {
+				}
 			}
 		}
 		
 		moveElements = null;
+		
+		runSim();
 	}
 	
-	public void removeElements(Set<GuiElement> elements) {
+	public void removeElements(Set<GuiElement> elements) throws Exception {
 		removeElements(elements, true);
 	}
 	
-	private void removeElements(Set<GuiElement> elements, boolean removeFromCircuit) {
+	private void removeElements(Set<GuiElement> elements, boolean removeFromCircuit) throws Exception {
 		Map<LinkWires, Set<Wire>> wiresToRemove = new HashMap<>();
 		
 		for(GuiElement element : elements) {
@@ -198,7 +207,7 @@ public class CircuitBoard {
 		runSim();
 	}
 	
-	public void addWire(int x, int y, int length, boolean horizontal) {
+	public void addWire(int x, int y, int length, boolean horizontal) throws Exception {
 		LinkWires linkWires = new LinkWires();
 		
 		Set<Wire> wiresToAdd = new HashSet<>();
@@ -457,15 +466,16 @@ public class CircuitBoard {
 		
 		if(badLinks != null) {
 			badLinks.forEach(badLink -> {
-				Stream.concat(badLink.getPorts().stream(), badLink.getInvalidPorts().stream()).forEach(port -> {
+				Stream.concat(badLink.getPorts().stream(),
+				              badLink.getInvalidPorts().stream()).forEach(port -> {
 					graphics.setStroke(Color.BLACK);
-					graphics.strokeText(String.valueOf(port.getLinkWires().getLink().getBitSize()),
+					graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),
 					                    port.getScreenX() + 11,
 					                    port.getScreenY() + 21);
 					
 					graphics.setStroke(Color.ORANGE);
 					graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-					graphics.strokeText(String.valueOf(port.getLinkWires().getLink().getBitSize()),
+					graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),
 					                    port.getScreenX() + 10,
 					                    port.getScreenY() + 20);
 				});

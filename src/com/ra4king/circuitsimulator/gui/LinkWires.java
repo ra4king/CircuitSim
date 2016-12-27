@@ -11,10 +11,8 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
-import com.ra4king.circuitsimulator.simulator.WireValue;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
@@ -24,6 +22,8 @@ public class LinkWires {
 	private Set<PortConnection> invalidPorts;
 	private Set<Wire> wires;
 	
+	private Exception lastException;
+	
 	public LinkWires() {
 		ports = new HashSet<>();
 		invalidPorts = new HashSet<>();
@@ -32,6 +32,10 @@ public class LinkWires {
 	
 	public boolean isLinkValid() {
 		return invalidPorts.isEmpty();
+	}
+	
+	public Exception getLastException() {
+		return lastException;
 	}
 	
 	public boolean isEmpty() {
@@ -175,8 +179,8 @@ public class LinkWires {
 			try {
 				link.linkPort(port.getPort());
 			} catch(Exception exc) {
-				exc.printStackTrace();
 				invalidPorts.add(port);
+				lastException = exc;
 				return;
 			}
 		}
@@ -204,6 +208,15 @@ public class LinkWires {
 		getLink().unlinkPort(port.getPort());
 		ports.remove(port);
 		port.setLinkWires(null);
+		
+		if(ports.isEmpty()) {
+			Set<PortConnection> invalidPorts = new HashSet<>(this.invalidPorts);
+			this.invalidPorts.clear();
+			
+			for(PortConnection invalid : invalidPorts) {
+				addPort(invalid);
+			}
+		}
 	}
 	
 	public void clear() {
@@ -312,20 +325,7 @@ public class LinkWires {
 		@Override
 		public void paint(GraphicsContext graphics, CircuitState circuitState) {
 			graphics.setLineWidth(2);
-			if(linkWires.isLinkValid()) {
-				Link link = linkWires.getLink();
-				if(link != null) {
-					if(circuitState.isShortCircuited(link)) {
-						graphics.setStroke(Color.RED);
-					} else {
-						GuiUtils.setBitColor(graphics, circuitState.getValue(link));
-					}
-				} else {
-					GuiUtils.setBitColor(graphics, new WireValue(1));
-				}
-			} else {
-				graphics.setStroke(Color.ORANGE);
-			}
+			GuiUtils.setBitColor(graphics, circuitState, linkWires);
 			graphics.strokeLine(getScreenX(), getScreenY(), getScreenX() + getScreenWidth(), getScreenY() + getScreenHeight());
 		}
 	}

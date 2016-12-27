@@ -1,5 +1,7 @@
 package com.ra4king.circuitsimulator.gui;
 
+import com.ra4king.circuitsimulator.simulator.CircuitState;
+import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -25,6 +27,25 @@ public class GuiUtils {
 	
 	public static void drawShape(Drawable drawable, GuiElement element) {
 		drawable.draw(element.getScreenX(), element.getScreenY(), element.getScreenWidth(), element.getScreenHeight());
+	}
+	
+	public static void setBitColor(GraphicsContext graphics, CircuitState circuitState, LinkWires linkWires) {
+		if(linkWires.isLinkValid()) {
+			Link link = linkWires.getLink();
+			if(link != null) {
+				if(circuitState.isShortCircuited(link)) {
+					graphics.setStroke(Color.RED);
+					graphics.setFill(Color.RED);
+				} else {
+					GuiUtils.setBitColor(graphics, circuitState.getValue(link));
+				}
+			} else {
+				GuiUtils.setBitColor(graphics, new WireValue(1));
+			}
+		} else {
+			graphics.setStroke(Color.ORANGE);
+			graphics.setFill(Color.ORANGE);
+		}
 	}
 	
 	public static void setBitColor(GraphicsContext graphics, WireValue value) {

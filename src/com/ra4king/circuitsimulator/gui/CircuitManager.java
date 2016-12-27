@@ -52,6 +52,10 @@ public class CircuitManager {
 	
 	private ComponentCreator componentCreator;
 	
+	private String message;
+	private long messageSetTime;
+	private static final int MESSAGE_POST_DURATION = 5000;
+	
 	public CircuitManager(Canvas canvas, Simulator simulator) {
 		this.canvas = canvas;
 		circuitBoard = new CircuitBoard(simulator);
@@ -193,7 +197,33 @@ public class CircuitManager {
 			}
 		}
 		
+		if(System.nanoTime() - messageSetTime < MESSAGE_POST_DURATION * 1000000L) {
+			Bounds bounds = getBounds(graphics.getFont(), message);
+			graphics.setStroke(Color.BLACK);
+			graphics.strokeText(message, (canvas.getWidth() - bounds.getWidth()) * 0.5, canvas.getHeight() - 50);
+		}
+		
 		graphics.restore();
+	}
+	
+	private Bounds getBounds(Font font, String string) {
+		Text text = new Text(string);
+		text.setFont(font);
+		return text.getLayoutBounds();
+	}
+	
+	private interface ThrowableRunnable {
+		void run() throws Exception;
+	}
+	
+	private void mayThrow(ThrowableRunnable runnable) {
+		try {
+			runnable.run();
+			messageSetTime = 0;
+		} catch(Exception exc) {
+			message = exc.getMessage();
+			messageSetTime = System.nanoTime();
+		}
 	}
 	
 	private void reset() {
@@ -229,19 +259,20 @@ public class CircuitManager {
 					}
 					currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
 					selectedPin.getComponent().setValue(getCircuit().getTopLevelState(), currentValue);
-					circuitBoard.runSim();
+					mayThrow(() -> circuitBoard.runSim());
 					break;
 				}
 			case BACK_SPACE:
 			case DELETE:
-				circuitBoard.removeElements(selectedElementsMap.keySet());
+				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 				selectedElementsMap.clear();
 			case ESCAPE:
 				if(!selectedElementsMap.isEmpty()) {
-					if(draggedDelta != null) {
-						circuitBoard.moveElements(-(int)draggedDelta.getX(), -(int)draggedDelta.getY());
-						circuitBoard.finalizeMove();
-						draggedDelta = null;
+					if(draggedDelta.getX() != 0 || draggedDelta.getY() != 0) {
+						mayThrow(() -> circuitBoard.moveElements(-(int)draggedDelta.getX(), -(int)draggedDelta.getY
+								                                                                                       ()));
+						mayThrow(() -> circuitBoard.finalizeMove());
+						draggedDelta = new Point2D(0, 0);
 					}
 					selectedElementsMap.clear();
 				}
@@ -257,12 +288,13 @@ public class CircuitManager {
 			curDraggedPoint = new Point2D(e.getX(), e.getY());
 		} else if(potentialComponent != null) {
 			if(componentCreator != null) {
-				circuitBoard.createComponent(componentCreator, potentialComponent.getX(), potentialComponent.getY());
+				mayThrow(() -> circuitBoard.createComponent(componentCreator, potentialComponent.getX(),
+				                                            potentialComponent.getY()));
 			}
 		} else {
 			startPoint = new Point2D(e.getX(), e.getY());
 			curDraggedPoint = startPoint;
-			draggedDelta = null;
+			draggedDelta = new Point2D(0, 0);
 			
 			Optional<GuiElement> clickedComponent =
 					Stream.concat(circuitBoard.getComponents().stream(), circuitBoard.getLinks()
@@ -282,7 +314,7 @@ public class CircuitManager {
 				
 				if(selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
 					((PinPeer)selectedElement).clicked(getCircuit().getTopLevelState(), (int)e.getX(), (int)e.getY());
-					circuitBoard.runSim();
+					mayThrow(() -> circuitBoard.runSim());
 				}
 			} else {
 				selecting = false;
@@ -294,9 +326,9 @@ public class CircuitManager {
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		if(selecting && !selectedElementsMap.isEmpty() && draggedDelta != null) {
-			circuitBoard.finalizeMove();
-			draggedDelta = null;
+		if(selecting && !selectedElementsMap.isEmpty()) {
+			mayThrow(() -> circuitBoard.finalizeMove());
+			draggedDelta = new Point2D(0, 0);
 		}
 		
 		if(curDraggedPoint != null && startConnection != null) {
@@ -309,16 +341,22 @@ public class CircuitManager {
 			
 			if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
 				if(isDraggedHorizontally) {
-					circuitBoard.addWire(startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true);
-					circuitBoard.addWire(endMidX, startConnection.getY(), endMidY - startConnection.getY(), false);
+					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+					                                    endMidX - startConnection.getX(), true));
+					mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(),
+					                                    endMidY - startConnection.getY(), false));
 				} else {
-					circuitBoard.addWire(startConnection.getX(), startConnection.getY(), endMidY - startConnection.getY(), false);
-					circuitBoard.addWire(startConnection.getX(), endMidY, endMidX - startConnection.getX(), true);
+					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+					                                    endMidY - startConnection.getY(), false));
+					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), endMidY,
+					                                    endMidX - startConnection.getX(), true));
 				}
 			} else if(endMidX - startConnection.getX() != 0) {
-				circuitBoard.addWire(startConnection.getX(), startConnection.getY(), endMidX - startConnection.getX(), true);
+				mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+				                                    endMidX - startConnection.getX(), true));
 			} else if(endMidY - startConnection.getY() != 0) {
-				circuitBoard.addWire(endMidX, startConnection.getY(), endMidY - startConnection.getY(), false);
+				mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(), endMidY - startConnection.getY(),
+				                                    false));
 			}
 		}
 		
@@ -331,17 +369,16 @@ public class CircuitManager {
 		Point2D curPos = new Point2D(e.getX(), e.getY());
 		
 		if(selecting && !selectedElementsMap.isEmpty()) {
-			if(draggedDelta == null) {
-				circuitBoard.initMove(selectedElementsMap.keySet());
-				draggedDelta = new Point2D(0, 0);
-			}
-			
 			Point2D diff = curPos.subtract(startPoint).multiply(1.0 / GuiUtils.BLOCK_SIZE);
 			int dx = (int)(diff.getX() - draggedDelta.getX());
 			int dy = (int)(diff.getY() - draggedDelta.getY());
 			
 			if(dx != 0 || dy != 0) {
-				circuitBoard.moveElements(dx, dy);
+				if(draggedDelta.getX() == 0 && draggedDelta.getY() == 0) {
+					mayThrow(() -> circuitBoard.initMove(selectedElementsMap.keySet()));
+				}
+				
+				mayThrow(() -> circuitBoard.moveElements(dx, dy));
 				draggedDelta = draggedDelta.add(dx, dy);
 			}
 		}

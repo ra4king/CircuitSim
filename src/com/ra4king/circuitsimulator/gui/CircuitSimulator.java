@@ -50,7 +50,10 @@ public class CircuitSimulator extends Application {
 		simulator = new Simulator();
 		circuitManagers = new HashMap<>();
 		Clock.addChangeListener(value -> {
-			getCurrentCircuit().getCircuitBoard().runSim();
+			try {
+				getCurrentCircuit().getCircuitBoard().runSim();
+			} catch(Exception exc) {
+			}
 			getCurrentCircuit().repaint();
 		});
 	}

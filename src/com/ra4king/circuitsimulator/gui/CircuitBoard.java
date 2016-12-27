@@ -360,10 +360,10 @@ public class CircuitBoard {
 				Set<Connection> startConns = getConnections(start.getX(), start.getY());
 				if(startConns != null && startConns.size() == 2) {
 					List<Wire> startWires = startConns.stream()
-							                        .filter(conn -> conn != start && conn instanceof WireConnection)
-							                        .map(conn -> (Wire)conn.getParent())
-							                        .filter(w -> w.isHorizontal() == wire.isHorizontal())
-							                        .collect(Collectors.toList());
+					                                  .filter(conn -> conn != start && conn instanceof WireConnection)
+					                                  .map(conn -> (Wire)conn.getParent())
+					                                  .filter(w -> w.isHorizontal() == wire.isHorizontal())
+					                                  .collect(Collectors.toList());
 					
 					if(startWires.size() == 1) {
 						Wire startWire = startWires.get(0);
@@ -384,10 +384,10 @@ public class CircuitBoard {
 				Set<Connection> endConns = getConnections(end.getX(), end.getY());
 				if(endConns != null && endConns.size() == 2) {
 					List<Wire> endWires = endConns.stream()
-							                      .filter(conn -> conn != end && conn instanceof WireConnection)
-							                      .map(conn -> (Wire)conn.getParent())
-							                      .filter(w -> w.isHorizontal() == wire.isHorizontal())
-							                      .collect(Collectors.toList());
+					                              .filter(conn -> conn != end && conn instanceof WireConnection)
+					                              .map(conn -> (Wire)conn.getParent())
+					                              .filter(w -> w.isHorizontal() == wire.isHorizontal())
+					                              .collect(Collectors.toList());
 					
 					if(endWires.size() == 1) {
 						Wire endWire = endWires.get(0);

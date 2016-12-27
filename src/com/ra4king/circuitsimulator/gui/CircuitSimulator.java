@@ -65,7 +65,8 @@ public class CircuitSimulator extends Application {
 	private void modifiedSelection() {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
-			current.modifiedSelection(componentManager.getComponentCreator(componentMode, bitSizeSelect.getValue(), secondaryOptionSelect.getValue()));
+			current.modifiedSelection(componentManager.getComponentCreator(componentMode, bitSizeSelect.getValue(),
+			                                                               secondaryOptionSelect.getValue()));
 			current.repaint();
 		}
 	}
@@ -102,7 +103,9 @@ public class CircuitSimulator extends Application {
 			bitSizeSelect.getItems().add(i);
 		}
 		bitSizeSelect.setValue(1);
-		bitSizeSelect.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> modifiedSelection());
+		bitSizeSelect.getSelectionModel()
+		             .selectedItemProperty()
+		             .addListener((observable, oldValue, newValue) -> modifiedSelection());
 		
 		secondaryOptionSelect = new ComboBox<>();
 		secondaryOptionSelect.setMinWidth(buttonSize);
@@ -110,7 +113,9 @@ public class CircuitSimulator extends Application {
 			secondaryOptionSelect.getItems().add(i);
 		}
 		secondaryOptionSelect.setValue(1);
-		secondaryOptionSelect.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> modifiedSelection());
+		secondaryOptionSelect.getSelectionModel()
+		                     .selectedItemProperty()
+		                     .addListener((observable, oldValue, newValue) -> modifiedSelection());
 		
 		canvasTabPane = new TabPane();
 		canvasTabPane.setPrefWidth(800);

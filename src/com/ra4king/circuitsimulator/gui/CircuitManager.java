@@ -83,7 +83,9 @@ public class CircuitManager {
 		dummyCircuit.getComponents().clear();
 		
 		if(componentCreator != null) {
-			potentialComponent = componentCreator.createComponent(dummyCircuit, GuiUtils.getCircuitCoord(lastMousePosition.getX()), GuiUtils.getCircuitCoord(lastMousePosition.getY()));
+			potentialComponent = componentCreator.createComponent(dummyCircuit,
+			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getX()),
+			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getY()));
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(potentialComponent.getY() - potentialComponent.getHeight() / 2);
 		} else {
@@ -191,7 +193,7 @@ public class CircuitManager {
 			graphics.setStroke(Color.RED);
 			if(selectedElement instanceof Wire) {
 				graphics.strokeRect(selectedElement.getScreenX() - 2, selectedElement.getScreenY() - 2,
-						selectedElement.getScreenWidth() + 4, selectedElement.getScreenHeight() + 4);
+				                    selectedElement.getScreenWidth() + 4, selectedElement.getScreenHeight() + 4);
 			} else {
 				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
 			}
@@ -248,11 +250,11 @@ public class CircuitManager {
 				
 				GuiElement selectedElem;
 				if(selectedElementsMap.size() == 1 &&
-						   (selectedElem = selectedElementsMap.keySet().iterator().next()) instanceof PinPeer) {
+				   (selectedElem = selectedElementsMap.keySet().iterator().next()) instanceof PinPeer) {
 					PinPeer selectedPin = (PinPeer)selectedElem;
 					WireValue currentValue =
 							new WireValue(getCircuit().getTopLevelState()
-									              .getMergedValue(selectedPin.getComponent().getPort(Pin.PORT)));
+							                          .getMergedValue(selectedPin.getComponent().getPort(Pin.PORT)));
 					
 					for(int i = currentValue.getBitSize() - 1; i > 0; i--) {
 						currentValue.setBit(i, currentValue.getBit(i - 1));
@@ -269,8 +271,8 @@ public class CircuitManager {
 			case ESCAPE:
 				if(!selectedElementsMap.isEmpty()) {
 					if(draggedDelta.getX() != 0 || draggedDelta.getY() != 0) {
-						mayThrow(() -> circuitBoard.moveElements(-(int)draggedDelta.getX(), -(int)draggedDelta.getY
-								                                                                                       ()));
+						mayThrow(() -> circuitBoard.moveElements(-(int)draggedDelta.getX(),
+						                                         -(int)draggedDelta.getY()));
 						mayThrow(() -> circuitBoard.finalizeMove());
 						draggedDelta = new Point2D(0, 0);
 					}
@@ -297,11 +299,12 @@ public class CircuitManager {
 			draggedDelta = new Point2D(0, 0);
 			
 			Optional<GuiElement> clickedComponent =
-					Stream.concat(circuitBoard.getComponents().stream(), circuitBoard.getLinks()
-							                                       .stream()
-							                                       .flatMap(link -> link.getWires().stream()))
-							.filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
-							.findAny();
+					Stream.concat(circuitBoard.getComponents().stream(),
+					              circuitBoard.getLinks()
+					                          .stream()
+					                          .flatMap(link -> link.getWires().stream()))
+					      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
+					      .findAny();
 			if(clickedComponent.isPresent()) {
 				selecting = true;
 				GuiElement selectedElement = clickedComponent.get();
@@ -333,11 +336,11 @@ public class CircuitManager {
 		
 		if(curDraggedPoint != null && startConnection != null) {
 			int endMidX = endConnection == null
-					              ? GuiUtils.getCircuitCoord(curDraggedPoint.getX())
-					              : endConnection.getX();
+			              ? GuiUtils.getCircuitCoord(curDraggedPoint.getX())
+			              : endConnection.getX();
 			int endMidY = endConnection == null
-					              ? GuiUtils.getCircuitCoord(curDraggedPoint.getY())
-					              : endConnection.getY();
+			              ? GuiUtils.getCircuitCoord(curDraggedPoint.getY())
+			              : endConnection.getY();
 			
 			if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
 				if(isDraggedHorizontally) {
@@ -381,17 +384,21 @@ public class CircuitManager {
 				mayThrow(() -> circuitBoard.moveElements(dx, dy));
 				draggedDelta = draggedDelta.add(dx, dy);
 			}
-		}
-		else if(startPoint != null) {
-			int startX = (int)(startPoint.getX() < curDraggedPoint.getX() ? startPoint.getX() : curDraggedPoint.getX());
-			int startY = (int)(startPoint.getY() < curDraggedPoint.getY() ? startPoint.getY() : curDraggedPoint.getY());
+		} else if(startPoint != null) {
+			int startX = (int)(startPoint.getX() < curDraggedPoint.getX() ? startPoint.getX()
+			                                                              : curDraggedPoint.getX());
+			int startY = (int)(startPoint.getY() < curDraggedPoint.getY() ? startPoint.getY()
+			                                                              : curDraggedPoint.getY());
 			int width = (int)Math.abs(curDraggedPoint.getX() - startPoint.getX());
 			int height = (int)Math.abs(curDraggedPoint.getY() - startPoint.getY());
 			
 			selectedElementsMap = Stream.concat(circuitBoard.getComponents().stream(),
-							circuitBoard.getLinks().stream().flatMap(link -> link.getWires().stream()))
-							.filter(peer -> peer.isWithinScreenCoord(startX, startY, width, height))
-							.collect(Collectors.toMap(peer -> peer, peer -> new Point2D(peer.getX(), peer.getY())));
+			                                    circuitBoard.getLinks()
+			                                                .stream()
+			                                                .flatMap(link -> link.getWires().stream()))
+			                            .filter(peer -> peer.isWithinScreenCoord(startX, startY, width, height))
+			                            .collect(Collectors.toMap(peer -> peer,
+			                                                      peer -> new Point2D(peer.getX(), peer.getY())));
 		}
 		
 		if(curDraggedPoint != null) {
@@ -402,12 +409,12 @@ public class CircuitManager {
 				int prevDiffY = GuiUtils.getCircuitCoord(curDraggedPoint.getY()) - startConnection.getY();
 				
 				if(currDiffX == 0 || prevDiffX == 0 ||
-						   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
+				   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
 					isDraggedHorizontally = false;
 				}
 				
 				if(currDiffY == 0 || prevDiffY == 0 ||
-						   currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
+				   currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
 					isDraggedHorizontally = true;
 				}
 			}
@@ -430,7 +437,8 @@ public class CircuitManager {
 			repaint = true;
 		}
 		
-		Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()), GuiUtils.getCircuitCoord(e.getY()));
+		Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()),
+		                                                            GuiUtils.getCircuitCoord(e.getY()));
 		
 		Connection selected = null;
 		

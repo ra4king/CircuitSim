@@ -20,7 +20,7 @@ public class Pin extends Component {
 	public static final int PORT = 0;
 	
 	public Pin(String name, int bitSize, boolean isInput) {
-		super((isInput ? "Input" : "Output") + " Pin " + name + "(" + bitSize + ")", Utils.getFilledArray(1, bitSize));
+		super(name, Utils.getFilledArray(1, bitSize));
 		pinChangeListeners = new ArrayList<>();
 		this.bitSize = bitSize;
 		this.isInput = isInput;

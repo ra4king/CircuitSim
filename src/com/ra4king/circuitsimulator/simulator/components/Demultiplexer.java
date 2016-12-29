@@ -16,7 +16,7 @@ public class Demultiplexer extends Component {
 	public final int PORT_IN;
 	
 	public Demultiplexer(String name, int bitSize, int numSelectBits) {
-		super("Demux " + name + "(" + numSelectBits + "," + bitSize + ")", createBitSizeArray(bitSize, numSelectBits));
+		super(name, createBitSizeArray(bitSize, numSelectBits));
 		
 		NUM_OUT_PORTS = 1 << numSelectBits;
 		PORT_SEL = NUM_OUT_PORTS;

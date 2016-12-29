@@ -16,7 +16,7 @@ public class ControlledBuffer extends Component {
 	public static final int PORT_OUT = 2;
 	
 	public ControlledBuffer(String name, int bitSize) {
-		super("Controlled Buffer " + name, new int[] { bitSize, 1, bitSize });
+		super(name, new int[] { bitSize, 1, bitSize });
 		X_VALUE = new WireValue(bitSize);
 	}
 	

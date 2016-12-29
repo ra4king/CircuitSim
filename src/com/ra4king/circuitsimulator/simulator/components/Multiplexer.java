@@ -15,7 +15,7 @@ public class Multiplexer extends Component {
 	public final int PORT_OUT;
 	
 	public Multiplexer(String name, int bitSize, int numSelectBits) {
-		super("Mux " + name + "(" + numSelectBits + "," + bitSize + ")", createBitSizeArray(bitSize, numSelectBits));
+		super(name, createBitSizeArray(bitSize, numSelectBits));
 		
 		NUM_IN_PORTS = 1 << numSelectBits;
 		PORT_SEL = NUM_IN_PORTS;

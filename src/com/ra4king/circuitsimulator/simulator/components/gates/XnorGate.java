@@ -7,7 +7,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
  */
 public class XnorGate extends Gate {
 	public XnorGate(String name, int bitSize, int numInputs) {
-		super("XNOR " + name, bitSize, numInputs);
+		super(name, bitSize, numInputs);
 	}
 	
 	@Override

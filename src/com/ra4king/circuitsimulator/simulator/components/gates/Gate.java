@@ -14,7 +14,7 @@ public abstract class Gate extends Component {
 	public final int PORT_OUT;
 	
 	public Gate(String name, int bitSize, int numInputs) {
-		super(name + "(" + bitSize + ")", Utils.getFilledArray(numInputs + 1, bitSize));
+		super(name, Utils.getFilledArray(numInputs + 1, bitSize));
 		
 		NUM_IN_PORTS = numInputs;
 		PORT_OUT = numInputs;

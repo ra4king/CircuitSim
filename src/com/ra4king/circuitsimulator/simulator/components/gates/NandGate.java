@@ -7,7 +7,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
  */
 public class NandGate extends Gate {
 	public NandGate(String name, int bitSize, int numInputs) {
-		super("NAND " + name, bitSize, numInputs);
+		super(name, bitSize, numInputs);
 	}
 	
 	@Override

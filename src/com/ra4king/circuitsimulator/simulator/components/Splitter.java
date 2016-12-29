@@ -17,7 +17,7 @@ public class Splitter extends Component {
 	}
 	
 	public Splitter(String name, int[] bitFanIndices) {
-		super("Splitter " + name, setupPortBitsizes(bitFanIndices));
+		super(name, setupPortBitsizes(bitFanIndices));
 		
 		this.bitFanIndices = bitFanIndices;
 		

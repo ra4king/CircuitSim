@@ -7,7 +7,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
  */
 public class AndGate extends Gate {
 	public AndGate(String name, int bitSize, int numInputs) {
-		super("AND " + name, bitSize, numInputs);
+		super(name, bitSize, numInputs);
 	}
 	
 	@Override

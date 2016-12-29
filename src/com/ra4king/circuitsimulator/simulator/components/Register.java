@@ -16,7 +16,7 @@ public class Register extends Component {
 	public static final int PORT_OUT = 4;
 	
 	public Register(String name, int bitSize) {
-		super("Register " + name + "(" + bitSize + ")", new int[] { bitSize, 1, 1, 1, bitSize });
+		super(name, new int[] { bitSize, 1, 1, 1, bitSize });
 	}
 	
 	@Override

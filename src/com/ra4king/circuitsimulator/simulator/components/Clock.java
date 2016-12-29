@@ -24,7 +24,7 @@ public class Clock extends Component {
 	public static final int PORT = 0;
 	
 	public Clock(String name) {
-		super("Clock " + name, Utils.getFilledArray(1, 1));
+		super(name, Utils.getFilledArray(1, 1));
 		
 		clocks.add(this);
 	}
@@ -41,8 +41,8 @@ public class Clock extends Component {
 			public void run() {
 				tick();
 				WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
-				clocks.forEach(clock1 -> clock1.getCircuit().getCircuitStates().stream()
-						                         .forEach(state -> state.pushValue(clock1.getPort(PORT), clockValue)));
+				clocks.forEach(clock1 -> clock1.getCircuit().getCircuitStates()
+				                               .forEach(state -> state.pushValue(clock1.getPort(PORT), clockValue)));
 				for(ClockChangeListener listener : clockChangeListeners) {
 					listener.valueChanged(clockValue);
 				}

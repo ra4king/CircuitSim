@@ -7,7 +7,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
  */
 public class XorGate extends Gate {
 	public XorGate(String name, int bitSize, int numInputs) {
-		super("XOR " + name, bitSize, numInputs);
+		super(name, bitSize, numInputs);
 	}
 	
 	@Override

@@ -12,7 +12,7 @@ public class NotGate extends Gate {
 	public static final int PORT_OUT = 1;
 	
 	public NotGate(String name, int bitSize) {
-		super("NOT", bitSize, 1);
+		super(name, bitSize, 1);
 	}
 	
 	@Override

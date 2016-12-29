@@ -20,7 +20,7 @@ public class RAM extends Component {
 	private final int dataBits;
 	
 	public RAM(String name, int bitSize, int addressBits) {
-		super("RAM " + name + "(" + bitSize + "," + addressBits + ")", new int[] {addressBits, 1, 1, 1, 1, bitSize });
+		super(name, new int[] { addressBits, 1, 1, 1, 1, bitSize });
 		
 		if(addressBits > 16 || addressBits <= 0) {
 			throw new IllegalArgumentException("Address bits cannot be more than 16 bits.");

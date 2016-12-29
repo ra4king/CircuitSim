@@ -7,7 +7,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
  */
 public class NorGate extends Gate {
 	public NorGate(String name, int bitSize, int numInputs) {
-		super("NOR " + name, bitSize, numInputs);
+		super(name, bitSize, numInputs);
 	}
 	
 	@Override

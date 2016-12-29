@@ -21,7 +21,7 @@ public class Subcircuit extends Component {
 	}
 	
 	private Subcircuit(String name, Circuit subcircuit, List<Pin> pins) {
-		super("Subcircuit " + name, setupPortBits(pins));
+		super(name, setupPortBits(pins));
 		
 		this.subcircuit = subcircuit;
 		this.pins = pins;

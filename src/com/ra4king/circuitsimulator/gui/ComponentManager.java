@@ -7,38 +7,29 @@ import java.util.List;
 import com.ra4king.circuitsimulator.gui.peers.AdderPeer;
 import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer;
-import com.ra4king.circuitsimulator.gui.peers.GatePeer;
 import com.ra4king.circuitsimulator.gui.peers.MultiplexerPeer;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.gui.peers.RAMPeer;
 import com.ra4king.circuitsimulator.gui.peers.RegisterPeer;
 import com.ra4king.circuitsimulator.gui.peers.SplitterPeer;
 import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
+import com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer;
+import com.ra4king.circuitsimulator.gui.peers.gates.NandGatePeer;
+import com.ra4king.circuitsimulator.gui.peers.gates.NorGatePeer;
+import com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer;
+import com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer;
+import com.ra4king.circuitsimulator.gui.peers.gates.XnorGatePeer;
+import com.ra4king.circuitsimulator.gui.peers.gates.XorGatePeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.components.Adder;
-import com.ra4king.circuitsimulator.simulator.components.Clock;
-import com.ra4king.circuitsimulator.simulator.components.ControlledBuffer;
-import com.ra4king.circuitsimulator.simulator.components.Multiplexer;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
-import com.ra4king.circuitsimulator.simulator.components.RAM;
-import com.ra4king.circuitsimulator.simulator.components.Register;
-import com.ra4king.circuitsimulator.simulator.components.Splitter;
-import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
-import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.NandGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.NorGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.NotGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.OrGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.XnorGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.XorGate;
 
 /**
  * @author Roi Atalla
  */
 public class ComponentManager {
 	private List<String> componentsOrder;
-	private HashMap<String, ComponentCreatorInternal> components;
+	private HashMap<String, ComponentCreator> components;
 	
 	public ComponentManager() {
 		componentsOrder = new ArrayList<>();
@@ -46,32 +37,48 @@ public class ComponentManager {
 		initComponents();
 	}
 	
-	private void addComponent(String name, ComponentCreatorInternal creatorInternal) {
-		components.put(name, creatorInternal);
+	private static <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
+		return (circuit, properties, x, y) -> {
+			try {
+				return clazz.getConstructor(Circuit.class, Properties.class, Integer.TYPE, Integer.TYPE)
+				            .newInstance(circuit, properties, x, y);
+			} catch(Exception exc) {
+				throw new RuntimeException(exc);
+			}
+		};
+	}
+	
+	private void addComponent(String name, ComponentCreator creator) {
+		components.put(name, creator);
 		componentsOrder.add(name);
 	}
 	
 	private void initComponents() {
-		addComponent("Input", (circuit, x, y, bitSize, secondaryOption) -> {
-			Pin pin = circuit.addComponent(new Pin("", bitSize, true));
-			circuit.getTopLevelState().pushValue(pin.getPort(Pin.PORT), WireValue.of(0, bitSize));
-			return new PinPeer(pin, x, y);
+		addComponent("Input", (circuit, properties, x, y) -> {
+			properties.setValue(PinPeer.IS_INPUT, "Yes");
+			PinPeer pinPeer = forClass(PinPeer.class).createComponent(circuit, properties, x, y);
+			Pin pin = pinPeer.getComponent();
+			circuit.getTopLevelState().pushValue(pin.getPort(Pin.PORT), WireValue.of(0, pin.getBitSize()));
+			return pinPeer;
 		});
-		addComponent("Output", (circuit, x, y, bitSize, secondaryOption) -> new PinPeer(circuit.addComponent(new Pin("", bitSize, false)), x, y));
-		addComponent("AND", (circuit, x, y, bitSize, secondaryOption) -> new GatePeer(circuit.addComponent(new AndGate("", bitSize, Math.max(2, secondaryOption))), x, y));
-		addComponent("NAND", (circuit, x, y, bitSize, secondaryOption) -> new GatePeer(circuit.addComponent(new NandGate("", bitSize, Math.max(2, secondaryOption))), x, y));
-		addComponent("OR", (circuit, x, y, bitSize, secondaryOption) -> new GatePeer(circuit.addComponent(new OrGate("", bitSize, Math.max(2, secondaryOption))), x, y));
-		addComponent("NOR", (circuit, x, y, bitSize, secondaryOption) -> new GatePeer(circuit.addComponent(new NorGate("", bitSize, Math.max(2, secondaryOption))), x, y));
-		addComponent("XOR", (circuit, x, y, bitSize, secondaryOption) -> new GatePeer(circuit.addComponent(new XorGate("", bitSize, Math.max(2, secondaryOption))), x, y));
-		addComponent("XNOR", (circuit, x, y, bitSize, secondaryOption) -> new GatePeer(circuit.addComponent(new XnorGate("", bitSize, Math.max(2, secondaryOption))), x, y));
-		addComponent("NOT", (circuit, x, y, bitSize, secondaryOption) -> new GatePeer(circuit.addComponent(new NotGate("", bitSize)), x, y));
-		addComponent("Buffer", (circuit, x, y, bitSize, secondaryOption) -> new ControlledBufferPeer(circuit.addComponent(new ControlledBuffer("", bitSize)), x, y));
-		addComponent("Clock", (circuit, x, y, bitSize, secondaryOption) -> new ClockPeer(circuit.addComponent(new Clock("")), x, y));
-		addComponent("Register", (circuit, x, y, bitSize, secondaryOption) -> new RegisterPeer(circuit.addComponent(new Register("", bitSize)), x, y));
-		addComponent("Adder", (circuit, x, y, bitSize, secondaryOption) -> new AdderPeer(circuit.addComponent(new Adder("", bitSize)), x, y));
-		addComponent("Splitter", (circuit, x, y, bitSize, secondaryOption) -> new SplitterPeer(circuit.addComponent(new Splitter("", bitSize, secondaryOption)), x, y));
-		addComponent("Mux", (circuit, x, y, bitSize, secondaryOption) -> new MultiplexerPeer(circuit.addComponent(new Multiplexer("", bitSize, secondaryOption)), x, y));
-		addComponent("RAM", (circuit, x, y, bitSize, secondaryOption) -> new RAMPeer(circuit.addComponent(new RAM("", bitSize, secondaryOption)), x, y));
+		addComponent("Output", (circuit, properties, x, y) -> {
+			properties.setValue(PinPeer.IS_INPUT, "No");
+			return forClass(PinPeer.class).createComponent(circuit, properties, x, y);
+		});
+		addComponent("AND", forClass(AndGatePeer.class));
+		addComponent("NAND", forClass(NandGatePeer.class));
+		addComponent("OR", forClass(OrGatePeer.class));
+		addComponent("NOR", forClass(NorGatePeer.class));
+		addComponent("XOR", forClass(XorGatePeer.class));
+		addComponent("XNOR", forClass(XnorGatePeer.class));
+		addComponent("NOT", forClass(NotGatePeer.class));
+		addComponent("Buffer", forClass(ControlledBufferPeer.class));
+		addComponent("Clock", forClass(ClockPeer.class));
+		addComponent("Register", forClass(RegisterPeer.class));
+		addComponent("Adder", forClass(AdderPeer.class));
+		addComponent("Splitter", forClass(SplitterPeer.class));
+		addComponent("Mux", forClass(MultiplexerPeer.class));
+		addComponent("RAM", forClass(RAMPeer.class));
 	}
 	
 	public List<String> getComponentNames() {
@@ -79,26 +86,28 @@ public class ComponentManager {
 	}
 	
 	public void addCircuit(String name, CircuitManager circuitManager) {
-		addComponent(name, (circuit, x, y, bitSize, secondaryOption) -> {
+		addComponent(name, (circuit, properties, x, y) -> {
 			if(circuit == circuitManager.getCircuit()) {
 				throw new IllegalArgumentException("Cannot create subcircuit inside own circuit.");
 			}
 			
-			return new SubcircuitPeer(circuit.addComponent(new Subcircuit(name, circuitManager.getCircuit())), x, y);
+			return new SubcircuitPeer(circuit, properties, circuitManager.getCircuit(), x, y);
 		});
 	}
 	
-	public ComponentCreator getComponentCreator(String component, int bitSize, int secondaryOption) {
+	public ComponentCreator getComponentCreator(String component) {
 		if(component == null) return null;
+		return components.get(component);
+	}
+	
+	public interface ComponentCreator<T extends ComponentPeer<?>> {
+		default T createComponent(Circuit circuit, int bitSize, int x, int y) {
+			Properties properties = new Properties();
+			properties.setValue(Properties.BITSIZE, String.valueOf(bitSize));
+			
+			return createComponent(circuit, properties, x, y);
+		}
 		
-		return (circuit, x, y) -> components.get(component).createComponent(circuit, x, y, bitSize, secondaryOption);
-	}
-	
-	public interface ComponentCreator {
-		ComponentPeer<?> createComponent(Circuit circuit, int x, int y);
-	}
-	
-	private interface ComponentCreatorInternal {
-		ComponentPeer<?> createComponent(Circuit circuit, int x, int y, int bitSize, int secondaryOption);
+		T createComponent(Circuit circuit, Properties properties, int x, int y);
 	}
 }

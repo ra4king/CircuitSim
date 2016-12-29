@@ -4,8 +4,11 @@ import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 /**
  * @author Roi Atalla
@@ -19,6 +22,12 @@ public class GuiUtils {
 	
 	public static int getScreenCircuitCoord(double a) {
 		return getCircuitCoord(a) * BLOCK_SIZE;
+	}
+	
+	public static Bounds getBounds(Font font, String string) {
+		Text text = new Text(string);
+		text.setFont(font);
+		return text.getLayoutBounds();
 	}
 	
 	public interface Drawable {

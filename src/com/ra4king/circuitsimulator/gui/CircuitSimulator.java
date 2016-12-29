@@ -70,8 +70,7 @@ public class CircuitSimulator extends Application {
 	private void modifiedSelection() {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
-			current.modifiedSelection(componentManager.getComponentCreator(componentMode, bitSizeSelect.getValue(),
-			                                                               secondaryOptionSelect.getValue()));
+			current.modifiedSelection(componentManager.getComponentCreator(componentMode), bitSizeSelect.getValue());
 			current.repaint();
 		}
 	}

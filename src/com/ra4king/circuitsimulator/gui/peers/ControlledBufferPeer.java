@@ -7,6 +7,8 @@ import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
+import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.ControlledBuffer;
 
@@ -17,19 +19,23 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
-	private List<Connection> connections = new ArrayList<>();
-	
-	public ControlledBufferPeer(ControlledBuffer buffer, int x, int y) {
-		super(buffer, x, y, 2, 2);
+	public ControlledBufferPeer(Circuit circuit, Properties properties, int x, int y) {
+		super(x, y, 2, 2);
 		
+		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.BITSIZE);
+		
+		ControlledBuffer buffer = circuit.addComponent(
+				new ControlledBuffer(properties.getValue(Properties.LABEL),
+				                     properties.getIntValue(Properties.BITSIZE)));
+		circuit.addComponent(buffer);
+		
+		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), "In", 1, 0));
 		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_ENABLE), "Enable", 0, 1));
 		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT), "Out", 1, getHeight()));
-	}
-	
-	@Override
-	public List<Connection> getConnections() {
-		return connections;
+		
+		init(buffer, properties, connections);
 	}
 	
 	@Override

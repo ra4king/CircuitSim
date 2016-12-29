@@ -37,7 +37,7 @@ public class CircuitManager {
 	private CircuitBoard circuitBoard;
 	
 	private Point2D lastMousePosition = new Point2D(0, 0);
-	private ComponentPeer potentialComponent;
+	private ComponentPeer<?> potentialComponent;
 	private Circuit dummyCircuit = new Circuit(new Simulator());
 	private CircuitState dummyCircuitState = new CircuitState(dummyCircuit);
 	
@@ -51,6 +51,7 @@ public class CircuitManager {
 	private boolean selecting;
 	
 	private ComponentCreator componentCreator;
+	private int bitSize;
 	
 	private String message;
 	private long messageSetTime;
@@ -77,13 +78,14 @@ public class CircuitManager {
 		this.lastMousePosition = lastMousePosition;
 	}
 	
-	public void modifiedSelection(ComponentCreator componentCreator) {
+	public void modifiedSelection(ComponentCreator componentCreator, int bitSize) {
 		this.componentCreator = componentCreator;
+		this.bitSize = bitSize;
 		
 		dummyCircuit.getComponents().clear();
 		
 		if(componentCreator != null) {
-			potentialComponent = componentCreator.createComponent(dummyCircuit,
+			potentialComponent = componentCreator.createComponent(dummyCircuit, bitSize,
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getX()),
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getY()));
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
@@ -200,18 +202,12 @@ public class CircuitManager {
 		}
 		
 		if(System.nanoTime() - messageSetTime < MESSAGE_POST_DURATION * 1000000L) {
-			Bounds bounds = getBounds(graphics.getFont(), message);
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
 			graphics.setStroke(Color.BLACK);
 			graphics.strokeText(message, (canvas.getWidth() - bounds.getWidth()) * 0.5, canvas.getHeight() - 50);
 		}
 		
 		graphics.restore();
-	}
-	
-	private Bounds getBounds(Font font, String string) {
-		Text text = new Text(string);
-		text.setFont(font);
-		return text.getLayoutBounds();
 	}
 	
 	private interface ThrowableRunnable {
@@ -298,7 +294,7 @@ public class CircuitManager {
 			curDraggedPoint = new Point2D(e.getX(), e.getY());
 		} else if(potentialComponent != null) {
 			if(componentCreator != null) {
-				mayThrow(() -> circuitBoard.createComponent(componentCreator, potentialComponent.getX(),
+				mayThrow(() -> circuitBoard.createComponent(componentCreator, bitSize, potentialComponent.getX(),
 				                                            potentialComponent.getY()));
 			}
 		} else {

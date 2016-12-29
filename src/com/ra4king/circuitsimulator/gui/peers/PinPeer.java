@@ -7,6 +7,9 @@ import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
+import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.gui.Properties.Property;
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -20,33 +23,43 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class PinPeer extends ComponentPeer<Pin> {
-	private List<Connection> connections = new ArrayList<>();
+	public static final Property IS_INPUT = new Property("Is input?", Properties.YESNO_VALIDATOR, "Yes");
 	
-	public PinPeer(Pin pin, int x, int y) {
-		super(pin, x, y, Math.max(2, Math.min(8, pin.getBitSize())), 2 + 7 * ((pin.getBitSize() - 1) / 8) / 4);
+	public PinPeer(Circuit circuit, Properties properties, int x, int y) {
+		super(x, y, 0, 0);
 		
-		connections.add(new PortConnection(this, pin.getPort(0), isInput() ? getWidth() : 0, 1));
+		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.BITSIZE);
+		properties.ensureProperty(IS_INPUT);
+		
+		Pin pin = circuit.addComponent(
+				new Pin(properties.getValue(Properties.LABEL),
+				        properties.getIntValue(Properties.BITSIZE),
+				        properties.getValue(IS_INPUT).equals("Yes")));
+		setWidth(Math.max(2, Math.min(8, pin.getBitSize())));
+		setHeight(2 + 7 * ((pin.getBitSize() - 1) / 8) / 4);
+		
+		List<Connection> connections = new ArrayList<>();
+		connections.add(new PortConnection(this, pin.getPort(0), pin.isInput() ? getWidth() : 0, 1));
+		
+		init(pin, properties, connections);
 	}
 	
 	public boolean isInput() {
 		return getComponent().isInput();
 	}
 	
-	@Override
-	public List<Connection> getConnections() {
-		return connections;
-	}
-	
 	public void clicked(CircuitState state, int x, int y) {
-		if(!isInput())
+		if(!isInput()) {
 			return;
+		}
 		
 		Pin pin = getComponent();
 		
 		WireValue value = state.getLastPushedValue(pin.getPort(Pin.PORT));
 		if(pin.getBitSize() == 1) {
 			pin.setValue(state,
-					new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
+			             new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
 		} else {
 			int xOff = x - getScreenX();
 			int yOff = y - getScreenY();
@@ -69,7 +82,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		Port port = getComponent().getPort(Pin.PORT);
-		WireValue value = isInput() ? circuitState.getLastPushedValue(port): circuitState.getValue(port);
+		WireValue value = isInput() ? circuitState.getLastPushedValue(port) : circuitState.getValue(port);
 		if(circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {

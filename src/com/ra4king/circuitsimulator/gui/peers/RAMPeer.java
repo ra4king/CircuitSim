@@ -7,6 +7,9 @@ import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
+import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.gui.Properties.Property;
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.RAM;
 
@@ -17,22 +20,29 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class RAMPeer extends ComponentPeer<RAM> {
-	private List<Connection> connections = new ArrayList<>();
+	private static final Property ADDRESS_BITS = new Property("Address bits", Properties.BITSIZE.validator, "1");
 	
-	public RAMPeer(RAM ram, int x, int y) {
-		super(ram, x, y, 5, 4);
+	public RAMPeer(Circuit circuit, Properties properties, int x, int y) {
+		super(x, y, 5, 4);
 		
+		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.BITSIZE);
+		properties.ensureProperty(ADDRESS_BITS);
+		
+		RAM ram = circuit.addComponent(
+				new RAM(properties.getValue(Properties.LABEL),
+				        properties.getIntValue(Properties.BITSIZE),
+				        properties.getIntValue(ADDRESS_BITS)));
+		
+		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), "Address", 0, 2));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLK), "Clock", 1, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), "Enable", 2, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), "Load", 3, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), "Clear", 4, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA), "Data", getWidth(), 2));
-	}
-	
-	@Override
-	public List<Connection> getConnections() {
-		return connections;
+		
+		init(ram, properties, connections);
 	}
 	
 	@Override

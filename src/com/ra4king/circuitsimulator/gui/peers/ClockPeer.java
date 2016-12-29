@@ -7,6 +7,8 @@ import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
+import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
@@ -18,16 +20,17 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class ClockPeer extends ComponentPeer<Clock> {
-	private List<Connection> connections = new ArrayList<>();
-	
-	public ClockPeer(Clock clock, int x, int y) {
-		super(clock, x, y, 2, 2);
+	public ClockPeer(Circuit circuit, Properties properties, int x, int y) {
+		super(x, y, 2, 2);
+		
+		properties.ensureProperty(Properties.LABEL);
+		
+		Clock clock = circuit.addComponent(new Clock(properties.getValue(Properties.LABEL)));
+		
+		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth(), getHeight() / 2));
-	}
-	
-	@Override
-	public List<Connection> getConnections() {
-		return connections;
+		
+		init(clock, properties, connections);
 	}
 	
 	@Override

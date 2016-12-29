@@ -7,6 +7,8 @@ import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
+import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Register;
 
@@ -17,21 +19,24 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class RegisterPeer extends ComponentPeer<Register> {
-	private List<Connection> connections = new ArrayList<>();
-	
-	public RegisterPeer(Register register, int x, int y) {
-		super(register, x, y, 4, 4);
+	public RegisterPeer(Circuit circuit, Properties properties, int x, int y) {
+		super(x, y, 4, 4);
 		
+		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.BITSIZE);
+		
+		Register register = circuit.addComponent(
+				new Register(properties.getValue(Properties.LABEL),
+				             properties.getIntValue(Properties.BITSIZE)));
+		
+		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), 0, 2));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_ENABLE), 0, 3));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_CLK), 1, getHeight()));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_ZERO), 2, getHeight()));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_OUT), getWidth(), 2));
-	}
-	
-	@Override
-	public List<Connection> getConnections() {
-		return connections;
+		
+		init(register, properties, connections);
 	}
 	
 	@Override

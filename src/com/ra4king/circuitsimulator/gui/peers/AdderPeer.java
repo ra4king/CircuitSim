@@ -7,9 +7,12 @@ import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
+import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Adder;
 
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -17,21 +20,24 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class AdderPeer extends ComponentPeer<Adder> {
-	private List<Connection> connections = new ArrayList<>();
-	
-	public AdderPeer(Adder adder, int x, int y) {
-		super(adder, x, y, 2, 3);
+	public AdderPeer(Circuit circuit, Properties properties, int x, int y) {
+		super(x, y, 2, 3);
 		
+		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.BITSIZE);
+		
+		Adder adder = circuit.addComponent(
+				new Adder(properties.getValue(Properties.LABEL),
+				          properties.getIntValue(Properties.BITSIZE)));
+		
+		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_A), "A", 0, 1));
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_B), "B", 0, 2));
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_IN), "Carry in", 1, 0));
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_OUT), "Out", getWidth(), 1));
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_OUT), "Carry out", 1, getHeight()));
-	}
-	
-	@Override
-	public List<Connection> getConnections() {
-		return connections;
+		
+		init(adder, properties, connections);
 	}
 	
 	@Override
@@ -41,6 +47,9 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.strokeText("+", getScreenX() + getScreenWidth() / 2 - 2, getScreenY() + getScreenHeight() / 2 + 2);
+		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "+");
+		graphics.strokeText("+",
+		                    getScreenX() + (getScreenWidth() + bounds.getWidth()) * 0.5,
+		                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.5);
 	}
 }

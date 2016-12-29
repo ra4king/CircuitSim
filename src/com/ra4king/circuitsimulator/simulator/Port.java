@@ -118,11 +118,13 @@ public class Port {
 		public Link unlinkPort(Port port) {
 			if(!participants.contains(port)) return this;
 			
+			Circuit circuit = getCircuit();
+			
 			participants.remove(port);
 			port.link = new Link(bitSize);
 			port.link.participants.add(port);
 			
-			getCircuit().getCircuitStates().forEach(state -> state.unlink(this, port));
+			circuit.getCircuitStates().forEach(state -> state.unlink(this, port));
 			
 			return this;
 		}

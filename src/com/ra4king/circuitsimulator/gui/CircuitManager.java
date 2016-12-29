@@ -219,6 +219,7 @@ public class CircuitManager {
 			runnable.run();
 			messageSetTime = 0;
 		} catch(Exception exc) {
+			exc.printStackTrace();
 			message = exc.getMessage();
 			messageSetTime = System.nanoTime();
 		}

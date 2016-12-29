@@ -136,6 +136,10 @@ public class CircuitBoard {
 	}
 	
 	public void finalizeMove() throws Exception {
+		if(moveElements == null) {
+			return;
+		}
+		
 		for(GuiElement element : moveElements) {
 			if(element instanceof ComponentPeer<?>) {
 				try {

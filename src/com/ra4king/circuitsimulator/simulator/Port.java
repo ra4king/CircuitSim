@@ -12,14 +12,10 @@ public class Port {
 	private Link link;
 	
 	public Port(Component component, int portIndex, int bitSize) {
-		if(component.getCircuit() == null) {
-			throw new NullPointerException("Cannot create a Port without a circuit.");
-		}
-		
 		this.component = component;
 		this.portIndex = portIndex;
 		
-		link = new Link(component.getCircuit(), bitSize);
+		link = new Link(bitSize);
 		link.participants.add(this);
 	}
 	
@@ -66,18 +62,16 @@ public class Port {
 	}
 	
 	public static class Link {
-		private final Circuit circuit;
 		private final Set<Port> participants;
 		private final int bitSize;
 		
-		public Link(Circuit circuit, int bitSize) {
-			this.circuit = circuit;
+		public Link(int bitSize) {
 			this.participants = new HashSet<>();
 			this.bitSize = bitSize;
 		}
 		
 		public Circuit getCircuit() {
-			return circuit;
+			return participants.isEmpty() ? null : participants.iterator().next().component.getCircuit();
 		}
 		
 		public int getBitSize() {
@@ -91,15 +85,27 @@ public class Port {
 		public Link linkPort(Port port) {
 			if(participants.contains(port)) return this;
 			
-			if(port.getLink().circuit != circuit)
+			Circuit circuit = getCircuit();
+			
+			if(circuit == null) {
+				throw new IllegalStateException("Link does not belong to a circuit.");
+			}
+			
+			if(port.getLink().getCircuit() == null) {
+				throw new IllegalStateException("Port does not belong to a circuit.");
+			}
+			
+			if(port.getLink().getCircuit() != circuit) {
 				throw new IllegalArgumentException("Links belong to different circuits.");
+			}
 			
-			if(port.getLink().bitSize != bitSize)
+			if(port.getLink().bitSize != bitSize) {
 				throw new IllegalArgumentException("Links have different bit sizes.");
+			}
 			
-			circuit.getCircuitStates().forEach(state -> state.link(this, port.link));
+			circuit.getCircuitStates().forEach(state -> state.link(this, port.getLink()));
 			
-			Set<Port> portParticipants = port.link.participants;
+			Set<Port> portParticipants = port.getLink().participants;
 			participants.addAll(portParticipants);
 			
 			for(Port p : portParticipants) {
@@ -113,10 +119,10 @@ public class Port {
 			if(!participants.contains(port)) return this;
 			
 			participants.remove(port);
-			port.link = new Link(circuit, bitSize);
+			port.link = new Link(bitSize);
 			port.link.participants.add(port);
 			
-			circuit.getCircuitStates().forEach(state -> state.unlink(this, port));
+			getCircuit().getCircuitStates().forEach(state -> state.unlink(this, port));
 			
 			return this;
 		}

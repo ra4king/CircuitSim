@@ -268,6 +268,7 @@ public class CircuitManager {
 	
 	private void reset() {
 		simulatorWindow.clearSelection();
+		potentialComponent = null;
 		isDraggedHorizontally = false;
 		startConnection = null;
 		endConnection = null;
@@ -335,8 +336,6 @@ public class CircuitManager {
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		reset();
-		
 		if(startConnection != null) {
 			curDraggedPoint = new Point2D(e.getX(), e.getY());
 			potentialComponent = null;
@@ -344,9 +343,10 @@ public class CircuitManager {
 			if(componentCreator != null) {
 				mayThrow(() -> circuitBoard.createComponent(componentCreator, properties, potentialComponent.getX(),
 				                                            potentialComponent.getY()));
-				potentialComponent = null;
 			}
 		} else {
+			reset();
+			
 			startPoint = new Point2D(e.getX(), e.getY());
 			curDraggedPoint = startPoint;
 			draggedDelta = new Point2D(0, 0);
@@ -376,9 +376,9 @@ public class CircuitManager {
 				selecting = false;
 				selectedElementsMap.clear();
 			}
+			
+			simulatorWindow.setProperties(getCommonSelectedProperties());
 		}
-		
-		simulatorWindow.setProperties(getCommonSelectedProperties());
 		
 		repaint();
 	}

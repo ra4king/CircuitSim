@@ -1,26 +1,32 @@
 package com.ra4king.circuitsimulator.gui;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.geometry.HPos;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
@@ -28,6 +34,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -41,6 +48,11 @@ public class CircuitSimulator extends Application {
 	private Simulator simulator;
 	
 	private ComponentManager componentManager;
+	
+	private TableView<Property> propertiesTable;
+	private TableColumn<Property, String> propertyColumn, valueColumn;
+	
+	private TabPane buttonTabPane;
 	
 	private ToggleGroup buttonsToggleGroup;
 	private ComboBox<Integer> bitSizeSelect, secondaryOptionSelect;
@@ -67,19 +79,38 @@ public class CircuitSimulator extends Application {
 		return circuitManagers.get(canvasTabPane.getSelectionModel().getSelectedItem());
 	}
 	
+	public ComponentManager getComponentManager() {
+		return componentManager;
+	}
+	
+	public void setProperties(Properties properties) {
+		if(properties == null) {
+			propertiesTable.setItems(FXCollections.observableArrayList());
+		} else {
+			ObservableList<Property> propertyList = FXCollections.observableArrayList(
+					properties.getProperties().stream()
+					          .map(properties::getProperty)
+					          .collect(Collectors.toList()));
+			propertiesTable.setItems(propertyList);
+		}
+	}
+	
 	private void modifiedSelection() {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
-			current.modifiedSelection(componentManager.getComponentCreator(componentMode), bitSizeSelect.getValue());
+			Tab tab = buttonTabPane.getSelectionModel().getSelectedItem();
+			String group = tab == null ? null : tab.getText();
+			setProperties(current.modifiedSelection(componentManager.getComponentCreator(group, componentMode),
+			                                        bitSizeSelect.getValue()));
 			current.repaint();
 		}
 	}
 	
-	private ToggleButton setupButton(ToggleGroup group, int size, String componentName) {
+	private ToggleButton setupButton(ToggleGroup group, String componentName) {
 		ToggleButton button = new ToggleButton(componentName);
 		group.getToggles().add(button);
-		button.setMinWidth(size);
-		button.setMinHeight(2 * size / 3);
+		button.setMinHeight(30);
+		button.setMaxWidth(Double.MAX_VALUE);
 		button.addEventHandler(ActionEvent.ACTION, (e) -> {
 			if(componentMode != componentName) {
 				componentMode = componentName;
@@ -93,29 +124,27 @@ public class CircuitSimulator extends Application {
 	
 	@Override
 	public void start(Stage stage) {
-		final int buttonSize = 75;
-		
-		GridPane buttons = new GridPane();
-		buttons.setAlignment(Pos.BASELINE_CENTER);
-		
-		buttonsToggleGroup = new ToggleGroup();
 		componentManager = new ComponentManager();
 		
+		buttonTabPane = new TabPane();
+		propertiesTable = new TableView<>();
+		propertiesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		
 		bitSizeSelect = new ComboBox<>();
-		bitSizeSelect.setMinWidth(buttonSize);
 		for(int i = 1; i <= 32; i++) {
 			bitSizeSelect.getItems().add(i);
 		}
+		bitSizeSelect.setMaxWidth(Double.MAX_VALUE);
 		bitSizeSelect.setValue(1);
 		bitSizeSelect.getSelectionModel()
 		             .selectedItemProperty()
 		             .addListener((observable, oldValue, newValue) -> modifiedSelection());
 		
 		secondaryOptionSelect = new ComboBox<>();
-		secondaryOptionSelect.setMinWidth(buttonSize);
 		for(int i = 1; i <= 8; i++) {
 			secondaryOptionSelect.getItems().add(i);
 		}
+		secondaryOptionSelect.setMaxWidth(Double.MAX_VALUE);
 		secondaryOptionSelect.setValue(1);
 		secondaryOptionSelect.getSelectionModel()
 		                     .selectedItemProperty()
@@ -197,29 +226,59 @@ public class CircuitSimulator extends Application {
 				}
 			});
 			
-			CircuitManager circuitManager = new CircuitManager(canvas, simulator);
+			CircuitManager circuitManager = new CircuitManager(this, canvas, simulator);
 			circuitManagers.put(canvasTab, circuitManager);
 			componentManager.addCircuit("Circuit " + i, circuitManager);
 			
 			canvasTabPane.getTabs().addAll(canvasTab);
 		}
 		
-		int count = 0;
-		for(String component : componentManager.getComponentNames()) {
-			buttons.addRow(count++ / 2, setupButton(buttonsToggleGroup, buttonSize, component));
+		buttonsToggleGroup = new ToggleGroup();
+		Map<String, Tab> buttonTabs = new HashMap<>();
+		
+		for(Pair<String, String> component : componentManager.getComponentNames()) {
+			Tab tab;
+			if(buttonTabs.containsKey(component.first)) {
+				tab = buttonTabs.get(component.first);
+			} else {
+				tab = new Tab(component.first);
+				tab.setClosable(false);
+				tab.setContent(new GridPane());
+				buttonTabPane.getTabs().add(tab);
+				buttonTabs.put(component.first, tab);
+			}
+			
+			GridPane buttons = (GridPane)tab.getContent();
+			
+			ToggleButton toggleButton = setupButton(buttonsToggleGroup, component.second);
+			GridPane.setHgrow(toggleButton, Priority.ALWAYS);
+			buttons.addRow(buttons.getChildren().size(), toggleButton);
 		}
+//		
+//		Label bitSizeLabel = new Label("Bit size:");
+//		Label secondaryLabel = new Label("Secondary:");
+//		GridPane.setHalignment(bitSizeLabel, HPos.CENTER);
+//		GridPane.setHalignment(secondaryLabel, HPos.CENTER);
+//		buttons.addRow(count++, bitSizeLabel, secondaryLabel);
+//		buttons.addRow(count, bitSizeSelect, secondaryOptionSelect);
 		
-		Label bitSizeLabel = new Label("Bit size:");
-		Label secondaryLabel = new Label("Secondary:");
-		GridPane.setHalignment(bitSizeLabel, HPos.CENTER);
-		GridPane.setHalignment(secondaryLabel, HPos.CENTER);
-		buttons.addRow(count++, bitSizeLabel, secondaryLabel);
-		buttons.addRow(count, bitSizeSelect, secondaryOptionSelect);
+		propertyColumn = new TableColumn<>("Property");
+		propertyColumn.setEditable(false);
+		propertyColumn.setSortable(false);
+		propertyColumn.setCellValueFactory(cdf -> new SimpleStringProperty(cdf.getValue().name));
+		valueColumn = new TableColumn<>("Value");
+		valueColumn.setEditable(true);
+		valueColumn.setSortable(false);
+		valueColumn.setCellValueFactory(cdf -> new SimpleStringProperty(cdf.getValue().value));
 		
-		buttons.setMinWidth(150);
-		buttons.setMinHeight(600);
+		propertiesTable.getColumns().add(propertyColumn);
+		propertiesTable.getColumns().add(valueColumn);
 		
-		HBox hBox = new HBox(buttons, canvasTabPane);
+		VBox vBox = new VBox(buttonTabPane, propertiesTable);
+		VBox.setVgrow(buttonTabPane, Priority.ALWAYS);
+		VBox.setVgrow(propertiesTable, Priority.ALWAYS);
+		
+		HBox hBox = new HBox(vBox, canvasTabPane);
 		HBox.setHgrow(canvasTabPane, Priority.ALWAYS);
 		Scene scene = new Scene(hBox);
 		

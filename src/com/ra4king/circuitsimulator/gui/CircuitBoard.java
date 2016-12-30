@@ -160,11 +160,11 @@ public class CircuitBoard {
 		runSim();
 	}
 	
-	public void removeElements(Set<GuiElement> elements) throws Exception {
+	public void removeElements(Set<? extends GuiElement> elements) throws Exception {
 		removeElements(elements, true);
 	}
 	
-	private void removeElements(Set<GuiElement> elements, boolean removeFromCircuit) throws Exception {
+	private void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) throws Exception {
 		Map<LinkWires, Set<Wire>> wiresToRemove = new HashMap<>();
 		
 		for(GuiElement element : elements) {

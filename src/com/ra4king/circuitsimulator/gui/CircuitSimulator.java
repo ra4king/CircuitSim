@@ -82,6 +82,13 @@ public class CircuitSimulator extends Application {
 		return componentManager;
 	}
 	
+	public void clearSelection() {
+		if(buttonsToggleGroup.getSelectedToggle() != null) {
+			buttonsToggleGroup.getSelectedToggle().setSelected(false);
+		}
+		componentMode = null;
+	}
+	
 	public void setProperties(Properties properties) {
 		propertiesTable.getChildren().clear();
 		
@@ -107,7 +114,6 @@ public class CircuitSimulator extends Application {
 					valueList.getSelectionModel()
 					         .selectedItemProperty()
 					         .addListener((observable, oldValue, newValue) -> {
-						         System.out.println(property.name + ": old=" + oldValue + ", new=" + newValue);
 						         if(oldValue == null || !newValue.equals(oldValue)) {
 							         Properties newProperties = new Properties(properties);
 							         newProperties.setValue(property, newValue);
@@ -149,7 +155,8 @@ public class CircuitSimulator extends Application {
 			Tab tab = buttonTabPane.getSelectionModel().getSelectedItem();
 			String group = tab == null ? null : tab.getText();
 			setProperties(
-					current.modifiedSelection(componentManager.getComponentCreator(group, componentMode), properties));
+					current.modifiedSelection(componentManager.getComponentCreator(group, componentMode),
+					                          properties));
 			current.repaint();
 		}
 	}
@@ -363,10 +370,7 @@ public class CircuitSimulator extends Application {
 				}
 				break;
 			case ESCAPE:
-				if(buttonsToggleGroup.getSelectedToggle() != null) {
-					buttonsToggleGroup.getSelectedToggle().setSelected(false);
-				}
-				componentMode = null;
+				clearSelection();
 				modifiedSelection();
 				break;
 		}

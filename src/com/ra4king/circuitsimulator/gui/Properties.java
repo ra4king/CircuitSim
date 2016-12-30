@@ -36,6 +36,10 @@ public class Properties {
 		propertyNames.forEach(name -> consumer.accept(properties.get(name)));
 	}
 	
+	public boolean isEmpty() {
+		return propertyNames.isEmpty();
+	}
+	
 	public void ensureProperty(Property property) {
 		if(!properties.containsKey(property.name)) {
 			propertyNames.add(property.name);
@@ -119,11 +123,13 @@ public class Properties {
 				if(ourProperty.validator != null
 						   && prop.validator != null
 						   && !ourProperty.validator.equals(prop.validator)) {
-					throw new IllegalArgumentException("Property with the same name but different values: "
+					throw new IllegalArgumentException("Property with the same name but different validator: "
 							                                   + prop.name);
 				}
 				
-				this.properties.put(prop.name, prop);
+				if(!prop.value.isEmpty()) {
+					this.properties.put(prop.name, prop);
+				}
 			} else {
 				ensureProperty(prop);
 			}
@@ -202,7 +208,7 @@ public class Properties {
 		}
 		
 		public Property(String name, PropertyValidator validator, String value) {
-			if(!validator.validate(value)) {
+			if(!value.isEmpty() && !validator.validate(value)) {
 				throw new IllegalArgumentException("Value is not validated.");
 			}
 			

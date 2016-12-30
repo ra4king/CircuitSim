@@ -43,6 +43,7 @@ public class Circuit {
 	
 	public void removeComponent(Component component) {
 		components.remove(component);
+		component.setCircuit(null);
 		states.forEach(state -> state.removeComponentProperty(component));
 		listeners.forEach(listener -> listener.circuitChanged(this));
 	}

@@ -21,8 +21,6 @@ import com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XnorGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XorGatePeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
-import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 /**
@@ -30,7 +28,7 @@ import com.ra4king.circuitsimulator.simulator.utils.Pair;
  */
 public class ComponentManager {
 	private List<Pair<String, String>> componentsOrder;
-	private HashMap<Pair<String, String>, ComponentCreator> components;
+	private HashMap<Pair<String, String>, ComponentCreator<?>> components;
 	
 	public ComponentManager() {
 		componentsOrder = new ArrayList<>();
@@ -38,7 +36,7 @@ public class ComponentManager {
 		initComponents();
 	}
 	
-	private static <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
+	public static <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
 		return (circuit, properties, x, y) -> {
 			try {
 				return clazz.getConstructor(Circuit.class, Properties.class, Integer.TYPE, Integer.TYPE)
@@ -49,21 +47,18 @@ public class ComponentManager {
 		};
 	}
 	
-	private void addComponent(String group, String name, ComponentCreator creator) {
+	private <T extends ComponentPeer<?>> void addComponent(String group, String name, ComponentCreator<T> creator) {
 		Pair<String, String> pair = new Pair<>(group, name);
-		components.put(pair, creator);
 		componentsOrder.add(pair);
+		components.put(pair, creator);
 	}
 	
 	private void initComponents() {
-		addComponent("Wiring", "Input", (circuit, properties, x, y) -> {
+		addComponent("Wiring", "Input Pin", (circuit, properties, x, y) -> {
 			properties.setValue(PinPeer.IS_INPUT, "Yes");
-			PinPeer pinPeer = forClass(PinPeer.class).createComponent(circuit, properties, x, y);
-			Pin pin = pinPeer.getComponent();
-			circuit.getTopLevelState().pushValue(pin.getPort(Pin.PORT), WireValue.of(0, pin.getBitSize()));
-			return pinPeer;
+			return forClass(PinPeer.class).createComponent(circuit, properties, x, y);
 		});
-		addComponent("Wiring", "Output", (circuit, properties, x, y) -> {
+		addComponent("Wiring", "Output Pin", (circuit, properties, x, y) -> {
 			properties.setValue(PinPeer.IS_INPUT, "No");
 			return forClass(PinPeer.class).createComponent(circuit, properties, x, y);
 		});
@@ -99,7 +94,7 @@ public class ComponentManager {
 		});
 	}
 	
-	public ComponentCreator getComponentCreator(String group, String component) {
+	public ComponentCreator<?> getComponentCreator(String group, String component) {
 		if(component == null) return null;
 		return components.get(new Pair<>(group, component));
 	}

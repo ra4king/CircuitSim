@@ -80,6 +80,13 @@ public class CircuitManager {
 		this.lastMousePosition = lastMousePosition;
 	}
 	
+	private Properties getCommonSelectedProperties() {
+		return selectedElementsMap.keySet().stream()
+		                          .filter(element -> element instanceof ComponentPeer<?>)
+		                          .map(element -> ((ComponentPeer<?>)element).getProperties())
+		                          .reduce(Properties::intersect).orElse(null);
+	}
+	
 	public Properties modifiedSelection(ComponentCreator componentCreator, Properties properties) {
 		this.componentCreator = componentCreator;
 		this.properties = properties;
@@ -93,10 +100,40 @@ public class CircuitManager {
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(potentialComponent.getY() - potentialComponent.getHeight() / 2);
 			return potentialComponent.getProperties();
-		} else {
+		} else if(!properties.isEmpty() && !selectedElementsMap.isEmpty()) {
 			potentialComponent = null;
-			return null;
+			
+			Set<ComponentPeer<?>> components =
+					selectedElementsMap.keySet().stream()
+					                   .filter(element -> element instanceof ComponentPeer<?>)
+					                   .map(element -> (ComponentPeer<?>)element)
+					                   .collect(Collectors.toSet());
+			mayThrow(() -> circuitBoard.removeElements(components));
+			
+			Set<ComponentPeer<?>> newComponents =
+					components.stream()
+					          .map(component -> (ComponentPeer<?>)ComponentManager.forClass(component.getClass())
+					                                                              .createComponent(getCircuit(),
+					                                                                               properties,
+					                                                                               component.getX(),
+					                                                                               component.getY()))
+					          .collect(Collectors.toSet());
+			
+			newComponents.forEach(component -> mayThrow(() -> circuitBoard.addComponent(component)));
+			
+			selectedElementsMap = Stream.concat(
+					selectedElementsMap.keySet().stream().filter(element -> !(element instanceof ComponentPeer<?>)),
+					newComponents.stream())
+			                            .collect(Collectors.toMap(element -> element,
+			                                                      element -> new Point2D(element.getX(),
+			                                                                             element.getY())));
+			
+			
+			return getCommonSelectedProperties();
 		}
+		
+		potentialComponent = null;
+		return null;
 	}
 	
 	public void repaint() {
@@ -230,6 +267,7 @@ public class CircuitManager {
 	}
 	
 	private void reset() {
+		simulatorWindow.clearSelection();
 		isDraggedHorizontally = false;
 		startConnection = null;
 		endConnection = null;
@@ -262,22 +300,24 @@ public class CircuitManager {
 					}
 					currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
 					selectedPin.getComponent().setValue(getCircuit().getTopLevelState(), currentValue);
-					mayThrow(() -> circuitBoard.runSim());
+					mayThrow(circuitBoard::runSim);
 					break;
 				}
 			case BACK_SPACE:
 			case DELETE:
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 				selectedElementsMap.clear();
+				simulatorWindow.setProperties(null);
 			case ESCAPE:
 				if(!selectedElementsMap.isEmpty()) {
 					if(draggedDelta.getX() != 0 || draggedDelta.getY() != 0) {
 						mayThrow(() -> circuitBoard.moveElements(-(int)draggedDelta.getX(),
 						                                         -(int)draggedDelta.getY()));
-						mayThrow(() -> circuitBoard.finalizeMove());
+						mayThrow(circuitBoard::finalizeMove);
 						draggedDelta = new Point2D(0, 0);
 					}
 					selectedElementsMap.clear();
+					simulatorWindow.setProperties(null);
 				}
 				reset();
 				break;
@@ -295,12 +335,16 @@ public class CircuitManager {
 	}
 	
 	public void mousePressed(MouseEvent e) {
+		reset();
+		
 		if(startConnection != null) {
 			curDraggedPoint = new Point2D(e.getX(), e.getY());
+			potentialComponent = null;
 		} else if(potentialComponent != null) {
 			if(componentCreator != null) {
 				mayThrow(() -> circuitBoard.createComponent(componentCreator, properties, potentialComponent.getX(),
 				                                            potentialComponent.getY()));
+				potentialComponent = null;
 			}
 		} else {
 			startPoint = new Point2D(e.getX(), e.getY());
@@ -326,7 +370,7 @@ public class CircuitManager {
 				
 				if(selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
 					((PinPeer)selectedElement).clicked(getCircuit().getTopLevelState(), (int)e.getX(), (int)e.getY());
-					mayThrow(() -> circuitBoard.runSim());
+					mayThrow(circuitBoard::runSim);
 				}
 			} else if(!ctrlDown) {
 				selecting = false;
@@ -334,12 +378,14 @@ public class CircuitManager {
 			}
 		}
 		
+		simulatorWindow.setProperties(getCommonSelectedProperties());
+		
 		repaint();
 	}
 	
 	public void mouseReleased(MouseEvent e) {
 		if(selecting && !selectedElementsMap.isEmpty()) {
-			mayThrow(() -> circuitBoard.finalizeMove());
+			mayThrow(circuitBoard::finalizeMove);
 			draggedDelta = new Point2D(0, 0);
 		}
 		
@@ -382,6 +428,8 @@ public class CircuitManager {
 						           .collect(Collectors.toMap(Connection::getParent,
 						                                     conn -> new Point2D(conn.getParent().getX(),
 						                                                         conn.getParent().getY()))));
+				
+				simulatorWindow.setProperties(getCommonSelectedProperties());
 			}
 		}
 		
@@ -430,6 +478,8 @@ public class CircuitManager {
 			                                 .collect(
 					                                 Collectors.toMap(peer -> peer,
 					                                                  peer -> new Point2D(peer.getX(), peer.getY()))));
+			
+			simulatorWindow.setProperties(getCommonSelectedProperties());
 		}
 		
 		if(curDraggedPoint != null) {

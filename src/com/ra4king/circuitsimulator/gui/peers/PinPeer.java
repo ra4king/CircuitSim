@@ -42,6 +42,10 @@ public class PinPeer extends ComponentPeer<Pin> {
 		setWidth(Math.max(2, Math.min(8, pin.getBitSize())));
 		setHeight(2 + 7 * ((pin.getBitSize() - 1) / 8) / 4);
 		
+		if(pin.isInput()) {
+			circuit.getTopLevelState().pushValue(pin.getPort(Pin.PORT), WireValue.of(0, pin.getBitSize()));
+		}
+		
 		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, pin.getPort(0), pin.isInput() ? getWidth() : 0, 1));
 		

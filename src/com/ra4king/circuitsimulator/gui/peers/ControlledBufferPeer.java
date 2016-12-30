@@ -28,7 +28,6 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 		ControlledBuffer buffer = circuit.addComponent(
 				new ControlledBuffer(properties.getValue(Properties.LABEL),
 				                     properties.getIntValue(Properties.BITSIZE)));
-		circuit.addComponent(buffer);
 		
 		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), "In", 1, 0));

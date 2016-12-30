@@ -33,8 +33,9 @@ import javafx.scene.text.Text;
  * @author Roi Atalla
  */
 public class CircuitManager {
-	private Canvas canvas;
-	private CircuitBoard circuitBoard;
+	private final CircuitSimulator simulatorWindow;
+	private final Canvas canvas;
+	private final CircuitBoard circuitBoard;
 	
 	private Point2D lastMousePosition = new Point2D(0, 0);
 	private ComponentPeer<?> potentialComponent;
@@ -57,7 +58,8 @@ public class CircuitManager {
 	private long messageSetTime;
 	private static final int MESSAGE_POST_DURATION = 5000;
 	
-	public CircuitManager(Canvas canvas, Simulator simulator) {
+	public CircuitManager(CircuitSimulator simulatorWindow, Canvas canvas, Simulator simulator) {
+		this.simulatorWindow = simulatorWindow;
 		this.canvas = canvas;
 		circuitBoard = new CircuitBoard(simulator);
 	}
@@ -78,7 +80,7 @@ public class CircuitManager {
 		this.lastMousePosition = lastMousePosition;
 	}
 	
-	public void modifiedSelection(ComponentCreator componentCreator, int bitSize) {
+	public Properties modifiedSelection(ComponentCreator componentCreator, int bitSize) {
 		this.componentCreator = componentCreator;
 		this.bitSize = bitSize;
 		
@@ -90,8 +92,10 @@ public class CircuitManager {
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getY()));
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(potentialComponent.getY() - potentialComponent.getHeight() / 2);
+			return potentialComponent.getProperties();
 		} else {
 			potentialComponent = null;
+			return null;
 		}
 	}
 	

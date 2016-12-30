@@ -23,13 +23,14 @@ import com.ra4king.circuitsimulator.gui.peers.gates.XorGatePeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 /**
  * @author Roi Atalla
  */
 public class ComponentManager {
-	private List<String> componentsOrder;
-	private HashMap<String, ComponentCreator> components;
+	private List<Pair<String, String>> componentsOrder;
+	private HashMap<Pair<String, String>, ComponentCreator> components;
 	
 	public ComponentManager() {
 		componentsOrder = new ArrayList<>();
@@ -48,45 +49,48 @@ public class ComponentManager {
 		};
 	}
 	
-	private void addComponent(String name, ComponentCreator creator) {
-		components.put(name, creator);
-		componentsOrder.add(name);
+	private void addComponent(String group, String name, ComponentCreator creator) {
+		Pair<String, String> pair = new Pair<>(group, name);
+		components.put(pair, creator);
+		componentsOrder.add(pair);
 	}
 	
 	private void initComponents() {
-		addComponent("Input", (circuit, properties, x, y) -> {
+		addComponent("Wiring", "Input", (circuit, properties, x, y) -> {
 			properties.setValue(PinPeer.IS_INPUT, "Yes");
 			PinPeer pinPeer = forClass(PinPeer.class).createComponent(circuit, properties, x, y);
 			Pin pin = pinPeer.getComponent();
 			circuit.getTopLevelState().pushValue(pin.getPort(Pin.PORT), WireValue.of(0, pin.getBitSize()));
 			return pinPeer;
 		});
-		addComponent("Output", (circuit, properties, x, y) -> {
+		addComponent("Wiring", "Output", (circuit, properties, x, y) -> {
 			properties.setValue(PinPeer.IS_INPUT, "No");
 			return forClass(PinPeer.class).createComponent(circuit, properties, x, y);
 		});
-		addComponent("AND", forClass(AndGatePeer.class));
-		addComponent("NAND", forClass(NandGatePeer.class));
-		addComponent("OR", forClass(OrGatePeer.class));
-		addComponent("NOR", forClass(NorGatePeer.class));
-		addComponent("XOR", forClass(XorGatePeer.class));
-		addComponent("XNOR", forClass(XnorGatePeer.class));
-		addComponent("NOT", forClass(NotGatePeer.class));
-		addComponent("Buffer", forClass(ControlledBufferPeer.class));
-		addComponent("Clock", forClass(ClockPeer.class));
-		addComponent("Register", forClass(RegisterPeer.class));
-		addComponent("Adder", forClass(AdderPeer.class));
-		addComponent("Splitter", forClass(SplitterPeer.class));
-		addComponent("Mux", forClass(MultiplexerPeer.class));
-		addComponent("RAM", forClass(RAMPeer.class));
+		addComponent("Wiring", "Clock", forClass(ClockPeer.class));
+		addComponent("Wiring", "Splitter", forClass(SplitterPeer.class));
+		
+		addComponent("Gates", "AND", forClass(AndGatePeer.class));
+		addComponent("Gates", "NAND", forClass(NandGatePeer.class));
+		addComponent("Gates", "OR", forClass(OrGatePeer.class));
+		addComponent("Gates", "NOR", forClass(NorGatePeer.class));
+		addComponent("Gates", "XOR", forClass(XorGatePeer.class));
+		addComponent("Gates", "XNOR", forClass(XnorGatePeer.class));
+		addComponent("Gates", "NOT", forClass(NotGatePeer.class));
+		addComponent("Gates", "Buffer", forClass(ControlledBufferPeer.class));
+		
+		addComponent("Memory", "Register", forClass(RegisterPeer.class));
+		addComponent("Memory", "RAM", forClass(RAMPeer.class));
+		addComponent("Plexers", "Mux", forClass(MultiplexerPeer.class));
+		addComponent("Arithmetic", "Adder", forClass(AdderPeer.class));
 	}
 	
-	public List<String> getComponentNames() {
+	public List<Pair<String, String>> getComponentNames() {
 		return componentsOrder;
 	}
 	
 	public void addCircuit(String name, CircuitManager circuitManager) {
-		addComponent(name, (circuit, properties, x, y) -> {
+		addComponent("Circuits", name, (circuit, properties, x, y) -> {
 			if(circuit == circuitManager.getCircuit()) {
 				throw new IllegalArgumentException("Cannot create subcircuit inside own circuit.");
 			}
@@ -95,9 +99,9 @@ public class ComponentManager {
 		});
 	}
 	
-	public ComponentCreator getComponentCreator(String component) {
+	public ComponentCreator getComponentCreator(String group, String component) {
 		if(component == null) return null;
-		return components.get(component);
+		return components.get(new Pair<>(group, component));
 	}
 	
 	public interface ComponentCreator<T extends ComponentPeer<?>> {

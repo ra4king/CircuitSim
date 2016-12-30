@@ -15,7 +15,11 @@ import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
  */
 public abstract class GatePeer extends ComponentPeer<Gate> {
 	public GatePeer(Circuit circuit, Properties props, int x, int y) {
-		super(x, y, 4, 4);
+		this(circuit, props, x, y, 4, 4);
+	}
+	
+	public GatePeer(Circuit circuit, Properties props, int x, int y, int width, int height) {
+		super(x, y, width, height);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);

@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
  */
 public class NotGatePeer extends GatePeer {
 	public NotGatePeer(Circuit circuit, Properties properties, int x, int y) {
-		super(circuit, properties, x, y);
+		super(circuit, properties, x, y, 4, 2);
 	}
 	
 	@Override

@@ -63,8 +63,8 @@ public class CircuitBoard {
 		circuit.getSimulator().stepAll();
 	}
 	
-	public void createComponent(ComponentCreator creator, int bitsize, int x, int y) throws Exception {
-		ComponentPeer<?> component = creator.createComponent(circuit, bitsize, x, y);
+	public void createComponent(ComponentCreator creator, Properties properties, int x, int y) throws Exception {
+		ComponentPeer<?> component = creator.createComponent(circuit, properties, x, y);
 		
 		for(ComponentPeer<?> c : components) {
 			if(c.intersects(component)) {

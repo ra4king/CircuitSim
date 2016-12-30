@@ -19,11 +19,13 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class RegisterPeer extends ComponentPeer<Register> {
-	public RegisterPeer(Circuit circuit, Properties properties, int x, int y) {
+	public RegisterPeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 4, 4);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
+		properties.merge(props);
 		
 		Register register = circuit.addComponent(
 				new Register(properties.getValue(Properties.LABEL),

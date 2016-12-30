@@ -19,12 +19,14 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class SplitterPeer extends ComponentPeer<Splitter> {
-	public SplitterPeer(Circuit circuit, Properties properties, int x, int y) {
+	public SplitterPeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 0, 1);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.NUM_INPUTS);
+		properties.merge(props);
 		
 		Splitter splitter = circuit.addComponent(
 				new Splitter(properties.getValue(Properties.LABEL),

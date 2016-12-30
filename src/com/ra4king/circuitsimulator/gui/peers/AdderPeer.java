@@ -20,11 +20,13 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class AdderPeer extends ComponentPeer<Adder> {
-	public AdderPeer(Circuit circuit, Properties properties, int x, int y) {
+	public AdderPeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 2, 3);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
+		properties.merge(props);
 		
 		Adder adder = circuit.addComponent(
 				new Adder(properties.getValue(Properties.LABEL),

@@ -27,6 +27,10 @@ public class Subcircuit extends Component {
 		this.pins = pins;
 	}
 	
+	public List<Pin> getPins() {
+		return pins;
+	}
+	
 	@Override
 	public void init(CircuitState circuitState) {
 		super.init(circuitState);

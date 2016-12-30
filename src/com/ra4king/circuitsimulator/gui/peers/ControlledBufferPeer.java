@@ -19,11 +19,13 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
-	public ControlledBufferPeer(Circuit circuit, Properties properties, int x, int y) {
+	public ControlledBufferPeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 2, 2);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
+		properties.merge(props);
 		
 		ControlledBuffer buffer = circuit.addComponent(
 				new ControlledBuffer(properties.getValue(Properties.LABEL),

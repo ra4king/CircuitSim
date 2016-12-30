@@ -22,12 +22,14 @@ import javafx.scene.paint.Color;
 public class RAMPeer extends ComponentPeer<RAM> {
 	private static final Property ADDRESS_BITS = new Property("Address bits", Properties.BITSIZE.validator, "1");
 	
-	public RAMPeer(Circuit circuit, Properties properties, int x, int y) {
+	public RAMPeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 5, 4);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(ADDRESS_BITS);
+		properties.merge(props);
 		
 		RAM ram = circuit.addComponent(
 				new RAM(properties.getValue(Properties.LABEL),

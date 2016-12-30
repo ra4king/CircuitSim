@@ -31,12 +31,14 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 		SELECTOR_BITS = new Property("Selector bits", new PropertyListValidator(selBits), "1");
 	}
 	
-	public MultiplexerPeer(Circuit circuit, Properties properties, int x, int y) {
+	public MultiplexerPeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 2, 0);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(SELECTOR_BITS);
+		properties.merge(props);
 		
 		Multiplexer mux = circuit.addComponent(
 				new Multiplexer(properties.getValue(Properties.LABEL),

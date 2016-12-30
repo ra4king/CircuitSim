@@ -14,12 +14,12 @@ import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
  * @author Roi Atalla
  */
 public abstract class GatePeer extends ComponentPeer<Gate> {
-	public GatePeer(Circuit circuit, Properties properties, int x, int y) {
+	public GatePeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 4, 4);
 		
-		Properties props = new Properties();
-		props.ensureProperty(Properties.LABEL);
-		props.merge(properties);
+		Properties properties = new Properties();
+		properties.ensureProperty(Properties.LABEL);
+		properties.merge(props);
 		
 		Gate gate = getGate(circuit, properties);
 		
@@ -33,7 +33,7 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 		
 		connections.add(new PortConnection(this, gate.getPort(gateNum), getWidth(), getHeight() / 2));
 		
-		init(gate, props, connections);
+		init(gate, properties, connections);
 	}
 	
 	public abstract Gate getGate(Circuit circuit, Properties properties);

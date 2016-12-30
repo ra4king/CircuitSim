@@ -19,10 +19,12 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
-	public SubcircuitPeer(Circuit circuit, Properties properties, Circuit parent, int x, int y) {
+	public SubcircuitPeer(Circuit circuit, Properties props, Circuit parent, int x, int y) {
 		super(x, y, 2, 0);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.merge(props);
 		
 		Subcircuit subcircuit = circuit.addComponent(
 				new Subcircuit(properties.getValue(Properties.LABEL), parent));
@@ -32,7 +34,8 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		for(int i = 0; i < subcircuit.getNumPorts(); i++) {
 			int connX = i < ((subcircuit.getNumPorts() + 1) / 2) ? 0 : getWidth();
 			int connY = 1 + (i % ((subcircuit.getNumPorts() + 1) / 2));
-			connections.add(new PortConnection(this, subcircuit.getPort(i), connX, connY));
+			connections.add(new PortConnection(this, subcircuit.getPort(i), subcircuit.getPins().get(i).getName(),
+			                                   connX, connY));
 		}
 		
 		init(subcircuit, properties, connections);

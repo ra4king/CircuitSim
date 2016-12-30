@@ -16,6 +16,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -25,12 +26,14 @@ import javafx.scene.paint.Color;
 public class PinPeer extends ComponentPeer<Pin> {
 	public static final Property IS_INPUT = new Property("Is input?", Properties.YESNO_VALIDATOR, "Yes");
 	
-	public PinPeer(Circuit circuit, Properties properties, int x, int y) {
+	public PinPeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 0, 0);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(IS_INPUT);
+		properties.merge(props);
 		
 		Pin pin = circuit.addComponent(
 				new Pin(properties.getValue(Properties.LABEL),
@@ -81,6 +84,18 @@ public class PinPeer extends ComponentPeer<Pin> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		if(!getComponent().getName().isEmpty()) {
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
+			graphics.setStroke(Color.BLACK);
+			if(isInput()) {
+				graphics.strokeText(getComponent().getName(), getScreenX() - bounds.getWidth() - 5,
+				                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.5);
+			} else {
+				graphics.strokeText(getComponent().getName(), getScreenX() + getScreenWidth() + 5,
+				                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.5);
+			}
+		}
+		
 		Port port = getComponent().getPort(Pin.PORT);
 		WireValue value = isInput() ? circuitState.getLastPushedValue(port) : circuitState.getValue(port);
 		if(circuitState.isShortCircuited(port.getLink())) {

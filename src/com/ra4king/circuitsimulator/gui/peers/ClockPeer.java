@@ -20,10 +20,12 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class ClockPeer extends ComponentPeer<Clock> {
-	public ClockPeer(Circuit circuit, Properties properties, int x, int y) {
+	public ClockPeer(Circuit circuit, Properties props, int x, int y) {
 		super(x, y, 2, 2);
 		
+		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.merge(props);
 		
 		Clock clock = circuit.addComponent(new Clock(properties.getValue(Properties.LABEL)));
 		

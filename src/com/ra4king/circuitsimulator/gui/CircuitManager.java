@@ -52,7 +52,7 @@ public class CircuitManager {
 	private boolean selecting;
 	
 	private ComponentCreator componentCreator;
-	private int bitSize;
+	private Properties properties;
 	
 	private String message;
 	private long messageSetTime;
@@ -80,14 +80,14 @@ public class CircuitManager {
 		this.lastMousePosition = lastMousePosition;
 	}
 	
-	public Properties modifiedSelection(ComponentCreator componentCreator, int bitSize) {
+	public Properties modifiedSelection(ComponentCreator componentCreator, Properties properties) {
 		this.componentCreator = componentCreator;
-		this.bitSize = bitSize;
+		this.properties = properties;
 		
 		dummyCircuit.getComponents().clear();
 		
 		if(componentCreator != null) {
-			potentialComponent = componentCreator.createComponent(dummyCircuit, bitSize,
+			potentialComponent = componentCreator.createComponent(dummyCircuit, properties,
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getX()),
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getY()));
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
@@ -299,7 +299,7 @@ public class CircuitManager {
 			curDraggedPoint = new Point2D(e.getX(), e.getY());
 		} else if(potentialComponent != null) {
 			if(componentCreator != null) {
-				mayThrow(() -> circuitBoard.createComponent(componentCreator, bitSize, potentialComponent.getX(),
+				mayThrow(() -> circuitBoard.createComponent(componentCreator, properties, potentialComponent.getX(),
 				                                            potentialComponent.getY()));
 			}
 		} else {

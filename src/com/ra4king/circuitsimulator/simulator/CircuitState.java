@@ -202,10 +202,13 @@ public class CircuitState {
 			
 			PortStateInfo info = participants.remove(port);
 			get(port.getLink()).participants.put(port, new PortStateInfo(info.lastPushed,
-			                                                             new WireValue(link.getBitSize()),
+			                                                             new WireValue(info.lastPushed),
 			                                                             new WireValue(link.getBitSize())));
 			
-			port.component.valueChanged(CircuitState.this, new WireValue(link.getBitSize()), port.portIndex);
+			WireValue newValue = new WireValue(link.getBitSize());
+			if(!info.lastReceived.equals(newValue)) {
+				port.component.valueChanged(CircuitState.this, newValue, port.portIndex);
+			}
 			
 			propagate();
 		}

@@ -1,7 +1,9 @@
 package com.ra4king.circuitsimulator.simulator.components;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -17,7 +19,7 @@ public class Clock extends Component {
 	private static final Timer timer = new Timer("clock", true);
 	private static TimerTask currentClock;
 	private static boolean clock;
-	private static List<Clock> clocks = new ArrayList<>();
+	private static Set<Clock> clocks = new HashSet<>();
 	
 	private static List<ClockChangeListener> clockChangeListeners = new ArrayList<>();
 	
@@ -27,6 +29,15 @@ public class Clock extends Component {
 		super(name, Utils.getFilledArray(1, 1));
 		
 		clocks.add(this);
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		try {
+			super.finalize();
+		} finally {
+			clocks.remove(this);
+		}
 	}
 	
 	public static void tick() {
@@ -41,8 +52,12 @@ public class Clock extends Component {
 			public void run() {
 				tick();
 				WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
-				clocks.forEach(clock1 -> clock1.getCircuit().getCircuitStates()
-				                               .forEach(state -> state.pushValue(clock1.getPort(PORT), clockValue)));
+				clocks.forEach(clock -> {
+					if(clock.getCircuit() != null) {
+						clock.getCircuit().getCircuitStates()
+						     .forEach(state -> state.pushValue(clock.getPort(PORT), clockValue));
+					}
+				});
 				for(ClockChangeListener listener : clockChangeListeners) {
 					listener.valueChanged(clockValue);
 				}

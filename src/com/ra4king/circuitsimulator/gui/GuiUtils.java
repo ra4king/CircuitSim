@@ -46,7 +46,7 @@ public class GuiUtils {
 					graphics.setStroke(Color.RED);
 					graphics.setFill(Color.RED);
 				} else {
-					GuiUtils.setBitColor(graphics, circuitState.getValue(link));
+					GuiUtils.setBitColor(graphics, circuitState.getMergedValue(link));
 				}
 			} else {
 				GuiUtils.setBitColor(graphics, new WireValue(1));

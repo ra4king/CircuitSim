@@ -101,7 +101,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		}
 		
 		Port port = getComponent().getPort(Pin.PORT);
-		WireValue value = isInput() ? circuitState.getLastPushedValue(port) : circuitState.getValue(port);
+		WireValue value = circuitState.getMergedValue(port.getLink());
 		if(circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {

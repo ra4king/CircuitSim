@@ -32,13 +32,13 @@ public class Multiplexer extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		WireValue currentSelect = state.getValue(getPort(getNumPorts() - 2));
+		WireValue currentSelect = state.getLastReceived(getPort(getNumPorts() - 2));
 		
 		if(portIndex == PORT_SEL) {
-			if(!value.isValidValue() || !state.getValue(getPort(value.getValue())).isValidValue()) {
+			if(!value.isValidValue() || !state.getLastReceived(getPort(value.getValue())).isValidValue()) {
 				state.pushValue(getPort(PORT_OUT), new WireValue(getPort(PORT_OUT).getLink().getBitSize()));
 			} else {
-				state.pushValue(getPort(PORT_OUT), state.getValue(getPort(value.getValue())));
+				state.pushValue(getPort(PORT_OUT), state.getLastReceived(getPort(value.getValue())));
 			}
 		} else if(portIndex < NUM_IN_PORTS) {
 			if(currentSelect.isValidValue()) {

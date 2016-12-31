@@ -23,12 +23,12 @@ public class Adder extends Component {
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		if(portIndex == PORT_OUT || portIndex == PORT_CARRY_OUT) return;
 		
-		if(state.getValue(getPort(PORT_A)).isValidValue() &&
-				   state.getValue(getPort(PORT_B)).isValidValue() &&
-				   state.getValue(getPort(PORT_CARRY_IN)).isValidValue()) {
-			WireValue a = state.getValue(getPort(PORT_A));
-			WireValue b = state.getValue(getPort(PORT_B));
-			WireValue c = state.getValue(getPort(PORT_CARRY_IN));
+		if(state.getLastReceived(getPort(PORT_A)).isValidValue() &&
+				   state.getLastReceived(getPort(PORT_B)).isValidValue() &&
+				   state.getLastReceived(getPort(PORT_CARRY_IN)).isValidValue()) {
+			WireValue a = state.getLastReceived(getPort(PORT_A));
+			WireValue b = state.getLastReceived(getPort(PORT_B));
+			WireValue c = state.getLastReceived(getPort(PORT_CARRY_IN));
 			
 			WireValue sum = new WireValue(a.getBitSize());
 			
@@ -46,7 +46,7 @@ public class Adder extends Component {
 			state.pushValue(getPort(PORT_OUT), sum);
 			state.pushValue(getPort(PORT_CARRY_OUT), new WireValue(1, carry));
 		} else {
-			WireValue value1 = new WireValue(state.getValue(getPort(PORT_OUT)).getBitSize());
+			WireValue value1 = new WireValue(state.getLastReceived(getPort(PORT_OUT)).getBitSize());
 			state.pushValue(getPort(PORT_OUT), value1);
 			state.pushValue(getPort(PORT_CARRY_OUT), new WireValue(1));
 		}

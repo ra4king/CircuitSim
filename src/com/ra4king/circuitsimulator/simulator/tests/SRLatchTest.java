@@ -30,48 +30,48 @@ public class SRLatchTest {
 		sim.stepAll();
 		
 		System.out.println("--------------------------");
-		System.out.println(out1 + ": " + circuit.getTopLevelState().getValue(out1.getPort(0)));
-		System.out.println(out2 + ": " + circuit.getTopLevelState().getValue(out2.getPort(0)));
+		System.out.println(out1 + ": " + circuit.getTopLevelState().getLastReceived(out1.getPort(0)));
+		System.out.println(out2 + ": " + circuit.getTopLevelState().getLastReceived(out2.getPort(0)));
 		System.out.println();
 		
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		sim.stepAll();
 		
 		System.out.println("--------------------------");
-		System.out.println(out1 + ": " + circuit.getTopLevelState().getValue(out1.getPort(0)));
-		System.out.println(out2 + ": " + circuit.getTopLevelState().getValue(out2.getPort(0)));
+		System.out.println(out1 + ": " + circuit.getTopLevelState().getLastReceived(out1.getPort(0)));
+		System.out.println(out2 + ": " + circuit.getTopLevelState().getLastReceived(out2.getPort(0)));
 		System.out.println();
 		
 		in2.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
 		sim.stepAll();
 		
 		System.out.println("--------------------------");
-		System.out.println(out1 + ": " + circuit.getTopLevelState().getValue(out1.getPort(0)));
-		System.out.println(out2 + ": " + circuit.getTopLevelState().getValue(out2.getPort(0)));
+		System.out.println(out1 + ": " + circuit.getTopLevelState().getLastReceived(out1.getPort(0)));
+		System.out.println(out2 + ": " + circuit.getTopLevelState().getLastReceived(out2.getPort(0)));
 		System.out.println();
 		
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
 		sim.stepAll();
 		
 		System.out.println("--------------------------");
-		System.out.println(out1 + ": " + circuit.getTopLevelState().getValue(out1.getPort(0)));
-		System.out.println(out2 + ": " + circuit.getTopLevelState().getValue(out2.getPort(0)));
+		System.out.println(out1 + ": " + circuit.getTopLevelState().getLastReceived(out1.getPort(0)));
+		System.out.println(out2 + ": " + circuit.getTopLevelState().getLastReceived(out2.getPort(0)));
 		System.out.println();
 		
 		in2.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		sim.stepAll();
 		
 		System.out.println("--------------------------");
-		System.out.println(out1 + ": " + circuit.getTopLevelState().getValue(out1.getPort(0)));
-		System.out.println(out2 + ": " + circuit.getTopLevelState().getValue(out2.getPort(0)));
+		System.out.println(out1 + ": " + circuit.getTopLevelState().getLastReceived(out1.getPort(0)));
+		System.out.println(out2 + ": " + circuit.getTopLevelState().getLastReceived(out2.getPort(0)));
 		System.out.println();
 		
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		sim.stepAll();
 		
 		System.out.println("--------------------------");
-		System.out.println(out1 + ": " + circuit.getTopLevelState().getValue(out1.getPort(0)));
-		System.out.println(out2 + ": " + circuit.getTopLevelState().getValue(out2.getPort(0)));
+		System.out.println(out1 + ": " + circuit.getTopLevelState().getLastReceived(out1.getPort(0)));
+		System.out.println(out2 + ": " + circuit.getTopLevelState().getLastReceived(out2.getPort(0)));
 		System.out.println();
 	}
 }

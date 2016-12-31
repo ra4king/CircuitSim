@@ -16,9 +16,9 @@ public class ClockTest {
 		Simulator simulator = new Simulator();
 		Circuit circuit = new Circuit(simulator);
 		
-		Clock clock = circuit.addComponent(new Clock(""));
-		Register register = circuit.addComponent(new Register("", 32));
-		Adder adder = circuit.addComponent(new Adder("", 32));
+		Clock clock = circuit.addComponent(new Clock("Clock"));
+		Register register = circuit.addComponent(new Register("Register", 32));
+		Adder adder = circuit.addComponent(new Adder("Adder", 32));
 		Pin din = circuit.addComponent(new Pin("Din", 32, true));
 		Pin cin = circuit.addComponent(new Pin("Cin", 1, true));
 		Pin out = circuit.addComponent(new Pin("Out", 32, false));
@@ -33,6 +33,8 @@ public class ClockTest {
 		cin.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		
 		Clock.startClock(4);
+		
+		out.addChangeListener(circuit.getTopLevelState(), System.out::println);
 		
 		while(true) {
 			simulator.step();

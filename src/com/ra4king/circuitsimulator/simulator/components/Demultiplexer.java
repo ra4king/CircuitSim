@@ -43,14 +43,14 @@ public class Demultiplexer extends Component {
 				int selectedPort = value.getValue();
 				for(int i = 0; i < NUM_OUT_PORTS; i++) {
 					if(i == selectedPort) {
-						state.pushValue(getPort(value.getValue()), state.getValue(getPort(getNumPorts() - 1)));
+						state.pushValue(getPort(value.getValue()), state.getLastReceived(getPort(getNumPorts() - 1)));
 					} else {
 						state.pushValue(getPort(value.getValue()), WireValue.of(0, value.getBitSize()));
 					}
 				}
 			}
-		} else if(portIndex == PORT_IN && state.getValue(getPort(PORT_SEL)).isValidValue()) {
-			int selectedPort = state.getValue(getPort(PORT_SEL)).getValue();
+		} else if(portIndex == PORT_IN && state.getLastReceived(getPort(PORT_SEL)).isValidValue()) {
+			int selectedPort = state.getLastReceived(getPort(PORT_SEL)).getValue();
 			state.pushValue(getPort(selectedPort), value);
 		}
 	}

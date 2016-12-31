@@ -59,11 +59,11 @@ public class RAM extends Component {
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		WireValue[] memory = (WireValue[])state.getComponentProperty(this);
 		
-		boolean enabled = state.getValue(getPort(PORT_ENABLE)).getBit(0) != State.ZERO;
-		boolean load = state.getValue(getPort(PORT_LOAD)).getBit(0) != State.ZERO;
-		boolean clear = state.getValue(getPort(PORT_CLEAR)).getBit(0) == State.ONE;
+		boolean enabled = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO;
+		boolean load = state.getLastReceived(getPort(PORT_LOAD)).getBit(0) != State.ZERO;
+		boolean clear = state.getLastReceived(getPort(PORT_CLEAR)).getBit(0) == State.ONE;
 		
-		WireValue address = state.getValue(getPort(PORT_ADDRESS));
+		WireValue address = state.getLastReceived(getPort(PORT_ADDRESS));
 		
 		switch(portIndex) {
 			case PORT_ENABLE:
@@ -78,7 +78,7 @@ public class RAM extends Component {
 				break;
 			case PORT_CLK:
 				if(!load && value.getBit(0) == State.ONE && address.isValidValue()) {
-					store(state, address.getValue(), state.getValue(getPort(PORT_DATA)));
+					store(state, address.getValue(), state.getLastReceived(getPort(PORT_DATA)));
 				}
 				break;
 			case PORT_CLEAR:

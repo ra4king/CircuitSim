@@ -2,6 +2,7 @@ package com.ra4king.circuitsimulator.simulator.components;
 
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
+import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 
@@ -29,11 +30,13 @@ public class Register extends Component {
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		if(portIndex == PORT_OUT) return;
 		
-		if(state.getValue(getPort(PORT_ZERO)).getBit(0) == State.ONE) {
+		if(state.getLastReceived(getPort(PORT_ZERO)).getBit(0) == State.ONE) {
 			state.pushValue(getPort(PORT_OUT), WireValue.of(0, getPort(PORT_OUT).getLink().getBitSize()));
-		} else if(state.getValue(getPort(PORT_ENABLE)).getBit(0) != State.ZERO){
+		} else if(state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO) {
 			if(portIndex == PORT_CLK && value.getBit(0) == State.ONE) {
-				state.pushValue(getPort(PORT_OUT), state.getValue(getPort(PORT_IN)));
+				Port port = getPort(PORT_OUT);
+				WireValue pushValue = state.getLastReceived(getPort(PORT_IN));
+				state.pushValue(port, pushValue);
 			}
 		}
 	}

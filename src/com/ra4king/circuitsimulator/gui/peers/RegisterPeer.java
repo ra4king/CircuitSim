@@ -47,7 +47,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		
 		graphics.setStroke(Color.BLACK);
-		String value = circuitState.getValue(getComponent().getPort(Register.PORT_OUT)).toString();
+		String value = circuitState.getLastPushedValue(getComponent().getPort(Register.PORT_OUT)).toString();
 		graphics.strokeText(value.length() <= 4 ? value : value.substring(0, 4), getScreenX() + 2, getScreenY() + 15);
 		if(value.length() > 4) {
 			graphics.strokeText(value.substring(4), getScreenX() + 2, getScreenY() + 25);

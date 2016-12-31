@@ -43,7 +43,7 @@ public class CircuitManager {
 	private CircuitState dummyCircuitState = new CircuitState(dummyCircuit);
 	
 	private Connection startConnection, endConnection;
-	private Point2D startPoint, curDraggedPoint, draggedDelta;
+	private Point2D startPoint, curDraggedPoint, draggedDelta = new Point2D(0, 0);
 	private boolean isDraggedHorizontally;
 	
 	private boolean ctrlDown;
@@ -289,12 +289,14 @@ public class CircuitManager {
 				int value = e.getText().charAt(0) - '0';
 				
 				GuiElement selectedElem;
-				if(selectedElementsMap.size() == 1 &&
-						   (selectedElem = selectedElementsMap.keySet().iterator().next()) instanceof PinPeer) {
+				if(selectedElementsMap.size() == 1
+						   && (selectedElem = selectedElementsMap.keySet().iterator().next()) instanceof PinPeer
+						   && ((PinPeer)selectedElem).isInput()) {
 					PinPeer selectedPin = (PinPeer)selectedElem;
 					WireValue currentValue =
 							new WireValue(getCircuit().getTopLevelState()
-							                          .getMergedValue(selectedPin.getComponent().getPort(Pin.PORT)));
+							                          .getLastPushedValue(
+									                          selectedPin.getComponent().getPort(Pin.PORT)));
 					
 					for(int i = currentValue.getBitSize() - 1; i > 0; i--) {
 						currentValue.setBit(i, currentValue.getBit(i - 1));
@@ -302,8 +304,8 @@ public class CircuitManager {
 					currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
 					selectedPin.getComponent().setValue(getCircuit().getTopLevelState(), currentValue);
 					mayThrow(circuitBoard::runSim);
-					break;
 				}
+				break;
 			case BACK_SPACE:
 			case DELETE:
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));

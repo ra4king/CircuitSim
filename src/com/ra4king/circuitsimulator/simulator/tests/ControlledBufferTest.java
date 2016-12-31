@@ -44,23 +44,22 @@ public class ControlledBufferTest {
 		bufferC.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selC.getPort(Pin.PORT));
 		bufferC.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
+		out.addChangeListener(circuit.getTopLevelState(), System.out::println);
+		
 		System.out.println("Selecting 1:");
 		inA.setValue(circuit.getTopLevelState(), WireValue.of(5, 4));
 		inB.setValue(circuit.getTopLevelState(), WireValue.of(3, 4));
 		selA.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
-		System.out.println("Stepping:");
 		sim.stepAll();
 		
 		System.out.println("\nSelecting 2:");
 		selA.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		selB.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
-		System.out.println("Stepping:");
 		sim.stepAll();
 		
 		System.out.println("\nSelecting 3:");
 		selB.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		selC.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
-		System.out.println("Stepping:");
 		sim.stepAll();
 	}
 }

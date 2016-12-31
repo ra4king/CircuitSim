@@ -101,7 +101,8 @@ public class PinPeer extends ComponentPeer<Pin> {
 		}
 		
 		Port port = getComponent().getPort(Pin.PORT);
-		WireValue value = circuitState.getMergedValue(port.getLink());
+		WireValue value = isInput() ? circuitState.getLastPushedValue(port)
+		                            : circuitState.getLastReceived(port);
 		if(circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {
@@ -117,7 +118,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 			graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 20, 20);
 		}
 		
-		graphics.setStroke(value.getBitSize() > 1 ? Color.BLACK : Color.WHITE);
+		graphics.setStroke(port.getLink().getBitSize() > 1 ? Color.BLACK : Color.WHITE);
 		
 		String string = value.toString();
 		for(int i = 0, row = 1; i < string.length(); row++) {

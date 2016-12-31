@@ -210,9 +210,9 @@ public class CircuitSimulator extends Application {
 		canvasTabPane.setPrefHeight(600);
 		canvasTabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			if(oldValue != null) {
-				CircuitManager oldManager = circuitManagers.get(oldValue);
-				CircuitManager newManager = circuitManagers.get(newValue);
+			CircuitManager oldManager = circuitManagers.get(oldValue);
+			CircuitManager newManager = circuitManagers.get(newValue);
+			if(oldManager != null && newManager != null) {
 				newManager.setLastMousePosition(oldManager.getLastMousePosition());
 			}
 			

@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -27,16 +28,16 @@ public class Clock extends Component {
 	
 	public Clock(String name) {
 		super(name, Utils.getFilledArray(1, 1));
-		
-		clocks.add(this);
 	}
 	
 	@Override
-	protected void finalize() throws Throwable {
-		try {
-			super.finalize();
-		} finally {
+	public void setCircuit(Circuit circuit) {
+		super.setCircuit(circuit);
+		
+		if(circuit == null) {
 			clocks.remove(this);
+		} else {
+			clocks.add(this);
 		}
 	}
 	
@@ -53,10 +54,8 @@ public class Clock extends Component {
 				tick();
 				WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 				clocks.forEach(clock -> {
-					if(clock.getCircuit() != null) {
-						clock.getCircuit().getCircuitStates()
-						     .forEach(state -> state.pushValue(clock.getPort(PORT), clockValue));
-					}
+					clock.getCircuit().getCircuitStates()
+					     .forEach(state -> state.pushValue(clock.getPort(PORT), clockValue));
 				});
 				for(ClockChangeListener listener : clockChangeListeners) {
 					listener.valueChanged(clockValue);

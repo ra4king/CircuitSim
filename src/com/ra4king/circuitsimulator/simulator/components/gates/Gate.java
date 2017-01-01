@@ -28,7 +28,7 @@ public abstract class Gate extends Component {
 		WireValue result = new WireValue(value.getBitSize());
 		for(int bit = 0; bit < result.getBitSize(); bit++) {
 			result.setBit(bit, state.getLastReceived(getPort(0)).getBit(bit));
-			boolean isX = result.getBit(0) == State.X;
+			boolean isX = result.getBit(bit) == State.X;
 			
 			for(int port = 1; port < PORT_OUT; port++) {
 				State portBit = state.getLastReceived(getPort(port)).getBit(bit);

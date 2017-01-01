@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.simulator;
 import java.util.HashMap;
 
 import com.ra4king.circuitsimulator.simulator.Port.Link;
+import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.utils.Utils;
 
 public class CircuitState {
@@ -76,16 +77,19 @@ public class CircuitState {
 		get(link).unlink(port);
 	}
 	
-	void propagateSignal(Port port) {
-		LinkState linkState = get(port.getLink());
+	void propagateSignal(Link link) {
+		LinkState linkState = get(link);
 		
-		WireValue lastMerged = linkState.getLastMerged(port);
-		WireValue lastPushed = linkState.getLastPushed(port);
+		linkState.participants.forEach((port, info) -> {
+			WireValue lastMerged = info.lastMerged;
+			WireValue lastPushed = info.lastPushed;
+			
+			if(!lastMerged.equals(lastPushed)) {
+				lastMerged.set(lastPushed);
+			}
+		});
 		
-		if(!lastMerged.equals(lastPushed)) {
-			lastMerged.set(lastPushed);
-			linkState.propagate();
-		}
+		linkState.propagate();
 	}
 	
 	public synchronized void pushValue(Port port, WireValue value) {
@@ -149,8 +153,8 @@ public class CircuitState {
 			            .filter(p -> p != port)
 			            .map(participants::get)
 			            .forEach(info -> {
-				            Utils.ensureCompatible(link, newValue, info.lastPushed);
-				            newValue.merge(info.lastPushed);
+				            Utils.ensureCompatible(link, newValue, info.lastMerged);
+				            newValue.merge(info.lastMerged);
 			            });
 			return newValue;
 		}
@@ -158,8 +162,8 @@ public class CircuitState {
 		WireValue getMergedValue() {
 			WireValue newValue = new WireValue(link.getBitSize());
 			participants.values().forEach(info -> {
-				Utils.ensureCompatible(link, newValue, info.lastPushed);
-				newValue.merge(info.lastPushed);
+				Utils.ensureCompatible(link, newValue, info.lastMerged);
+				newValue.merge(info.lastMerged);
 			});
 			return newValue;
 		}
@@ -193,8 +197,14 @@ public class CircuitState {
 			if(this == other) return;
 			
 			participants.putAll(other.participants);
+			
+			participants.forEach((port, info) -> {
+				info.lastMerged.setAllBits(State.X);
+			});
+			
 			linkStates.remove(other.link);
-			propagate();
+			
+			getCircuit().getSimulator().valueChanged(CircuitState.this, link);
 		}
 		
 		void unlink(Port port) {
@@ -207,10 +217,11 @@ public class CircuitState {
 			
 			WireValue newValue = new WireValue(link.getBitSize());
 			if(!info.lastReceived.equals(newValue)) {
+				info.lastReceived.set(newValue);
 				port.component.valueChanged(CircuitState.this, newValue, port.portIndex);
 			}
 			
-			propagate();
+			getCircuit().getSimulator().valueChanged(CircuitState.this, link);
 		}
 	}
 }

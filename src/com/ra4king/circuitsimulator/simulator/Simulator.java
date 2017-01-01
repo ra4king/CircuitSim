@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 /**
@@ -12,9 +13,9 @@ import com.ra4king.circuitsimulator.simulator.utils.Pair;
  */
 public class Simulator {
 	private Set<Circuit> circuits;
-	private List<Pair<CircuitState, Port>> linksToUpdate, temp, shortCircuited;
+	private List<Pair<CircuitState, Link>> linksToUpdate, temp, shortCircuited;
 	private ShortCircuitException lastShortCircuit;
-	private final Set<List<Pair<CircuitState, Port>>> history;
+	private final Set<List<Pair<CircuitState, Link>>> history;
 	
 	public Simulator() {
 		circuits = new HashSet<>();
@@ -29,11 +30,15 @@ public class Simulator {
 	}
 	
 	public synchronized void valueChanged(CircuitState state, Port port) {
-		linksToUpdate.add(new Pair<>(state, port));
+		valueChanged(state, port.getLink());
+	}
+	
+	public synchronized void valueChanged(CircuitState state, Link link) {
+		linksToUpdate.add(new Pair<>(state, link));
 	}
 	
 	public synchronized void step() {
-		List<Pair<CircuitState, Port>> tmp = linksToUpdate;
+		List<Pair<CircuitState, Link>> tmp = linksToUpdate;
 		linksToUpdate = temp;
 		temp = tmp;
 		

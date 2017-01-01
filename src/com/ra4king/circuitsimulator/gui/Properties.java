@@ -115,7 +115,7 @@ public class Properties {
 	/**
 	 * if add is false, it will ignore missing properties
 	 */
-	public void merge(Properties other) {
+	public Properties merge(Properties other) {
 		other.forEach((prop) -> {
 			if(this.properties.containsKey(prop.name)) {
 				Property ourProperty = this.properties.get(prop.name);
@@ -134,6 +134,8 @@ public class Properties {
 				ensureProperty(prop);
 			}
 		});
+		
+		return this;
 	}
 	
 	public Properties intersect(Properties properties) {

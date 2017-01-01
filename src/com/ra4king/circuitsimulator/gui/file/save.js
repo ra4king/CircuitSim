@@ -1,5 +1,5 @@
 var result = {
-    version: 1.0,
+    version: version,
     circuits: {}
 };
 

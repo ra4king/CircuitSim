@@ -23,6 +23,8 @@ public class FileFormat {
 	private static String saveScript;
 	private static String loadScript;
 	
+	public static final double VERSION = 1.0;
+	
 	static {
 		saveScript = readFile("save.js");
 		loadScript = readFile("load.js");
@@ -100,6 +102,7 @@ public class FileFormat {
 		ScriptEngine engine = engineManager.getEngineByName("nashorn");
 		
 		Bindings bindings = new SimpleBindings();
+		bindings.put("version", VERSION);
 		bindings.put("circuits", circuits);
 		
 		String json;
@@ -122,6 +125,7 @@ public class FileFormat {
 		ScriptEngine engine = engineManager.getEngineByName("nashorn");
 		
 		Bindings bindings = new SimpleBindings();
+		bindings.put("version", VERSION);
 		bindings.put("file", readFile(file));
 		
 		try {

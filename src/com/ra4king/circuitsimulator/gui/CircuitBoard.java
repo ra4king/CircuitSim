@@ -47,6 +47,17 @@ public class CircuitBoard {
 		return circuit;
 	}
 	
+	public void clear() {
+		try {
+			removeElements(
+					Stream.concat(components.stream(),
+					              links.stream()
+					                   .flatMap(links -> links.getWires().stream())).collect(Collectors.toSet()));
+		} catch(Exception exc) {
+			exc.printStackTrace();
+		}
+	}
+	
 	public Set<ComponentPeer<?>> getComponents() {
 		return components;
 	}
@@ -246,9 +257,11 @@ public class CircuitBoard {
 			Connection currConnection = findConnection(x + xOff, y + yOff);
 			
 			if(currConnection != null && (i == length ||
-			                              currConnection instanceof PortConnection ||
-			                              currConnection == ((Wire)currConnection.getParent()).getStartConnection() ||
-			                              currConnection == ((Wire)currConnection.getParent()).getEndConnection())) {
+					                              currConnection instanceof PortConnection ||
+					                              currConnection == ((Wire)currConnection.getParent())
+							                                                .getStartConnection() ||
+					                              currConnection == ((Wire)currConnection.getParent())
+							                                                .getEndConnection())) {
 				int len = horizontal ? currConnection.getX() - lastX
 				                     : currConnection.getY() - lastY;
 				Wire wire = new Wire(linkWires, lastX, lastY, len, horizontal);
@@ -265,7 +278,7 @@ public class CircuitBoard {
 					if(connection instanceof WireConnection) {
 						Wire connWire = (Wire)parent;
 						if(connection != connWire.getStartConnection() &&
-						   connection != connWire.getEndConnection()) {
+								   connection != connWire.getEndConnection()) {
 							toSplit.put((Wire)parent, connection);
 						}
 					}

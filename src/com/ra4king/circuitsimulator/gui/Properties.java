@@ -208,7 +208,7 @@ public class Properties {
 		}
 		
 		public Property(String name, PropertyValidator validator, String value) {
-			if(!value.isEmpty() && !validator.validate(value)) {
+			if(validator != null && !value.isEmpty() && !validator.validate(value)) {
 				throw new IllegalArgumentException("Value is not validated.");
 			}
 			

@@ -1,10 +1,19 @@
 package com.ra4king.circuitsimulator.gui;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
+import com.ra4king.circuitsimulator.gui.file.FileFormat;
+import com.ra4king.circuitsimulator.gui.file.FileFormat.CircuitInfo;
+import com.ra4king.circuitsimulator.gui.file.FileFormat.ComponentInfo;
+import com.ra4king.circuitsimulator.gui.file.FileFormat.WireInfo;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
@@ -20,12 +29,17 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.KeyCharacterCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
@@ -36,6 +50,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 /**
@@ -177,6 +193,79 @@ public class CircuitSimulator extends Application {
 		return button;
 	}
 	
+	private CircuitManager createTab(String name) {
+		Canvas canvas = new Canvas(800, 600) {
+			{
+				widthProperty().addListener(evt -> {
+					CircuitManager manager = getCurrentCircuit();
+					if(manager != null) {
+						manager.repaint();
+					}
+				});
+				heightProperty().addListener(evt -> {
+					CircuitManager manager = getCurrentCircuit();
+					if(manager != null) {
+						manager.repaint();
+					}
+				});
+			}
+			
+			@Override
+			public boolean isResizable() {
+				return true;
+			}
+			
+			@Override
+			public double prefWidth(double width) {
+				return getWidth();
+			}
+			
+			@Override
+			public double prefHeight(double height) {
+				return getHeight();
+			}
+		};
+		
+		canvas.widthProperty().bind(canvasTabPane.widthProperty());
+		canvas.heightProperty().bind(canvasTabPane.heightProperty());
+		
+		canvas.addEventHandler(MouseEvent.ANY, e -> canvas.requestFocus());
+		canvas.addEventHandler(MouseEvent.MOUSE_MOVED, this::mouseMoved);
+		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::mouseDragged);
+		canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::mouseClicked);
+		canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
+		canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
+		canvas.addEventHandler(MouseEvent.MOUSE_ENTERED, this::mouseEntered);
+		canvas.addEventHandler(MouseEvent.MOUSE_EXITED, this::mouseExited);
+		canvas.addEventHandler(KeyEvent.KEY_PRESSED, this::keyPressed);
+		canvas.addEventHandler(KeyEvent.KEY_TYPED, this::keyTyped);
+		canvas.addEventHandler(KeyEvent.KEY_RELEASED, this::keyReleased);
+		
+		Tab canvasTab = new Tab(name, canvas);
+		canvasTab.setOnCloseRequest(event -> {
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Delete this circuit?");
+			alert.setHeaderText("Delete this circuit?");
+			alert.setContentText("Are you sure you want to delete this circuit?");
+			
+			Optional<ButtonType> result = alert.showAndWait();
+			if(!result.isPresent() || result.get() != ButtonType.OK) {
+				event.consume();
+			} else {
+				CircuitManager manager = circuitManagers.remove(canvasTab);
+				manager.getCircuitBoard().clear();
+			}
+		});
+		
+		CircuitManager circuitManager = new CircuitManager(this, canvas, simulator);
+		circuitManagers.put(canvasTab, circuitManager);
+		componentManager.addCircuit(name, circuitManager);
+		
+		canvasTabPane.getTabs().addAll(canvasTab);
+		
+		return circuitManager;
+	}
+	
 	@Override
 	public void start(Stage stage) {
 		componentManager = new ComponentManager();
@@ -220,72 +309,7 @@ public class CircuitSimulator extends Application {
 		});
 		
 		for(int i = 0; i < 3; i++) {
-			Canvas canvas = new Canvas(800, 600) {
-				{
-					widthProperty().addListener(evt -> {
-						CircuitManager manager = getCurrentCircuit();
-						if(manager != null) {
-							manager.repaint();
-						}
-					});
-					heightProperty().addListener(evt -> {
-						CircuitManager manager = getCurrentCircuit();
-						if(manager != null) {
-							manager.repaint();
-						}
-					});
-				}
-				
-				@Override
-				public boolean isResizable() {
-					return true;
-				}
-				
-				@Override
-				public double prefWidth(double width) {
-					return getWidth();
-				}
-				
-				@Override
-				public double prefHeight(double height) {
-					return getHeight();
-				}
-			};
-			
-			canvas.widthProperty().bind(canvasTabPane.widthProperty());
-			canvas.heightProperty().bind(canvasTabPane.heightProperty());
-			
-			canvas.addEventHandler(MouseEvent.ANY, e -> canvas.requestFocus());
-			canvas.addEventHandler(MouseEvent.MOUSE_MOVED, this::mouseMoved);
-			canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::mouseDragged);
-			canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::mouseClicked);
-			canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
-			canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
-			canvas.addEventHandler(MouseEvent.MOUSE_ENTERED, this::mouseEntered);
-			canvas.addEventHandler(MouseEvent.MOUSE_EXITED, this::mouseExited);
-			canvas.addEventHandler(KeyEvent.KEY_PRESSED, this::keyPressed);
-			canvas.addEventHandler(KeyEvent.KEY_TYPED, this::keyTyped);
-			canvas.addEventHandler(KeyEvent.KEY_RELEASED, this::keyReleased);
-			
-			DraggableTab canvasTab = new DraggableTab("Circuit " + i, canvas);
-			canvasTab.setDetachable(false);
-			canvasTab.setOnCloseRequest(event -> {
-				Alert alert = new Alert(AlertType.CONFIRMATION);
-				alert.setTitle("Delete this circuit?");
-				alert.setHeaderText("Delete this circuit?");
-				alert.setContentText("Are you sure you want to delete this circuit?");
-				
-				Optional<ButtonType> result = alert.showAndWait();
-				if(!result.isPresent() || result.get() != ButtonType.OK) {
-					event.consume();
-				}
-			});
-			
-			CircuitManager circuitManager = new CircuitManager(this, canvas, simulator);
-			circuitManagers.put(canvasTab, circuitManager);
-			componentManager.addCircuit("Circuit " + i, circuitManager);
-			
-			canvasTabPane.getTabs().addAll(canvasTab);
+			createTab("Circuit " + i);
 		}
 		
 		buttonsToggleGroup = new ToggleGroup();
@@ -317,13 +341,119 @@ public class CircuitSimulator extends Application {
 //		buttons.addRow(count++, bitSizeLabel, secondaryLabel);
 //		buttons.addRow(count, bitSizeSelect, secondaryOptionSelect);
 		
+		MenuBar menuBar = new MenuBar();
+		Menu fileMenu = new Menu("File");
+		MenuItem load = new MenuItem("Load");
+		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.CONTROL_DOWN));
+		load.setOnAction(event -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Choose save file");
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
+			File selectedFile = fileChooser.showOpenDialog(stage);
+			if(selectedFile != null) {
+				List<CircuitInfo> circuits = FileFormat.load(selectedFile);
+				
+				circuitManagers.values().forEach(manager -> manager.getCircuitBoard().clear());
+				circuitManagers.clear();
+				canvasTabPane.getTabs().clear();
+				
+				for(CircuitInfo circuit : circuits) {
+					CircuitManager manager = createTab(circuit.name);
+					
+					for(ComponentInfo component : circuit.components) {
+						try {
+							@SuppressWarnings("unchecked")
+							Class<? extends ComponentPeer<?>> clazz =
+									(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
+							manager.getCircuitBoard().createComponent(ComponentManager.forClass(clazz),
+							                                          component.properties, component.x, component.y);
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+					}
+					
+					for(WireInfo wire : circuit.wires) {
+						try {
+							manager.getCircuitBoard().addWire(wire.x, wire.y, wire.length, wire.isHorizontal);
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+					}
+				}
+
+//				for(CircuitInfo circuit : circuits) {
+//					System.out.println(circuit.name);
+//					
+//					for(ComponentInfo component : circuit.components) {
+//						System.out.println("  Component:");
+//						System.out.println("    name = " + component.className);
+//						System.out.println("    x    = " + component.x);
+//						System.out.println("    y    = " + component.x);
+//					}
+//					
+//					for(WireInfo wire : circuit.wires) {
+//						System.out.println("  Wire:");
+//						System.out.println("    x       = " + wire.x);
+//						System.out.println("    y       = " + wire.y);
+//						System.out.println("    length  = " + wire.length);
+//						System.out.println("    isHoriz = " + wire.isHorizontal);
+//					}
+//				}
+			}
+		});
+		MenuItem save = new MenuItem("Save");
+		save.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN));
+		save.setOnAction(event -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Choose save file");
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
+			File selectedFile = fileChooser.showOpenDialog(stage);
+			if(selectedFile != null) {
+				List<CircuitInfo> circuits = new ArrayList<>();
+				
+				canvasTabPane.getTabs().forEach(tab -> {
+					CircuitManager manager = circuitManagers.get(tab);
+					
+					String name = tab.getText();
+					Set<ComponentInfo> components =
+							manager.getCircuitBoard()
+							       .getComponents().stream()
+							       .map(component ->
+									            new ComponentInfo(component.getClass().getName(),
+									                              component.getX(), component.getY(),
+									                              component.getProperties())).collect(
+									Collectors.toSet());
+					Set<WireInfo> wires = manager.getCircuitBoard()
+					                             .getLinks().stream()
+					                             .flatMap(linkWires -> linkWires.getWires().stream())
+					                             .map(wire -> new WireInfo(wire.getX(), wire.getY(),
+					                                                       wire.getLength(), wire.isHorizontal()))
+					                             .collect(Collectors.toSet());
+					
+					circuits.add(new CircuitInfo(name, components, wires));
+				});
+				
+				FileFormat.save(selectedFile, circuits);
+				
+				Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setTitle("Circuits saved.");
+				alert.setHeaderText("Circuits saved");
+				alert.setContentText("Circuits have successfully been saved.");
+				alert.show();
+			}
+		});
+		fileMenu.getItems().add(load);
+		fileMenu.getItems().add(save);
+		menuBar.getMenus().add(fileMenu);
+		
 		VBox vBox = new VBox(buttonTabPane, propertiesTable);
 		VBox.setVgrow(buttonTabPane, Priority.ALWAYS);
 		VBox.setVgrow(propertiesTable, Priority.ALWAYS);
 		
 		HBox hBox = new HBox(vBox, canvasTabPane);
 		HBox.setHgrow(canvasTabPane, Priority.ALWAYS);
-		Scene scene = new Scene(hBox);
+		
+		Scene scene = new Scene(new VBox(menuBar, hBox));
 		
 		stage.setScene(scene);
 		stage.setTitle("Circuit Simulator");

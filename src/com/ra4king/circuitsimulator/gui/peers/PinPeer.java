@@ -93,10 +93,10 @@ public class PinPeer extends ComponentPeer<Pin> {
 			graphics.setStroke(Color.BLACK);
 			if(isInput()) {
 				graphics.strokeText(getComponent().getName(), getScreenX() - bounds.getWidth() - 5,
-				                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.5);
+				                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
 			} else {
 				graphics.strokeText(getComponent().getName(), getScreenX() + getScreenWidth() + 5,
-				                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.5);
+				                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
 			}
 		}
 		

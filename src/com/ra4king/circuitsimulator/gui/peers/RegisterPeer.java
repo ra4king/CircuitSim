@@ -32,11 +32,11 @@ public class RegisterPeer extends ComponentPeer<Register> {
 				             properties.getIntValue(Properties.BITSIZE)));
 		
 		List<Connection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), 0, 2));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_ENABLE), 0, 3));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_CLK), 1, getHeight()));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_ZERO), 2, getHeight()));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_OUT), getWidth(), 2));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), "In", 0, 2));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_ENABLE), "Enable", 0, 3));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_CLK), "Clock", 1, getHeight()));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_ZERO), "Clear", 2, getHeight()));
+		connections.add(new PortConnection(this, register.getPort(Register.PORT_OUT), "Out", getWidth(), 2));
 		
 		init(register, properties, connections);
 	}

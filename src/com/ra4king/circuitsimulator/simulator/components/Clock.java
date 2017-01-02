@@ -41,34 +41,33 @@ public class Clock extends Component {
 		}
 	}
 	
-	public static void tick() {
-		synchronized(timer) {
-			clock = !clock;
+	public synchronized static void tick() {
+		clock = !clock;
+		
+		WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
+		clocks.forEach(clock ->
+				               clock.getCircuit().getCircuitStates()
+				                    .forEach(state -> state.pushValue(clock.getPort(PORT), clockValue)));
+		for(ClockChangeListener listener : clockChangeListeners) {
+			listener.valueChanged(clockValue);
 		}
 	}
 	
-	public static void startClock(int hertz) {
+	public synchronized static void startClock(int hertz) {
+		stopClock();
 		timer.scheduleAtFixedRate(currentClock = new TimerTask() {
 			@Override
 			public void run() {
 				tick();
-				WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
-				clocks.forEach(clock -> {
-					clock.getCircuit().getCircuitStates()
-					     .forEach(state -> state.pushValue(clock.getPort(PORT), clockValue));
-				});
-				for(ClockChangeListener listener : clockChangeListeners) {
-					listener.valueChanged(clockValue);
-				}
 			}
 		}, 10, hertz <= 500 ? 500 / hertz : 1);
 	}
 	
-	public static boolean isRunning() {
+	public synchronized static boolean isRunning() {
 		return currentClock != null;
 	}
 	
-	public static void stopClock() {
+	public synchronized static void stopClock() {
 		if(currentClock != null) {
 			currentClock.cancel();
 			currentClock = null;

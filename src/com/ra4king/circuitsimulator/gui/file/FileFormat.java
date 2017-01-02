@@ -23,9 +23,13 @@ public class FileFormat {
 	private static String saveScript;
 	private static String loadScript;
 	
+	private static ScriptEngine engine;
+	
 	public static final double VERSION = 1.0;
 	
 	static {
+		engine = new ScriptEngineManager().getEngineByName("nashorn");
+		
 		saveScript = readFile("save.js");
 		loadScript = readFile("load.js");
 	}
@@ -97,10 +101,12 @@ public class FileFormat {
 		}
 	}
 	
+	/**
+	 * For static initializer
+	 */
+	public static void init() {}
+	
 	public static void save(File file, List<CircuitInfo> circuits) {
-		ScriptEngineManager engineManager = new ScriptEngineManager();
-		ScriptEngine engine = engineManager.getEngineByName("nashorn");
-		
 		Bindings bindings = new SimpleBindings();
 		bindings.put("version", VERSION);
 		bindings.put("circuits", circuits);
@@ -121,9 +127,6 @@ public class FileFormat {
 	}
 	
 	public static List<CircuitInfo> load(File file) {
-		ScriptEngineManager engineManager = new ScriptEngineManager();
-		ScriptEngine engine = engineManager.getEngineByName("nashorn");
-		
 		Bindings bindings = new SimpleBindings();
 		bindings.put("version", VERSION);
 		bindings.put("file", readFile(file));

@@ -49,8 +49,19 @@ public class ComponentManager {
 	
 	private <T extends ComponentPeer<?>> void addComponent(String group, String name, ComponentCreator<T> creator) {
 		Pair<String, String> pair = new Pair<>(group, name);
+		
+		if(components.containsKey(pair)) {
+			throw new IllegalArgumentException("Group-name pair already exists.");
+		}
+		
 		componentsOrder.add(pair);
 		components.put(pair, creator);
+	}
+	
+	private void removeComponent(String group, String name) {
+		Pair<String, String> pair = new Pair<>(group, name);
+		componentsOrder.remove(pair);
+		components.remove(pair);
 	}
 	
 	private void initComponents() {
@@ -92,6 +103,28 @@ public class ComponentManager {
 			
 			return new SubcircuitPeer(circuit, properties, circuitManager.getCircuit(), x, y);
 		});
+	}
+	
+	public void removeCircuit(String name) {
+		removeComponent("Circuits", name);
+	}
+	
+	public void renameCircuit(String oldName, String newName) {
+		Pair<String, String> pair = new Pair<>("Circuits", oldName);
+		Pair<String, String> newPair = new Pair<>("Circuits", newName);
+		
+		if(components.containsKey(newPair)) {
+			throw new IllegalArgumentException("Group-name pair already exists.");
+		}
+		
+		int index = componentsOrder.indexOf(pair);
+		if(index != -1) {
+			ComponentCreator<?> creator = components.remove(pair);
+			componentsOrder.remove(pair);
+			
+			componentsOrder.add(index, newPair);
+			components.put(newPair, creator);
+		}
 	}
 	
 	public ComponentCreator<?> getComponentCreator(String group, String component) {

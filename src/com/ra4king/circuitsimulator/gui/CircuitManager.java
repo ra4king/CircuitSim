@@ -42,6 +42,8 @@ public class CircuitManager {
 	private Circuit dummyCircuit = new Circuit(new Simulator());
 	private CircuitState dummyCircuitState = new CircuitState(dummyCircuit);
 	
+	private boolean mouseInside;
+	
 	private Connection startConnection, endConnection;
 	private Point2D startPoint, curDraggedPoint, draggedDelta = new Point2D(0, 0);
 	private boolean isDraggedHorizontally;
@@ -215,7 +217,7 @@ public class CircuitManager {
 			}
 			
 			graphics.restore();
-		} else if(potentialComponent != null) {
+		} else if(potentialComponent != null && mouseInside) {
 			graphics.save();
 			potentialComponent.paint(graphics, dummyCircuitState);
 			graphics.restore();
@@ -549,5 +551,15 @@ public class CircuitManager {
 		}
 		
 		if(repaint) repaint();
+	}
+	
+	public void mouseEntered(MouseEvent e) {
+		mouseInside = true;
+		repaint();
+	}
+	
+	public void mouseExited(MouseEvent e) {
+		mouseInside = false;
+		repaint();
 	}
 }

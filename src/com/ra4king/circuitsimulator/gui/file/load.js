@@ -14,9 +14,11 @@ var WireInfo = com.ra4king.circuitsimulator.gui.file.FileFormat.WireInfo;
 var circuits = new ArrayList();
 
 for (var name in json.circuits) {
+    var circuit = json.circuits[name];
+    
     var components = new HashSet();
 
-    json.circuits[name].components.forEach(function (component) {
+    circuit.components.forEach(function (component) {
         var className = component.name;
         var x = component.x;
         var y = component.y;
@@ -31,7 +33,7 @@ for (var name in json.circuits) {
 
     var wires = new HashSet();
 
-    json.circuits[name].wires.forEach(function (wire) {
+    circuit.wires.forEach(function (wire) {
         var x = wire.x;
         var y = wire.y;
         var length = wire.length;

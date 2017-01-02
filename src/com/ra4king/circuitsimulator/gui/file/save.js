@@ -1,10 +1,10 @@
 var result = {
     version: version,
-    circuits: {}
+    circuits: []
 };
 
 circuits.forEach(function (circuit) {
-    result.circuits[circuit.name] = {
+    var circuitInfo = {
         components: [],
         wires: []
     };
@@ -21,7 +21,7 @@ circuits.forEach(function (circuit) {
             json.properties[property.name] = property.value;
         });
 
-        result.circuits[circuit.name].components.push(json);
+        circuitInfo.components.push(json);
     });
 
     circuit.wires.forEach(function (wire) {
@@ -31,8 +31,10 @@ circuits.forEach(function (circuit) {
             length: wire.length,
             isHorizontal: wire.isHorizontal
         };
-        result.circuits[circuit.name].wires.push(properties);
+        circuitInfo.wires.push(properties);
     });
+
+    result.circuits[name] = circuitInfo;
 });
 
 JSON.stringify(result, null, 4);

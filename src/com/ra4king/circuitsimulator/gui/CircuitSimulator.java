@@ -435,6 +435,7 @@ public class CircuitSimulator extends Application {
 				try {
 					List<CircuitInfo> circuits = FileFormat.load(selectedFile);
 					
+					componentManager.clearCircuits();
 					circuitManagers.values().forEach(manager -> manager.getCircuitBoard().clear());
 					circuitManagers.clear();
 					canvasTabPane.getTabs().clear();
@@ -463,6 +464,10 @@ public class CircuitSimulator extends Application {
 							}
 						}
 					}
+					
+					if(circuits.size() == 0) {
+						createTab("New circuit");
+					}
 				} catch(Exception exc) {
 					exc.printStackTrace();
 					
@@ -475,6 +480,7 @@ public class CircuitSimulator extends Application {
 				}
 			}
 		});
+		
 		MenuItem save = new MenuItem("Save");
 		save.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN));
 		save.setOnAction(event -> {
@@ -529,6 +535,7 @@ public class CircuitSimulator extends Application {
 				}
 			}
 		});
+		
 		MenuItem saveAs = new MenuItem("Save as");
 		saveAs.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
 		saveAs.setOnAction(event -> {
@@ -575,7 +582,9 @@ public class CircuitSimulator extends Application {
 			final int j = i;
 			freq.setOnAction(event -> {
 				currentClockHz = 1 << j;
-				Clock.startClock(currentClockHz);
+				if(Clock.isRunning()) {
+					Clock.startClock(currentClockHz);
+				}
 			});
 			frequenciesMenu.getItems().add(freq);
 		}

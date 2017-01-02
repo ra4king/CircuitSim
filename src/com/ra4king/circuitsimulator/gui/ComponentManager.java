@@ -127,6 +127,14 @@ public class ComponentManager {
 		}
 	}
 	
+	public void clearCircuits() {
+		for(Pair<String, String> pair : new ArrayList<>(componentsOrder)) {
+			if(pair.first.equals("Circuits")) {
+				removeCircuit(pair.second);
+			}
+		}
+	}
+	
 	public ComponentCreator<?> getComponentCreator(String group, String component) {
 		if(component == null) return null;
 		return components.get(new Pair<>(group, component));

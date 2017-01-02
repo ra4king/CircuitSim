@@ -81,6 +81,8 @@ public class CircuitSimulator extends Application {
 	
 	private String componentMode;
 	
+	private File saveFile;
+	
 	private int currentClockHz = 1;
 	
 	@Override
@@ -328,6 +330,8 @@ public class CircuitSimulator extends Application {
 				
 				if(canvasTabPane.getTabs().size() == 1) {
 					createTab("New circuit");
+				} else {
+					refreshCircuitsTab();
 				}
 			}
 		});
@@ -422,10 +426,12 @@ public class CircuitSimulator extends Application {
 		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.CONTROL_DOWN));
 		load.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Choose save file");
+			fileChooser.setTitle("Choose sim file");
 			fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
 			File selectedFile = fileChooser.showOpenDialog(stage);
 			if(selectedFile != null) {
+				saveFile = selectedFile;
+				
 				try {
 					List<CircuitInfo> circuits = FileFormat.load(selectedFile);
 					
@@ -472,11 +478,14 @@ public class CircuitSimulator extends Application {
 		MenuItem save = new MenuItem("Save");
 		save.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN));
 		save.setOnAction(event -> {
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Choose save file");
-			fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
-			File selectedFile = fileChooser.showSaveDialog(stage);
-			if(selectedFile != null) {
+			if(saveFile == null) {
+				FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Choose sim file");
+				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
+				saveFile = fileChooser.showSaveDialog(stage);
+			}
+			
+			if(saveFile != null) {
 				List<CircuitInfo> circuits = new ArrayList<>();
 				
 				canvasTabPane.getTabs().forEach(tab -> {
@@ -502,7 +511,7 @@ public class CircuitSimulator extends Application {
 				});
 				
 				try {
-					FileFormat.save(selectedFile, circuits);
+					FileFormat.save(saveFile, circuits);
 					
 					Alert alert = new Alert(AlertType.INFORMATION);
 					alert.setTitle("Circuits saved");
@@ -520,7 +529,20 @@ public class CircuitSimulator extends Application {
 				}
 			}
 		});
-		fileMenu.getItems().addAll(load, save);
+		MenuItem saveAs = new MenuItem("Save as");
+		saveAs.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
+		saveAs.setOnAction(event -> {
+			File oldSave = saveFile;
+			
+			saveFile = null;
+			save.fire();
+			
+			if(saveFile == null) {
+				saveFile = oldSave;
+			}
+		});
+		
+		fileMenu.getItems().addAll(load, save, saveAs);
 		
 		Menu circuitsMenu = new Menu("Circuits");
 		MenuItem newCircuit = new MenuItem("New circuit");

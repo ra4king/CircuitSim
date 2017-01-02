@@ -1,6 +1,6 @@
 var result = {
     version: version,
-    circuits: []
+    circuits: {}
 };
 
 circuits.forEach(function (circuit) {
@@ -34,7 +34,7 @@ circuits.forEach(function (circuit) {
         circuitInfo.wires.push(properties);
     });
 
-    result.circuits[name] = circuitInfo;
+    result.circuits[circuit.name] = circuitInfo;
 });
 
 JSON.stringify(result, null, 4);

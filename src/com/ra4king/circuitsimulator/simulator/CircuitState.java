@@ -92,14 +92,18 @@ public class CircuitState {
 		linkState.propagate();
 	}
 	
-	public synchronized void pushValue(Port port, WireValue value) {
-		LinkState linkState = get(port.getLink());
+	public void pushValue(Port port, WireValue value) {
+		boolean changed;
+		synchronized(this) {
+			LinkState linkState = get(port.getLink());
+			
+			Utils.ensureBitSize(this, value, linkState.link.getBitSize());
+			
+			WireValue lastPushed = linkState.getLastPushed(port);
+			changed = !value.equals(lastPushed);
+			lastPushed.set(value);
+		}
 		
-		Utils.ensureBitSize(this, value, linkState.link.getBitSize());
-		
-		WireValue lastPushed = linkState.getLastPushed(port);
-		boolean changed = !value.equals(lastPushed);
-		lastPushed.set(value);
 		if(changed) {
 			circuit.getSimulator().valueChanged(this, port);
 		}

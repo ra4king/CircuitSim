@@ -41,8 +41,10 @@ public class Clock extends Component {
 		}
 	}
 	
-	public synchronized static void tick() {
-		clock = !clock;
+	public static void tick() {
+		synchronized(Clock.class) {
+			clock = !clock;
+		}
 		
 		WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 		clocks.forEach(clock ->
@@ -53,7 +55,7 @@ public class Clock extends Component {
 		}
 	}
 	
-	public synchronized static void startClock(int hertz) {
+	public static void startClock(int hertz) {
 		stopClock();
 		timer.scheduleAtFixedRate(currentClock = new TimerTask() {
 			@Override
@@ -63,11 +65,11 @@ public class Clock extends Component {
 		}, 10, hertz <= 500 ? 500 / hertz : 1);
 	}
 	
-	public synchronized static boolean isRunning() {
+	public static boolean isRunning() {
 		return currentClock != null;
 	}
 	
-	public synchronized static void stopClock() {
+	public static void stopClock() {
 		if(currentClock != null) {
 			currentClock.cancel();
 			currentClock = null;

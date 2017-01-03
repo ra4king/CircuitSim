@@ -445,8 +445,13 @@ public class CircuitSimulator extends Application {
 					circuitManagers.clear();
 					canvasTabPane.getTabs().clear();
 					
+					
 					for(CircuitInfo circuit : circuits) {
-						CircuitManager manager = createTab(circuit.name);
+						createTab(circuit.name);
+					}
+					
+					for(CircuitInfo circuit : circuits) {
+						CircuitManager manager = getCircuitManager(circuit.name);
 						
 						for(ComponentInfo component : circuit.components) {
 							try {

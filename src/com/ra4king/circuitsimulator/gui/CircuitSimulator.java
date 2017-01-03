@@ -77,7 +77,7 @@ public class CircuitSimulator extends Application {
 	
 	private Tab circuitButtonsTab;
 	private TabPane canvasTabPane;
-	private HashMap<Tab, CircuitManager> circuitManagers;
+	private HashMap<String, CircuitManager> circuitManagers;
 	
 	private String componentMode;
 	
@@ -99,7 +99,12 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private CircuitManager getCurrentCircuit() {
-		return circuitManagers.get(canvasTabPane.getSelectionModel().getSelectedItem());
+		Tab tab = canvasTabPane.getSelectionModel().getSelectedItem();
+		return tab == null ? null : circuitManagers.get(tab.getText());
+	}
+	
+	public CircuitManager getCircuitManager(String name) {
+		return circuitManagers.get(name);
 	}
 	
 	public ComponentManager getComponentManager() {
@@ -324,7 +329,7 @@ public class CircuitSimulator extends Application {
 			if(!result.isPresent() || result.get() != ButtonType.OK) {
 				event.consume();
 			} else {
-				CircuitManager manager = circuitManagers.remove(canvasTab);
+				CircuitManager manager = circuitManagers.remove(canvasTab.getText());
 				manager.getCircuitBoard().clear();
 				componentManager.removeCircuit(canvasTab.getText());
 				
@@ -336,7 +341,7 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		
-		circuitManagers.put(canvasTab, circuitManager);
+		circuitManagers.put(canvasTab.getText(), circuitManager);
 		canvasTabPane.getTabs().addAll(canvasTab);
 		
 		refreshCircuitsTab();
@@ -346,7 +351,7 @@ public class CircuitSimulator extends Application {
 	
 	@Override
 	public void start(Stage stage) {
-		componentManager = new ComponentManager();
+		componentManager = new ComponentManager(this);
 		
 		buttonTabPane = new TabPane();
 		buttonTabPane.setMinWidth(100);
@@ -381,8 +386,8 @@ public class CircuitSimulator extends Application {
 		canvasTabPane.setMaxHeight(Double.MAX_VALUE);
 		canvasTabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			CircuitManager oldManager = circuitManagers.get(oldValue);
-			CircuitManager newManager = circuitManagers.get(newValue);
+			CircuitManager oldManager = oldValue == null ? null : circuitManagers.get(oldValue.getText());
+			CircuitManager newManager = newValue == null ? null : circuitManagers.get(newValue.getText());
 			if(oldManager != null && newManager != null) {
 				newManager.setLastMousePosition(oldManager.getLastMousePosition());
 			}
@@ -448,7 +453,7 @@ public class CircuitSimulator extends Application {
 								@SuppressWarnings("unchecked")
 								Class<? extends ComponentPeer<?>> clazz =
 										(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
-								manager.getCircuitBoard().createComponent(ComponentManager.forClass(clazz),
+								manager.getCircuitBoard().createComponent(componentManager.forClass(clazz),
 								                                          component.properties, component.x,
 								                                          component.y);
 							} catch(Exception exc) {
@@ -495,9 +500,10 @@ public class CircuitSimulator extends Application {
 				List<CircuitInfo> circuits = new ArrayList<>();
 				
 				canvasTabPane.getTabs().forEach(tab -> {
-					CircuitManager manager = circuitManagers.get(tab);
-					
 					String name = tab.getText();
+					
+					CircuitManager manager = circuitManagers.get(name);
+					
 					Set<ComponentInfo> components =
 							manager.getCircuitBoard()
 							       .getComponents().stream()

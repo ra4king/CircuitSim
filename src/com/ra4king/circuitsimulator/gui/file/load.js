@@ -24,8 +24,10 @@ for (var name in json.circuits) {
         var y = component.y;
         var properties = new Properties();
 
-        for (var property in component.properties) {
-            properties.ensureProperty(new Properties.Property(property, null, component.properties[property]));
+        if (component.properties) {
+            for (var property in component.properties) {
+                properties.setProperty(new Properties.Property(property, null, component.properties[property]));
+            }
         }
 
         components.add(new ComponentInfo(className, x, y, properties));

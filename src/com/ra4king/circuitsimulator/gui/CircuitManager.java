@@ -112,17 +112,15 @@ public class CircuitManager {
 					                   .collect(Collectors.toSet());
 			mayThrow(() -> circuitBoard.removeElements(components));
 			
-			Set<ComponentPeer<?>> newComponents =
-					components.stream()
-					          .map(component ->
-							               (ComponentPeer<?>)ComponentManager
-									                                 .forClass(component.getClass())
-									                                 .createComponent(getCircuit(),
-									                                                  component.getProperties()
-									                                                           .merge(properties),
-									                                                  component.getX(),
-									                                                  component.getY()))
-					          .collect(Collectors.toSet());
+			Set<ComponentPeer<?>> newComponents = components.stream().map(
+					component -> (ComponentPeer<?>)simulatorWindow
+							                               .getComponentManager().forClass(component.getClass())
+							                               .createComponent(getCircuit(),
+							                                                component.getProperties()
+							                                                         .merge(properties),
+							                                                component.getX(),
+							                                                component.getY()))
+			                                                .collect(Collectors.toSet());
 			
 			newComponents.forEach(component -> mayThrow(() -> circuitBoard.addComponent(component)));
 			

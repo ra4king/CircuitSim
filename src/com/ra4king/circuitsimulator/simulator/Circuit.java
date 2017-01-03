@@ -28,6 +28,10 @@ public class Circuit {
 	}
 	
 	public <T extends Component> T addComponent(T component) {
+		if(component.getCircuit() == this) {
+			return component;
+		}
+		
 		if(component.getCircuit() != null)
 			throw new IllegalArgumentException("Component already belongs to a circuit.");
 		

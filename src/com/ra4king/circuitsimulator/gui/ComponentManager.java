@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.Properties.Property;
+import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
 import com.ra4king.circuitsimulator.gui.peers.AdderPeer;
 import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer;
@@ -27,18 +29,25 @@ import com.ra4king.circuitsimulator.simulator.utils.Pair;
  * @author Roi Atalla
  */
 public class ComponentManager {
+	private CircuitSimulator simulator;
 	private List<Pair<String, String>> componentsOrder;
 	private HashMap<Pair<String, String>, ComponentCreator<?>> components;
 	
-	public ComponentManager() {
+	public ComponentManager(CircuitSimulator simulator) {
+		this.simulator = simulator;
 		componentsOrder = new ArrayList<>();
 		components = new HashMap<>();
 		initComponents();
 	}
 	
-	public static <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
+	public <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
 		return (circuit, properties, x, y) -> {
 			try {
+				if(clazz == SubcircuitPeer.class) {
+					properties.ensureProperty(
+							new Property(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(simulator), ""));
+				}
+				
 				return clazz.getConstructor(Circuit.class, Properties.class, Integer.TYPE, Integer.TYPE)
 				            .newInstance(circuit, properties, x, y);
 			} catch(Exception exc) {
@@ -95,14 +104,21 @@ public class ComponentManager {
 		return componentsOrder;
 	}
 	
-	public void addCircuit(String name, CircuitManager circuitManager) {
+	public void addCircuit(String name, CircuitManager manager) {
 		addComponent("Circuits", name, (circuit, properties, x, y) -> {
-			if(circuit == circuitManager.getCircuit()) {
+			if(circuit == manager.getCircuit()) {
 				throw new IllegalArgumentException("Cannot create subcircuit inside own circuit.");
 			}
 			
-			return new SubcircuitPeer(circuit, properties, circuitManager.getCircuit(), x, y);
+			properties.setProperty(
+					new Property(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(simulator, manager), name));
+			
+			return new SubcircuitPeer(circuit, properties, x, y);
 		});
+	}
+	
+	public boolean containsCircuit(String name) {
+		return components.containsKey(new Pair<>("Circuits", name));
 	}
 	
 	public void removeCircuit(String name) {
@@ -138,6 +154,10 @@ public class ComponentManager {
 	public ComponentCreator<?> getComponentCreator(String group, String component) {
 		if(component == null) return null;
 		return components.get(new Pair<>(group, component));
+	}
+	
+	public ComponentCreator<?> getCircuitCreator(String name) {
+		return getComponentCreator("Circuits", name);
 	}
 	
 	public interface ComponentCreator<T extends ComponentPeer<?>> {

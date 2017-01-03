@@ -41,9 +41,29 @@ public class Properties {
 	}
 	
 	public void ensureProperty(Property property) {
+		setProperty(property, false);
+	}
+	
+	public void setProperty(Property property) {
+		setProperty(property, true);
+	}
+	
+	private void setProperty(Property property, boolean overwriteValue) {
 		if(!properties.containsKey(property.name)) {
 			propertyNames.add(property.name);
 			properties.put(property.name, property);
+		} else {
+			Property ourProperty = properties.get(property.name);
+			
+			PropertyValidator validator = chooseValidator(property.validator, ourProperty.validator);
+			String value;
+			if(overwriteValue) {
+				value = property.value.isEmpty() ? ourProperty.value : property.value;
+			} else {
+				value = ourProperty.value.isEmpty() ? property.value : ourProperty.value;
+			}
+			
+			properties.put(property.name, new Property(property.name, validator, value));
 		}
 	}
 	
@@ -112,29 +132,20 @@ public class Properties {
 		return getIntValueOrDefault(property.name, defaultValue);
 	}
 	
+	private PropertyValidator chooseValidator(PropertyValidator validator1, PropertyValidator validator2) {
+		if(validator1 != null && validator2 != null
+				   && !validator1.equals(validator2)) {
+			throw new IllegalArgumentException("Property with the same name but different validator!");
+		}
+		
+		return validator1 == null ? validator2 : validator1;
+	}
+	
 	/**
 	 * if add is false, it will ignore missing properties
 	 */
 	public Properties merge(Properties other) {
-		other.forEach((prop) -> {
-			if(this.properties.containsKey(prop.name)) {
-				Property ourProperty = this.properties.get(prop.name);
-				
-				if(ourProperty.validator != null
-						   && prop.validator != null
-						   && !ourProperty.validator.equals(prop.validator)) {
-					throw new IllegalArgumentException("Property with the same name but different validator: "
-							                                   + prop.name);
-				}
-				
-				if(!prop.value.isEmpty()) {
-					this.properties.put(prop.name, prop);
-				}
-			} else {
-				ensureProperty(prop);
-			}
-		});
-		
+		other.forEach(this::setProperty);
 		return this;
 	}
 	
@@ -145,7 +156,7 @@ public class Properties {
 				if(!getValue(prop).equals(properties.getValue(prop))) {
 					newProp.setValue(prop, "");
 				} else {
-					newProp.ensureProperty(prop);
+					newProp.setProperty(prop);
 				}
 			}
 		});
@@ -248,6 +259,44 @@ public class Properties {
 		@Override
 		public boolean validate(String value) {
 			return validValues.contains(value);
+		}
+	}
+	
+	public static class PropertyCircuitValidator implements PropertyValidator {
+		private final CircuitSimulator circuitSimulator;
+		private CircuitManager circuitManager;
+		
+		public PropertyCircuitValidator(CircuitSimulator circuitSimulator) {
+			this(circuitSimulator, null);
+		}
+		
+		public PropertyCircuitValidator(CircuitSimulator circuitSimulator, CircuitManager circuitManager) {
+			this.circuitSimulator = circuitSimulator;
+			this.circuitManager = circuitManager;
+		}
+		
+		@Override
+		public boolean equals(Object other) {
+			if(other instanceof PropertyCircuitValidator) {
+				PropertyCircuitValidator validator = (PropertyCircuitValidator)other;
+				return this.circuitSimulator == validator.circuitSimulator;
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public boolean validate(String value) {
+			if(circuitManager == null && circuitSimulator != null) {
+				circuitManager = circuitSimulator.getCircuitManager(value);
+			}
+			
+			return circuitManager != null;
+		}
+		
+		public CircuitManager getCircuitManager(String value) {
+			validate(value);
+			return circuitManager;
 		}
 	}
 }

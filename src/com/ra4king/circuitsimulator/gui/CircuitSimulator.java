@@ -303,6 +303,7 @@ public class CircuitSimulator extends Application {
 					Optional<String> value = dialog.showAndWait();
 					if(value.isPresent() && !(lastTyped = value.get().trim()).isEmpty()
 							   && !lastTyped.equals(canvasTab.getText())) {
+						circuitManagers.put(value.get(), circuitManagers.remove(canvasTab.getText()));
 						componentManager.renameCircuit(canvasTab.getText(), lastTyped);
 						canvasTab.setText(value.get());
 						
@@ -444,7 +445,6 @@ public class CircuitSimulator extends Application {
 					circuitManagers.values().forEach(manager -> manager.getCircuitBoard().clear());
 					circuitManagers.clear();
 					canvasTabPane.getTabs().clear();
-					
 					
 					for(CircuitInfo circuit : circuits) {
 						createTab(circuit.name);

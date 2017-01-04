@@ -225,7 +225,11 @@ public class CircuitState {
 				port.component.valueChanged(CircuitState.this, newValue, port.portIndex);
 			}
 			
-			getCircuit().getSimulator().valueChanged(CircuitState.this, link);
+			if(participants.isEmpty()) {
+				linkStates.remove(link);
+			} else {
+				getCircuit().getSimulator().valueChanged(CircuitState.this, link);
+			}
 		}
 	}
 }

@@ -116,7 +116,13 @@ public class Port {
 		}
 		
 		public Link unlinkPort(Port port) {
-			if(!participants.contains(port)) return this;
+			if(!participants.contains(port)) {
+				return this;
+			}
+			
+			if(participants.size() == 1) {
+				return this;
+			}
 			
 			Circuit circuit = getCircuit();
 			

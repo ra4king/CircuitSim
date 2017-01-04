@@ -458,7 +458,7 @@ public class CircuitBoard {
 			} else if(connection instanceof WireConnection) {
 				linkWires.addWire((Wire)connection.getParent());
 			}
-		} else {
+		} else if(linkWires != linksToMerge) {
 			links.remove(linksToMerge);
 			linkWires.merge(linksToMerge);
 		}

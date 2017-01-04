@@ -225,6 +225,10 @@ public class LinkWires {
 	}
 	
 	public LinkWires merge(LinkWires other) {
+		if(other == this) {
+			return this;
+		}
+		
 		other.ports.forEach(this::addPort);
 		other.invalidPorts.forEach(this::addPort);
 		other.wires.forEach(this::addWire);

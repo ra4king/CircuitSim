@@ -34,6 +34,10 @@ public class Simulator {
 	}
 	
 	public synchronized void valueChanged(CircuitState state, Link link) {
+		if(link.getParticipants().isEmpty()) {
+			System.out.println("What the fuck are you doing mate?");
+		}
+		
 		linksToUpdate.add(new Pair<>(state, link));
 	}
 	

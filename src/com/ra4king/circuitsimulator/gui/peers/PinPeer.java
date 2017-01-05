@@ -9,7 +9,6 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -26,25 +25,20 @@ import javafx.scene.paint.Color;
 public class PinPeer extends ComponentPeer<Pin> {
 	public static final Property IS_INPUT = new Property("Is input?", Properties.YESNO_VALIDATOR, "Yes");
 	
-	public PinPeer(Circuit circuit, Properties props, int x, int y) {
+	public PinPeer(Properties props, int x, int y) {
 		super(x, y, 0, 0);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(IS_INPUT);
-		properties.merge(props);
+		properties.mergeIfExists(props);
 		
-		Pin pin = circuit.addComponent(
-				new Pin(properties.getValue(Properties.LABEL),
-				        properties.getIntValue(Properties.BITSIZE),
-				        properties.getValue(IS_INPUT).equals("Yes")));
+		Pin pin = new Pin(properties.getValue(Properties.LABEL),
+		                  properties.getIntValue(Properties.BITSIZE),
+		                  properties.getValue(IS_INPUT).equals("Yes"));
 		setWidth(Math.max(2, Math.min(8, pin.getBitSize())));
 		setHeight(2 + 7 * ((pin.getBitSize() - 1) / 8) / 4);
-		
-		if(pin.isInput()) {
-			circuit.getTopLevelState().pushValue(pin.getPort(Pin.PORT), WireValue.of(0, pin.getBitSize()));
-		}
 		
 		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, pin.getPort(0), pin.isInput() ? getWidth() : 0, 1));

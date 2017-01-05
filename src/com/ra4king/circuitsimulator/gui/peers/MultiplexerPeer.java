@@ -10,7 +10,6 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Multiplexer;
 
@@ -31,19 +30,18 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 		SELECTOR_BITS = new Property("Selector bits", new PropertyListValidator(selBits), "1");
 	}
 	
-	public MultiplexerPeer(Circuit circuit, Properties props, int x, int y) {
+	public MultiplexerPeer(Properties props, int x, int y) {
 		super(x, y, 2, 0);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(SELECTOR_BITS);
-		properties.merge(props);
+		properties.mergeIfExists(props);
 		
-		Multiplexer mux = circuit.addComponent(
-				new Multiplexer(properties.getValue(Properties.LABEL),
-				                properties.getIntValue(Properties.BITSIZE),
-				                properties.getIntValue(SELECTOR_BITS)));
+		Multiplexer mux = new Multiplexer(properties.getValue(Properties.LABEL),
+		                                  properties.getIntValue(Properties.BITSIZE),
+		                                  properties.getIntValue(SELECTOR_BITS));
 		setHeight(mux.NUM_IN_PORTS + 1);
 		
 		List<Connection> connections = new ArrayList<>();

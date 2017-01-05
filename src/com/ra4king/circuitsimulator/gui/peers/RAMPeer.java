@@ -9,7 +9,6 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.RAM;
 
@@ -22,19 +21,18 @@ import javafx.scene.paint.Color;
 public class RAMPeer extends ComponentPeer<RAM> {
 	private static final Property ADDRESS_BITS = new Property("Address bits", Properties.BITSIZE.validator, "1");
 	
-	public RAMPeer(Circuit circuit, Properties props, int x, int y) {
+	public RAMPeer(Properties props, int x, int y) {
 		super(x, y, 5, 4);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(ADDRESS_BITS);
-		properties.merge(props);
+		properties.mergeIfExists(props);
 		
-		RAM ram = circuit.addComponent(
-				new RAM(properties.getValue(Properties.LABEL),
-				        properties.getIntValue(Properties.BITSIZE),
-				        properties.getIntValue(ADDRESS_BITS)));
+		RAM ram = new RAM(properties.getValue(Properties.LABEL),
+		                  properties.getIntValue(Properties.BITSIZE),
+		                  properties.getIntValue(ADDRESS_BITS));
 		
 		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), "Address", 0, 2));

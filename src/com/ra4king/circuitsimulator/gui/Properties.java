@@ -21,7 +21,7 @@ public class Properties {
 	
 	public Properties(Properties prop) {
 		this();
-		merge(prop);
+		union(prop);
 	}
 	
 	public List<String> getProperties() {
@@ -29,7 +29,7 @@ public class Properties {
 	}
 	
 	public boolean containsProperty(String name) {
-		return properties.keySet().contains(name);
+		return properties.containsKey(name);
 	}
 	
 	public void forEach(Consumer<Property> consumer) {
@@ -72,6 +72,12 @@ public class Properties {
 			propertyNames.add(property.name);
 		}
 		properties.put(property.name, new Property(property, value));
+	}
+	
+	public void updateIfExists(Property property) {
+		if(properties.containsKey(property.name)) {
+			setProperty(property, true);
+		}
 	}
 	
 	public Property getProperty(String name) {
@@ -133,8 +139,7 @@ public class Properties {
 	}
 	
 	private PropertyValidator chooseValidator(PropertyValidator validator1, PropertyValidator validator2) {
-		if(validator1 != null && validator2 != null
-				   && !validator1.equals(validator2)) {
+		if(validator1 != null && validator2 != null && !validator1.equals(validator2)) {
 			throw new IllegalArgumentException("Property with the same name but different validator!");
 		}
 		
@@ -144,7 +149,12 @@ public class Properties {
 	/**
 	 * if add is false, it will ignore missing properties
 	 */
-	public Properties merge(Properties other) {
+	public Properties mergeIfExists(Properties other) {
+		other.forEach(this::updateIfExists);
+		return this;
+	}
+	
+	public Properties union(Properties other) {
 		other.forEach(this::setProperty);
 		return this;
 	}
@@ -222,7 +232,7 @@ public class Properties {
 		
 		public Property(String name, PropertyValidator validator, String value) {
 			if(validator != null && !value.isEmpty() && !validator.validate(value)) {
-				throw new IllegalArgumentException("Value is not validated.");
+				throw new IllegalArgumentException("Value is not validated: " + value);
 			}
 			
 			this.name = name;

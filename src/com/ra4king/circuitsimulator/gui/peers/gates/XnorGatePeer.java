@@ -1,7 +1,6 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
 import com.ra4king.circuitsimulator.gui.Properties;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
 import com.ra4king.circuitsimulator.simulator.components.gates.XnorGate;
@@ -14,18 +13,18 @@ import javafx.scene.shape.ArcType;
  * @author Roi Atalla
  */
 public class XnorGatePeer extends GatePeer {
-	public XnorGatePeer(Circuit circuit, Properties properties, int x, int y) {
-		super(circuit, properties, x, y);
+	public XnorGatePeer(Properties properties, int x, int y) {
+		super(properties, x, y);
 	}
 	
 	@Override
-	public Gate getGate(Circuit circuit, Properties properties) {
+	public Gate getGate(Properties properties) {
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.NUM_INPUTS);
-		return circuit.addComponent(new XnorGate(properties.getValue(Properties.LABEL),
-		                                         properties.getIntValue(Properties.BITSIZE),
-		                                         properties.getIntValue(Properties.NUM_INPUTS)));
+		return new XnorGate(properties.getValue(Properties.LABEL),
+		                    properties.getIntValue(Properties.BITSIZE),
+		                    properties.getIntValue(Properties.NUM_INPUTS));
 	}
 	
 	@Override

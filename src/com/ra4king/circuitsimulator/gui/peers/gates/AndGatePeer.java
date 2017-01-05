@@ -1,7 +1,6 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
 import com.ra4king.circuitsimulator.gui.Properties;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
@@ -13,18 +12,18 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class AndGatePeer extends GatePeer {
-	public AndGatePeer(Circuit circuit, Properties properties, int x, int y) {
-		super(circuit, properties, x, y);
+	public AndGatePeer(Properties properties, int x, int y) {
+		super(properties, x, y);
 	}
 	
 	@Override
-	public Gate getGate(Circuit circuit, Properties properties) {
+	public Gate getGate(Properties properties) {
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.NUM_INPUTS);
-		return circuit.addComponent(new AndGate(properties.getValue(Properties.LABEL),
-		                                        properties.getIntValue(Properties.BITSIZE),
-		                                        properties.getIntValue(Properties.NUM_INPUTS)));
+		return new AndGate(properties.getValue(Properties.LABEL),
+		                   properties.getIntValue(Properties.BITSIZE),
+		                   properties.getIntValue(Properties.NUM_INPUTS));
 	}
 	
 	@Override

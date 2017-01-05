@@ -1,7 +1,6 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
 import com.ra4king.circuitsimulator.gui.Properties;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
 import com.ra4king.circuitsimulator.simulator.components.gates.NotGate;
@@ -13,16 +12,16 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class NotGatePeer extends GatePeer {
-	public NotGatePeer(Circuit circuit, Properties properties, int x, int y) {
-		super(circuit, properties, x, y, 4, 2);
+	public NotGatePeer(Properties properties, int x, int y) {
+		super(properties, x, y, 4, 2);
 	}
 	
 	@Override
-	public Gate getGate(Circuit circuit, Properties properties) {
+	public Gate getGate(Properties properties) {
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
-		return circuit.addComponent(new NotGate(properties.getValue(Properties.LABEL),
-		                                        properties.getIntValue(Properties.BITSIZE)));
+		return new NotGate(properties.getValue(Properties.LABEL),
+		                   properties.getIntValue(Properties.BITSIZE));
 	}
 	
 	@Override

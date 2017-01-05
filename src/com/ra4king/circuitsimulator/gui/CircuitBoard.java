@@ -17,6 +17,7 @@ import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
+import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -67,15 +68,20 @@ public class CircuitBoard {
 	}
 	
 	public void runSim() throws Exception {
-		if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(Collectors.toSet())).size() != 0) {
-			throw badLinks.iterator().next().getLastException();
+		if(Platform.isFxApplicationThread()) {
+			if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(
+					Collectors.toSet())).size() != 0) {
+				throw badLinks.iterator().next().getLastException();
+			}
+			
+			circuit.getSimulator().stepAll();
+		} else {
+			throw new IllegalStateException("Not running on FX thread!");
 		}
-		
-		circuit.getSimulator().stepAll();
 	}
 	
 	public void createComponent(ComponentCreator creator, Properties properties, int x, int y) throws Exception {
-		ComponentPeer<?> component = creator.createComponent(circuit, properties, x, y);
+		ComponentPeer<?> component = creator.createComponent(properties, x, y);
 		
 		for(ComponentPeer<?> c : components) {
 			if(c.intersects(component)) {
@@ -88,6 +94,8 @@ public class CircuitBoard {
 	}
 	
 	public void addComponent(ComponentPeer<?> component) throws Exception {
+		circuit.addComponent(component.getComponent());
+		
 		Set<Wire> toReAdd = new HashSet<>();
 		
 		for(Connection connection : component.getConnections()) {

@@ -19,6 +19,7 @@ import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -40,6 +41,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -65,6 +69,8 @@ public class CircuitSimulator extends Application {
 		launch(args);
 	}
 	
+	private Stage stage;
+	
 	private Simulator simulator;
 	
 	private ComponentManager componentManager;
@@ -89,13 +95,17 @@ public class CircuitSimulator extends Application {
 	public void init() {
 		simulator = new Simulator();
 		circuitManagers = new HashMap<>();
-		Clock.addChangeListener(value -> {
-			try {
-				getCurrentCircuit().getCircuitBoard().runSim();
-			} catch(Exception exc) {
-			}
-			getCurrentCircuit().repaint();
-		});
+		Clock.addChangeListener(
+				value -> Platform.runLater(() -> {
+					CircuitManager manager = getCurrentCircuit();
+					if(manager != null) {
+						try {
+							manager.getCircuitBoard().runSim();
+							manager.repaint();
+						} catch(Exception exc) {
+						}
+					}
+				}));
 	}
 	
 	private CircuitManager getCurrentCircuit() {
@@ -174,20 +184,39 @@ public class CircuitSimulator extends Application {
 		}
 	}
 	
+	private Properties getDefaultProperties() {
+		Properties properties = new Properties();
+		properties.setValue(Properties.BITSIZE, String.valueOf(bitSizeSelect.getSelectionModel().getSelectedItem()));
+		properties.setValue(Properties.NUM_INPUTS,
+		                    String.valueOf(secondaryOptionSelect.getSelectionModel().getSelectedItem()));
+		return properties;
+	}
+	
 	private void modifiedSelection() {
-		modifiedSelection(new Properties());
+		modifiedSelection(getDefaultProperties());
 	}
 	
 	private void modifiedSelection(Properties properties) {
+		Tab tab = buttonTabPane.getSelectionModel().getSelectedItem();
+		String group = tab == null ? null : tab.getText();
+		modifiedSelection(group, componentMode, properties);
+	}
+	
+	private void modifiedSelection(String group, String name) {
+		modifiedSelection(group, name, getDefaultProperties());
+	}
+	
+	private void modifiedSelection(String group, String name, Properties properties) {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
-			Tab tab = buttonTabPane.getSelectionModel().getSelectedItem();
-			String group = tab == null ? null : tab.getText();
-			setProperties(
-					current.modifiedSelection(componentManager.getComponentCreator(group, componentMode),
-					                          properties));
+			setProperties(current.modifiedSelection(componentManager.getComponentCreator(group, name), properties));
 			current.repaint();
 		}
+	}
+	
+	private ImageView getImage(String name) {
+		return new ImageView(new Image(CircuitSimulator.class.getResourceAsStream("peers/resources/" + name + "" +
+				                                                                          ".png")));
 	}
 	
 	private ToggleButton setupButton(ToggleGroup group, String componentName) {
@@ -225,6 +254,26 @@ public class CircuitSimulator extends Application {
 				buttons.addRow(buttons.getChildren().size(), toggleButton);
 			}
 		}
+	}
+	
+	private boolean hasUnsavedChanges() {
+		for(CircuitManager manager : circuitManagers.values()) {
+			if(!manager.getCircuitBoard().getComponents().isEmpty()
+					   || !manager.getCircuitBoard().getLinks().isEmpty()) {
+				return true;
+			}
+		}
+		
+		return circuitManagers.size() > 1;
+	}
+	
+	private void updateTitle() {
+		String name = "";
+		if(saveFile != null) {
+			name = " - " + saveFile.getName();
+		}
+		
+		stage.setTitle("Circuit simulator" + name);
 	}
 	
 	private CircuitManager createTab(String name) {
@@ -335,7 +384,7 @@ public class CircuitSimulator extends Application {
 				componentManager.removeCircuit(canvasTab.getText());
 				
 				if(canvasTabPane.getTabs().size() == 1) {
-					createTab("New circuit");
+					createTab("New circuit").repaint();
 				} else {
 					refreshCircuitsTab();
 				}
@@ -352,13 +401,9 @@ public class CircuitSimulator extends Application {
 	
 	@Override
 	public void start(Stage stage) {
+		this.stage = stage;
+		
 		componentManager = new ComponentManager(this);
-		
-		buttonTabPane = new TabPane();
-		buttonTabPane.setMinWidth(100);
-		
-		propertiesTable = new GridPane();
-		propertiesTable.setMaxWidth(Double.MAX_VALUE);
 		
 		bitSizeSelect = new ComboBox<>();
 		for(int i = 1; i <= 32; i++) {
@@ -371,14 +416,20 @@ public class CircuitSimulator extends Application {
 		             .addListener((observable, oldValue, newValue) -> modifiedSelection());
 		
 		secondaryOptionSelect = new ComboBox<>();
-		for(int i = 1; i <= 8; i++) {
+		for(int i = 2; i <= 32; i++) {
 			secondaryOptionSelect.getItems().add(i);
 		}
 		secondaryOptionSelect.setMaxWidth(Double.MAX_VALUE);
-		secondaryOptionSelect.setValue(1);
+		secondaryOptionSelect.setValue(2);
 		secondaryOptionSelect.getSelectionModel()
 		                     .selectedItemProperty()
 		                     .addListener((observable, oldValue, newValue) -> modifiedSelection());
+		
+		buttonTabPane = new TabPane();
+		buttonTabPane.setMinWidth(100);
+		
+		propertiesTable = new GridPane();
+		propertiesTable.setMaxWidth(Double.MAX_VALUE);
 		
 		canvasTabPane = new TabPane();
 		canvasTabPane.setPrefWidth(800);
@@ -418,13 +469,6 @@ public class CircuitSimulator extends Application {
 		}
 		
 		createTab("New circuit");
-//		
-//		Label bitSizeLabel = new Label("Bit size:");
-//		Label secondaryLabel = new Label("Secondary:");
-//		GridPane.setHalignment(bitSizeLabel, HPos.CENTER);
-//		GridPane.setHalignment(secondaryLabel, HPos.CENTER);
-//		buttons.addRow(count++, bitSizeLabel, secondaryLabel);
-//		buttons.addRow(count, bitSizeSelect, secondaryOptionSelect);
 		
 		MenuBar menuBar = new MenuBar();
 		Menu fileMenu = new Menu("File");
@@ -437,6 +481,7 @@ public class CircuitSimulator extends Application {
 			File selectedFile = fileChooser.showOpenDialog(stage);
 			if(selectedFile != null) {
 				saveFile = selectedFile;
+				updateTitle();
 				
 				try {
 					List<CircuitInfo> circuits = FileFormat.load(selectedFile);
@@ -499,6 +544,7 @@ public class CircuitSimulator extends Application {
 				fileChooser.setTitle("Choose sim file");
 				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
 				saveFile = fileChooser.showSaveDialog(stage);
+				updateTitle();
 			}
 			
 			if(saveFile != null) {
@@ -529,12 +575,11 @@ public class CircuitSimulator extends Application {
 				
 				try {
 					FileFormat.save(saveFile, circuits);
-					
-					Alert alert = new Alert(AlertType.INFORMATION);
-					alert.setTitle("Circuits saved");
-					alert.setHeaderText("Circuits saved");
-					alert.setContentText("Circuits have successfully been saved.");
-					alert.show();
+//					Alert alert = new Alert(AlertType.INFORMATION);
+//					alert.setTitle("Circuits saved");
+//					alert.setHeaderText("Circuits saved");
+//					alert.setContentText("Circuits have successfully been saved.");
+//					alert.show();
 				} catch(Exception exc) {
 					exc.printStackTrace();
 					
@@ -558,6 +603,8 @@ public class CircuitSimulator extends Application {
 			if(saveFile == null) {
 				saveFile = oldSave;
 			}
+			
+			updateTitle();
 		});
 		
 		fileMenu.getItems().addAll(load, save, saveAs);
@@ -604,21 +651,50 @@ public class CircuitSimulator extends Application {
 		
 		menuBar.getMenus().addAll(fileMenu, circuitsMenu, clockMenu);
 		
-		VBox vBox = new VBox(buttonTabPane, propertiesTable);
+		VBox leftPanel = new VBox(buttonTabPane, propertiesTable);
 		VBox.setVgrow(buttonTabPane, Priority.ALWAYS);
 		VBox.setVgrow(propertiesTable, Priority.ALWAYS);
 		
-		HBox hBox = new HBox(vBox, canvasTabPane);
+		HBox hBox = new HBox(leftPanel, canvasTabPane);
 		HBox.setHgrow(canvasTabPane, Priority.ALWAYS);
 		VBox.setVgrow(hBox, Priority.ALWAYS);
 		
-		Scene scene = new Scene(new VBox(menuBar, hBox));
+		ToolBar toolBar = new ToolBar();
+		ToggleButton andButton =
+				new ToggleButton("", getImage("AndGate"));
+		andButton.setToggleGroup(buttonsToggleGroup);
+		andButton.setOnAction(event -> modifiedSelection("Gates", "AND"));
+		ToggleButton orButton =
+				new ToggleButton("", getImage("OrGate"));
+		orButton.setOnAction(event -> modifiedSelection("Gates", "OR"));
+		orButton.setToggleGroup(buttonsToggleGroup);
+		toolBar.getItems().addAll(andButton, orButton,
+		                          new Label("Bit size:"), bitSizeSelect,
+		                          new Label("Secondary:"), secondaryOptionSelect);
+		
+		Scene scene = new Scene(new VBox(menuBar, toolBar, hBox));
 		
 		stage.setScene(scene);
 		stage.setTitle("Circuit Simulator");
 		stage.sizeToScene();
 		stage.show();
 		stage.centerOnScreen();
+		
+		stage.setOnCloseRequest(event -> {
+			if(hasUnsavedChanges()) {
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Unsaved changes");
+				alert.setHeaderText("Unsaved changes");
+				alert.setContentText("There are unsaved changes, do you want to save them?");
+				Optional<ButtonType> result = alert.showAndWait();
+				if(result.isPresent() && result.get() == ButtonType.OK) {
+					save.fire();
+					if(saveFile == null) {
+						event.consume();
+					}
+				}
+			}
+		});
 	}
 	
 	public void keyPressed(KeyEvent e) {
@@ -629,11 +705,19 @@ public class CircuitSimulator extends Application {
 				break;
 		}
 		
-		getCurrentCircuit().keyPressed(e);
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			manager.keyPressed(e);
+		}
+		
+		updateTitle();
 	}
 	
 	public void keyReleased(KeyEvent e) {
-		getCurrentCircuit().keyReleased(e);
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			manager.keyReleased(e);
+		}
 	}
 	
 	public void keyTyped(KeyEvent e) {}
@@ -641,26 +725,47 @@ public class CircuitSimulator extends Application {
 	public void mouseClicked(MouseEvent e) {}
 	
 	public void mousePressed(MouseEvent e) {
-		getCurrentCircuit().mousePressed(e);
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			manager.mousePressed(e);
+		}
+		
+		updateTitle();
 	}
 	
 	public void mouseReleased(MouseEvent e) {
-		getCurrentCircuit().mouseReleased(e);
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			manager.mouseReleased(e);
+		}
 	}
 	
 	public void mouseMoved(MouseEvent e) {
-		getCurrentCircuit().mouseMoved(e);
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			manager.mouseMoved(e);
+		}
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-		getCurrentCircuit().mouseDragged(e);
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			manager.mouseDragged(e);
+		}
+		;
 	}
 	
 	public void mouseEntered(MouseEvent e) {
-		getCurrentCircuit().mouseEntered(e);
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			manager.mouseEntered(e);
+		}
 	}
 	
 	public void mouseExited(MouseEvent e) {
-		getCurrentCircuit().mouseExited(e);
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			manager.mouseExited(e);
+		}
 	}
 }

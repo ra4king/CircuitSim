@@ -8,7 +8,6 @@ import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.ControlledBuffer;
 
@@ -19,17 +18,16 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
-	public ControlledBufferPeer(Circuit circuit, Properties props, int x, int y) {
+	public ControlledBufferPeer(Properties props, int x, int y) {
 		super(x, y, 2, 2);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
-		properties.merge(props);
+		properties.mergeIfExists(props);
 		
-		ControlledBuffer buffer = circuit.addComponent(
-				new ControlledBuffer(properties.getValue(Properties.LABEL),
-				                     properties.getIntValue(Properties.BITSIZE)));
+		ControlledBuffer buffer = new ControlledBuffer(properties.getValue(Properties.LABEL),
+		                                               properties.getIntValue(Properties.BITSIZE));
 		
 		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), "In", 1, 0));

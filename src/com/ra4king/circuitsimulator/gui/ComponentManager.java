@@ -22,7 +22,6 @@ import com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XnorGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XorGatePeer;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 /**
@@ -41,15 +40,15 @@ public class ComponentManager {
 	}
 	
 	public <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
-		return (circuit, properties, x, y) -> {
+		return (properties, x, y) -> {
 			try {
 				if(clazz == SubcircuitPeer.class) {
 					properties.ensureProperty(
 							new Property(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(simulator), ""));
 				}
 				
-				return clazz.getConstructor(Circuit.class, Properties.class, Integer.TYPE, Integer.TYPE)
-				            .newInstance(circuit, properties, x, y);
+				return clazz.getConstructor(Properties.class, Integer.TYPE, Integer.TYPE)
+				            .newInstance(properties, x, y);
 			} catch(Exception exc) {
 				throw new RuntimeException(exc);
 			}
@@ -74,13 +73,13 @@ public class ComponentManager {
 	}
 	
 	private void initComponents() {
-		addComponent("Wiring", "Input Pin", (circuit, properties, x, y) -> {
-			properties.setValue(PinPeer.IS_INPUT, "Yes");
-			return forClass(PinPeer.class).createComponent(circuit, properties, x, y);
+		addComponent("Wiring", "Input Pin", (properties, x, y) -> {
+			properties.ensureProperty(new Property(PinPeer.IS_INPUT, "Yes"));
+			return forClass(PinPeer.class).createComponent(properties, x, y);
 		});
-		addComponent("Wiring", "Output Pin", (circuit, properties, x, y) -> {
-			properties.setValue(PinPeer.IS_INPUT, "No");
-			return forClass(PinPeer.class).createComponent(circuit, properties, x, y);
+		addComponent("Wiring", "Output Pin", (properties, x, y) -> {
+			properties.ensureProperty(new Property(PinPeer.IS_INPUT, "No"));
+			return forClass(PinPeer.class).createComponent(properties, x, y);
 		});
 		addComponent("Wiring", "Clock", forClass(ClockPeer.class));
 		addComponent("Wiring", "Splitter", forClass(SplitterPeer.class));
@@ -105,15 +104,11 @@ public class ComponentManager {
 	}
 	
 	public void addCircuit(String name, CircuitManager manager) {
-		addComponent("Circuits", name, (circuit, properties, x, y) -> {
-			if(circuit == manager.getCircuit()) {
-				throw new IllegalArgumentException("Cannot create subcircuit inside own circuit.");
-			}
-			
+		addComponent("Circuits", name, (properties, x, y) -> {
 			properties.setProperty(
 					new Property(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(simulator, manager), name));
 			
-			return new SubcircuitPeer(circuit, properties, x, y);
+			return new SubcircuitPeer(properties, x, y);
 		});
 	}
 	
@@ -161,13 +156,13 @@ public class ComponentManager {
 	}
 	
 	public interface ComponentCreator<T extends ComponentPeer<?>> {
-		default T createComponent(Circuit circuit, int bitSize, int x, int y) {
+		default T createComponent(int bitSize, int x, int y) {
 			Properties properties = new Properties();
 			properties.setValue(Properties.BITSIZE, String.valueOf(bitSize));
 			
-			return createComponent(circuit, properties, x, y);
+			return createComponent(properties, x, y);
 		}
 		
-		T createComponent(Circuit circuit, Properties properties, int x, int y);
+		T createComponent(Properties properties, int x, int y);
 	}
 }

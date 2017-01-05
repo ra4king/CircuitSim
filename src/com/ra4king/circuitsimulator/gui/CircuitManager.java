@@ -10,12 +10,14 @@ import java.util.stream.Stream;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
+import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
+import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 
 import javafx.application.Platform;
@@ -64,6 +66,20 @@ public class CircuitManager {
 		this.simulatorWindow = simulatorWindow;
 		this.canvas = canvas;
 		circuitBoard = new CircuitBoard(simulator);
+
+//		try {
+//			Properties pinProps = new Properties();
+//			pinProps.setProperty(new Property(PinPeer.IS_INPUT, "Yes"));
+//			circuitBoard.addComponent(new PinPeer(circuitBoard.getCircuit(), pinProps, 2, 5));
+//			pinProps.setProperty(new Property(PinPeer.IS_INPUT, "No"));
+//			circuitBoard.addComponent(new PinPeer(circuitBoard.getCircuit(), pinProps, 2, 10));
+//			circuitBoard.addComponent(new NotGatePeer(circuitBoard.getCircuit(), new Properties(), 2, 15));
+//			circuitBoard.addComponent(new AndGatePeer(circuitBoard.getCircuit(), new Properties(), 2, 20));
+//			circuitBoard.addComponent(new OrGatePeer(circuitBoard.getCircuit(), new Properties(), 2, 25));
+//			circuitBoard.addComponent(new XorGatePeer(circuitBoard.getCircuit(), new Properties(), 2, 30));
+//		} catch(Exception exc) {
+//			exc.printStackTrace();
+//		}
 	}
 	
 	public Circuit getCircuit() {
@@ -93,12 +109,13 @@ public class CircuitManager {
 		this.componentCreator = componentCreator;
 		this.properties = properties;
 		
-		dummyCircuit.getComponents().clear();
+		dummyCircuit.clearComponents();
 		
 		if(componentCreator != null) {
-			potentialComponent = componentCreator.createComponent(dummyCircuit, properties,
+			potentialComponent = componentCreator.createComponent(properties,
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getX()),
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getY()));
+			mayThrow(() -> dummyCircuit.addComponent(potentialComponent.getComponent()));
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(potentialComponent.getY() - potentialComponent.getHeight() / 2);
 			return potentialComponent.getProperties();
@@ -115,9 +132,8 @@ public class CircuitManager {
 			Set<ComponentPeer<?>> newComponents = components.stream().map(
 					component -> (ComponentPeer<?>)simulatorWindow
 							                               .getComponentManager().forClass(component.getClass())
-							                               .createComponent(getCircuit(),
-							                                                component.getProperties()
-							                                                         .merge(properties),
+							                               .createComponent(component.getProperties()
+							                                                         .mergeIfExists(properties),
 							                                                component.getX(),
 							                                                component.getY()))
 			                                                .collect(Collectors.toSet());
@@ -139,11 +155,15 @@ public class CircuitManager {
 		return null;
 	}
 	
+	private long lastRepaint;
+	
 	public void repaint() {
-		if(Platform.isFxApplicationThread()) {
-			paint(canvas.getGraphicsContext2D());
-		} else {
-			Platform.runLater(() -> paint(canvas.getGraphicsContext2D()));
+		if(lastRepaint == 0) {
+			lastRepaint = System.nanoTime();
+			Platform.runLater(() -> {
+				lastRepaint = 0;
+				paint(canvas.getGraphicsContext2D());
+			});
 		}
 	}
 	
@@ -376,6 +396,8 @@ public class CircuitManager {
 				if(selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
 					((PinPeer)selectedElement).clicked(getCircuit().getTopLevelState(), (int)e.getX(), (int)e.getY());
 					mayThrow(circuitBoard::runSim);
+				} else if(selectedElement instanceof ClockPeer) {
+					Clock.tick();
 				}
 			} else if(!ctrlDown) {
 				selecting = false;

@@ -12,7 +12,6 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 
@@ -25,18 +24,18 @@ import javafx.scene.paint.Color;
 public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 	public static final String SUBCIRCUIT = "Subcircuit";
 	
-	public SubcircuitPeer(Circuit circuit, Properties props, int x, int y) {
+	public SubcircuitPeer(Properties props, int x, int y) {
 		super(x, y, 2, 0);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
-		properties.merge(props);
+		properties.ensureProperty(new Property(SUBCIRCUIT, null, ""));
+		properties.mergeIfExists(props);
 		
 		Property subcircuitProperty = properties.getProperty(SUBCIRCUIT);
 		CircuitManager parent = ((PropertyCircuitValidator)subcircuitProperty.validator)
 				                        .getCircuitManager(subcircuitProperty.value);
-		Subcircuit subcircuit = circuit.addComponent(
-				new Subcircuit(properties.getValue(Properties.LABEL), parent.getCircuit()));
+		Subcircuit subcircuit = new Subcircuit(properties.getValue(Properties.LABEL), parent.getCircuit());
 		setHeight(1 + (subcircuit.getNumPorts() + 1) / 2);
 		
 		List<Connection> connections = new ArrayList<>();

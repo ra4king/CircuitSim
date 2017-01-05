@@ -15,8 +15,15 @@ public class Adder extends Component {
 	public static final int PORT_OUT = 3;
 	public static final int PORT_CARRY_OUT = 4;
 	
+	private final int bitSize;
+	
 	public Adder(String name, int bitSize) {
 		super(name, new int[] { bitSize, bitSize, 1, bitSize, 1 });
+		this.bitSize = bitSize;
+	}
+	
+	public int getBitSize() {
+		return bitSize;
 	}
 	
 	@Override
@@ -30,7 +37,7 @@ public class Adder extends Component {
 			WireValue b = state.getLastReceived(getPort(PORT_B));
 			WireValue c = state.getLastReceived(getPort(PORT_CARRY_IN));
 			
-			WireValue sum = new WireValue(a.getBitSize());
+			WireValue sum = new WireValue(bitSize);
 			
 			State carry = c.getBit(0);
 			for(int i = 0; i < sum.getBitSize(); i++) {
@@ -46,8 +53,7 @@ public class Adder extends Component {
 			state.pushValue(getPort(PORT_OUT), sum);
 			state.pushValue(getPort(PORT_CARRY_OUT), new WireValue(1, carry));
 		} else {
-			WireValue value1 = new WireValue(state.getLastReceived(getPort(PORT_OUT)).getBitSize());
-			state.pushValue(getPort(PORT_OUT), value1);
+			state.pushValue(getPort(PORT_OUT), new WireValue(bitSize));
 			state.pushValue(getPort(PORT_CARRY_OUT), new WireValue(1));
 		}
 	}

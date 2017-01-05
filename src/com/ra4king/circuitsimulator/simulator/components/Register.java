@@ -15,14 +15,21 @@ public class Register extends Component {
 	public static final int PORT_ZERO = 3;
 	public static final int PORT_OUT = 4;
 	
+	private final int bitSize;
+	
 	public Register(String name, int bitSize) {
 		super(name, new int[] { bitSize, 1, 1, 1, bitSize });
+		this.bitSize = bitSize;
+	}
+	
+	public int getBitSize() {
+		return bitSize;
 	}
 	
 	@Override
 	public void init(CircuitState circuitState) {
 		super.init(circuitState);
-		circuitState.pushValue(getPort(PORT_OUT), WireValue.of(0, getPort(PORT_IN).getLink().getBitSize()));
+		circuitState.pushValue(getPort(PORT_OUT), WireValue.of(0, bitSize));
 	}
 	
 	@Override
@@ -30,7 +37,7 @@ public class Register extends Component {
 		if(portIndex == PORT_OUT) return;
 		
 		if(state.getLastReceived(getPort(PORT_ZERO)).getBit(0) == State.ONE) {
-			state.pushValue(getPort(PORT_OUT), WireValue.of(0, getPort(PORT_OUT).getLink().getBitSize()));
+			state.pushValue(getPort(PORT_OUT), WireValue.of(0, bitSize));
 		} else if(state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO) {
 			if(portIndex == PORT_CLK && value.getBit(0) == State.ONE) {
 				WireValue pushValue = state.getLastReceived(getPort(PORT_IN));

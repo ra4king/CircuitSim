@@ -33,7 +33,6 @@ public class Demultiplexer extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		// len - 2 == select, len - 1 == input
 		if(portIndex == PORT_SEL) {
 			if(!value.isValidValue()) {
 				for(int i = 0; i < NUM_OUT_PORTS; i++) {

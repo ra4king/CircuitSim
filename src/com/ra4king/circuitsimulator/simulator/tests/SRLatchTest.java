@@ -23,8 +23,8 @@ public class SRLatchTest {
 		
 		in1.getPort(Pin.PORT).linkPort(nor1.getPort(0));
 		in2.getPort(Pin.PORT).linkPort(nor2.getPort(0));
-		out1.getPort(Pin.PORT).linkPort(nor1.getPort(nor1.PORT_OUT)).linkPort(nor2.getPort(1));
-		out2.getPort(Pin.PORT).linkPort(nor2.getPort(nor2.PORT_OUT)).linkPort(nor1.getPort(1));
+		out1.getPort(Pin.PORT).linkPort(nor1.getOutPort()).linkPort(nor2.getPort(1));
+		out2.getPort(Pin.PORT).linkPort(nor2.getOutPort()).linkPort(nor1.getPort(1));
 		
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
 		sim.stepAll();

@@ -42,10 +42,7 @@ public class Clock extends Component {
 	}
 	
 	public static void tick() {
-		synchronized(Clock.class) {
-			clock = !clock;
-		}
-		
+		clock = !clock;
 		WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 		clocks.forEach(clock ->
 				               clock.getCircuit().getCircuitStates()

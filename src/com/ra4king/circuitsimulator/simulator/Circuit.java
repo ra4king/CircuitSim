@@ -1,6 +1,7 @@
 package com.ra4king.circuitsimulator.simulator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,14 +33,14 @@ public class Circuit {
 			return component;
 		}
 		
-		if(component.getCircuit() != null)
+		if(component.getCircuit() != null) {
 			throw new IllegalArgumentException("Component already belongs to a circuit.");
+		}
 		
-		components.add(component);
 		component.setCircuit(this);
 		
+		components.add(component);
 		states.forEach(component::init);
-		
 		listeners.forEach(listener -> listener.circuitChanged(this));
 		
 		return component;
@@ -53,7 +54,11 @@ public class Circuit {
 	}
 	
 	public Set<Component> getComponents() {
-		return components;
+		return Collections.unmodifiableSet(components);
+	}
+	
+	public void clearComponents() {
+		new HashSet<>(components).forEach(this::removeComponent);
 	}
 	
 	public Simulator getSimulator() {
@@ -65,7 +70,7 @@ public class Circuit {
 	}
 	
 	public Set<CircuitState> getCircuitStates() {
-		return states; 
+		return states;
 	}
 	
 	public void addListener(CircuitChangeListener listener) {

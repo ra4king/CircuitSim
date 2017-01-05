@@ -2,6 +2,7 @@ package com.ra4king.circuitsimulator.simulator.components.gates;
 
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
+import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.utils.Utils;
@@ -10,19 +11,31 @@ import com.ra4king.circuitsimulator.simulator.utils.Utils;
  * @author Roi Atalla
  */
 public abstract class Gate extends Component {
-	public final int NUM_IN_PORTS;
-	public final int PORT_OUT;
+	private final int bitSize;
+	private final int numInputs;
 	
 	public Gate(String name, int bitSize, int numInputs) {
 		super(name, Utils.getFilledArray(numInputs + 1, bitSize));
 		
-		NUM_IN_PORTS = numInputs;
-		PORT_OUT = numInputs;
+		this.bitSize = bitSize;
+		this.numInputs = numInputs;
+	}
+	
+	public int getBitSize() {
+		return bitSize;
+	}
+	
+	public int getNumInputs() {
+		return numInputs;
+	}
+	
+	public Port getOutPort() {
+		return getPort(numInputs);
 	}
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT)
+		if(portIndex == numInputs)
 			return;
 		
 		WireValue result = new WireValue(value.getBitSize());
@@ -30,7 +43,7 @@ public abstract class Gate extends Component {
 			result.setBit(bit, state.getLastReceived(getPort(0)).getBit(bit));
 			boolean isX = result.getBit(bit) == State.X;
 			
-			for(int port = 1; port < PORT_OUT; port++) {
+			for(int port = 1; port < numInputs; port++) {
 				State portBit = state.getLastReceived(getPort(port)).getBit(bit);
 				
 				isX &= portBit == State.X;
@@ -42,7 +55,7 @@ public abstract class Gate extends Component {
 			}
 		}
 		
-		state.pushValue(getPort(PORT_OUT), result);
+		state.pushValue(getOutPort(), result);
 	}
 	
 	protected State operate(State acc, State bit) {

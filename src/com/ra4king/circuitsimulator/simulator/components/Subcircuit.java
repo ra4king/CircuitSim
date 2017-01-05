@@ -32,6 +32,15 @@ public class Subcircuit extends Component {
 	}
 	
 	@Override
+	public void setCircuit(Circuit circuit) {
+		if(circuit == subcircuit) {
+			throw new IllegalArgumentException("Cannot create subcircuit inside own circuit.");
+		}
+		
+		super.setCircuit(circuit);
+	}
+	
+	@Override
 	public void init(CircuitState circuitState) {
 		super.init(circuitState);
 		CircuitState subcircuitState = new CircuitState(subcircuit);

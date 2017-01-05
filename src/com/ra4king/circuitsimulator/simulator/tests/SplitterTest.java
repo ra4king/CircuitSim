@@ -47,7 +47,7 @@ public class SplitterTest {
 				splitters[j].getPort(i).linkPort(ands[i].getPort(j));
 			}
 			
-			ands[i].getPort(ands[i].PORT_OUT).linkPort(joiner.getPort(i));
+			ands[i].getOutPort().linkPort(joiner.getPort(i));
 		}
 		
 		ins[0].setValue(circuit.getTopLevelState(), WireValue.of(0xFF, 10));

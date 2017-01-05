@@ -46,7 +46,7 @@ public class RAM extends Component {
 	public WireValue load(CircuitState circuitState, int address) {
 		WireValue[] memory = (WireValue[])circuitState.getComponentProperty(this);
 		WireValue data = memory[address];
-		return data == null ? new WireValue(dataBits, State.ZERO) : new WireValue(data);
+		return data == null ? memory[address] = new WireValue(dataBits, State.ZERO) : data;
 	}
 	
 	@Override

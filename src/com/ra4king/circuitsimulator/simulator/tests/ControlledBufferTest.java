@@ -32,15 +32,15 @@ public class ControlledBufferTest {
 		
 		inA.getPort(Pin.PORT).linkPort(andGate.getPort(0)).linkPort(orGate.getPort(0)).linkPort(xorGate.getPort(0));
 		inB.getPort(Pin.PORT).linkPort(andGate.getPort(1)).linkPort(orGate.getPort(1)).linkPort(xorGate.getPort(1));
-		bufferA.getPort(ControlledBuffer.PORT_IN).linkPort(andGate.getPort(andGate.PORT_OUT));
+		bufferA.getPort(ControlledBuffer.PORT_IN).linkPort(andGate.getOutPort());
 		bufferA.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selA.getPort(Pin.PORT));
 		bufferA.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
-		bufferB.getPort(ControlledBuffer.PORT_IN).linkPort(orGate.getPort(orGate.PORT_OUT));
+		bufferB.getPort(ControlledBuffer.PORT_IN).linkPort(orGate.getOutPort());
 		bufferB.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selB.getPort(Pin.PORT));
 		bufferB.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
-		bufferC.getPort(ControlledBuffer.PORT_IN).linkPort(xorGate.getPort(xorGate.PORT_OUT));
+		bufferC.getPort(ControlledBuffer.PORT_IN).linkPort(xorGate.getOutPort());
 		bufferC.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selC.getPort(Pin.PORT));
 		bufferC.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		

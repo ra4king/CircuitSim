@@ -30,19 +30,19 @@ public class MultiplexerTest {
 		Pin out = circuit.addComponent(new Pin("Out", 4, false));
 		
 		in1.getPort(Pin.PORT)
-				.linkPort(andGate.getPort(0))
-				.linkPort(orGate.getPort(0))
-				.linkPort(xorGate.getPort(0))
-				.linkPort(notGate.getPort(NotGate.PORT_IN));
+		   .linkPort(andGate.getPort(0))
+		   .linkPort(orGate.getPort(0))
+		   .linkPort(xorGate.getPort(0))
+		   .linkPort(notGate.getOutPort());
 		in2.getPort(Pin.PORT)
 				.linkPort(andGate.getPort(1))
 				.linkPort(orGate.getPort(1))
 				.linkPort(xorGate.getPort(1));
 		
-		andGate.getPort(andGate.PORT_OUT).linkPort(mux.getPort(0));
-		orGate.getPort(orGate.PORT_OUT).linkPort(mux.getPort(1));
-		xorGate.getPort(xorGate.PORT_OUT).linkPort(mux.getPort(2));
-		notGate.getPort(NotGate.PORT_OUT).linkPort(mux.getPort(3));
+		andGate.getOutPort().linkPort(mux.getPort(0));
+		orGate.getOutPort().linkPort(mux.getPort(1));
+		xorGate.getOutPort().linkPort(mux.getPort(2));
+		notGate.getOutPort().linkPort(mux.getPort(3));
 		
 		sel.getPort(Pin.PORT).linkPort(mux.getPort(mux.PORT_SEL));
 		out.getPort(Pin.PORT).linkPort(mux.getPort(mux.PORT_OUT));

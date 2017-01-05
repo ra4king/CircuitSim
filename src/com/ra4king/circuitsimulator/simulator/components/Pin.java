@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.simulator.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -43,23 +44,19 @@ public class Pin extends Component {
 	}
 	
 	public void setValue(CircuitState state, WireValue value) {
-//		System.out.println(this + ": value set = " + value);
 		state.pushValue(getPort(PORT), value);
 	}
 	
 	@Override
-	public void init(CircuitState circuitState) {
-		super.init(circuitState);
-		
-//		if(isInput) {
-//			circuitState.pushValue(getPort(PORT), new WireValue(bitSize, State.ZERO));
-//		}
+	public void setCircuit(Circuit circuit) {
+		super.setCircuit(circuit);
+		if(circuit != null && isInput) {
+			circuit.getTopLevelState().pushValue(getPort(Pin.PORT), WireValue.of(0, getBitSize()));
+		}
 	}
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-//		System.out.println(this + ": value changed = " + value);
-		
 		pinChangeListeners.stream().filter(pair -> state == pair.first)
 				.forEach(pair -> pair.second.valueChanged(value));
 	}

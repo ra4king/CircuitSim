@@ -25,7 +25,7 @@ public class Simulator {
 		history = new HashSet<>();
 	}
 	
-	public void addCircuit(Circuit circuit) {
+	public synchronized void addCircuit(Circuit circuit) {
 		circuits.add(circuit);
 	}
 	

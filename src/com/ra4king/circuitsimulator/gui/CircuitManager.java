@@ -119,7 +119,7 @@ public class CircuitManager {
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(potentialComponent.getY() - potentialComponent.getHeight() / 2);
 			return potentialComponent.getProperties();
-		} else if(!properties.isEmpty() && !selectedElementsMap.isEmpty()) {
+		} else if(properties != null && !properties.isEmpty() && !selectedElementsMap.isEmpty()) {
 			potentialComponent = null;
 			
 			Set<ComponentPeer<?>> components =
@@ -129,14 +129,16 @@ public class CircuitManager {
 					                   .collect(Collectors.toSet());
 			mayThrow(() -> circuitBoard.removeElements(components));
 			
-			Set<ComponentPeer<?>> newComponents = components.stream().map(
-					component -> (ComponentPeer<?>)simulatorWindow
-							                               .getComponentManager().forClass(component.getClass())
-							                               .createComponent(component.getProperties()
-							                                                         .mergeIfExists(properties),
-							                                                component.getX(),
-							                                                component.getY()))
-			                                                .collect(Collectors.toSet());
+			Set<ComponentPeer<?>> newComponents =
+					components.stream().map(
+							component ->
+									(ComponentPeer<?>)ComponentManager.forClass(component.getClass())
+									                                  .createComponent(
+											                                  component.getProperties()
+											                                           .mergeIfExists(properties),
+											                                  component.getX(),
+											                                  component.getY()))
+					          .collect(Collectors.toSet());
 			
 			newComponents.forEach(component -> mayThrow(() -> circuitBoard.addComponent(component)));
 			
@@ -152,7 +154,7 @@ public class CircuitManager {
 		}
 		
 		potentialComponent = null;
-		return null;
+		return new Properties();
 	}
 	
 	private long lastRepaint;
@@ -366,8 +368,10 @@ public class CircuitManager {
 			potentialComponent = null;
 		} else if(potentialComponent != null) {
 			if(componentCreator != null) {
-				mayThrow(() -> circuitBoard.createComponent(componentCreator, properties, potentialComponent.getX(),
-				                                            potentialComponent.getY()));
+				mayThrow(() -> circuitBoard.addComponent(
+						componentCreator.createComponent(properties,
+						                                 potentialComponent.getX(),
+						                                 potentialComponent.getY())));
 			}
 		} else {
 			reset();
@@ -580,6 +584,7 @@ public class CircuitManager {
 	
 	public void mouseExited(MouseEvent e) {
 		mouseInside = false;
+		ctrlDown = false;
 		repaint();
 	}
 }

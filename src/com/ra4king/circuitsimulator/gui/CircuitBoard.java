@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
@@ -80,20 +79,14 @@ public class CircuitBoard {
 		}
 	}
 	
-	public void createComponent(ComponentCreator creator, Properties properties, int x, int y) throws Exception {
-		ComponentPeer<?> component = creator.createComponent(properties, x, y);
-		
+	public void addComponent(ComponentPeer<?> component) throws Exception {
 		for(ComponentPeer<?> c : components) {
 			if(c.intersects(component)) {
-				circuit.removeComponent(component.getComponent());
-				return;
+				throw new IllegalStateException("Cannot place component here.");
 			}
 		}
 		
-		addComponent(component);
-	}
-	
-	public void addComponent(ComponentPeer<?> component) throws Exception {
+		components.add(component);
 		circuit.addComponent(component.getComponent());
 		
 		Set<Wire> toReAdd = new HashSet<>();
@@ -117,8 +110,6 @@ public class CircuitBoard {
 			
 			addConnection(connection);
 		}
-		
-		components.add(component);
 		
 		toReAdd.forEach(wire -> {
 			removeWire(wire);
@@ -159,19 +150,26 @@ public class CircuitBoard {
 			return;
 		}
 		
+		Exception toThrow = null;
 		for(GuiElement element : moveElements) {
 			if(element instanceof ComponentPeer<?>) {
 				try {
 					addComponent((ComponentPeer<?>)element);
 				} catch(Exception exc) {
+					toThrow = exc;
 				}
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
 				try {
 					addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
 				} catch(Exception exc) {
+					toThrow = exc;
 				}
 			}
+		}
+		
+		if(toThrow != null) {
+			throw toThrow;
 		}
 		
 		moveElements = null;

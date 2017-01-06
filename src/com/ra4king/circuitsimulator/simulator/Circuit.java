@@ -59,6 +59,7 @@ public class Circuit {
 	
 	public void clearComponents() {
 		new HashSet<>(components).forEach(this::removeComponent);
+		listeners.forEach(listener -> listener.circuitChanged(this));
 	}
 	
 	public Simulator getSimulator() {

@@ -1,5 +1,6 @@
 package com.ra4king.circuitsimulator.simulator.components;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,8 @@ import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
+import com.ra4king.circuitsimulator.simulator.components.Pin.PinChangeListener;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 /**
  * @author Roi Atalla
@@ -15,6 +18,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
 public class Subcircuit extends Component {
 	private Circuit subcircuit;
 	private List<Pin> pins;
+	private List<Pair<CircuitState, PinChangeListener>> listeningStates;
 	
 	public Subcircuit(String name, Circuit subcircuit) {
 		this(name, subcircuit, getCircuitPins(subcircuit));
@@ -25,10 +29,15 @@ public class Subcircuit extends Component {
 		
 		this.subcircuit = subcircuit;
 		this.pins = pins;
+		listeningStates = new ArrayList<>();
 	}
 	
 	public List<Pin> getPins() {
 		return pins;
+	}
+	
+	public Circuit getSubcircuit() {
+		return subcircuit;
 	}
 	
 	@Override
@@ -37,18 +46,27 @@ public class Subcircuit extends Component {
 			throw new IllegalArgumentException("Cannot create subcircuit inside own circuit.");
 		}
 		
+		if(circuit == null) {
+			listeningStates.forEach(pair -> pins.forEach(pin -> pin.removeChangeListener(pair)));
+		}
+		
 		super.setCircuit(circuit);
 	}
 	
 	@Override
 	public void init(CircuitState circuitState) {
 		super.init(circuitState);
+		
 		CircuitState subcircuitState = new CircuitState(subcircuit);
 		circuitState.putComponentProperty(this, subcircuitState);
 		
 		for(int i = 0; i < pins.size(); i++) {
 			Port port = getPort(i);
-			pins.get(i).addChangeListener(subcircuitState, value -> circuitState.pushValue(port, value));
+			Pair<CircuitState, PinChangeListener> pair =
+					new Pair<>(subcircuitState, (pin, state, value) -> circuitState.pushValue(port, value));
+			listeningStates.add(pair);
+			
+			pins.get(i).addChangeListener(pair);
 		}
 		
 		for(Component component : subcircuit.getComponents()) {
@@ -72,7 +90,7 @@ public class Subcircuit extends Component {
 	private static int[] setupPortBits(List<Pin> pins) {
 		int[] portBits = new int[pins.size()];
 		for(int i = 0; i < portBits.length; i++) {
-			portBits[i] = pins.get(i).getPort(0).getLink().getBitSize();
+			portBits[i] = pins.get(i).getBitSize();
 		}
 		return portBits;
 	}

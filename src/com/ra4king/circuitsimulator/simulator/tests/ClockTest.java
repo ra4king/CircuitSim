@@ -7,6 +7,7 @@ import com.ra4king.circuitsimulator.simulator.components.Adder;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.components.Register;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 /**
  * @author Roi Atalla
@@ -34,7 +35,8 @@ public class ClockTest {
 		
 		Clock.startClock(4);
 		
-		out.addChangeListener(circuit.getTopLevelState(), System.out::println);
+		out.addChangeListener(
+				new Pair<>(circuit.getTopLevelState(), (pin, state, value) -> System.out.println(value)));
 		
 		while(true) {
 			simulator.step();

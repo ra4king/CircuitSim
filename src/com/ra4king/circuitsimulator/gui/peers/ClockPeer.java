@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -11,6 +12,7 @@ import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -19,6 +21,12 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class ClockPeer extends ComponentPeer<Clock> {
+	public static void installComponent(ComponentManagerInterface manager) {
+		manager.addComponent(new Pair<>("Wiring", "Clock"),
+		                     null,//new Image(ClockPeer.class.getResourceAsStream("/resources/Clock.png")),
+		                     new Properties());
+	}
+	
 	public ClockPeer(Properties props, int x, int y) {
 		super(x, y, 2, 2);
 		

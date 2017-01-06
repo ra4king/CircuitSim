@@ -1,11 +1,10 @@
 package com.ra4king.circuitsimulator.gui;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
-import com.ra4king.circuitsimulator.gui.Properties.Property;
-import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
 import com.ra4king.circuitsimulator.gui.peers.AdderPeer;
 import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer;
@@ -14,7 +13,6 @@ import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.gui.peers.RAMPeer;
 import com.ra4king.circuitsimulator.gui.peers.RegisterPeer;
 import com.ra4king.circuitsimulator.gui.peers.SplitterPeer;
-import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.NandGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.NorGatePeer;
@@ -24,145 +22,110 @@ import com.ra4king.circuitsimulator.gui.peers.gates.XnorGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XorGatePeer;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
+import javafx.scene.image.Image;
+
 /**
  * @author Roi Atalla
  */
 public class ComponentManager {
-	private CircuitSimulator simulator;
-	private List<Pair<String, String>> componentsOrder;
-	private HashMap<Pair<String, String>, ComponentCreator<?>> components;
+	private List<ComponentLauncherInfo> components;
 	
-	public ComponentManager(CircuitSimulator simulator) {
-		this.simulator = simulator;
-		componentsOrder = new ArrayList<>();
-		components = new HashMap<>();
-		initComponents();
+	public static class ComponentLauncherInfo {
+		public final Class<? extends ComponentPeer<?>> clazz;
+		public final Pair<String, String> name;
+		public final Image image;
+		public final Properties properties;
+		public final ComponentCreator<?> creator;
+		
+		ComponentLauncherInfo(Class<? extends ComponentPeer<?>> clazz,
+		                      Pair<String, String> name,
+		                      Image image,
+		                      Properties properties,
+		                      ComponentCreator<?> creator) {
+			this.clazz = clazz;
+			this.name = name;
+			this.image = image;
+			this.properties = properties;
+			this.creator = creator;
+		}
 	}
 	
-	public <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
+	public interface ComponentManagerInterface {
+		void addComponent(Pair<String, String> name, Image image, Properties defaultProperties);
+	}
+	
+	static <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
 		return (properties, x, y) -> {
 			try {
-				if(clazz == SubcircuitPeer.class) {
-					properties.ensureProperty(
-							new Property(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(simulator), ""));
-				}
-				
 				return clazz.getConstructor(Properties.class, Integer.TYPE, Integer.TYPE)
 				            .newInstance(properties, x, y);
+			} catch(NoSuchMethodException exc) {
+				throw new RuntimeException("Must have constructor taking (Properties props, int x, int y");
 			} catch(Exception exc) {
 				throw new RuntimeException(exc);
 			}
 		};
 	}
 	
-	private <T extends ComponentPeer<?>> void addComponent(String group, String name, ComponentCreator<T> creator) {
-		Pair<String, String> pair = new Pair<>(group, name);
-		
-		if(components.containsKey(pair)) {
-			throw new IllegalArgumentException("Group-name pair already exists.");
-		}
-		
-		componentsOrder.add(pair);
-		components.put(pair, creator);
+	public ComponentManager() {
+		components = new ArrayList<>();
+		registerDefaultComponents();
 	}
 	
-	private void removeComponent(String group, String name) {
-		Pair<String, String> pair = new Pair<>(group, name);
-		componentsOrder.remove(pair);
-		components.remove(pair);
-	}
-	
-	private void initComponents() {
-		addComponent("Wiring", "Input Pin", (properties, x, y) -> {
-			properties.ensureProperty(new Property(PinPeer.IS_INPUT, "Yes"));
-			return forClass(PinPeer.class).createComponent(properties, x, y);
-		});
-		addComponent("Wiring", "Output Pin", (properties, x, y) -> {
-			properties.ensureProperty(new Property(PinPeer.IS_INPUT, "No"));
-			return forClass(PinPeer.class).createComponent(properties, x, y);
-		});
-		addComponent("Wiring", "Clock", forClass(ClockPeer.class));
-		addComponent("Wiring", "Splitter", forClass(SplitterPeer.class));
-		
-		addComponent("Gates", "AND", forClass(AndGatePeer.class));
-		addComponent("Gates", "NAND", forClass(NandGatePeer.class));
-		addComponent("Gates", "OR", forClass(OrGatePeer.class));
-		addComponent("Gates", "NOR", forClass(NorGatePeer.class));
-		addComponent("Gates", "XOR", forClass(XorGatePeer.class));
-		addComponent("Gates", "XNOR", forClass(XnorGatePeer.class));
-		addComponent("Gates", "NOT", forClass(NotGatePeer.class));
-		addComponent("Gates", "Buffer", forClass(ControlledBufferPeer.class));
-		
-		addComponent("Memory", "Register", forClass(RegisterPeer.class));
-		addComponent("Memory", "RAM", forClass(RAMPeer.class));
-		addComponent("Plexers", "Mux", forClass(MultiplexerPeer.class));
-		addComponent("Arithmetic", "Adder", forClass(AdderPeer.class));
-	}
-	
-	public List<Pair<String, String>> getComponentNames() {
-		return componentsOrder;
-	}
-	
-	public void addCircuit(String name, CircuitManager manager) {
-		addComponent("Circuits", name, (properties, x, y) -> {
-			properties.setProperty(
-					new Property(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(simulator, manager), name));
-			
-			return new SubcircuitPeer(properties, x, y);
-		});
-	}
-	
-	public boolean containsCircuit(String name) {
-		return components.containsKey(new Pair<>("Circuits", name));
-	}
-	
-	public void removeCircuit(String name) {
-		removeComponent("Circuits", name);
-	}
-	
-	public void renameCircuit(String oldName, String newName) {
-		Pair<String, String> pair = new Pair<>("Circuits", oldName);
-		Pair<String, String> newPair = new Pair<>("Circuits", newName);
-		
-		if(components.containsKey(newPair)) {
-			throw new IllegalArgumentException("Group-name pair already exists.");
-		}
-		
-		int index = componentsOrder.indexOf(pair);
-		if(index != -1) {
-			ComponentCreator<?> creator = components.remove(pair);
-			componentsOrder.remove(pair);
-			
-			componentsOrder.add(index, newPair);
-			components.put(newPair, creator);
-		}
-	}
-	
-	public void clearCircuits() {
-		for(Pair<String, String> pair : new ArrayList<>(componentsOrder)) {
-			if(pair.first.equals("Circuits")) {
-				removeCircuit(pair.second);
+	public ComponentLauncherInfo get(Pair<String, String> name) {
+		for(ComponentLauncherInfo component : components) {
+			if(component.name.equals(name)) {
+				return component;
 			}
 		}
+		
+		return null;
 	}
 	
-	public ComponentCreator<?> getComponentCreator(String group, String component) {
-		if(component == null) return null;
-		return components.get(new Pair<>(group, component));
+	public void forEach(Consumer<ComponentLauncherInfo> consumer) {
+		components.forEach(consumer);
 	}
 	
-	public ComponentCreator<?> getCircuitCreator(String name) {
-		return getComponentCreator("Circuits", name);
+	public <T extends ComponentPeer<?>> void register(Class<T> clazz) {
+		try {
+			ComponentCreator<?> creator = forClass(clazz);
+			
+			Method method = clazz.getMethod("installComponent", ComponentManagerInterface.class);
+			method.invoke(null,
+			              (ComponentManagerInterface)(name, image, defaultProperties) ->
+					                                         components.add(new ComponentLauncherInfo(clazz,
+					                                                                                  name,
+					                                                                                  image,
+					                                                                                  defaultProperties,
+					                                                                                  creator)));
+		} catch(NoSuchMethodException exc) {
+			throw new RuntimeException("Must implement static void installComponent(ComponentManagerInterface)");
+		} catch(Exception exc) {
+			throw new RuntimeException(exc);
+		}
+	}
+	
+	private void registerDefaultComponents() {
+		register(PinPeer.class);
+		register(ClockPeer.class);
+		register(SplitterPeer.class);
+		
+		register(AndGatePeer.class);
+		register(NandGatePeer.class);
+		register(OrGatePeer.class);
+		register(NorGatePeer.class);
+		register(XorGatePeer.class);
+		register(XnorGatePeer.class);
+		register(NotGatePeer.class);
+		register(ControlledBufferPeer.class);
+		
+		register(RegisterPeer.class);
+		register(RAMPeer.class);
+		register(MultiplexerPeer.class);
+		register(AdderPeer.class);
 	}
 	
 	public interface ComponentCreator<T extends ComponentPeer<?>> {
-		default T createComponent(int bitSize, int x, int y) {
-			Properties properties = new Properties();
-			properties.setValue(Properties.BITSIZE, String.valueOf(bitSize));
-			
-			return createComponent(properties, x, y);
-		}
-		
 		T createComponent(Properties properties, int x, int y);
 	}
 }

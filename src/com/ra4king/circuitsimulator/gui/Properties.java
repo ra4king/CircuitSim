@@ -3,20 +3,19 @@ package com.ra4king.circuitsimulator.gui;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * @author Roi Atalla
  */
 public class Properties {
-	private List<String> propertyNames;
-	private HashMap<String, Property> properties;
+	private Map<String, Property> properties;
 	
 	public Properties() {
-		propertyNames = new ArrayList<>();
-		properties = new HashMap<>();
+		properties = new LinkedHashMap<>();
 	}
 	
 	public Properties(Properties prop) {
@@ -25,7 +24,7 @@ public class Properties {
 	}
 	
 	public List<String> getProperties() {
-		return propertyNames;
+		return new ArrayList<>(properties.keySet());
 	}
 	
 	public boolean containsProperty(String name) {
@@ -33,11 +32,11 @@ public class Properties {
 	}
 	
 	public void forEach(Consumer<Property> consumer) {
-		propertyNames.forEach(name -> consumer.accept(properties.get(name)));
+		properties.values().forEach(consumer);
 	}
 	
 	public boolean isEmpty() {
-		return propertyNames.isEmpty();
+		return properties.isEmpty();
 	}
 	
 	public void ensureProperty(Property property) {
@@ -50,7 +49,6 @@ public class Properties {
 	
 	private void setProperty(Property property, boolean overwriteValue) {
 		if(!properties.containsKey(property.name)) {
-			propertyNames.add(property.name);
 			properties.put(property.name, property);
 		} else {
 			Property ourProperty = properties.get(property.name);
@@ -67,10 +65,11 @@ public class Properties {
 		}
 	}
 	
+	public void setValue(String name, String value) {
+		setValue(getProperty(name), value);
+	}
+	
 	public void setValue(Property property, String value) {
-		if(!properties.containsKey(property.name)) {
-			propertyNames.add(property.name);
-		}
 		properties.put(property.name, new Property(property, value));
 	}
 	

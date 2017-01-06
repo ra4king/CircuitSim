@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -12,6 +13,7 @@ import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Multiplexer;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -28,6 +30,12 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 			selBits.add(String.valueOf(i));
 		}
 		SELECTOR_BITS = new Property("Selector bits", new PropertyListValidator(selBits), "1");
+	}
+	
+	public static void installComponent(ComponentManagerInterface manager) {
+		manager.addComponent(new Pair<>("Wiring", "Mux"),
+		                     null,//new Image(MultiplexerPeer.class.getResourceAsStream("/resources/Mux.png")),
+		                     new Properties());
 	}
 	
 	public MultiplexerPeer(Properties props, int x, int y) {

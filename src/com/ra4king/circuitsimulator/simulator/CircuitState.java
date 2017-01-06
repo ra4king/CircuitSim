@@ -57,6 +57,10 @@ public class CircuitState {
 	
 	private LinkState get(Link link) {
 		if(!linkStates.containsKey(link)) {
+			if(link.getCircuit() == null) {
+				throw new IllegalArgumentException("Link has no circuit!");
+			}
+			
 			if(link.getCircuit() != circuit) {
 				throw new IllegalArgumentException("Link not from this circuit.");
 			}

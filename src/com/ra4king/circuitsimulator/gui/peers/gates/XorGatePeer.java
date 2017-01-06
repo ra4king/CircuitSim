@@ -1,11 +1,14 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
 import com.ra4king.circuitsimulator.simulator.components.gates.XorGate;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 
@@ -13,6 +16,12 @@ import javafx.scene.shape.ArcType;
  * @author Roi Atalla
  */
 public class XorGatePeer extends GatePeer {
+	public static void installComponent(ComponentManagerInterface manager) {
+		manager.addComponent(new Pair<>("Gates", "XOR"),
+		                     new Image(XorGatePeer.class.getResourceAsStream("/resources/XorGate.png")),
+		                     new Properties());
+	}
+	
 	public XorGatePeer(Properties properties, int x, int y) {
 		super(properties, x, y);
 	}

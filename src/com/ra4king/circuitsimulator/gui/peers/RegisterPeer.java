@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -10,6 +11,7 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Register;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -18,6 +20,12 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public class RegisterPeer extends ComponentPeer<Register> {
+	public static void installComponent(ComponentManagerInterface manager) {
+		manager.addComponent(new Pair<>("Memory", "Register"),
+		                     null,//new Image(RegisterPeer.class.getResourceAsStream("/resources/Register.png")),
+		                     new Properties());
+	}
+	
 	public RegisterPeer(Properties props, int x, int y) {
 		super(x, y, 4, 4);
 		

@@ -1,17 +1,26 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
 import com.ra4king.circuitsimulator.simulator.components.gates.NotGate;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
  */
 public class NotGatePeer extends GatePeer {
+	public static void installComponent(ComponentManagerInterface manager) {
+		manager.addComponent(new Pair<>("Gates", "NOT"),
+		                     new Image(NotGatePeer.class.getResourceAsStream("/resources/NotGate.png")),
+		                     new Properties());
+	}
+	
 	public NotGatePeer(Properties properties, int x, int y) {
 		super(properties, x, y, 4, 2);
 	}

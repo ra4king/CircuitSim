@@ -8,6 +8,7 @@ import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
 import com.ra4king.circuitsimulator.simulator.components.gates.OrGate;
 import com.ra4king.circuitsimulator.simulator.components.gates.XorGate;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 /**
  * @author Roi Atalla
@@ -44,7 +45,8 @@ public class ControlledBufferTest {
 		bufferC.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selC.getPort(Pin.PORT));
 		bufferC.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
-		out.addChangeListener(circuit.getTopLevelState(), System.out::println);
+		out.addChangeListener(
+				new Pair<>(circuit.getTopLevelState(), (pin, state, value) -> System.out.println(value)));
 		
 		System.out.println("Selecting 1:");
 		inA.setValue(circuit.getTopLevelState(), WireValue.of(5, 4));

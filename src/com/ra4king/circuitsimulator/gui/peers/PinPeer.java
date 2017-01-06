@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -14,9 +15,11 @@ import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -24,6 +27,20 @@ import javafx.scene.paint.Color;
  */
 public class PinPeer extends ComponentPeer<Pin> {
 	public static final Property IS_INPUT = new Property("Is input?", Properties.YESNO_VALIDATOR, "Yes");
+	
+	public static void installComponent(ComponentManagerInterface manager) {
+		Properties properties = new Properties();
+		properties.setValue(IS_INPUT, "Yes");
+		manager.addComponent(new Pair<>("Wiring", "Input Pin"),
+		                     new Image(PinPeer.class.getResourceAsStream("/resources/InputPin.png")),
+		                     properties);
+		
+		properties = new Properties();
+		properties.setValue(IS_INPUT, "No");
+		manager.addComponent(new Pair<>("Wiring", "Output Pin"),
+		                     new Image(PinPeer.class.getResourceAsStream("/resources/OutputPin.png")),
+		                     properties);
+	}
 	
 	public PinPeer(Properties props, int x, int y) {
 		super(x, y, 0, 0);

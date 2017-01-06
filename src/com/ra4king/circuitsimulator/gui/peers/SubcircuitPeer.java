@@ -33,24 +33,24 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		properties.mergeIfExists(props);
 		
 		Property subcircuitProperty = properties.getProperty(SUBCIRCUIT);
-		CircuitManager parent = ((PropertyCircuitValidator)subcircuitProperty.validator)
-				                        .getCircuitManager(subcircuitProperty.value);
-		Subcircuit subcircuit = new Subcircuit(properties.getValue(Properties.LABEL), parent.getCircuit());
+		CircuitManager subcircuitManager = ((PropertyCircuitValidator)subcircuitProperty.validator)
+				                                   .getCircuitManager(subcircuitProperty.value);
+		Subcircuit subcircuit = new Subcircuit(properties.getValue(Properties.LABEL), subcircuitManager.getCircuit());
 		setHeight(1 + (subcircuit.getNumPorts() + 1) / 2);
 		
 		List<Connection> connections = new ArrayList<>();
-		List<PinPeer> pins = parent.getCircuitBoard()
-		                           .getComponents().stream()
-		                           .filter(componentPeer -> componentPeer instanceof PinPeer)
-		                           .map(componentPeer -> (PinPeer)componentPeer)
-		                           .sorted((o1, o2) -> {
-			                           int diff = o1.getX() - o2.getX();
-			                           if(diff == 0) {
-				                           return o1.getY() - o2.getY();
-			                           }
-			                           return diff;
-		                           })
-		                           .collect(Collectors.toList());
+		List<PinPeer> pins = subcircuitManager.getCircuitBoard()
+		                                      .getComponents().stream()
+		                                      .filter(componentPeer -> componentPeer instanceof PinPeer)
+		                                      .map(componentPeer -> (PinPeer)componentPeer)
+		                                      .sorted((o1, o2) -> {
+			                                      int diff = o1.getX() - o2.getX();
+			                                      if(diff == 0) {
+				                                      return o1.getY() - o2.getY();
+			                                      }
+			                                      return diff;
+		                                      })
+		                                      .collect(Collectors.toList());
 		
 		if(pins.size() != subcircuit.getNumPorts()) {
 			throw new IllegalStateException("Pin count and ports count don't match?");

@@ -35,12 +35,12 @@ public class Pin extends Component {
 		return isInput;
 	}
 	
-	public void addChangeListener(CircuitState state, PinChangeListener listener) {
-		pinChangeListeners.add(new Pair<>(state, listener));
+	public void addChangeListener(Pair<CircuitState, PinChangeListener> listener) {
+		pinChangeListeners.add(listener);
 	}
 	
-	public void removeChangeListener(CircuitState state, PinChangeListener listener) {
-		pinChangeListeners.remove(new Pair<>(state, listener));
+	public void removeChangeListener(Pair<CircuitState, PinChangeListener> listener) {
+		pinChangeListeners.remove(listener);
 	}
 	
 	public void setValue(CircuitState state, WireValue value) {
@@ -58,10 +58,10 @@ public class Pin extends Component {
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		pinChangeListeners.stream().filter(pair -> state == pair.first)
-				.forEach(pair -> pair.second.valueChanged(value));
+		                  .forEach(pair -> pair.second.valueChanged(this, state, value));
 	}
 	
 	public interface PinChangeListener {
-		void valueChanged(WireValue value);
+		void valueChanged(Pin pin, CircuitState state, WireValue value);
 	}
 }

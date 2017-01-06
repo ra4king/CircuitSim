@@ -1,9 +1,11 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
 import com.ra4king.circuitsimulator.simulator.components.gates.XnorGate;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -13,6 +15,12 @@ import javafx.scene.shape.ArcType;
  * @author Roi Atalla
  */
 public class XnorGatePeer extends GatePeer {
+	public static void installComponent(ComponentManagerInterface manager) {
+		manager.addComponent(new Pair<>("Gates", "XNOR"),
+		                     null,//new Image(XnorGatePeer.class.getResourceAsStream("/resources/XnorGate.png")),
+		                     new Properties());
+	}
+	
 	public XnorGatePeer(Properties properties, int x, int y) {
 		super(properties, x, y);
 	}

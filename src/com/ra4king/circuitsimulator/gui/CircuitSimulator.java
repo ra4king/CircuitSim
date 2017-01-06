@@ -2,25 +2,34 @@ package com.ra4king.circuitsimulator.gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentLauncherInfo;
+import com.ra4king.circuitsimulator.gui.Properties.Property;
+import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsimulator.gui.file.FileFormat;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.CircuitInfo;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.ComponentInfo;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.WireInfo;
+import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
+import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
+import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -83,18 +92,19 @@ public class CircuitSimulator extends Application {
 	
 	private Tab circuitButtonsTab;
 	private TabPane canvasTabPane;
-	private HashMap<String, CircuitManager> circuitManagers;
+	private Map<String, Pair<ComponentLauncherInfo, CircuitManager>> circuitManagers;
 	
-	private String componentMode;
+	private ComponentLauncherInfo selectedComponent;
 	
 	private File saveFile;
+	private boolean hasUnsavedChanges;
 	
 	private int currentClockHz = 1;
 	
 	@Override
 	public void init() {
 		simulator = new Simulator();
-		circuitManagers = new HashMap<>();
+		circuitManagers = new LinkedHashMap<>();
 		Clock.addChangeListener(
 				value -> Platform.runLater(() -> {
 					CircuitManager manager = getCurrentCircuit();
@@ -110,22 +120,11 @@ public class CircuitSimulator extends Application {
 	
 	private CircuitManager getCurrentCircuit() {
 		Tab tab = canvasTabPane.getSelectionModel().getSelectedItem();
-		return tab == null ? null : circuitManagers.get(tab.getText());
+		return tab == null ? null : circuitManagers.get(tab.getText()).second;
 	}
 	
 	public CircuitManager getCircuitManager(String name) {
-		return circuitManagers.get(name);
-	}
-	
-	public ComponentManager getComponentManager() {
-		return componentManager;
-	}
-	
-	public void clearSelection() {
-		if(buttonsToggleGroup.getSelectedToggle() != null) {
-			buttonsToggleGroup.getSelectedToggle().setSelected(false);
-		}
-		componentMode = null;
+		return circuitManagers.containsKey(name) ? circuitManagers.get(name).second : null;
 	}
 	
 	public void setProperties(Properties properties) {
@@ -156,10 +155,12 @@ public class CircuitSimulator extends Application {
 						         if(oldValue == null || !newValue.equals(oldValue)) {
 							         Properties newProperties = new Properties(properties);
 							         newProperties.setValue(property, newValue);
-							         modifiedSelection(newProperties);
+							         updateProperties(newProperties);
 						         }
 					         });
 					value = valueList;
+				} else if(property.validator instanceof PropertyCircuitValidator) {
+					return;
 				} else {
 					TextField valueField = new TextField(property.value);
 					valueField.setOnAction(event -> {
@@ -167,7 +168,7 @@ public class CircuitSimulator extends Application {
 						if(!newValue.equals(property.value)) {
 							Properties newProperties = new Properties(properties);
 							newProperties.setValue(property, newValue);
-							modifiedSelection(newProperties);
+							updateProperties(newProperties);
 						}
 					});
 					value = valueField;
@@ -192,45 +193,55 @@ public class CircuitSimulator extends Application {
 		return properties;
 	}
 	
-	private void modifiedSelection() {
-		modifiedSelection(getDefaultProperties());
+	public void clearSelection() {
+		if(buttonsToggleGroup.getSelectedToggle() != null) {
+			buttonsToggleGroup.getSelectedToggle().setSelected(false);
+		}
+		
+		modifiedSelection(null, null);
 	}
 	
-	private void modifiedSelection(Properties properties) {
-		Tab tab = buttonTabPane.getSelectionModel().getSelectedItem();
-		String group = tab == null ? null : tab.getText();
-		modifiedSelection(group, componentMode, properties);
+	private void updateProperties(Properties properties) {
+		modifiedSelection(null, properties);
 	}
 	
-	private void modifiedSelection(String group, String name) {
-		modifiedSelection(group, name, getDefaultProperties());
+	private void modifiedSelection(ComponentLauncherInfo component) {
+		selectedComponent = component;
+		if(component != null) {
+			Properties properties = getDefaultProperties().union(component.properties);
+			modifiedSelection(component.creator, properties);
+		} else {
+			modifiedSelection(null, null);
+		}
 	}
 	
-	private void modifiedSelection(String group, String name, Properties properties) {
+	private void modifiedSelection(ComponentCreator<?> creator, Properties properties) {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
-			setProperties(current.modifiedSelection(componentManager.getComponentCreator(group, name), properties));
+			setProperties(current.modifiedSelection(creator, properties));
 			current.repaint();
 		}
 	}
 	
-	private ImageView getImage(String name) {
-		return new ImageView(new Image(CircuitSimulator.class.getResourceAsStream("peers/resources/" + name + "" +
-				                                                                          ".png")));
+	private ImageView setupImageView(Image image) {
+		ImageView imageView = new ImageView(image);
+		imageView.setFitHeight(40);
+		imageView.setFitHeight(30);
+		imageView.setSmooth(true);
+		return imageView;
 	}
 	
-	private ToggleButton setupButton(ToggleGroup group, String componentName) {
-		ToggleButton button = new ToggleButton(componentName);
+	private ToggleButton setupButton(ToggleGroup group, ComponentLauncherInfo componentInfo) {
+		ToggleButton button = new ToggleButton(componentInfo.name.second, setupImageView(componentInfo.image));
 		group.getToggles().add(button);
 		button.setMinHeight(30);
 		button.setMaxWidth(Double.MAX_VALUE);
-		button.addEventHandler(ActionEvent.ACTION, (e) -> {
-			if(componentMode != componentName) {
-				componentMode = componentName;
+		button.setOnAction(e -> {
+			if(button.isSelected()) {
+				modifiedSelection(componentInfo);
 			} else {
-				componentMode = null;
+				modifiedSelection(null);
 			}
-			modifiedSelection();
 		});
 		GridPane.setHgrow(button, Priority.ALWAYS);
 		return button;
@@ -246,37 +257,100 @@ public class CircuitSimulator extends Application {
 			circuitButtonsTab.setContent(new GridPane());
 		}
 		
-		for(Pair<String, String> component : componentManager.getComponentNames()) {
-			if(component.first.equals("Circuits")) {
-				GridPane buttons = (GridPane)circuitButtonsTab.getContent();
-				
-				ToggleButton toggleButton = setupButton(buttonsToggleGroup, component.second);
-				buttons.addRow(buttons.getChildren().size(), toggleButton);
-			}
-		}
+		circuitManagers.forEach((name, circuitPair) -> {
+			GridPane buttons = (GridPane)circuitButtonsTab.getContent();
+			
+			ToggleButton toggleButton = setupButton(buttonsToggleGroup, circuitPair.first);
+			buttons.addRow(buttons.getChildren().size(), toggleButton);
+		});
 	}
-	
-	private boolean hasUnsavedChanges() {
-		for(CircuitManager manager : circuitManagers.values()) {
-			if(!manager.getCircuitBoard().getComponents().isEmpty()
-					   || !manager.getCircuitBoard().getLinks().isEmpty()) {
-				return true;
-			}
-		}
-		
-		return circuitManagers.size() > 1;
-	}
+
+//	private boolean hasUnsavedChanges() {
+//		for(Pair<ComponentLauncherInfo, CircuitManager> circuitPair : circuitManagers.values()) {
+//			if(!circuitPair.second.getCircuitBoard().getComponents().isEmpty()
+//					   || !circuitPair.second.getCircuitBoard().getLinks().isEmpty()) {
+//				return true;
+//			}
+//		}
+//		
+//		return circuitManagers.size() > 1;
+//	}
 	
 	private void updateTitle() {
 		String name = "";
 		if(saveFile != null) {
 			name = " - " + saveFile.getName();
 		}
-		
+		if(hasUnsavedChanges) {
+			name += " *";
+		}
 		stage.setTitle("Circuit simulator" + name);
 	}
 	
-	private CircuitManager createTab(String name) {
+	private ComponentCreator<?> getSubcircuitPeerCreator(String name) {
+		return (props, x, y) -> {
+			props.ensureProperty(new Property(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(this), name));
+			return ComponentManager.forClass(SubcircuitPeer.class).createComponent(props, x, y);
+		};
+	}
+	
+	private ComponentLauncherInfo createCircuitLauncherInfo(String name) {
+		return new ComponentLauncherInfo(SubcircuitPeer.class,
+		                                 new Pair<>("Circuits", name),
+		                                 null,
+		                                 new Properties(),
+		                                 getSubcircuitPeerCreator(name));
+	}
+	
+	private void renameCircuit(String oldName, String newName) {
+		Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(oldName);
+		circuitManagers.put(newName, new Pair<>(createCircuitLauncherInfo(newName), removed.second));
+		refreshCircuitsTab();
+		
+		circuitManagers.values().forEach(componentPair -> {
+			for(ComponentPeer<?> componentPeer : componentPair.second.getCircuitBoard().getComponents()) {
+				if(componentPeer.getClass() == SubcircuitPeer.class &&
+						   ((Subcircuit)componentPeer.getComponent()).getSubcircuit() == removed.second.getCircuit()) {
+					componentPeer.getProperties().setValue(SubcircuitPeer.SUBCIRCUIT, newName);
+				}
+			}
+		});
+	}
+	
+	private void circuitModified(Circuit circuit) {
+		circuitModified(circuit, false);
+	}
+	
+	private void circuitModified(Circuit circuit, boolean removed) {
+		hasUnsavedChanges = true;
+		updateTitle();
+		
+		circuitManagers.values().forEach(componentPair -> {
+			for(ComponentPeer<?> componentPeer :
+					new HashSet<>(componentPair.second.getCircuitBoard().getComponents())) {
+				if(componentPeer.getClass() == SubcircuitPeer.class
+						   && ((Subcircuit)componentPeer.getComponent()).getSubcircuit() == circuit) {
+					try {
+						componentPair.second.getCircuitBoard().removeElements(Collections.singleton(componentPeer));
+					} catch(Exception exc) {
+						exc.printStackTrace();
+					}
+					if(!removed) {
+						try {
+							componentPair.second.getCircuitBoard().addComponent(
+									new SubcircuitPeer(componentPeer.getProperties(),
+									                   componentPeer.getX(),
+									                   componentPeer.getY()));
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+					}
+				}
+			}
+		});
+	}
+	
+	private CircuitManager createCircuit(String name) {
 		Canvas canvas = new Canvas(800, 600) {
 			{
 				widthProperty().addListener(evt -> {
@@ -325,18 +399,15 @@ public class CircuitSimulator extends Application {
 		canvas.addEventHandler(KeyEvent.KEY_RELEASED, this::keyReleased);
 		
 		CircuitManager circuitManager = new CircuitManager(this, canvas, simulator);
-		for(int count = 0; ; count++) {
-			try {
-				String n = name;
-				if(count > 0) {
-					n += count;
-				}
-				
-				componentManager.addCircuit(n, circuitManager);
-				name = n;
-				break;
-			} catch(Exception exc) {
+		circuitManager.getCircuit().addListener(this::circuitModified);
+		
+		String originalName;
+		for(int count = 0; getCircuitManager(name) != null; count++) {
+			originalName = name;
+			if(count > 0) {
+				originalName += count;
 			}
+			name = originalName;
 		}
 		
 		Tab canvasTab = new Tab(name, canvas);
@@ -352,11 +423,8 @@ public class CircuitSimulator extends Application {
 					Optional<String> value = dialog.showAndWait();
 					if(value.isPresent() && !(lastTyped = value.get().trim()).isEmpty()
 							   && !lastTyped.equals(canvasTab.getText())) {
-						circuitManagers.put(value.get(), circuitManagers.remove(canvasTab.getText()));
-						componentManager.renameCircuit(canvasTab.getText(), lastTyped);
+						renameCircuit(canvasTab.getText(), lastTyped);
 						canvasTab.setText(value.get());
-						
-						refreshCircuitsTab();
 					}
 					break;
 				} catch(Exception exc) {
@@ -379,19 +447,18 @@ public class CircuitSimulator extends Application {
 			if(!result.isPresent() || result.get() != ButtonType.OK) {
 				event.consume();
 			} else {
-				CircuitManager manager = circuitManagers.remove(canvasTab.getText());
-				manager.getCircuitBoard().clear();
-				componentManager.removeCircuit(canvasTab.getText());
+				Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(canvasTab.getText());
+				circuitModified(removed.second.getCircuit(), true);
 				
 				if(canvasTabPane.getTabs().size() == 1) {
-					createTab("New circuit").repaint();
-				} else {
-					refreshCircuitsTab();
+					createCircuit("New circuit").repaint();
 				}
+				
+				refreshCircuitsTab();
 			}
 		});
 		
-		circuitManagers.put(canvasTab.getText(), circuitManager);
+		circuitManagers.put(canvasTab.getText(), new Pair<>(createCircuitLauncherInfo(name), circuitManager));
 		canvasTabPane.getTabs().addAll(canvasTab);
 		
 		refreshCircuitsTab();
@@ -403,7 +470,7 @@ public class CircuitSimulator extends Application {
 	public void start(Stage stage) {
 		this.stage = stage;
 		
-		componentManager = new ComponentManager(this);
+		componentManager = new ComponentManager();
 		
 		bitSizeSelect = new ComboBox<>();
 		for(int i = 1; i <= 32; i++) {
@@ -413,7 +480,7 @@ public class CircuitSimulator extends Application {
 		bitSizeSelect.setValue(1);
 		bitSizeSelect.getSelectionModel()
 		             .selectedItemProperty()
-		             .addListener((observable, oldValue, newValue) -> modifiedSelection());
+		             .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
 		
 		secondaryOptionSelect = new ComboBox<>();
 		for(int i = 2; i <= 32; i++) {
@@ -423,7 +490,7 @@ public class CircuitSimulator extends Application {
 		secondaryOptionSelect.setValue(2);
 		secondaryOptionSelect.getSelectionModel()
 		                     .selectedItemProperty()
-		                     .addListener((observable, oldValue, newValue) -> modifiedSelection());
+		                     .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
 		
 		buttonTabPane = new TabPane();
 		buttonTabPane.setMinWidth(100);
@@ -438,37 +505,39 @@ public class CircuitSimulator extends Application {
 		canvasTabPane.setMaxHeight(Double.MAX_VALUE);
 		canvasTabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-			CircuitManager oldManager = oldValue == null ? null : circuitManagers.get(oldValue.getText());
-			CircuitManager newManager = newValue == null ? null : circuitManagers.get(newValue.getText());
+			CircuitManager oldManager = oldValue == null || !circuitManagers.containsKey(oldValue.getText())
+			                            ? null : circuitManagers.get(oldValue.getText()).second;
+			CircuitManager newManager = newValue == null || !circuitManagers.containsKey(newValue.getText())
+			                            ? null : circuitManagers.get(newValue.getText()).second;
 			if(oldManager != null && newManager != null) {
 				newManager.setLastMousePosition(oldManager.getLastMousePosition());
 			}
 			
-			modifiedSelection();
+			modifiedSelection(selectedComponent);
 		});
 		
 		buttonsToggleGroup = new ToggleGroup();
 		Map<String, Tab> buttonTabs = new HashMap<>();
 		
-		for(Pair<String, String> component : componentManager.getComponentNames()) {
+		componentManager.forEach(componentInfo -> {
 			Tab tab;
-			if(buttonTabs.containsKey(component.first)) {
-				tab = buttonTabs.get(component.first);
+			if(buttonTabs.containsKey(componentInfo.name.first)) {
+				tab = buttonTabs.get(componentInfo.name.first);
 			} else {
-				tab = new Tab(component.first);
+				tab = new Tab(componentInfo.name.first);
 				tab.setClosable(false);
 				tab.setContent(new GridPane());
 				buttonTabPane.getTabs().add(tab);
-				buttonTabs.put(component.first, tab);
+				buttonTabs.put(componentInfo.name.first, tab);
 			}
 			
 			GridPane buttons = (GridPane)tab.getContent();
 			
-			ToggleButton toggleButton = setupButton(buttonsToggleGroup, component.second);
+			ToggleButton toggleButton = setupButton(buttonsToggleGroup, componentInfo);
 			buttons.addRow(buttons.getChildren().size(), toggleButton);
-		}
+		});
 		
-		createTab("New circuit");
+		createCircuit("New circuit");
 		
 		MenuBar menuBar = new MenuBar();
 		Menu fileMenu = new Menu("File");
@@ -481,48 +550,52 @@ public class CircuitSimulator extends Application {
 			File selectedFile = fileChooser.showOpenDialog(stage);
 			if(selectedFile != null) {
 				saveFile = selectedFile;
-				updateTitle();
 				
 				try {
 					List<CircuitInfo> circuits = FileFormat.load(selectedFile);
 					
-					componentManager.clearCircuits();
-					circuitManagers.values().forEach(manager -> manager.getCircuitBoard().clear());
+					clearSelection();
+					
 					circuitManagers.clear();
 					canvasTabPane.getTabs().clear();
 					
 					for(CircuitInfo circuit : circuits) {
-						createTab(circuit.name);
+						createCircuit(circuit.name);
 					}
 					
 					for(CircuitInfo circuit : circuits) {
 						CircuitManager manager = getCircuitManager(circuit.name);
 						
 						for(ComponentInfo component : circuit.components) {
-							try {
-								@SuppressWarnings("unchecked")
-								Class<? extends ComponentPeer<?>> clazz =
-										(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
-								manager.getCircuitBoard().createComponent(componentManager.forClass(clazz),
-								                                          component.properties, component.x,
-								                                          component.y);
-							} catch(Exception exc) {
-								exc.printStackTrace();
+							@SuppressWarnings("unchecked")
+							Class<? extends ComponentPeer<?>> clazz =
+									(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
+							
+							ComponentCreator<?> creator;
+							if(clazz == SubcircuitPeer.class) {
+								creator = getSubcircuitPeerCreator(
+										component.properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
+							} else {
+								creator = ComponentManager.forClass(clazz);
 							}
+							
+							manager.getCircuitBoard().addComponent(
+									creator.createComponent(component.properties,
+									                        component.x,
+									                        component.y));
 						}
 						
 						for(WireInfo wire : circuit.wires) {
-							try {
-								manager.getCircuitBoard().addWire(wire.x, wire.y, wire.length, wire.isHorizontal);
-							} catch(Exception exc) {
-								exc.printStackTrace();
-							}
+							manager.getCircuitBoard().addWire(wire.x, wire.y, wire.length, wire.isHorizontal);
 						}
 					}
 					
 					if(circuits.size() == 0) {
-						createTab("New circuit");
+						createCircuit("New circuit");
 					}
+					
+					hasUnsavedChanges = false;
+					updateTitle();
 				} catch(Exception exc) {
 					exc.printStackTrace();
 					
@@ -544,7 +617,6 @@ public class CircuitSimulator extends Application {
 				fileChooser.setTitle("Choose sim file");
 				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
 				saveFile = fileChooser.showSaveDialog(stage);
-				updateTitle();
 			}
 			
 			if(saveFile != null) {
@@ -553,7 +625,7 @@ public class CircuitSimulator extends Application {
 				canvasTabPane.getTabs().forEach(tab -> {
 					String name = tab.getText();
 					
-					CircuitManager manager = circuitManagers.get(name);
+					CircuitManager manager = circuitManagers.get(name).second;
 					
 					Set<ComponentInfo> components =
 							manager.getCircuitBoard()
@@ -575,6 +647,8 @@ public class CircuitSimulator extends Application {
 				
 				try {
 					FileFormat.save(saveFile, circuits);
+					hasUnsavedChanges = false;
+					updateTitle();
 //					Alert alert = new Alert(AlertType.INFORMATION);
 //					alert.setTitle("Circuits saved");
 //					alert.setHeaderText("Circuits saved");
@@ -611,7 +685,7 @@ public class CircuitSimulator extends Application {
 		
 		Menu circuitsMenu = new Menu("Circuits");
 		MenuItem newCircuit = new MenuItem("New circuit");
-		newCircuit.setOnAction(event -> createTab("New circuit"));
+		newCircuit.setOnAction(event -> createCircuit("New circuit"));
 		circuitsMenu.getItems().add(newCircuit);
 		
 		Menu clockMenu = new Menu("Clock");
@@ -660,14 +734,16 @@ public class CircuitSimulator extends Application {
 		VBox.setVgrow(hBox, Priority.ALWAYS);
 		
 		ToolBar toolBar = new ToolBar();
-		ToggleButton andButton =
-				new ToggleButton("", getImage("AndGate"));
+		ComponentLauncherInfo andGateInfo = componentManager.get(new Pair<>("Gates", "AND"));
+		ToggleButton andButton = new ToggleButton("", setupImageView(andGateInfo.image));
 		andButton.setToggleGroup(buttonsToggleGroup);
-		andButton.setOnAction(event -> modifiedSelection("Gates", "AND"));
-		ToggleButton orButton =
-				new ToggleButton("", getImage("OrGate"));
-		orButton.setOnAction(event -> modifiedSelection("Gates", "OR"));
+		andButton.setOnAction(event -> modifiedSelection(andGateInfo));
+		
+		ComponentLauncherInfo orGateInfo = componentManager.get(new Pair<>("Gates", "OR"));
+		ToggleButton orButton = new ToggleButton("", setupImageView(orGateInfo.image));
 		orButton.setToggleGroup(buttonsToggleGroup);
+		orButton.setOnAction(event -> modifiedSelection(orGateInfo));
+		
 		toolBar.getItems().addAll(andButton, orButton,
 		                          new Label("Bit size:"), bitSizeSelect,
 		                          new Label("Secondary:"), secondaryOptionSelect);
@@ -681,7 +757,7 @@ public class CircuitSimulator extends Application {
 		stage.centerOnScreen();
 		
 		stage.setOnCloseRequest(event -> {
-			if(hasUnsavedChanges()) {
+			if(hasUnsavedChanges) {
 				Alert alert = new Alert(AlertType.CONFIRMATION);
 				alert.setTitle("Unsaved changes");
 				alert.setHeaderText("Unsaved changes");
@@ -701,7 +777,6 @@ public class CircuitSimulator extends Application {
 		switch(e.getCode()) {
 			case ESCAPE:
 				clearSelection();
-				modifiedSelection();
 				break;
 		}
 		
@@ -709,8 +784,6 @@ public class CircuitSimulator extends Application {
 		if(manager != null) {
 			manager.keyPressed(e);
 		}
-		
-		updateTitle();
 	}
 	
 	public void keyReleased(KeyEvent e) {
@@ -729,8 +802,6 @@ public class CircuitSimulator extends Application {
 		if(manager != null) {
 			manager.mousePressed(e);
 		}
-		
-		updateTitle();
 	}
 	
 	public void mouseReleased(MouseEvent e) {

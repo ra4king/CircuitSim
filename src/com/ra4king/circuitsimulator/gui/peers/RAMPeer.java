@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -11,6 +12,7 @@ import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.RAM;
+import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -20,6 +22,12 @@ import javafx.scene.paint.Color;
  */
 public class RAMPeer extends ComponentPeer<RAM> {
 	private static final Property ADDRESS_BITS = new Property("Address bits", Properties.BITSIZE.validator, "1");
+	
+	public static void installComponent(ComponentManagerInterface manager) {
+		manager.addComponent(new Pair<>("Memory", "RAM"),
+		                     null,//new Image(RAMPeer.class.getResourceAsStream("/resources/RAM.png")),
+		                     new Properties());
+	}
 	
 	public RAMPeer(Properties props, int x, int y) {
 		super(x, y, 5, 4);

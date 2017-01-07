@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
@@ -30,6 +31,7 @@ import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -51,6 +53,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCharacterCombination;
@@ -111,7 +114,6 @@ public class CircuitSimulator extends Application {
 					if(manager != null) {
 						try {
 							manager.getCircuitBoard().runSim();
-							manager.repaint();
 						} catch(Exception exc) {
 						}
 					}
@@ -198,11 +200,11 @@ public class CircuitSimulator extends Application {
 			buttonsToggleGroup.getSelectedToggle().setSelected(false);
 		}
 		
-		modifiedSelection(null, null);
+		modifiedSelection(null);
 	}
 	
 	private void updateProperties(Properties properties) {
-		modifiedSelection(null, properties);
+		modifiedSelection(selectedComponent == null ? null : selectedComponent.creator, properties);
 	}
 	
 	private void modifiedSelection(ComponentLauncherInfo component) {
@@ -219,21 +221,19 @@ public class CircuitSimulator extends Application {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
 			setProperties(current.modifiedSelection(creator, properties));
-			current.repaint();
 		}
 	}
 	
 	private ImageView setupImageView(Image image) {
 		ImageView imageView = new ImageView(image);
-		imageView.setFitHeight(40);
-		imageView.setFitHeight(30);
 		imageView.setSmooth(true);
 		return imageView;
 	}
 	
 	private ToggleButton setupButton(ToggleGroup group, ComponentLauncherInfo componentInfo) {
 		ToggleButton button = new ToggleButton(componentInfo.name.second, setupImageView(componentInfo.image));
-		group.getToggles().add(button);
+		button.setAlignment(Pos.CENTER_LEFT);
+		button.setToggleGroup(group);
 		button.setMinHeight(30);
 		button.setMaxWidth(Double.MAX_VALUE);
 		button.setOnAction(e -> {
@@ -352,21 +352,6 @@ public class CircuitSimulator extends Application {
 	
 	private CircuitManager createCircuit(String name) {
 		Canvas canvas = new Canvas(800, 600) {
-			{
-				widthProperty().addListener(evt -> {
-					CircuitManager manager = getCurrentCircuit();
-					if(manager != null) {
-						manager.repaint();
-					}
-				});
-				heightProperty().addListener(evt -> {
-					CircuitManager manager = getCurrentCircuit();
-					if(manager != null) {
-						manager.repaint();
-					}
-				});
-			}
-			
 			@Override
 			public boolean isResizable() {
 				return true;
@@ -451,7 +436,7 @@ public class CircuitSimulator extends Application {
 				circuitModified(removed.second.getCircuit(), true);
 				
 				if(canvasTabPane.getTabs().size() == 1) {
-					createCircuit("New circuit").repaint();
+					createCircuit("New circuit");
 				}
 				
 				refreshCircuitsTab();
@@ -734,17 +719,26 @@ public class CircuitSimulator extends Application {
 		VBox.setVgrow(hBox, Priority.ALWAYS);
 		
 		ToolBar toolBar = new ToolBar();
-		ComponentLauncherInfo andGateInfo = componentManager.get(new Pair<>("Gates", "AND"));
-		ToggleButton andButton = new ToggleButton("", setupImageView(andGateInfo.image));
-		andButton.setToggleGroup(buttonsToggleGroup);
-		andButton.setOnAction(event -> modifiedSelection(andGateInfo));
 		
-		ComponentLauncherInfo orGateInfo = componentManager.get(new Pair<>("Gates", "OR"));
-		ToggleButton orButton = new ToggleButton("", setupImageView(orGateInfo.image));
-		orButton.setToggleGroup(buttonsToggleGroup);
-		orButton.setOnAction(event -> modifiedSelection(orGateInfo));
+		Function<Pair<String, String>, ToggleButton> createToolbarButton = pair -> {
+			ComponentLauncherInfo info = componentManager.get(pair);
+			ToggleButton button = new ToggleButton("", setupImageView(info.image));
+			button.setTooltip(new Tooltip(pair.second));
+			button.setMinWidth(50);
+			button.setMinHeight(50);
+			button.setToggleGroup(buttonsToggleGroup);
+			button.setOnAction(event -> modifiedSelection(info));
+			return button;
+		};
 		
-		toolBar.getItems().addAll(andButton, orButton,
+		ToggleButton inputPinButton = createToolbarButton.apply(new Pair<>("Wiring", "Input Pin"));
+		ToggleButton outputPinButton = createToolbarButton.apply(new Pair<>("Wiring", "Output Pin"));
+		ToggleButton andButton = createToolbarButton.apply(new Pair<>("Gates", "AND"));
+		ToggleButton orButton = createToolbarButton.apply(new Pair<>("Gates", "OR"));
+		ToggleButton notButton = createToolbarButton.apply(new Pair<>("Gates", "NOT"));
+		ToggleButton xorButton = createToolbarButton.apply(new Pair<>("Gates", "XOR"));
+		
+		toolBar.getItems().addAll(inputPinButton, outputPinButton, andButton, orButton, notButton, xorButton,
 		                          new Label("Bit size:"), bitSizeSelect,
 		                          new Label("Secondary:"), secondaryOptionSelect);
 		

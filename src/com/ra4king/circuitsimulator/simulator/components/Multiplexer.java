@@ -4,22 +4,47 @@ import java.util.Arrays;
 
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
+import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 
 /**
  * @author Roi Atalla
  */
 public class Multiplexer extends Component {
-	public final int NUM_IN_PORTS;
-	public final int PORT_SEL;
-	public final int PORT_OUT;
+	private final int bitSize;
+	private final int numSelectBits;
+	private final int numInputs;
 	
 	public Multiplexer(String name, int bitSize, int numSelectBits) {
 		super(name, createBitSizeArray(bitSize, numSelectBits));
 		
-		NUM_IN_PORTS = 1 << numSelectBits;
-		PORT_SEL = NUM_IN_PORTS;
-		PORT_OUT = PORT_SEL + 1;
+		this.bitSize = bitSize;
+		this.numSelectBits = numSelectBits;
+		numInputs = 1 << numSelectBits;
+	}
+	
+	public int getBitSize() {
+		return bitSize;
+	}
+	
+	public int getNumSelectBits() {
+		return numSelectBits;
+	}
+	
+	public int getNumInputs() {
+		return numInputs;
+	}
+	
+	public Port getInputPort(int index) {
+		return getPort(index);
+	}
+	
+	public Port getSelectorPort() {
+		return getPort(getNumPorts() - 2);
+	}
+	
+	public Port getOutPort() {
+		return getPort(getNumPorts() - 1);
 	}
 	
 	private static int[] createBitSizeArray(int bitSize, int numSelectBits) {
@@ -32,21 +57,22 @@ public class Multiplexer extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		WireValue currentSelect = state.getLastReceived(getPort(getNumPorts() - 2));
+		Port selectorPort = getSelectorPort();
+		WireValue currentSelect = state.getLastReceived(selectorPort);
 		
-		if(portIndex == PORT_SEL) {
+		if(getPort(portIndex) == selectorPort) {
 			if(!value.isValidValue() || !state.getLastReceived(getPort(value.getValue())).isValidValue()) {
-				state.pushValue(getPort(PORT_OUT), new WireValue(getPort(PORT_OUT).getLink().getBitSize()));
+				state.pushValue(getOutPort(), new WireValue(getBitSize()));
 			} else {
-				state.pushValue(getPort(PORT_OUT), state.getLastReceived(getPort(value.getValue())));
+				state.pushValue(getOutPort(), state.getLastReceived(getPort(value.getValue())));
 			}
-		} else if(portIndex < NUM_IN_PORTS) {
+		} else if(portIndex < getNumPorts() - 2) {
 			if(currentSelect.isValidValue()) {
 				if(currentSelect.getValue() == portIndex) {
-					state.pushValue(getPort(PORT_OUT), value);
+					state.pushValue(getOutPort(), value);
 				}
 			} else {
-				state.pushValue(getPort(PORT_OUT), new WireValue(value.getBitSize()));
+				state.pushValue(getOutPort(), new WireValue(getBitSize()));
 			}
 		}
 	}

@@ -44,8 +44,8 @@ public class MultiplexerTest {
 		xorGate.getOutPort().linkPort(mux.getPort(2));
 		notGate.getOutPort().linkPort(mux.getPort(3));
 		
-		sel.getPort(Pin.PORT).linkPort(mux.getPort(mux.PORT_SEL));
-		out.getPort(Pin.PORT).linkPort(mux.getPort(mux.PORT_OUT));
+		sel.getPort(Pin.PORT).linkPort(mux.getSelectorPort());
+		out.getPort(Pin.PORT).linkPort(mux.getOutPort());
 		
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(5, 4));
 		in2.setValue(circuit.getTopLevelState(), WireValue.of(3, 4));

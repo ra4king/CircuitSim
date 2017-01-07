@@ -15,7 +15,9 @@ import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Multiplexer;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -34,12 +36,12 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Mux"),
-		                     null,//new Image(MultiplexerPeer.class.getResourceAsStream("/resources/Mux.png")),
+		                     new Image(MultiplexerPeer.class.getResourceAsStream("/resources/Mux.png")),
 		                     new Properties());
 	}
 	
 	public MultiplexerPeer(Properties props, int x, int y) {
-		super(x, y, 2, 0);
+		super(x, y, 3, 0);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
@@ -50,27 +52,43 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 		Multiplexer mux = new Multiplexer(properties.getValue(Properties.LABEL),
 		                                  properties.getIntValue(Properties.BITSIZE),
 		                                  properties.getIntValue(SELECTOR_BITS));
-		setHeight(mux.NUM_IN_PORTS + 1);
+		setHeight(mux.getNumInputs() + 2);
 		
 		List<Connection> connections = new ArrayList<>();
-		for(int i = 0; i < mux.NUM_IN_PORTS; i++) {
+		for(int i = 0; i < mux.getNumInputs(); i++) {
 			connections.add(new PortConnection(this, mux.getPort(i), 0, i + 1));
 		}
 		
-		connections.add(new PortConnection(this, mux.getPort(mux.PORT_SEL), 1, getHeight()));
-		connections.add(new PortConnection(this, mux.getPort(mux.PORT_OUT), getWidth(), (mux.NUM_IN_PORTS + 1) / 2));
+		connections.add(new PortConnection(this, mux.getSelectorPort(), "Selector", getWidth() / 2, getHeight()));
+		connections.add(new PortConnection(this, mux.getOutPort(), "Out", getWidth(), getHeight() / 2));
 		
 		init(mux, properties, connections);
 	}
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		if(!getComponent().getName().isEmpty()) {
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
+			graphics.setStroke(Color.BLACK);
+			graphics.strokeText(getComponent().getName(),
+			                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+			                    getScreenY() - 5);
+		}
+		
+		graphics.beginPath();
+		graphics.moveTo(getScreenX(), getScreenY());
+		graphics.lineTo(getScreenX() + getScreenWidth(), getScreenY() + Math.min(20, getScreenHeight() * 0.2));
+		graphics.lineTo(getScreenX() + getScreenWidth(), getScreenY() + getScreenHeight()
+				                                                 - Math.max(5, getScreenHeight() * 0.1));
+		graphics.lineTo(getScreenX(), getScreenY() + getScreenHeight());
+		graphics.closePath();
+		
 		graphics.setFill(Color.WHITE);
-		GuiUtils.drawShape(graphics::fillRect, this);
-		
+		graphics.fill();
 		graphics.setStroke(Color.BLACK);
-		GuiUtils.drawShape(graphics::strokeRect, this);
+		graphics.stroke();
 		
-		graphics.strokeText(getComponent().toString(), getScreenX() + 2, getScreenY() + getScreenHeight() / 2 + 5);
+		graphics.setStroke(Color.DARKGRAY);
+		graphics.strokeText("0", getScreenX() + 2, getScreenY() + 13);
 	}
 }

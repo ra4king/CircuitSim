@@ -15,6 +15,7 @@ import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -68,6 +69,14 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		if(!getComponent().getName().isEmpty()) {
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
+			graphics.setStroke(Color.BLACK);
+			graphics.strokeText(getComponent().getName(),
+			                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+			                    getScreenY() - 5);
+		}
+		
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);
 		graphics.setStroke(Color.BLACK);

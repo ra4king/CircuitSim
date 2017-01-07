@@ -10,10 +10,13 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
+import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.components.Register;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -22,7 +25,7 @@ import javafx.scene.paint.Color;
 public class RegisterPeer extends ComponentPeer<Register> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Memory", "Register"),
-		                     null,//new Image(RegisterPeer.class.getResourceAsStream("/resources/Register.png")),
+		                     new Image(RegisterPeer.class.getResourceAsStream("/resources/Register.png")),
 		                     new Properties());
 	}
 	
@@ -49,14 +52,31 @@ public class RegisterPeer extends ComponentPeer<Register> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		if(!getComponent().getName().isEmpty()) {
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
+			graphics.setStroke(Color.BLACK);
+			graphics.strokeText(getComponent().getName(),
+			                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+			                    getScreenY() - 5);
+		}
+		
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);
 		
+		WireValue lastPushedValue = circuitState.getLastPushedValue(getComponent().getPort(Register.PORT_OUT));
+		String value;
+		if(lastPushedValue.getBitSize() <= 8) {
+			value = lastPushedValue.toString();
+		} else {
+			int hexDigits = 1 + (getComponent().getBitSize() - 1) / 4;
+			int num = lastPushedValue.isValidValue() ? lastPushedValue.getValue() : 0;
+			value = String.format("%0" + hexDigits + "x", num);
+		}
+		
 		graphics.setStroke(Color.BLACK);
-		String value = circuitState.getLastPushedValue(getComponent().getPort(Register.PORT_OUT)).toString();
-		graphics.strokeText(value.length() <= 4 ? value : value.substring(0, 4), getScreenX() + 2, getScreenY() + 15);
-		if(value.length() > 4) {
-			graphics.strokeText(value.substring(4), getScreenX() + 2, getScreenY() + 25);
+		for(int i = 0; i * 4 < value.length(); i++) {
+			int endIndex = i * 4 + 4 > value.length() ? value.length() : 4 * i + 4;
+			graphics.strokeText(value.substring(4 * i, endIndex), getScreenX() + 2, getScreenY() + 15 + 10 * i);
 		}
 		GuiUtils.drawShape(graphics::strokeRect, this);
 	}

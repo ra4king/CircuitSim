@@ -7,13 +7,13 @@ import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterfa
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
-import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.ControlledBuffer;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -22,7 +22,7 @@ import javafx.scene.paint.Color;
 public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Gates", "Buffer"),
-		                     null,//new Image(ControlledBufferPeer.class.getResourceAsStream("/resources/Buffer.png")),
+		                     new Image(ControlledBufferPeer.class.getResourceAsStream("/resources/Buffer.png")),
 		                     new Properties());
 	}
 	
@@ -47,9 +47,15 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		graphics.beginPath();
+		graphics.moveTo(getScreenX(), getScreenY());
+		graphics.lineTo(getScreenX() + getScreenWidth(), getScreenY());
+		graphics.lineTo(getScreenX() + getScreenWidth() * 0.5, getScreenY() + getScreenHeight());
+		graphics.closePath();
+		
 		graphics.setFill(Color.WHITE);
-		GuiUtils.drawShape(graphics::fillRect, this);
+		graphics.fill();
 		graphics.setStroke(Color.BLACK);
-		GuiUtils.drawShape(graphics::strokeRect, this);
+		graphics.stroke();
 	}
 }

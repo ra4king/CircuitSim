@@ -22,7 +22,7 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
-		properties.mergeIfExists(props);
+		properties.union(props);
 		
 		Gate gate = getGate(properties);
 		

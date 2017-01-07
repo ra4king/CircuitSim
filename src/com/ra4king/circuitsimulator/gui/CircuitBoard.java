@@ -81,7 +81,7 @@ public class CircuitBoard {
 	
 	public void addComponent(ComponentPeer<?> component) throws Exception {
 		for(ComponentPeer<?> c : components) {
-			if(c.intersects(component)) {
+			if(c.getX() == component.getX() && c.getY() == component.getY()) {
 				throw new IllegalStateException("Cannot place component here.");
 			}
 		}

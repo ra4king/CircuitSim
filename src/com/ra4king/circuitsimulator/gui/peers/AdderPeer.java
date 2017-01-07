@@ -15,6 +15,7 @@ import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -23,7 +24,7 @@ import javafx.scene.paint.Color;
 public class AdderPeer extends ComponentPeer<Adder> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Arithmetic", "Adder"),
-		                     null,//new Image(AdderPeer.class.getResourceAsStream("/resources/Adder.png")),
+		                     new Image(AdderPeer.class.getResourceAsStream("/resources/Adder.png")),
 		                     new Properties());
 	}
 	
@@ -57,7 +58,7 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "+");
 		graphics.strokeText("+",
-		                    getScreenX() + (getScreenWidth() + bounds.getWidth()) * 0.5,
-		                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.5);
+		                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+		                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
 	}
 }

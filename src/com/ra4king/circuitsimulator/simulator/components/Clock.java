@@ -41,7 +41,23 @@ public class Clock extends Component {
 		}
 	}
 	
+	private static long lastTime;
+	private static int tickCount;
+	
+	public static boolean getTickState() {
+		return clock;
+	}
+	
 	public static void tick() {
+		long now = System.nanoTime();
+		if(now - lastTime >= 1e9) {
+			System.out.println((tickCount >> 1) + " Hz");
+			tickCount = 0;
+			lastTime = now;
+		}
+		
+		tickCount++;
+		
 		clock = !clock;
 		WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 		clocks.forEach(clock ->
@@ -53,13 +69,16 @@ public class Clock extends Component {
 	}
 	
 	public static void startClock(int hertz) {
+		lastTime = System.nanoTime();
+		tickCount = 0;
+		
 		stopClock();
 		timer.scheduleAtFixedRate(currentClock = new TimerTask() {
 			@Override
 			public void run() {
 				tick();
 			}
-		}, 10, hertz <= 500 ? 500 / hertz : 1);
+		}, 10, hertz <= 500 ? Math.round(500.0 / hertz) : 1);
 	}
 	
 	public static boolean isRunning() {

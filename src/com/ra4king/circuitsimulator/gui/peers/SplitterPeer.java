@@ -14,6 +14,7 @@ import com.ra4king.circuitsimulator.simulator.components.Splitter;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -22,7 +23,7 @@ import javafx.scene.paint.Color;
 public class SplitterPeer extends ComponentPeer<Splitter> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Splitter"),
-		                     null,//new Image(SplitterPeer.class.getResourceAsStream("/resources/Splitter.png")),
+		                     new Image(SplitterPeer.class.getResourceAsStream("/resources/Splitter.png")),
 		                     new Properties());
 	}
 	

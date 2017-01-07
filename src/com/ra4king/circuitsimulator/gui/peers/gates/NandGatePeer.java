@@ -8,6 +8,7 @@ import com.ra4king.circuitsimulator.simulator.components.gates.NandGate;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -16,7 +17,7 @@ import javafx.scene.paint.Color;
 public class NandGatePeer extends GatePeer {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Gates", "NAND"),
-		                     null,//new Image(NandGatePeer.class.getResourceAsStream("/resources/NandGate.png")),
+		                     new Image(NandGatePeer.class.getResourceAsStream("/resources/NandGate.png")),
 		                     new Properties());
 	}
 	

@@ -20,6 +20,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -66,20 +67,13 @@ public class CircuitManager {
 		this.simulatorWindow = simulatorWindow;
 		this.canvas = canvas;
 		circuitBoard = new CircuitBoard(simulator);
-
-//		try {
-//			Properties pinProps = new Properties();
-//			pinProps.setProperty(new Property(PinPeer.IS_INPUT, "Yes"));
-//			circuitBoard.addComponent(new PinPeer(circuitBoard.getCircuit(), pinProps, 2, 5));
-//			pinProps.setProperty(new Property(PinPeer.IS_INPUT, "No"));
-//			circuitBoard.addComponent(new PinPeer(circuitBoard.getCircuit(), pinProps, 2, 10));
-//			circuitBoard.addComponent(new NotGatePeer(circuitBoard.getCircuit(), new Properties(), 2, 15));
-//			circuitBoard.addComponent(new AndGatePeer(circuitBoard.getCircuit(), new Properties(), 2, 20));
-//			circuitBoard.addComponent(new OrGatePeer(circuitBoard.getCircuit(), new Properties(), 2, 25));
-//			circuitBoard.addComponent(new XorGatePeer(circuitBoard.getCircuit(), new Properties(), 2, 30));
-//		} catch(Exception exc) {
-//			exc.printStackTrace();
-//		}
+		
+		new AnimationTimer() {
+			@Override
+			public void handle(long now) {
+				Platform.runLater(() -> paint(canvas.getGraphicsContext2D()));
+			}
+		}.start();
 	}
 	
 	public Circuit getCircuit() {
@@ -109,9 +103,9 @@ public class CircuitManager {
 		this.componentCreator = componentCreator;
 		this.properties = properties;
 		
-		dummyCircuit.clearComponents();
-		
 		if(componentCreator != null) {
+			dummyCircuit.clearComponents();
+			
 			potentialComponent = componentCreator.createComponent(properties,
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getX()),
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getY()));
@@ -157,19 +151,19 @@ public class CircuitManager {
 		return new Properties();
 	}
 	
-	private long lastRepaint;
-	
-	public void repaint() {
-		if(lastRepaint == 0) {
-			lastRepaint = System.nanoTime();
-			Platform.runLater(() -> {
-				lastRepaint = 0;
-				paint(canvas.getGraphicsContext2D());
-			});
-		}
-	}
+	private long lastRepaint = System.nanoTime();
+	private int frameCount;
 	
 	public void paint(GraphicsContext graphics) {
+		long now = System.nanoTime();
+		if(now - lastRepaint >= 1e9) {
+			System.out.println("FPS: " + frameCount);
+			frameCount = 0;
+			lastRepaint = now;
+		}
+		
+		frameCount++;
+		
 		graphics.save();
 		
 		graphics.setFont(Font.font("monospace", 15));
@@ -350,8 +344,6 @@ public class CircuitManager {
 				reset();
 				break;
 		}
-		
-		repaint();
 	}
 	
 	public void keyReleased(KeyEvent e) {
@@ -410,8 +402,6 @@ public class CircuitManager {
 			
 			simulatorWindow.setProperties(getCommonSelectedProperties());
 		}
-		
-		repaint();
 	}
 	
 	public void mouseReleased(MouseEvent e) {
@@ -470,7 +460,6 @@ public class CircuitManager {
 		curDraggedPoint = null;
 		
 		mouseMoved(e);
-		repaint();
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -536,17 +525,13 @@ public class CircuitManager {
 					GuiUtils.getCircuitCoord(curDraggedPoint.getX()),
 					GuiUtils.getCircuitCoord(curDraggedPoint.getY()));
 		}
-		
-		repaint();
 	}
 	
 	public void mouseMoved(MouseEvent e) {
-		boolean repaint = false;
 		lastMousePosition = new Point2D(e.getX(), e.getY());
 		if(potentialComponent != null) {
 			potentialComponent.setX(GuiUtils.getCircuitCoord(e.getX()) - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(GuiUtils.getCircuitCoord(e.getY()) - potentialComponent.getHeight() / 2);
-			repaint = true;
 		}
 		
 		if(selectedElementsMap.isEmpty()) {
@@ -568,23 +553,18 @@ public class CircuitManager {
 			
 			if(selected != startConnection) {
 				startConnection = selected;
-				repaint = true;
 			}
 		} else {
 			startConnection = null;
 		}
-		
-		if(repaint) repaint();
 	}
 	
 	public void mouseEntered(MouseEvent e) {
 		mouseInside = true;
-		repaint();
 	}
 	
 	public void mouseExited(MouseEvent e) {
 		mouseInside = false;
 		ctrlDown = false;
-		repaint();
 	}
 }

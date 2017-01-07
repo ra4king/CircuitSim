@@ -15,6 +15,7 @@ import com.ra4king.circuitsimulator.simulator.components.RAM;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -25,7 +26,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Memory", "RAM"),
-		                     null,//new Image(RAMPeer.class.getResourceAsStream("/resources/RAM.png")),
+		                     new Image(RAMPeer.class.getResourceAsStream("/resources/RAM.png")),
 		                     new Properties());
 	}
 	

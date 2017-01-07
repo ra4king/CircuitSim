@@ -15,6 +15,7 @@ import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /**
@@ -23,7 +24,7 @@ import javafx.scene.paint.Color;
 public class ClockPeer extends ComponentPeer<Clock> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Clock"),
-		                     null,//new Image(ClockPeer.class.getResourceAsStream("/resources/Clock.png")),
+		                     new Image(ClockPeer.class.getResourceAsStream("/resources/Clock.png")),
 		                     new Properties());
 	}
 	
@@ -53,5 +54,40 @@ public class ClockPeer extends ComponentPeer<Clock> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
+		
+		graphics.setStroke(Color.WHITE);
+		graphics.setLineWidth(1.5);
+		double offset1 = Clock.getTickState() ? 0.3 : 0;
+		double offset2 = Clock.getTickState() ? 0.6 : 0;
+		
+		// lower line
+		graphics.strokeLine(getScreenX() + getScreenWidth() * (0.2 + offset1),
+		                    getScreenY() + getScreenHeight() * 0.7,
+		                    getScreenX() + getScreenWidth() * (0.5 + offset1),
+		                    getScreenY() + getScreenHeight() * 0.7);
+		
+		// upper line
+		graphics.strokeLine(getScreenX() + getScreenWidth() * (0.5 - offset1),
+		                    getScreenY() + getScreenHeight() * 0.3,
+		                    getScreenX() + getScreenWidth() * (0.8 - offset1),
+		                    getScreenY() + getScreenHeight() * 0.3);
+		
+		// lower vertical line
+		graphics.strokeLine(getScreenX() + getScreenWidth() * (0.2 + offset2),
+		                    getScreenY() + getScreenHeight() * 0.5,
+		                    getScreenX() + getScreenWidth() * (0.2 + offset2),
+		                    getScreenY() + getScreenHeight() * 0.7);
+		
+		// upper vetical line line
+		graphics.strokeLine(getScreenX() + getScreenWidth() * (0.8 - offset2),
+		                    getScreenY() + getScreenHeight() * 0.3,
+		                    getScreenX() + getScreenWidth() * (0.8 - offset2),
+		                    getScreenY() + getScreenHeight() * 0.5);
+		
+		// middle vertical line
+		graphics.strokeLine(getScreenX() + getScreenWidth() * 0.5,
+		                    getScreenY() + getScreenHeight() * 0.3,
+		                    getScreenX() + getScreenWidth() * 0.5,
+		                    getScreenY() + getScreenHeight() * 0.7);
 	}
 }

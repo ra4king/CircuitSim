@@ -13,7 +13,7 @@ import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
-import com.ra4king.circuitsimulator.simulator.CircuitState;
+import com.ra4king.circuitsimulator.simulator.ShortCircuitException;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
@@ -43,7 +43,6 @@ public class CircuitManager {
 	private Point2D lastMousePosition = new Point2D(0, 0);
 	private ComponentPeer<?> potentialComponent;
 	private Circuit dummyCircuit = new Circuit(new Simulator());
-	private CircuitState dummyCircuitState = new CircuitState(dummyCircuit);
 	
 	private boolean mouseInside;
 	
@@ -61,7 +60,7 @@ public class CircuitManager {
 	
 	private String message;
 	private long messageSetTime;
-	private static final int MESSAGE_POST_DURATION = 5000;
+	private static final int MESSAGE_POST_DURATION = 3000;
 	
 	public CircuitManager(CircuitSimulator simulatorWindow, Canvas canvas, Simulator simulator) {
 		this.simulatorWindow = simulatorWindow;
@@ -233,12 +232,12 @@ public class CircuitManager {
 			graphics.restore();
 		} else if(potentialComponent != null && mouseInside) {
 			graphics.save();
-			potentialComponent.paint(graphics, dummyCircuitState);
+			potentialComponent.paint(graphics, dummyCircuit.getTopLevelState());
 			graphics.restore();
 			
 			for(Connection connection : potentialComponent.getConnections()) {
 				graphics.save();
-				connection.paint(graphics, dummyCircuitState);
+				connection.paint(graphics, dummyCircuit.getTopLevelState());
 				graphics.restore();
 			}
 		} else if(!selecting && startPoint != null) {
@@ -277,16 +276,16 @@ public class CircuitManager {
 	private void mayThrow(ThrowableRunnable runnable) {
 		try {
 			runnable.run();
-			messageSetTime = 0;
 		} catch(Exception exc) {
 			exc.printStackTrace();
-			message = exc.getMessage();
+			message = exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
 			messageSetTime = System.nanoTime();
 		}
 	}
 	
 	private void reset() {
 		simulatorWindow.clearSelection();
+		dummyCircuit.clearComponents();
 		potentialComponent = null;
 		isDraggedHorizontally = false;
 		startConnection = null;

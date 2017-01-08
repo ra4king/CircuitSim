@@ -47,6 +47,8 @@ public abstract class Component {
 	
 	public void init(CircuitState circuitState) {}
 	
+	public void uninit(CircuitState circuitState) {}
+	
 	public abstract void valueChanged(CircuitState state, WireValue value, int portIndex);
 	
 	@Override

@@ -188,17 +188,20 @@ public class CircuitState {
 		}
 		
 		void propagate() {
-			if(isShortCircuit()) return;
-			
-			participants.keySet().forEach(participantPort -> {
-				WireValue incomingValue = getIncomingValue(participantPort);
-				WireValue lastReceived = getLastReceived(participantPort);
-				if(!lastReceived.equals(incomingValue)) {
-					lastReceived.set(incomingValue);
-					participantPort.component.valueChanged(CircuitState.this, incomingValue,
-					                                       participantPort.portIndex);
+			for(Port participantPort : participants.keySet()) {
+				try {
+					WireValue incomingValue = getIncomingValue(participantPort);
+					WireValue lastReceived = getLastReceived(participantPort);
+					if(!lastReceived.equals(incomingValue)) {
+						lastReceived.set(incomingValue);
+						participantPort.component.valueChanged(CircuitState.this,
+						                                       incomingValue,
+						                                       participantPort.portIndex);
+					}
+				} catch(ShortCircuitException exc) {
+					// ignore short circuits
 				}
-			});
+			}
 		}
 		
 		void link(LinkState other) {
@@ -206,9 +209,7 @@ public class CircuitState {
 			
 			participants.putAll(other.participants);
 			
-			participants.forEach((port, info) -> {
-				info.lastMerged.setAllBits(State.X);
-			});
+			participants.forEach((port, info) -> info.lastMerged.setAllBits(State.X));
 			
 			linkStates.remove(other.link);
 			

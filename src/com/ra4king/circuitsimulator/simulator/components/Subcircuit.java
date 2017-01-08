@@ -74,17 +74,25 @@ public class Subcircuit extends Component {
 		}
 	}
 	
+	@Override
+	public void uninit(CircuitState circuitState) {
+		CircuitState subcircuitState = (CircuitState)circuitState.getComponentProperty(this);
+		subcircuit.getComponents().forEach(component -> component.uninit(subcircuitState));
+		subcircuit.getCircuitStates().remove(subcircuitState);
+	}
+	
 	public Port getPort(Pin pin) {
 		int index = pins.indexOf(pin);
-		if(index == -1)
+		if(index == -1) {
 			return null;
+		}
 		return getPort(index);
 	}
 	
 	private static List<Pin> getCircuitPins(Circuit circuit) {
 		return circuit.getComponents().stream()
-				       .filter(component -> component instanceof Pin).map(component -> (Pin)component)
-				       .collect(Collectors.toList());
+		              .filter(component -> component instanceof Pin).map(component -> (Pin)component)
+		              .collect(Collectors.toList());
 	}
 	
 	private static int[] setupPortBits(List<Pin> pins) {

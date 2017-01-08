@@ -86,8 +86,8 @@ public class CircuitBoard {
 			}
 		}
 		
-		components.add(component);
 		circuit.addComponent(component.getComponent());
+		components.add(component);
 		
 		Set<Wire> toReAdd = new HashSet<>();
 		

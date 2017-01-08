@@ -52,6 +52,7 @@ public class Simulator {
 		temp.forEach(pair -> {
 			try {
 				pair.first.propagateSignal(pair.second);
+				pair.first.getMergedValue(pair.second);
 			}
 			catch(ShortCircuitException exc) {
 				shortCircuited.add(pair);
@@ -67,17 +68,15 @@ public class Simulator {
 	}
 	
 	public synchronized void stepAll() {
-		history.add(new ArrayList<>(linksToUpdate));
-		step();
-		while(!linksToUpdate.isEmpty()) {
-			history.add(new ArrayList<>(linksToUpdate));
-			step();
-			
+		history.clear();
+		
+		do {
 			if(history.contains(linksToUpdate)) {
 				throw new IllegalStateException("Oscillation apparent.");
 			}
-		}
-		
-		history.clear();
+			
+			history.add(new ArrayList<>(linksToUpdate));
+			step();
+		} while(!linksToUpdate.isEmpty());
 	}
 }

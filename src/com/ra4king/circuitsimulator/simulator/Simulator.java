@@ -1,6 +1,7 @@
 package com.ra4king.circuitsimulator.simulator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,10 @@ public class Simulator {
 		temp = new ArrayList<>();
 		shortCircuited = new ArrayList<>();
 		history = new HashSet<>();
+	}
+	
+	public Set<Circuit> getCircuits() {
+		return Collections.unmodifiableSet(circuits);
 	}
 	
 	public synchronized void addCircuit(Circuit circuit) {
@@ -52,9 +57,7 @@ public class Simulator {
 		temp.forEach(pair -> {
 			try {
 				pair.first.propagateSignal(pair.second);
-				pair.first.getMergedValue(pair.second);
-			}
-			catch(ShortCircuitException exc) {
+			} catch(ShortCircuitException exc) {
 				shortCircuited.add(pair);
 				lastShortCircuit = exc;
 			}

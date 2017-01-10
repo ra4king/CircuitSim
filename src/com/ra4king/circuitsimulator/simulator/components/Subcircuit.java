@@ -1,7 +1,8 @@
 package com.ra4king.circuitsimulator.simulator.components;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.ra4king.circuitsimulator.simulator.Circuit;
@@ -18,7 +19,7 @@ import com.ra4king.circuitsimulator.simulator.utils.Pair;
 public class Subcircuit extends Component {
 	private Circuit subcircuit;
 	private List<Pin> pins;
-	private List<Pair<CircuitState, PinChangeListener>> listeningStates;
+	private Map<CircuitState, PinChangeListener> pinListeners;
 	
 	public Subcircuit(String name, Circuit subcircuit) {
 		this(name, subcircuit, getCircuitPins(subcircuit));
@@ -29,7 +30,7 @@ public class Subcircuit extends Component {
 		
 		this.subcircuit = subcircuit;
 		this.pins = pins;
-		listeningStates = new ArrayList<>();
+		pinListeners = new HashMap<>();
 	}
 	
 	public List<Pin> getPins() {
@@ -40,17 +41,24 @@ public class Subcircuit extends Component {
 		return subcircuit;
 	}
 	
+	private void checkCircuitLoop(Circuit circuit) {
+		if(circuit == getCircuit()) {
+			throw new IllegalArgumentException("Subcircuit loop detected.");
+		}
+		
+		for(Component component : circuit.getComponents()) {
+			if(component != this && component instanceof Subcircuit) {
+				Subcircuit subcircuit = (Subcircuit)component;
+				checkCircuitLoop(subcircuit.getSubcircuit());
+			}
+		}
+	}
+	
 	@Override
 	public void setCircuit(Circuit circuit) {
-		if(circuit == subcircuit) {
-			throw new IllegalArgumentException("Cannot create subcircuit inside own circuit.");
-		}
-		
-		if(circuit == null) {
-			listeningStates.forEach(pair -> pins.forEach(pin -> pin.removeChangeListener(pair)));
-		}
-		
 		super.setCircuit(circuit);
+		
+		checkCircuitLoop(subcircuit);
 	}
 	
 	@Override
@@ -64,7 +72,7 @@ public class Subcircuit extends Component {
 			Port port = getPort(i);
 			Pair<CircuitState, PinChangeListener> pair =
 					new Pair<>(subcircuitState, (pin, state, value) -> circuitState.pushValue(port, value));
-			listeningStates.add(pair);
+			pinListeners.put(pair.first, pair.second);
 			
 			pins.get(i).addChangeListener(pair);
 		}
@@ -79,6 +87,10 @@ public class Subcircuit extends Component {
 		CircuitState subcircuitState = (CircuitState)circuitState.getComponentProperty(this);
 		subcircuit.getComponents().forEach(component -> component.uninit(subcircuitState));
 		subcircuit.getCircuitStates().remove(subcircuitState);
+		if(pinListeners.containsKey(circuitState)) {
+			Pair<CircuitState, PinChangeListener> pair = new Pair<>(circuitState, pinListeners.get(circuitState));
+			pins.forEach(pin -> pin.removeChangeListener(pair));
+		}
 	}
 	
 	public Port getPort(Pin pin) {

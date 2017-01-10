@@ -86,8 +86,15 @@ public class CircuitBoard {
 			}
 		}
 		
-		circuit.addComponent(component.getComponent());
+		// Component must be added before added to the circuit as listeners will be triggered to recreate Subcircuits
 		components.add(component);
+		
+		try {
+			circuit.addComponent(component.getComponent());
+		} catch(Exception exc) {
+			components.remove(component);
+			throw exc;
+		}
 		
 		Set<Wire> toReAdd = new HashSet<>();
 		

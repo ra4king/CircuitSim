@@ -38,19 +38,20 @@ public class Circuit {
 		}
 		
 		component.setCircuit(this);
-		
-		components.add(component);
 		states.forEach(component::init);
+		components.add(component);
+		
 		listeners.forEach(listener -> listener.circuitChanged(this));
 		
 		return component;
 	}
 	
 	public void removeComponent(Component component) {
+		components.remove(component);
 		states.forEach(component::uninit);
 		states.forEach(state -> state.removeComponentProperty(component));
 		component.setCircuit(null);
-		components.remove(component);
+		
 		listeners.forEach(listener -> listener.circuitChanged(this));
 	}
 	

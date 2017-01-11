@@ -3,9 +3,9 @@ package com.ra4king.circuitsimulator.simulator.components.gates;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.Port;
+import com.ra4king.circuitsimulator.simulator.Utils;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
-import com.ra4king.circuitsimulator.simulator.utils.Utils;
 
 /**
  * @author Roi Atalla

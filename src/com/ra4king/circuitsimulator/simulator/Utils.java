@@ -1,10 +1,8 @@
-package com.ra4king.circuitsimulator.simulator.utils;
+package com.ra4king.circuitsimulator.simulator;
 
 import java.util.Arrays;
 
 import com.ra4king.circuitsimulator.simulator.Port.Link;
-import com.ra4king.circuitsimulator.simulator.ShortCircuitException;
-import com.ra4king.circuitsimulator.simulator.WireValue;
 
 /**
  * @author Roi Atalla

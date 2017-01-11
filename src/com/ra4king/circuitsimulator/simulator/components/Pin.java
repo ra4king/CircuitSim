@@ -6,9 +6,10 @@ import java.util.List;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
+import com.ra4king.circuitsimulator.simulator.Utils;
 import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
-import com.ra4king.circuitsimulator.simulator.utils.Utils;
+
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla
@@ -57,8 +58,8 @@ public class Pin extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		pinChangeListeners.stream().filter(pair -> state == pair.first)
-		                  .forEach(pair -> pair.second.valueChanged(this, state, value));
+		pinChangeListeners.stream().filter(pair -> state == pair.getKey())
+		                  .forEach(pair -> pair.getValue().valueChanged(this, state, value));
 	}
 	
 	public interface PinChangeListener {

@@ -8,7 +8,8 @@ import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
 import com.ra4king.circuitsimulator.simulator.components.gates.OrGate;
 import com.ra4king.circuitsimulator.simulator.components.gates.XorGate;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
+
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla

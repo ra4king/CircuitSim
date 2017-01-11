@@ -10,8 +10,8 @@ import java.util.TimerTask;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
+import com.ra4king.circuitsimulator.simulator.Utils;
 import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.utils.Utils;
 
 /**
  * @author Roi Atalla

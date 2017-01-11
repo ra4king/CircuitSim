@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
-import com.ra4king.circuitsimulator.simulator.utils.Utils;
 
 public class CircuitState {
 	private final Circuit circuit;

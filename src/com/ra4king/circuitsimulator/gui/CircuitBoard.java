@@ -14,11 +14,11 @@ import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla

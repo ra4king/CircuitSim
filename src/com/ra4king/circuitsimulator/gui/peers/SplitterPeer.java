@@ -11,11 +11,11 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Splitter;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla

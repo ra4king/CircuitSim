@@ -13,12 +13,12 @@ import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Multiplexer;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla

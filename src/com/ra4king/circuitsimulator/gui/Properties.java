@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+
 /**
  * @author Roi Atalla
  */
@@ -242,6 +247,17 @@ public class Properties {
 	
 	public interface PropertyValidator {
 		boolean validate(String value);
+		
+		default Node createGui(String value, Consumer<String> onAction) {
+			TextField valueField = new TextField(value);
+			valueField.setOnAction(event -> {
+				String newValue = valueField.getText();
+				if(!newValue.equals(value)) {
+					onAction.accept(newValue);
+				}
+			});
+			return valueField;
+		}
 	}
 	
 	public static class PropertyListValidator implements PropertyValidator {
@@ -268,6 +284,26 @@ public class Properties {
 		@Override
 		public boolean validate(String value) {
 			return validValues.contains(value);
+		}
+		
+		@Override
+		public Node createGui(String value, Consumer<String> onAction) {
+			ComboBox<String> valueList = new ComboBox<>();
+			
+			for(String entry : validValues) {
+				valueList.getItems().add(entry);
+			}
+			
+			valueList.setValue(value);
+			valueList.getSelectionModel()
+			         .selectedItemProperty()
+			         .addListener((observable, oldValue, newValue) -> {
+				         if(oldValue == null || !newValue.equals(oldValue)) {
+					         onAction.accept(newValue);
+				         }
+			         });
+			
+			return valueList;
 		}
 	}
 	
@@ -303,9 +339,31 @@ public class Properties {
 			return circuitManager != null;
 		}
 		
+		@Override
+		public Node createGui(String value, Consumer<String> onAction) {
+			return null;
+		}
+		
 		public CircuitManager getCircuitManager(String value) {
 			validate(value);
 			return circuitManager;
+		}
+	}
+	
+	public static class PropertyMemoryValidator implements PropertyValidator {
+		@Override
+		public boolean validate(String value) {
+			return false;
+		}
+		
+		@Override
+		public Node createGui(String value, Consumer<String> onAction) {
+			Button button = new Button("Click to edit");
+			button.setOnAction(event -> {
+				// create window to show memory values
+			});
+			
+			return button;
 		}
 	}
 }

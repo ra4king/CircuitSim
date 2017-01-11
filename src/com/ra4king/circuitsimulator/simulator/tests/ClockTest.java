@@ -7,7 +7,8 @@ import com.ra4king.circuitsimulator.simulator.components.Adder;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.components.Register;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
+
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla

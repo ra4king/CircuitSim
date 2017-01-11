@@ -11,7 +11,8 @@ import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.components.Pin.PinChangeListener;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
+
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla
@@ -72,7 +73,7 @@ public class Subcircuit extends Component {
 			Port port = getPort(i);
 			Pair<CircuitState, PinChangeListener> pair =
 					new Pair<>(subcircuitState, (pin, state, value) -> circuitState.pushValue(port, value));
-			pinListeners.put(pair.first, pair.second);
+			pinListeners.put(pair.getKey(), pair.getValue());
 			
 			pins.get(i).addChangeListener(pair);
 		}

@@ -20,9 +20,9 @@ import com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XnorGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XorGatePeer;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.scene.image.Image;
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla

@@ -17,7 +17,6 @@ import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentLauncherInfo;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
-import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsimulator.gui.file.FileFormat;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.CircuitInfo;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.ComponentInfo;
@@ -27,7 +26,6 @@ import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -37,6 +35,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -48,7 +47,6 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -71,6 +69,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla
@@ -122,11 +121,11 @@ public class CircuitSimulator extends Application {
 	
 	private CircuitManager getCurrentCircuit() {
 		Tab tab = canvasTabPane.getSelectionModel().getSelectedItem();
-		return tab == null ? null : circuitManagers.get(tab.getText()).second;
+		return tab == null ? null : circuitManagers.get(tab.getText()).getValue();
 	}
 	
 	public CircuitManager getCircuitManager(String name) {
-		return circuitManagers.containsKey(name) ? circuitManagers.get(name).second : null;
+		return circuitManagers.containsKey(name) ? circuitManagers.get(name).getValue() : null;
 	}
 	
 	public void setProperties(Properties properties) {
@@ -143,46 +142,21 @@ public class CircuitSimulator extends Application {
 				name.setBackground(new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
 				                                                                         : Color.WHITE, null, null)));
 				
-				Node value;
-				if(property.validator instanceof PropertyListValidator) {
-					ComboBox<String> valueList = new ComboBox<>();
+				Node node = property.validator.createGui(property.value, newValue -> {
+					Properties newProperties = new Properties(properties);
+					newProperties.setValue(property, newValue);
+					updateProperties(newProperties);
+				});
+				
+				if(node != null) {
+					Pane valuePane = new Pane(node);
+					valuePane.setBackground(
+							new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
+							                                                      : Color.WHITE, null, null)));
 					
-					for(String entry : ((PropertyListValidator)property.validator).validValues) {
-						valueList.getItems().add(entry);
-					}
-					valueList.setValue(property.value);
-					valueList.getSelectionModel()
-					         .selectedItemProperty()
-					         .addListener((observable, oldValue, newValue) -> {
-						         if(oldValue == null || !newValue.equals(oldValue)) {
-							         Properties newProperties = new Properties(properties);
-							         newProperties.setValue(property, newValue);
-							         updateProperties(newProperties);
-						         }
-					         });
-					value = valueList;
-				} else if(property.validator instanceof PropertyCircuitValidator) {
-					return;
-				} else {
-					TextField valueField = new TextField(property.value);
-					valueField.setOnAction(event -> {
-						String newValue = valueField.getText();
-						if(!newValue.equals(property.value)) {
-							Properties newProperties = new Properties(properties);
-							newProperties.setValue(property, newValue);
-							updateProperties(newProperties);
-						}
-					});
-					value = valueField;
+					GridPane.setHgrow(valuePane, Priority.ALWAYS);
+					propertiesTable.addRow(size, name, valuePane);
 				}
-				
-				Pane valuePane = new Pane(value);
-				valuePane.setBackground(
-						new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
-						                                                      : Color.WHITE, null, null)));
-				
-				GridPane.setHgrow(valuePane, Priority.ALWAYS);
-				propertiesTable.addRow(size, name, valuePane);
 			});
 		}
 	}
@@ -231,7 +205,7 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private ToggleButton setupButton(ToggleGroup group, ComponentLauncherInfo componentInfo) {
-		ToggleButton button = new ToggleButton(componentInfo.name.second, setupImageView(componentInfo.image));
+		ToggleButton button = new ToggleButton(componentInfo.name.getValue(), setupImageView(componentInfo.image));
 		button.setAlignment(Pos.CENTER_LEFT);
 		button.setToggleGroup(group);
 		button.setMinHeight(30);
@@ -260,15 +234,15 @@ public class CircuitSimulator extends Application {
 		circuitManagers.forEach((name, circuitPair) -> {
 			GridPane buttons = (GridPane)circuitButtonsTab.getContent();
 			
-			ToggleButton toggleButton = setupButton(buttonsToggleGroup, circuitPair.first);
+			ToggleButton toggleButton = setupButton(buttonsToggleGroup, circuitPair.getKey());
 			buttons.addRow(buttons.getChildren().size(), toggleButton);
 		});
 	}
 
 //	private boolean hasUnsavedChanges() {
 //		for(Pair<ComponentLauncherInfo, CircuitManager> circuitPair : circuitManagers.values()) {
-//			if(!circuitPair.second.getCircuitBoard().getComponents().isEmpty()
-//					   || !circuitPair.second.getCircuitBoard().getLinks().isEmpty()) {
+//			if(!circuitPair.getValue().getCircuitBoard().getComponents().isEmpty()
+//					   || !circuitPair.getValue().getCircuitBoard().getLinks().isEmpty()) {
 //				return true;
 //			}
 //		}
@@ -304,13 +278,14 @@ public class CircuitSimulator extends Application {
 	
 	private void renameCircuit(String oldName, String newName) {
 		Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(oldName);
-		circuitManagers.put(newName, new Pair<>(createCircuitLauncherInfo(newName), removed.second));
+		circuitManagers.put(newName, new Pair<>(createCircuitLauncherInfo(newName), removed.getValue()));
 		refreshCircuitsTab();
 		
 		circuitManagers.values().forEach(componentPair -> {
-			for(ComponentPeer<?> componentPeer : componentPair.second.getCircuitBoard().getComponents()) {
+			for(ComponentPeer<?> componentPeer : componentPair.getValue().getCircuitBoard().getComponents()) {
 				if(componentPeer.getClass() == SubcircuitPeer.class &&
-						   ((Subcircuit)componentPeer.getComponent()).getSubcircuit() == removed.second.getCircuit()) {
+						   ((Subcircuit)componentPeer.getComponent()).getSubcircuit() == removed.getValue().getCircuit
+								                                                                                    ()) {
 					componentPeer.getProperties().setValue(SubcircuitPeer.SUBCIRCUIT, newName);
 				}
 			}
@@ -327,17 +302,17 @@ public class CircuitSimulator extends Application {
 		
 		circuitManagers.values().forEach(componentPair -> {
 			for(ComponentPeer<?> componentPeer :
-					new HashSet<>(componentPair.second.getCircuitBoard().getComponents())) {
+					new HashSet<>(componentPair.getValue().getCircuitBoard().getComponents())) {
 				if(componentPeer.getClass() == SubcircuitPeer.class
 						   && ((Subcircuit)componentPeer.getComponent()).getSubcircuit() == circuit) {
 					try {
-						componentPair.second.getCircuitBoard().removeElements(Collections.singleton(componentPeer));
+						componentPair.getValue().getCircuitBoard().removeElements(Collections.singleton(componentPeer));
 					} catch(Exception exc) {
 						exc.printStackTrace();
 					}
 					if(!removed) {
 						try {
-							componentPair.second.getCircuitBoard().addComponent(
+							componentPair.getValue().getCircuitBoard().addComponent(
 									new SubcircuitPeer(componentPeer.getProperties(),
 									                   componentPeer.getX(),
 									                   componentPeer.getY()));
@@ -433,7 +408,7 @@ public class CircuitSimulator extends Application {
 				event.consume();
 			} else {
 				Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(canvasTab.getText());
-				circuitModified(removed.second.getCircuit(), true);
+				circuitModified(removed.getValue().getCircuit(), true);
 				
 				if(canvasTabPane.getTabs().size() == 1) {
 					createCircuit("New circuit");
@@ -491,9 +466,9 @@ public class CircuitSimulator extends Application {
 		canvasTabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			CircuitManager oldManager = oldValue == null || !circuitManagers.containsKey(oldValue.getText())
-			                            ? null : circuitManagers.get(oldValue.getText()).second;
+			                            ? null : circuitManagers.get(oldValue.getText()).getValue();
 			CircuitManager newManager = newValue == null || !circuitManagers.containsKey(newValue.getText())
-			                            ? null : circuitManagers.get(newValue.getText()).second;
+			                            ? null : circuitManagers.get(newValue.getText()).getValue();
 			if(oldManager != null && newManager != null) {
 				newManager.setLastMousePosition(oldManager.getLastMousePosition());
 			}
@@ -506,14 +481,14 @@ public class CircuitSimulator extends Application {
 		
 		componentManager.forEach(componentInfo -> {
 			Tab tab;
-			if(buttonTabs.containsKey(componentInfo.name.first)) {
-				tab = buttonTabs.get(componentInfo.name.first);
+			if(buttonTabs.containsKey(componentInfo.name.getKey())) {
+				tab = buttonTabs.get(componentInfo.name.getKey());
 			} else {
-				tab = new Tab(componentInfo.name.first);
+				tab = new Tab(componentInfo.name.getKey());
 				tab.setClosable(false);
 				tab.setContent(new GridPane());
 				buttonTabPane.getTabs().add(tab);
-				buttonTabs.put(componentInfo.name.first, tab);
+				buttonTabs.put(componentInfo.name.getKey(), tab);
 			}
 			
 			GridPane buttons = (GridPane)tab.getContent();
@@ -610,7 +585,7 @@ public class CircuitSimulator extends Application {
 				canvasTabPane.getTabs().forEach(tab -> {
 					String name = tab.getText();
 					
-					CircuitManager manager = circuitManagers.get(name).second;
+					CircuitManager manager = circuitManagers.get(name).getValue();
 					
 					Set<ComponentInfo> components =
 							manager.getCircuitBoard()
@@ -723,7 +698,7 @@ public class CircuitSimulator extends Application {
 		Function<Pair<String, String>, ToggleButton> createToolbarButton = pair -> {
 			ComponentLauncherInfo info = componentManager.get(pair);
 			ToggleButton button = new ToggleButton("", setupImageView(info.image));
-			button.setTooltip(new Tooltip(pair.second));
+			button.setTooltip(new Tooltip(pair.getValue()));
 			button.setMinWidth(50);
 			button.setMinHeight(50);
 			button.setToggleGroup(buttonsToggleGroup);
@@ -756,10 +731,18 @@ public class CircuitSimulator extends Application {
 				alert.setTitle("Unsaved changes");
 				alert.setHeaderText("Unsaved changes");
 				alert.setContentText("There are unsaved changes, do you want to save them?");
+				
+				ButtonType discard = new ButtonType("Discard", ButtonData.NO);
+				alert.getButtonTypes().add(discard);
+				
 				Optional<ButtonType> result = alert.showAndWait();
-				if(result.isPresent() && result.get() == ButtonType.OK) {
-					save.fire();
-					if(saveFile == null) {
+				if(result.isPresent()) {
+					if(result.get() == ButtonType.OK) {
+						save.fire();
+						if(saveFile == null) {
+							event.consume();
+						}
+					} else if(result.get() == ButtonType.CANCEL) {
 						event.consume();
 					}
 				}

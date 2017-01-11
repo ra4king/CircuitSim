@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.ra4king.circuitsimulator.simulator.Port.Link;
-import com.ra4king.circuitsimulator.simulator.utils.Pair;
+
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla
@@ -56,7 +57,7 @@ public class Simulator {
 		
 		temp.forEach(pair -> {
 			try {
-				pair.first.propagateSignal(pair.second);
+				pair.getKey().propagateSignal(pair.getValue());
 			} catch(ShortCircuitException exc) {
 				shortCircuited.add(pair);
 				lastShortCircuit = exc;

@@ -41,7 +41,7 @@ public class Circuit {
 		states.forEach(component::init);
 		components.add(component);
 		
-		listeners.forEach(listener -> listener.circuitChanged(this));
+		listeners.forEach(listener -> listener.circuitChanged(this, component, true));
 		
 		return component;
 	}
@@ -52,7 +52,7 @@ public class Circuit {
 		states.forEach(state -> state.removeComponentProperty(component));
 		component.setCircuit(null);
 		
-		listeners.forEach(listener -> listener.circuitChanged(this));
+		listeners.forEach(listener -> listener.circuitChanged(this, component, false));
 	}
 	
 	public Set<Component> getComponents() {
@@ -61,7 +61,6 @@ public class Circuit {
 	
 	public void clearComponents() {
 		new HashSet<>(components).forEach(this::removeComponent);
-		listeners.forEach(listener -> listener.circuitChanged(this));
 	}
 	
 	public Simulator getSimulator() {
@@ -85,6 +84,6 @@ public class Circuit {
 	}
 	
 	public interface CircuitChangeListener {
-		void circuitChanged(Circuit circuit);
+		void circuitChanged(Circuit circuit, Component component, boolean added);
 	}
 }

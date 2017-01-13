@@ -13,6 +13,7 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.Connection.WireConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.simulator.Circuit;
+import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 
 import javafx.application.Platform;
@@ -25,6 +26,7 @@ import javafx.util.Pair;
  */
 public class CircuitBoard {
 	private Circuit circuit;
+	private CircuitState currentState;
 	
 	private Set<ComponentPeer<?>> components;
 	private Set<LinkWires> links;
@@ -35,7 +37,8 @@ public class CircuitBoard {
 	private Map<Pair<Integer, Integer>, Set<Connection>> connectionsMap;
 	
 	public CircuitBoard(Simulator simulator) {
-		this.circuit = new Circuit(simulator);
+		circuit = new Circuit(simulator);
+		currentState = circuit.getTopLevelState();
 		
 		components = new HashSet<>();
 		links = new HashSet<>();
@@ -45,6 +48,18 @@ public class CircuitBoard {
 	
 	public Circuit getCircuit() {
 		return circuit;
+	}
+	
+	public CircuitState getCurrentState() {
+		return currentState;
+	}
+	
+	public void setCurrentState(CircuitState state) {
+		if(currentState == null) {
+			throw new NullPointerException("CircuitState cannot be null");
+		}
+		
+		currentState = state;
 	}
 	
 	public void clear() {
@@ -129,6 +144,16 @@ public class CircuitBoard {
 		rejoinWires();
 		
 		runSim();
+	}
+	
+	public void recreateComponent(ComponentPeer<?> componentPeer, Properties newProperties) throws Exception {
+		removeComponent(componentPeer, true);
+		
+		ComponentPeer<?> newComponent =
+				ComponentManager.forClass(componentPeer.getClass())
+				                .createComponent(newProperties, componentPeer.getX(), componentPeer.getY());
+		
+		addComponent(newComponent);
 	}
 	
 	public void initMove(Set<GuiElement> elements) throws Exception {
@@ -530,28 +555,34 @@ public class CircuitBoard {
 	
 	private void paintComponent(GraphicsContext graphics, ComponentPeer<?> component) {
 		graphics.save();
-		component.paint(graphics, circuit.getTopLevelState());
+		component.paint(graphics, currentState);
 		graphics.restore();
 		
 		for(Connection connection : component.getConnections()) {
 			graphics.save();
-			connection.paint(graphics, circuit.getTopLevelState());
+			connection.paint(graphics, currentState);
 			graphics.restore();
 		}
 	}
 	
 	private void paintWire(GraphicsContext graphics, Wire wire) {
 		graphics.save();
-		wire.paint(graphics, circuit.getTopLevelState());
+		wire.paint(graphics, currentState);
 		graphics.restore();
 		
-		graphics.save();
-		wire.getStartConnection().paint(graphics, circuit.getTopLevelState());
-		graphics.restore();
+		Connection startConn = wire.getStartConnection();
+		if(getConnections(startConn.getX(), startConn.getY()).size() > 2) {
+			graphics.save();
+			startConn.paint(graphics, currentState);
+			graphics.restore();
+		}
 		
-		graphics.save();
-		wire.getEndConnection().paint(graphics, circuit.getTopLevelState());
-		graphics.restore();
+		Connection endConn = wire.getStartConnection();
+		if(getConnections(endConn.getX(), endConn.getY()).size() > 2) {
+			graphics.save();
+			endConn.paint(graphics, currentState);
+			graphics.restore();
+		}
 	}
 	
 	private void addConnection(Connection connection) {

@@ -34,6 +34,20 @@ public class Subcircuit extends Component {
 		pinListeners = new HashMap<>();
 	}
 	
+	private static List<Pin> getCircuitPins(Circuit circuit) {
+		return circuit.getComponents().stream()
+		              .filter(component -> component instanceof Pin).map(component -> (Pin)component)
+		              .collect(Collectors.toList());
+	}
+	
+	private static int[] setupPortBits(List<Pin> pins) {
+		int[] portBits = new int[pins.size()];
+		for(int i = 0; i < portBits.length; i++) {
+			portBits[i] = pins.get(i).getBitSize();
+		}
+		return portBits;
+	}
+	
 	public List<Pin> getPins() {
 		return pins;
 	}
@@ -83,6 +97,10 @@ public class Subcircuit extends Component {
 		}
 	}
 	
+	public CircuitState getSubcircuitState(CircuitState parentState) {
+		return (CircuitState)parentState.getComponentProperty(this);
+	}
+	
 	@Override
 	public void uninit(CircuitState circuitState) {
 		CircuitState subcircuitState = (CircuitState)circuitState.getComponentProperty(this);
@@ -100,20 +118,6 @@ public class Subcircuit extends Component {
 			return null;
 		}
 		return getPort(index);
-	}
-	
-	private static List<Pin> getCircuitPins(Circuit circuit) {
-		return circuit.getComponents().stream()
-		              .filter(component -> component instanceof Pin).map(component -> (Pin)component)
-		              .collect(Collectors.toList());
-	}
-	
-	private static int[] setupPortBits(List<Pin> pins) {
-		int[] portBits = new int[pins.size()];
-		for(int i = 0; i < portBits.length; i++) {
-			portBits[i] = pins.get(i).getBitSize();
-		}
-		return portBits;
 	}
 	
 	@Override

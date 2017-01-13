@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -23,8 +24,11 @@ import com.ra4king.circuitsimulator.gui.file.FileFormat.ComponentInfo;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.WireInfo;
 import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
+import com.ra4king.circuitsimulator.simulator.CircuitState;
+import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
+import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 
 import javafx.application.Application;
@@ -126,6 +130,31 @@ public class CircuitSimulator extends Application {
 	
 	public CircuitManager getCircuitManager(String name) {
 		return circuitManagers.containsKey(name) ? circuitManagers.get(name).getValue() : null;
+	}
+	
+	public CircuitManager getCircuitManager(Circuit circuit) {
+		for(Entry<String, Pair<ComponentLauncherInfo, CircuitManager>> entry : circuitManagers.entrySet()) {
+			if(entry.getValue().getValue().getCircuit() == circuit) {
+				return entry.getValue().getValue();
+			}
+		}
+		
+		return null;
+	}
+	
+	public CircuitManager switchToCircuit(Circuit circuit) {
+		for(Entry<String, Pair<ComponentLauncherInfo, CircuitManager>> entry : circuitManagers.entrySet()) {
+			if(entry.getValue().getValue().getCircuit() == circuit) {
+				for(Tab tab : canvasTabPane.getTabs()) {
+					if(tab.getText().equals(entry.getKey())) {
+						canvasTabPane.getSelectionModel().select(tab);
+						return entry.getValue().getValue();
+					}
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	public void setProperties(Properties properties) {
@@ -283,46 +312,120 @@ public class CircuitSimulator extends Application {
 		
 		circuitManagers.values().forEach(componentPair -> {
 			for(ComponentPeer<?> componentPeer : componentPair.getValue().getCircuitBoard().getComponents()) {
-				if(componentPeer.getClass() == SubcircuitPeer.class &&
-						   ((Subcircuit)componentPeer.getComponent()).getSubcircuit() == removed.getValue().getCircuit
-								                                                                                    ()) {
+				if(componentPeer.getClass() == SubcircuitPeer.class
+						   && ((Subcircuit)componentPeer.getComponent()).getSubcircuit()
+								      == removed.getValue().getCircuit()) {
 					componentPeer.getProperties().setValue(SubcircuitPeer.SUBCIRCUIT, newName);
 				}
 			}
 		});
 	}
 	
-	private void circuitModified(Circuit circuit) {
-		circuitModified(circuit, false);
-	}
-	
-	private void circuitModified(Circuit circuit, boolean removed) {
+	private void circuitModified(Circuit circuit, Component component, boolean added) {
+		if(component != null && !(component instanceof Pin)) {
+			return;
+		}
+		
 		hasUnsavedChanges = true;
 		updateTitle();
 		
 		circuitManagers.values().forEach(componentPair -> {
 			for(ComponentPeer<?> componentPeer :
 					new HashSet<>(componentPair.getValue().getCircuitBoard().getComponents())) {
-				if(componentPeer.getClass() == SubcircuitPeer.class
-						   && ((Subcircuit)componentPeer.getComponent()).getSubcircuit() == circuit) {
-					try {
-						componentPair.getValue().getCircuitBoard().removeElements(Collections.singleton(componentPeer));
-					} catch(Exception exc) {
-						exc.printStackTrace();
-					}
-					if(!removed) {
+				if(componentPeer.getClass() == SubcircuitPeer.class) {
+					SubcircuitPeer peer = (SubcircuitPeer)componentPeer;
+					if(component == null) {
 						try {
-							componentPair.getValue().getCircuitBoard().addComponent(
-									new SubcircuitPeer(componentPeer.getProperties(),
-									                   componentPeer.getX(),
-									                   componentPeer.getY()));
+							componentPair.getValue().getCircuitBoard().removeElements(Collections.singleton(peer));
 						} catch(Exception exc) {
 							exc.printStackTrace();
 						}
+						
+						CircuitNode node =
+								getSubcircuitStates(peer.getComponent(),
+								                    componentPair.getValue().getCircuitBoard().getCurrentState());
+						resetSubcircuitStates(node, componentPair.getValue().getCircuitBoard().getCurrentState());
+					} else if(((Subcircuit)componentPeer.getComponent()).getSubcircuit() == circuit) {
+						CircuitNode node =
+								getSubcircuitStates(peer.getComponent(),
+								                    componentPair.getValue().getCircuitBoard().getCurrentState());
+						
+						try {
+							componentPair.getValue().getCircuitBoard().removeElements(Collections.singleton(peer));
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+						
+						SubcircuitPeer newSubcircuit =
+								new SubcircuitPeer(componentPeer.getProperties(),
+								                   componentPeer.getX(),
+								                   componentPeer.getY());
+						
+						try {
+							componentPair.getValue().getCircuitBoard().addComponent(newSubcircuit);
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+						
+						node.subcircuit = newSubcircuit.getComponent();
+						updateSubcircuitStates(node, componentPair.getValue()
+						                                          .getCircuitBoard()
+						                                          .getCurrentState());
 					}
 				}
 			}
 		});
+	}
+	
+	private class CircuitNode {
+		private Subcircuit subcircuit;
+		private CircuitState subcircuitState;
+		private List<CircuitNode> children;
+		
+		CircuitNode(Subcircuit subcircuit, CircuitState subcircuitState) {
+			this.subcircuit = subcircuit;
+			this.subcircuitState = subcircuitState;
+			children = new ArrayList<>();
+		}
+	}
+	
+	private CircuitNode getSubcircuitStates(Subcircuit subcircuit, CircuitState parentState) {
+		CircuitState subcircuitState = subcircuit.getSubcircuitState(parentState);
+		
+		CircuitNode circuitNode = new CircuitNode(subcircuit, subcircuitState);
+		
+		for(Component component : subcircuit.getSubcircuit().getComponents()) {
+			if(component instanceof Subcircuit) {
+				circuitNode.children.add(getSubcircuitStates((Subcircuit)component, subcircuitState));
+			}
+		}
+		
+		return circuitNode;
+	}
+	
+	private void updateSubcircuitStates(CircuitNode node, CircuitState parentState) {
+		CircuitManager manager = getCircuitManager(node.subcircuit.getSubcircuit());
+		CircuitState subState = node.subcircuit.getSubcircuitState(parentState);
+		if(manager != null && manager.getCircuitBoard().getCurrentState() == node.subcircuitState) {
+			manager.getCircuitBoard().setCurrentState(subState);
+		}
+		
+		for(CircuitNode child : node.children) {
+			updateSubcircuitStates(child, subState);
+		}
+	}
+	
+	private void resetSubcircuitStates(CircuitNode node, CircuitState parentState) {
+		CircuitManager manager = getCircuitManager(node.subcircuit.getSubcircuit());
+		if(manager.getCircuitBoard().getCurrentState() == node.subcircuitState) {
+			manager.getCircuitBoard().setCurrentState(manager.getCircuit().getTopLevelState());
+		}
+		
+		CircuitState subState = node.subcircuit.getSubcircuitState(parentState);
+		
+		for(CircuitNode child : node.children) {
+			resetSubcircuitStates(child, subState);
+		}
 	}
 	
 	private CircuitManager createCircuit(String name) {
@@ -346,7 +449,7 @@ public class CircuitSimulator extends Application {
 		canvas.widthProperty().bind(canvasTabPane.widthProperty());
 		canvas.heightProperty().bind(canvasTabPane.heightProperty());
 		
-		canvas.addEventHandler(MouseEvent.ANY, e -> canvas.requestFocus());
+		canvas.addEventHandler(MouseEvent.ANY, event -> canvas.requestFocus());
 		canvas.addEventHandler(MouseEvent.MOUSE_MOVED, this::mouseMoved);
 		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::mouseDragged);
 		canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::mouseClicked);
@@ -357,6 +460,8 @@ public class CircuitSimulator extends Application {
 		canvas.addEventHandler(KeyEvent.KEY_PRESSED, this::keyPressed);
 		canvas.addEventHandler(KeyEvent.KEY_TYPED, this::keyTyped);
 		canvas.addEventHandler(KeyEvent.KEY_RELEASED, this::keyReleased);
+		
+		canvas.requestFocus();
 		
 		CircuitManager circuitManager = new CircuitManager(this, canvas, simulator);
 		circuitManager.getCircuit().addListener(this::circuitModified);
@@ -396,7 +501,11 @@ public class CircuitSimulator extends Application {
 				}
 			}
 		});
-		canvasTab.setContextMenu(new ContextMenu(rename));
+		MenuItem viewTopLevelState = new MenuItem("View top-level state");
+		viewTopLevelState.setOnAction(event -> {
+			circuitManager.getCircuitBoard().setCurrentState(circuitManager.getCircuit().getTopLevelState());
+		});
+		canvasTab.setContextMenu(new ContextMenu(rename, viewTopLevelState));
 		canvasTab.setOnCloseRequest(event -> {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Delete this circuit?");
@@ -408,7 +517,7 @@ public class CircuitSimulator extends Application {
 				event.consume();
 			} else {
 				Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(canvasTab.getText());
-				circuitModified(removed.getValue().getCircuit(), true);
+				circuitModified(removed.getValue().getCircuit(), null, false);
 				
 				if(canvasTabPane.getTabs().size() == 1) {
 					createCircuit("New circuit");

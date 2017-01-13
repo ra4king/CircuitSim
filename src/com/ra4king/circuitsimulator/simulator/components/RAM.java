@@ -30,8 +30,16 @@ public class RAM extends Component {
 		this.dataBits = bitSize;
 	}
 	
+	public int getAddressBits() {
+		return addressBits;
+	}
+	
+	public int getDataBits() {
+		return dataBits;
+	}
+	
 	public void store(CircuitState circuitState, int address, WireValue data) {
-		WireValue[] memory = (WireValue[])circuitState.getComponentProperty(this);
+		WireValue[] memory = getMemoryContents(circuitState);
 		if(memory[address] == null) {
 			if(!data.isValidValue() || data.getValue() != 0) {
 				memory[address] = new WireValue(data);
@@ -44,7 +52,7 @@ public class RAM extends Component {
 	}
 	
 	public WireValue load(CircuitState circuitState, int address) {
-		WireValue[] memory = (WireValue[])circuitState.getComponentProperty(this);
+		WireValue[] memory = getMemoryContents(circuitState);
 		WireValue data = memory[address];
 		return data == null ? memory[address] = new WireValue(dataBits, State.ZERO) : data;
 	}
@@ -55,9 +63,22 @@ public class RAM extends Component {
 		circuitState.putComponentProperty(this, new WireValue[1 << addressBits]);
 	}
 	
+	public WireValue[] getMemoryContents(CircuitState circuitState) {
+		return (WireValue[])circuitState.getComponentProperty(this);
+	}
+	
+	public void setMemoryContents(CircuitState circuitState, WireValue[] newValues) {
+		WireValue[] current = getMemoryContents(circuitState);
+		if(current.length != newValues.length) {
+			throw new IllegalArgumentException("Incorrect WireValue length");
+		}
+		
+		circuitState.putComponentProperty(this, newValues);
+	}
+	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		WireValue[] memory = (WireValue[])state.getComponentProperty(this);
+		WireValue[] memory = getMemoryContents(state);
 		
 		boolean enabled = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO;
 		boolean load = state.getLastReceived(getPort(PORT_LOAD)).getBit(0) != State.ZERO;

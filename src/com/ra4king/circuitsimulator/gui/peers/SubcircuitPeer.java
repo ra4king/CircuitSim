@@ -1,6 +1,7 @@
 package com.ra4king.circuitsimulator.gui.peers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 
 /**
@@ -65,6 +67,19 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		}
 		
 		init(subcircuit, properties, connections);
+	}
+	
+	public void switchToSubcircuit(CircuitManager circuit) {
+		CircuitManager manager = circuit.getSimulatorWindow().switchToCircuit(getComponent().getSubcircuit());
+		manager.getCircuitBoard()
+		       .setCurrentState(getComponent().getSubcircuitState(circuit.getCircuitBoard().getCurrentState()));
+	}
+	
+	@Override
+	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
+		MenuItem view = new MenuItem("View internal state");
+		view.setOnAction(event -> switchToSubcircuit(circuit));
+		return Collections.singletonList(view);
 	}
 	
 	@Override

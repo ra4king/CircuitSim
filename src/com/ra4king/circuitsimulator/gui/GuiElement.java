@@ -1,10 +1,12 @@
 package com.ra4king.circuitsimulator.gui;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.MenuItem;
 
 /**
  * @author Roi Atalla
@@ -114,6 +116,10 @@ public abstract class GuiElement {
 				         getX() >= x + width ||
 				         y >= getY() + getHeight() ||
 				         getY() >= y + height);
+	}
+	
+	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
+		return Collections.emptyList();
 	}
 	
 	public abstract List<Connection> getConnections();

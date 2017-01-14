@@ -1,11 +1,15 @@
-package com.ra4king.circuitsimulator.gui;
+package com.ra4king.circuitsimulator.gui.peers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
+import com.ra4king.circuitsimulator.gui.ComponentPeer;
+import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
+import com.ra4king.circuitsimulator.gui.GuiUtils;
+import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;

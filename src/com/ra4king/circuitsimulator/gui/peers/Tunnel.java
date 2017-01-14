@@ -45,12 +45,12 @@ public class Tunnel extends ComponentPeer<Component> {
 		properties.mergeIfExists(props);
 		
 		String label = properties.getValue(Properties.LABEL);
-		int bitsize = properties.getIntValue(Properties.BITSIZE);
+		int bitSize = properties.getIntValue(Properties.BITSIZE);
 		
-		Bounds bounds = GuiUtils.getBounds(new Font("monospace", 15), label);
+		Bounds bounds = GuiUtils.getBounds(Font.font("monospace", 15), label);
 		setWidth(1 + Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1));
 		
-		Component tunnel = new Component(label, new int[] { bitsize }) {
+		Component tunnel = new Component(label, new int[] { bitSize }) {
 			@Override
 			public void setCircuit(Circuit circuit) {
 				super.setCircuit(circuit);
@@ -137,9 +137,7 @@ public class Tunnel extends ComponentPeer<Component> {
 		if(!getComponent().getName().isEmpty()) {
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
 			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(),
-			                    x + block + (width - bounds.getWidth()) * 0.5,
-			                    y + (height + bounds.getHeight()) * 0.4);
+			graphics.strokeText(getComponent().getName(), x + block, y + (height + bounds.getHeight()) * 0.4);
 		}
 	}
 }

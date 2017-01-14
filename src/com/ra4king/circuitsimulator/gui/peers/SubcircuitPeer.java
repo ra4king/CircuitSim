@@ -39,7 +39,7 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		CircuitManager subcircuitManager = ((PropertyCircuitValidator)subcircuitProperty.validator)
 				                                   .getCircuitManager(subcircuitProperty.value);
 		Subcircuit subcircuit = new Subcircuit(properties.getValue(Properties.LABEL), subcircuitManager.getCircuit());
-		setHeight(1 + (subcircuit.getNumPorts() + 1) / 2);
+		setHeight(Math.max(2, 1 + (subcircuit.getNumPorts() + 1) / 2));
 		
 		List<Connection> connections = new ArrayList<>();
 		List<PinPeer> pins = subcircuitManager.getCircuitBoard()

@@ -133,6 +133,8 @@ public class ComponentManager {
 		register(ROMPeer.class);
 		
 		register(AdderPeer.class);
+		
+		register(LEDMatrix.class);
 	}
 	
 	public interface ComponentCreator<T extends ComponentPeer<?>> {

@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue;
+import com.ra4king.circuitsimulator.simulator.WireValue.State;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
@@ -63,23 +64,27 @@ public class GuiUtils {
 	
 	public static void setBitColor(GraphicsContext graphics, WireValue value, Color defaultColor) {
 		if(value.getBitSize() == 1) {
-			switch(value.getBit(0)) {
-				case ONE:
-					graphics.setStroke(Color.GREEN.brighter());
-					graphics.setFill(Color.GREEN.brighter());
-					break;
-				case ZERO:
-					graphics.setStroke(Color.GREEN.darker());
-					graphics.setFill(Color.GREEN.darker());
-					break;
-				case X:
-					graphics.setStroke(Color.BLUE.brighter());
-					graphics.setFill(Color.BLUE.brighter());
-					break;
-			}
+			setBitColor(graphics, value.getBit(0));
 		} else {
 			graphics.setStroke(defaultColor);
 			graphics.setFill(defaultColor);
+		}
+	}
+	
+	public static void setBitColor(GraphicsContext graphics, State bitState) {
+		switch(bitState) {
+			case ONE:
+				graphics.setStroke(Color.GREEN.brighter());
+				graphics.setFill(Color.GREEN.brighter());
+				break;
+			case ZERO:
+				graphics.setStroke(Color.GREEN.darker());
+				graphics.setFill(Color.GREEN.darker());
+				break;
+			case X:
+				graphics.setStroke(Color.BLUE.brighter());
+				graphics.setFill(Color.BLUE.brighter());
+				break;
 		}
 	}
 }

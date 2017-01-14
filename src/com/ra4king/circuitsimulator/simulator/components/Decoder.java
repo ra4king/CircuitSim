@@ -34,7 +34,7 @@ public class Decoder extends Component {
 	}
 	
 	public Port getSelectorPort() {
-		return getPort(getNumPorts() - 2);
+		return getPort(getNumPorts() - 1);
 	}
 	
 	private static int[] createBitSizeArray(int numSelectBits) {

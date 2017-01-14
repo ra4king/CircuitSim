@@ -457,14 +457,15 @@ public class CircuitSimulator extends Application {
 		CircuitManager circuitManager = new CircuitManager(this, canvas, simulator);
 		circuitManager.getCircuit().addListener(this::circuitModified);
 		
-		String originalName;
-		for(int count = 0; getCircuitManager(name) != null; count++) {
+		String originalName = name;
+		for(int count = 0; getCircuitManager(originalName) != null; count++) {
 			originalName = name;
 			if(count > 0) {
 				originalName += count;
 			}
-			name = originalName;
 		}
+		
+		name = originalName;
 		
 		Tab canvasTab = new Tab(name, canvas);
 		MenuItem rename = new MenuItem("Rename");

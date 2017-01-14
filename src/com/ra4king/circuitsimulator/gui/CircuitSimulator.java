@@ -102,7 +102,7 @@ public class CircuitSimulator extends Application {
 	
 	private ComponentLauncherInfo selectedComponent;
 	
-	private File saveFile;
+	private File saveFile, lastSaveFile;
 	private boolean hasUnsavedChanges;
 	
 	private int currentClockHz = 1;
@@ -334,18 +334,7 @@ public class CircuitSimulator extends Application {
 					new HashSet<>(componentPair.getValue().getCircuitBoard().getComponents())) {
 				if(componentPeer.getClass() == SubcircuitPeer.class) {
 					SubcircuitPeer peer = (SubcircuitPeer)componentPeer;
-					if(component == null) {
-						try {
-							componentPair.getValue().getCircuitBoard().removeElements(Collections.singleton(peer));
-						} catch(Exception exc) {
-							exc.printStackTrace();
-						}
-						
-						CircuitNode node =
-								getSubcircuitStates(peer.getComponent(),
-								                    componentPair.getValue().getCircuitBoard().getCurrentState());
-						resetSubcircuitStates(node, componentPair.getValue().getCircuitBoard().getCurrentState());
-					} else if(((Subcircuit)componentPeer.getComponent()).getSubcircuit() == circuit) {
+					if(peer.getComponent().getSubcircuit() == circuit) {
 						CircuitNode node =
 								getSubcircuitStates(peer.getComponent(),
 								                    componentPair.getValue().getCircuitBoard().getCurrentState());
@@ -356,21 +345,25 @@ public class CircuitSimulator extends Application {
 							exc.printStackTrace();
 						}
 						
-						SubcircuitPeer newSubcircuit =
-								new SubcircuitPeer(componentPeer.getProperties(),
-								                   componentPeer.getX(),
-								                   componentPeer.getY());
-						
-						try {
-							componentPair.getValue().getCircuitBoard().addComponent(newSubcircuit);
-						} catch(Exception exc) {
-							exc.printStackTrace();
+						if(component == null) {
+							resetSubcircuitStates(node);
+						} else {
+							SubcircuitPeer newSubcircuit =
+									new SubcircuitPeer(componentPeer.getProperties(),
+									                   componentPeer.getX(),
+									                   componentPeer.getY());
+							
+							try {
+								componentPair.getValue().getCircuitBoard().addComponent(newSubcircuit);
+							} catch(Exception exc) {
+								exc.printStackTrace();
+							}
+							
+							node.subcircuit = newSubcircuit.getComponent();
+							updateSubcircuitStates(node, componentPair.getValue()
+							                                          .getCircuitBoard()
+							                                          .getCurrentState());
 						}
-						
-						node.subcircuit = newSubcircuit.getComponent();
-						updateSubcircuitStates(node, componentPair.getValue()
-						                                          .getCircuitBoard()
-						                                          .getCurrentState());
 					}
 				}
 			}
@@ -415,16 +408,14 @@ public class CircuitSimulator extends Application {
 		}
 	}
 	
-	private void resetSubcircuitStates(CircuitNode node, CircuitState parentState) {
+	private void resetSubcircuitStates(CircuitNode node) {
 		CircuitManager manager = getCircuitManager(node.subcircuit.getSubcircuit());
-		if(manager.getCircuitBoard().getCurrentState() == node.subcircuitState) {
+		if(manager != null && manager.getCircuitBoard().getCurrentState() == node.subcircuitState) {
 			manager.getCircuitBoard().setCurrentState(manager.getCircuit().getTopLevelState());
 		}
 		
-		CircuitState subState = node.subcircuit.getSubcircuitState(parentState);
-		
 		for(CircuitNode child : node.children) {
-			resetSubcircuitStates(child, subState);
+			resetSubcircuitStates(child);
 		}
 	}
 	
@@ -615,10 +606,11 @@ public class CircuitSimulator extends Application {
 		load.setOnAction(event -> {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Choose sim file");
+			fileChooser.setInitialDirectory(lastSaveFile == null ? null : lastSaveFile.getParentFile());
 			fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
 			File selectedFile = fileChooser.showOpenDialog(stage);
 			if(selectedFile != null) {
-				saveFile = selectedFile;
+				lastSaveFile = saveFile = selectedFile;
 				
 				try {
 					List<CircuitInfo> circuits = FileFormat.load(selectedFile);
@@ -684,11 +676,15 @@ public class CircuitSimulator extends Application {
 			if(saveFile == null) {
 				FileChooser fileChooser = new FileChooser();
 				fileChooser.setTitle("Choose sim file");
+				fileChooser.setInitialDirectory(lastSaveFile == null ? null : lastSaveFile.getParentFile());
+				fileChooser.setInitialFileName("My circuit.sim");
 				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
 				saveFile = fileChooser.showSaveDialog(stage);
 			}
 			
 			if(saveFile != null) {
+				lastSaveFile = saveFile;
+				
 				List<CircuitInfo> circuits = new ArrayList<>();
 				
 				canvasTabPane.getTabs().forEach(tab -> {
@@ -731,15 +727,16 @@ public class CircuitSimulator extends Application {
 		});
 		
 		MenuItem saveAs = new MenuItem("Save as");
-		saveAs.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN, KeyCombination.ALT_DOWN));
+		saveAs.setAccelerator(
+				new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 		saveAs.setOnAction(event -> {
-			File oldSave = saveFile;
+			lastSaveFile = saveFile;
 			
 			saveFile = null;
 			save.fire();
 			
 			if(saveFile == null) {
-				saveFile = oldSave;
+				saveFile = lastSaveFile;
 			}
 			
 			updateTitle();

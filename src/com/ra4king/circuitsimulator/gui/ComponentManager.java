@@ -14,6 +14,7 @@ import com.ra4king.circuitsimulator.gui.peers.RAMPeer;
 import com.ra4king.circuitsimulator.gui.peers.ROMPeer;
 import com.ra4king.circuitsimulator.gui.peers.RegisterPeer;
 import com.ra4king.circuitsimulator.gui.peers.SplitterPeer;
+import com.ra4king.circuitsimulator.gui.peers.Tunnel;
 import com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.NandGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.NorGatePeer;
@@ -110,6 +111,7 @@ public class ComponentManager {
 		register(PinPeer.class);
 		register(ClockPeer.class);
 		register(SplitterPeer.class);
+		register(Tunnel.class);
 		
 		register(AndGatePeer.class);
 		register(NandGatePeer.class);

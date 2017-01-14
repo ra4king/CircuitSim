@@ -195,12 +195,13 @@ public class CircuitManager {
 	}
 	
 	private long lastRepaint = System.nanoTime();
+	private int lastFrameCount;
 	private int frameCount;
 	
 	public void paint(GraphicsContext graphics) {
 		long now = System.nanoTime();
 		if(now - lastRepaint >= 1e9) {
-			System.out.println("FPS: " + frameCount);
+			lastFrameCount = frameCount;
 			frameCount = 0;
 			lastRepaint = now;
 		}
@@ -309,6 +310,12 @@ public class CircuitManager {
 			graphics.setStroke(Color.BLACK);
 			graphics.strokeText(message, (canvas.getWidth() - bounds.getWidth()) * 0.5, canvas.getHeight() - 50);
 		}
+		
+		graphics.save();
+		graphics.setFont(Font.font("monospace", 10));
+		graphics.setStroke(Color.BLACK);
+		graphics.strokeText("FPS: " + lastFrameCount, 5, 10);
+		graphics.restore();
 		
 		graphics.restore();
 	}

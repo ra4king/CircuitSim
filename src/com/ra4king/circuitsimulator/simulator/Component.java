@@ -34,10 +34,6 @@ public abstract class Component {
 	}
 	
 	public Port getPort(int portIndex) {
-		if(ports == null) {
-			throw new IllegalStateException(this + ": component not part of a circuit.");
-		}
-		
 		return ports[portIndex];
 	}
 	

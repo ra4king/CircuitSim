@@ -64,7 +64,6 @@ public class Tunnel extends ComponentPeer<Component> {
 						}
 					}
 				} else if(!label.isEmpty()) {
-					System.out.println("Tunnel registered");
 					List<Tunnel> tunnelList = tunnels.getOrDefault(label, new ArrayList<>());
 					tunnelList.add(Tunnel.this);
 					tunnels.put(label, tunnelList);

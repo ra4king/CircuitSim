@@ -718,11 +718,6 @@ public class CircuitSimulator extends Application {
 					FileFormat.save(saveFile, circuits);
 					hasUnsavedChanges = false;
 					updateTitle();
-//					Alert alert = new Alert(AlertType.INFORMATION);
-//					alert.setTitle("Circuits saved");
-//					alert.setHeaderText("Circuits saved");
-//					alert.setContentText("Circuits have successfully been saved.");
-//					alert.show();
 				} catch(Exception exc) {
 					exc.printStackTrace();
 					
@@ -821,10 +816,12 @@ public class CircuitSimulator extends Application {
 		ToggleButton orButton = createToolbarButton.apply(new Pair<>("Gates", "OR"));
 		ToggleButton notButton = createToolbarButton.apply(new Pair<>("Gates", "NOT"));
 		ToggleButton xorButton = createToolbarButton.apply(new Pair<>("Gates", "XOR"));
+		ToggleButton tunnelButton = createToolbarButton.apply(new Pair<>("Wiring", "Tunnel"));
 		
-		toolBar.getItems().addAll(inputPinButton, outputPinButton, andButton, orButton, notButton, xorButton,
-		                          new Label("Bit size:"), bitSizeSelect,
-		                          new Label("Secondary:"), secondaryOptionSelect);
+		toolBar.getItems().addAll(inputPinButton, outputPinButton, andButton,
+		                          orButton, notButton, xorButton, tunnelButton,
+		                          new Label("Global bit size:"), bitSizeSelect,
+		                          new Label("Global secondary:"), secondaryOptionSelect);
 		
 		Scene scene = new Scene(new VBox(menuBar, toolBar, hBox));
 		

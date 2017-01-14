@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import com.ra4king.circuitsimulator.gui.peers.AdderPeer;
 import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer;
+import com.ra4king.circuitsimulator.gui.peers.DecoderPeer;
+import com.ra4king.circuitsimulator.gui.peers.DemultiplexerPeer;
 import com.ra4king.circuitsimulator.gui.peers.MultiplexerPeer;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.gui.peers.RAMPeer;
@@ -122,10 +124,14 @@ public class ComponentManager {
 		register(NotGatePeer.class);
 		register(ControlledBufferPeer.class);
 		
+		register(MultiplexerPeer.class);
+		register(DemultiplexerPeer.class);
+		register(DecoderPeer.class);
+		
 		register(RegisterPeer.class);
 		register(RAMPeer.class);
 		register(ROMPeer.class);
-		register(MultiplexerPeer.class);
+		
 		register(AdderPeer.class);
 	}
 	

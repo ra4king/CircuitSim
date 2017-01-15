@@ -31,6 +31,7 @@ import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -852,6 +853,18 @@ public class CircuitSimulator extends Application {
 				}
 			}
 		});
+		
+		new AnimationTimer() {
+			@Override
+			public void handle(long now) {
+				Platform.runLater(() -> {
+					CircuitManager manager = getCurrentCircuit();
+					if(manager != null) {
+						manager.paint();
+					}
+				});
+			}
+		}.start();
 	}
 	
 	public void keyPressed(KeyEvent e) {

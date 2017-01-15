@@ -22,8 +22,6 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.components.Clock;
 import com.ra4king.circuitsimulator.simulator.components.Pin;
 
-import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
@@ -103,13 +101,6 @@ public class CircuitManager {
 				menu.show(canvas, event.getScreenX(), event.getScreenY());
 			}
 		});
-		
-		new AnimationTimer() {
-			@Override
-			public void handle(long now) {
-				Platform.runLater(() -> paint(canvas.getGraphicsContext2D()));
-			}
-		}.start();
 	}
 	
 	public CircuitSimulator getSimulatorWindow() {
@@ -213,7 +204,9 @@ public class CircuitManager {
 	private int lastFrameCount;
 	private int frameCount;
 	
-	public void paint(GraphicsContext graphics) {
+	public void paint() {
+		GraphicsContext graphics = canvas.getGraphicsContext2D();
+		
 		long now = System.nanoTime();
 		if(now - lastRepaint >= 1e9) {
 			lastFrameCount = frameCount;

@@ -34,6 +34,7 @@ import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -49,6 +50,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
@@ -66,11 +68,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -96,6 +98,7 @@ public class CircuitSimulator extends Application {
 	
 	private ComboBox<Integer> bitSizeSelect, secondaryOptionSelect;
 	private GridPane propertiesTable;
+	private Label componentLabel;
 	
 	private Tab circuitButtonsTab;
 	private TabPane canvasTabPane;
@@ -122,6 +125,10 @@ public class CircuitSimulator extends Application {
 						}
 					}
 				}));
+	}
+	
+	public Stage getStage() {
+		return stage;
 	}
 	
 	private CircuitManager getCurrentCircuit() {
@@ -158,10 +165,21 @@ public class CircuitSimulator extends Application {
 		return null;
 	}
 	
-	public void setProperties(Properties properties) {
+	public void clearProperties() {
+		setProperties("", null);
+	}
+	
+	public void setProperties(ComponentPeer<?> componentPeer) {
+		ComponentLauncherInfo info = componentManager.get(componentPeer.getClass());
+		setProperties(info.name.getValue(), componentPeer.getProperties());
+	}
+	
+	public void setProperties(String componentName, Properties properties) {
 		propertiesTable.getChildren().clear();
 		
 		if(properties != null) {
+			componentLabel.setText(componentName);
+			
 			properties.forEach(property -> {
 				int size = propertiesTable.getChildren().size();
 				
@@ -172,7 +190,7 @@ public class CircuitSimulator extends Application {
 				name.setBackground(new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
 				                                                                         : Color.WHITE, null, null)));
 				
-				Node node = property.validator.createGui(property.value, newValue -> {
+				Node node = property.validator.createGui(stage, property.value, newValue -> {
 					Properties newProperties = new Properties(properties);
 					newProperties.setValue(property, newValue);
 					updateProperties(newProperties);
@@ -188,6 +206,8 @@ public class CircuitSimulator extends Application {
 					propertiesTable.addRow(size, name, valuePane);
 				}
 			});
+		} else {
+			componentLabel.setText("");
 		}
 	}
 	
@@ -208,23 +228,27 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private void updateProperties(Properties properties) {
-		modifiedSelection(selectedComponent == null ? null : selectedComponent.creator, properties);
+		if(selectedComponent == null) {
+			modifiedSelection("", null, properties);
+		} else {
+			modifiedSelection(selectedComponent.name.getValue(), selectedComponent.creator, properties);
+		}
 	}
 	
 	private void modifiedSelection(ComponentLauncherInfo component) {
 		selectedComponent = component;
 		if(component != null) {
 			Properties properties = getDefaultProperties().union(component.properties);
-			modifiedSelection(component.creator, properties);
+			modifiedSelection(component.name.getValue(), component.creator, properties);
 		} else {
-			modifiedSelection(null, null);
+			modifiedSelection("", null, null);
 		}
 	}
 	
-	private void modifiedSelection(ComponentCreator<?> creator, Properties properties) {
+	private void modifiedSelection(String componentName, ComponentCreator<?> creator, Properties properties) {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
-			setProperties(current.modifiedSelection(creator, properties));
+			setProperties(componentName, current.modifiedSelection(creator, properties));
 		}
 	}
 	
@@ -560,6 +584,8 @@ public class CircuitSimulator extends Application {
 		propertiesTable = new GridPane();
 		propertiesTable.setMaxWidth(Double.MAX_VALUE);
 		
+		componentLabel = new Label();
+		
 		canvasTabPane = new TabPane();
 		canvasTabPane.setPrefWidth(800);
 		canvasTabPane.setPrefHeight(600);
@@ -788,13 +814,17 @@ public class CircuitSimulator extends Application {
 		
 		menuBar.getMenus().addAll(fileMenu, circuitsMenu, clockMenu);
 		
-		VBox leftPanel = new VBox(buttonTabPane, propertiesTable);
-		VBox.setVgrow(buttonTabPane, Priority.ALWAYS);
-		VBox.setVgrow(propertiesTable, Priority.ALWAYS);
+		componentLabel.setFont(Font.font("Sans serif", 15));
+		VBox propertiesBox = new VBox(componentLabel, propertiesTable);
+		propertiesBox.setAlignment(Pos.TOP_CENTER);
+		VBox.setVgrow(propertiesBox, Priority.ALWAYS);
 		
-		HBox hBox = new HBox(leftPanel, canvasTabPane);
-		HBox.setHgrow(canvasTabPane, Priority.ALWAYS);
-		VBox.setVgrow(hBox, Priority.ALWAYS);
+		SplitPane leftPane = new SplitPane(buttonTabPane, propertiesBox);
+		leftPane.setOrientation(Orientation.VERTICAL);
+		
+		SplitPane canvasPropsSplit = new SplitPane(leftPane, canvasTabPane);
+		canvasPropsSplit.setOrientation(Orientation.HORIZONTAL);
+		canvasPropsSplit.setDividerPositions(0.25);
 		
 		ToolBar toolBar = new ToolBar();
 		
@@ -822,7 +852,8 @@ public class CircuitSimulator extends Application {
 		                          new Label("Global bit size:"), bitSizeSelect,
 		                          new Label("Global secondary:"), secondaryOptionSelect);
 		
-		Scene scene = new Scene(new VBox(menuBar, toolBar, hBox));
+		VBox.setVgrow(canvasPropsSplit, Priority.ALWAYS);
+		Scene scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));
 		
 		stage.setScene(scene);
 		stage.setTitle("Circuit Simulator");

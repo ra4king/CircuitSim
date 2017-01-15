@@ -81,7 +81,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 			                     .mapToInt(value -> value == null ? 0 : value.getValue())
 			                     .toArray();
 			
-			memoryValidator.createAndShowMemoryWindow(memory);
+			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), memory);
 			
 			WireValue[] newMemory = Arrays.stream(memory)
 			                              .mapToObj(value -> value == 0

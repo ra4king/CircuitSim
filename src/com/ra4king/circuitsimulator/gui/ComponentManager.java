@@ -87,6 +87,16 @@ public class ComponentManager {
 		return null;
 	}
 	
+	public ComponentLauncherInfo get(Class<? extends ComponentPeer> clazz) {
+		for(ComponentLauncherInfo component : components) {
+			if(component.clazz == clazz) {
+				return component;
+			}
+		}
+		
+		return null;
+	}
+	
 	public void forEach(Consumer<ComponentLauncherInfo> consumer) {
 		components.forEach(consumer);
 	}

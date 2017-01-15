@@ -77,16 +77,17 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		MenuItem menuItem = new MenuItem("Edit contents");
 		menuItem.setOnAction(event -> {
 			Property property = getProperties().getProperty("Contents");
-			((Button)property.validator.createGui(property.value, newValue -> {
-				Properties newProps = new Properties(getProperties());
-				newProps.setProperty(new Property(property.name, property.validator, newValue));
-				
-				try {
-					circuit.recreateComponent(this, newProps);
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
-			})).fire();
+			((Button)property.validator.createGui(
+					circuit.getSimulatorWindow().getStage(), property.value, newValue -> {
+						Properties newProps = new Properties(getProperties());
+						newProps.setProperty(new Property(property.name, property.validator, newValue));
+						
+						try {
+							circuit.recreateComponent(this, newProps);
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+					})).fire();
 		});
 		return Collections.singletonList(menuItem);
 	}

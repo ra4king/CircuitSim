@@ -17,19 +17,23 @@ import com.sun.javafx.scene.control.skin.TableHeaderRow;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 /**
  * @author Roi Atalla
@@ -291,7 +295,7 @@ public class Properties {
 	public interface PropertyValidator {
 		boolean validate(String value);
 		
-		default Node createGui(String value, Consumer<String> onAction) {
+		default Node createGui(Stage stage, String value, Consumer<String> onAction) {
 			TextField valueField = new TextField(value);
 			valueField.setOnAction(event -> {
 				String newValue = valueField.getText();
@@ -330,7 +334,7 @@ public class Properties {
 		}
 		
 		@Override
-		public Node createGui(String value, Consumer<String> onAction) {
+		public Node createGui(Stage stage, String value, Consumer<String> onAction) {
 			ComboBox<String> valueList = new ComboBox<>();
 			
 			for(String entry : validValues) {
@@ -383,7 +387,7 @@ public class Properties {
 		}
 		
 		@Override
-		public Node createGui(String value, Consumer<String> onAction) {
+		public Node createGui(Stage stage, String value, Consumer<String> onAction) {
 			return null;
 		}
 		
@@ -500,26 +504,27 @@ public class Properties {
 		}
 		
 		@Override
-		public Node createGui(String value, Consumer<String> onAction) {
+		public Node createGui(Stage stage, String value, Consumer<String> onAction) {
 			Button button = new Button("Click to edit");
-			button.setOnAction(event -> onAction.accept(createAndShowMemoryWindow(value)));
+			button.setOnAction(event -> onAction.accept(createAndShowMemoryWindow(stage, value)));
 			return button;
 		}
 		
-		public String createAndShowMemoryWindow(String value) {
+		public String createAndShowMemoryWindow(Stage stage, String value) {
 			List<MemoryLine> lines = parseMemory(value);
-			createAndShowMemoryWindow(lines);
+			createAndShowMemoryWindow(stage, lines);
 			return String.join(" ", lines.stream().map(MemoryLine::toString).collect(Collectors.toList()));
 		}
 		
-		public void createAndShowMemoryWindow(int[] memory) {
-			int[] newMemory = parseToArray(createAndShowMemoryWindow(parseToString(memory)));
+		public void createAndShowMemoryWindow(Stage stage, int[] memory) {
+			int[] newMemory = parseToArray(createAndShowMemoryWindow(stage, parseToString(memory)));
 			System.arraycopy(newMemory, 0, memory, 0, memory.length);
 		}
 		
-		private void createAndShowMemoryWindow(List<MemoryLine> lines) {
-			Dialog<ButtonType> dialog = new Dialog<>();
-			dialog.setTitle("Modify memory");
+		private void createAndShowMemoryWindow(Stage stage, List<MemoryLine> lines) {
+			Stage memoryStage = new Stage();
+			memoryStage.initOwner(stage);
+			memoryStage.setTitle("Modify memory");
 			
 			TableView<MemoryLine> tableView = new TableView<>();
 			tableView.getSelectionModel().setCellSelectionEnabled(true);
@@ -571,7 +576,7 @@ public class Properties {
 			loadButton.setOnAction(event -> {
 				FileChooser fileChooser = new FileChooser();
 				fileChooser.setTitle("Choose sim file");
-				File selectedFile = fileChooser.showOpenDialog(dialog.getOwner());
+				File selectedFile = fileChooser.showOpenDialog(memoryStage);
 				if(selectedFile != null) {
 					try {
 						List<String> strings = Files.readAllLines(selectedFile.toPath());
@@ -586,7 +591,7 @@ public class Properties {
 				FileChooser fileChooser = new FileChooser();
 				fileChooser.setTitle("Choose save file");
 				fileChooser.setInitialFileName("Memory.dat");
-				File selectedFile = fileChooser.showSaveDialog(dialog.getOwner());
+				File selectedFile = fileChooser.showSaveDialog(memoryStage);
 				if(selectedFile != null) {
 					List<String> strings = lines.stream().map(MemoryLine::toString).collect(Collectors.toList());
 					try {
@@ -597,12 +602,17 @@ public class Properties {
 				}
 			});
 			
-			dialog.getDialogPane().setHeader(new HBox(loadButton, saveButton));
-			dialog.getDialogPane().setContent(tableView);
-			dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
-			dialog.setResizable(true);
+			ScrollPane tableScrollPane = new ScrollPane(tableView);
+			tableScrollPane.setFitToWidth(true);
+			tableScrollPane.setFitToHeight(true);
+			tableScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
+			tableScrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 			
-			dialog.showAndWait();
+			VBox.setVgrow(tableScrollPane, Priority.ALWAYS);
+			memoryStage.setScene(new Scene(new VBox(new HBox(loadButton, saveButton), tableScrollPane)));
+			memoryStage.sizeToScene();
+			memoryStage.showAndWait();
+			memoryStage.centerOnScreen();
 		}
 		
 		private static class MemoryLine {

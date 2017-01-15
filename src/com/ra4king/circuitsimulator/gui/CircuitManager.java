@@ -79,7 +79,7 @@ public class CircuitManager {
 			delete.setOnAction(event1 -> {
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 				selectedElementsMap.clear();
-				simulatorWindow.setProperties(null);
+				simulatorWindow.clearProperties();
 				reset();
 			});
 			
@@ -132,6 +132,21 @@ public class CircuitManager {
 		                          .filter(element -> element instanceof ComponentPeer<?>)
 		                          .map(element -> ((ComponentPeer<?>)element).getProperties())
 		                          .reduce(Properties::intersect).orElse(null);
+	}
+	
+	private void updateSelectedProperties() {
+		long componentCount = selectedElementsMap.keySet().stream()
+		                                         .filter(element -> element instanceof ComponentPeer<?>)
+		                                         .count();
+		if(componentCount == 1) {
+			ComponentPeer<?> peer = selectedElementsMap.keySet().stream()
+			                                           .filter(element -> element instanceof ComponentPeer<?>)
+			                                           .map(element -> ((ComponentPeer<?>)element))
+			                                           .findAny().get();
+			simulatorWindow.setProperties(peer);
+		} else {
+			simulatorWindow.setProperties("Multiple selections", getCommonSelectedProperties());
+		}
 	}
 	
 	public Properties modifiedSelection(ComponentCreator componentCreator, Properties properties) {
@@ -387,7 +402,7 @@ public class CircuitManager {
 			case DELETE:
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 				selectedElementsMap.clear();
-				simulatorWindow.setProperties(null);
+				simulatorWindow.clearProperties();
 			case ESCAPE:
 				if(!selectedElementsMap.isEmpty()) {
 					if(draggedDelta.getX() != 0 || draggedDelta.getY() != 0) {
@@ -397,7 +412,7 @@ public class CircuitManager {
 						draggedDelta = new Point2D(0, 0);
 					}
 					selectedElementsMap.clear();
-					simulatorWindow.setProperties(null);
+					simulatorWindow.clearProperties();
 				}
 				reset();
 				break;
@@ -430,7 +445,7 @@ public class CircuitManager {
 					reset();
 					selectedElementsMap.clear();
 					selectedElementsMap.put(newComponent, new Point2D(newComponent.getX(), newComponent.getY()));
-					simulatorWindow.setProperties(newComponent.getProperties());
+					simulatorWindow.setProperties(newComponent);
 				}
 			} else {
 				reset();
@@ -463,7 +478,8 @@ public class CircuitManager {
 						                        new Point2D(selectedElement.getX(), selectedElement.getY()));
 						
 						if(selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
-							((PinPeer)selectedElement).clicked(circuitBoard.getCurrentState(), (int)e.getX(),
+							((PinPeer)selectedElement).clicked(circuitBoard.getCurrentState(),
+							                                   (int)e.getX(),
 							                                   (int)e.getY());
 							mayThrow(circuitBoard::runSim);
 						} else if(selectedElement instanceof ClockPeer) {
@@ -475,7 +491,7 @@ public class CircuitManager {
 					selectedElementsMap.clear();
 				}
 				
-				simulatorWindow.setProperties(getCommonSelectedProperties());
+				updateSelectedProperties();
 			}
 		}
 	}
@@ -526,7 +542,7 @@ public class CircuitManager {
 						                                     conn -> new Point2D(conn.getParent().getX(),
 						                                                         conn.getParent().getY()))));
 				
-				simulatorWindow.setProperties(getCommonSelectedProperties());
+				updateSelectedProperties();
 			}
 		}
 		
@@ -578,7 +594,7 @@ public class CircuitManager {
 						                                                  peer -> new Point2D(peer.getX(),
 						                                                                      peer.getY()))));
 				
-				simulatorWindow.setProperties(getCommonSelectedProperties());
+				updateSelectedProperties();
 			}
 		}
 		

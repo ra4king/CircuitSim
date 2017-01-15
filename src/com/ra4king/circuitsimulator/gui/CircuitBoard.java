@@ -146,16 +146,6 @@ public class CircuitBoard {
 		runSim();
 	}
 	
-	public void recreateComponent(ComponentPeer<?> componentPeer, Properties newProperties) throws Exception {
-		removeComponent(componentPeer, true);
-		
-		ComponentPeer<?> newComponent =
-				ComponentManager.forClass(componentPeer.getClass())
-				                .createComponent(newProperties, componentPeer.getX(), componentPeer.getY());
-		
-		addComponent(newComponent);
-	}
-	
 	public void initMove(Set<GuiElement> elements) throws Exception {
 		if(moveElements != null) {
 			try {
@@ -481,7 +471,9 @@ public class CircuitBoard {
 				}
 			}
 		}
-		components.remove(component);
+		if(!components.remove(component)) {
+			throw new IllegalStateException("Couldn't find component!");
+		}
 		
 		if(removeFromCircuit) {
 			circuit.removeComponent(component.getComponent());

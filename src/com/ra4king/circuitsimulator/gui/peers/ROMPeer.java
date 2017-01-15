@@ -40,7 +40,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Memory", "ROM"),
-		                     new Image(ROMPeer.class.getResourceAsStream("/resources/RAM.png")),
+		                     new Image(ROMPeer.class.getResourceAsStream("/resources/ROM.png")),
 		                     new Properties());
 	}
 	
@@ -82,7 +82,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 				newProps.setProperty(new Property(property.name, property.validator, newValue));
 				
 				try {
-					circuit.getCircuitBoard().recreateComponent(this, newProps);
+					circuit.recreateComponent(this, newProps);
 				} catch(Exception exc) {
 					exc.printStackTrace();
 				}

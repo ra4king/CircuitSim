@@ -1,5 +1,6 @@
 package com.ra4king.circuitsimulator.gui;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -192,6 +193,20 @@ public class CircuitManager {
 		
 		potentialComponent = null;
 		return new Properties();
+	}
+	
+	public void recreateComponent(ComponentPeer<?> componentPeer, Properties newProperties) throws Exception {
+		circuitBoard.removeElements(Collections.singleton(componentPeer));
+		
+		ComponentPeer<?> newComponent =
+				ComponentManager.forClass(componentPeer.getClass())
+				                .createComponent(newProperties, componentPeer.getX(), componentPeer.getY());
+		
+		circuitBoard.addComponent(newComponent);
+		
+		if(selectedElementsMap.containsKey(componentPeer)) {
+			selectedElementsMap.put(newComponent, selectedElementsMap.remove(componentPeer));
+		}
 	}
 	
 	private long lastRepaint = System.nanoTime();

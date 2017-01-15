@@ -494,9 +494,9 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		MenuItem viewTopLevelState = new MenuItem("View top-level state");
-		viewTopLevelState.setOnAction(event -> {
-			circuitManager.getCircuitBoard().setCurrentState(circuitManager.getCircuit().getTopLevelState());
-		});
+		viewTopLevelState.setOnAction(event ->
+				                              circuitManager.getCircuitBoard().setCurrentState(
+						                              circuitManager.getCircuit().getTopLevelState()));
 		canvasTab.setContextMenu(new ContextMenu(rename, viewTopLevelState));
 		canvasTab.setOnCloseRequest(event -> {
 			Alert alert = new Alert(AlertType.CONFIRMATION);

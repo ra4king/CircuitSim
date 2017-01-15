@@ -1,5 +1,7 @@
 package com.ra4king.circuitsimulator.gui;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +17,8 @@ import com.sun.javafx.scene.control.skin.TableHeaderRow;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -24,6 +28,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 
 /**
  * @author Roi Atalla
@@ -189,6 +195,16 @@ public class Properties {
 		return newProp;
 	}
 	
+	@Override
+	public boolean equals(Object other) {
+		if(other instanceof Properties) {
+			Properties props = (Properties)other;
+			return properties.equals(props.properties);
+		}
+		
+		return false;
+	}
+	
 	public static final PropertyValidator ANY_STRING_VALIDATOR = value -> true;
 	public static final PropertyValidator YESNO_VALIDATOR = new PropertyListValidator(new String[] { "Yes", "No" });
 	public static final PropertyValidator INTEGER_VALIDATOR = value -> {
@@ -226,11 +242,11 @@ public class Properties {
 		}
 		NUM_INPUTS = new Property("Number of Inputs", new PropertyListValidator(numInputsValues), "2");
 		
-		String[] bitsizeValues = new String[32];
-		for(int i = 0; i < bitsizeValues.length; i++) {
-			bitsizeValues[i] = String.valueOf(i + 1);
+		String[] bitSizeValues = new String[32];
+		for(int i = 0; i < bitSizeValues.length; i++) {
+			bitSizeValues[i] = String.valueOf(i + 1);
 		}
-		BITSIZE = new Property("Bitsize", new PropertyListValidator(bitsizeValues), "1");
+		BITSIZE = new Property("Bitsize", new PropertyListValidator(bitSizeValues), "1");
 	}
 	
 	public static class Property {
@@ -254,6 +270,21 @@ public class Properties {
 			this.name = name;
 			this.validator = validator;
 			this.value = value;
+		}
+		
+		@Override
+		public int hashCode() {
+			return name.hashCode() ^ value.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object other) {
+			if(other instanceof Property) {
+				Property prop = (Property)other;
+				return name.equals(prop.name) && validator.equals(prop.validator) && value.equals(prop.value);
+			}
+			
+			return false;
 		}
 	}
 	
@@ -536,6 +567,37 @@ public class Properties {
 			
 			tableView.setItems(new ObservableListWrapper<>(lines));
 			
+			Button loadButton = new Button("Load from file");
+			loadButton.setOnAction(event -> {
+				FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Choose sim file");
+				File selectedFile = fileChooser.showOpenDialog(dialog.getOwner());
+				if(selectedFile != null) {
+					try {
+						List<String> strings = Files.readAllLines(selectedFile.toPath());
+						tableView.setItems(new ObservableListWrapper<>(parseMemory(String.join(" ", strings))));
+					} catch(Exception exc) {
+						new Alert(AlertType.ERROR, "Could not open file").show();
+					}
+				}
+			});
+			Button saveButton = new Button("Save to file");
+			saveButton.setOnAction(event -> {
+				FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Choose save file");
+				fileChooser.setInitialFileName("Memory.dat");
+				File selectedFile = fileChooser.showSaveDialog(dialog.getOwner());
+				if(selectedFile != null) {
+					List<String> strings = lines.stream().map(MemoryLine::toString).collect(Collectors.toList());
+					try {
+						Files.write(selectedFile.toPath(), strings);
+					} catch(Exception exc) {
+						new Alert(AlertType.ERROR, "Could not open file").show();
+					}
+				}
+			});
+			
+			dialog.getDialogPane().setHeader(new HBox(loadButton, saveButton));
 			dialog.getDialogPane().setContent(tableView);
 			dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);
 			dialog.setResizable(true);

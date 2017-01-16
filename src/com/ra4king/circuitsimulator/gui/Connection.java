@@ -10,9 +10,9 @@ import javafx.scene.canvas.GraphicsContext;
  * @author Roi Atalla
  */
 public abstract class Connection {
-	private GuiElement parent;
-	private int x;
-	private int y;
+	private final GuiElement parent;
+	private final int x;
+	private final int y;
 	
 	public Connection(GuiElement parent, int x, int y) {
 		this.parent = parent;
@@ -25,6 +25,14 @@ public abstract class Connection {
 	}
 	
 	public abstract LinkWires getLinkWires();
+	
+	public int getXOffset() {
+		return x;
+	}
+	
+	public int getYOffset() {
+		return y;
+	}
 	
 	public int getX() {
 		return parent.getX() + x;
@@ -69,6 +77,11 @@ public abstract class Connection {
 			this.port = port;
 			this.name = name;
 			setLinkWires(null);
+		}
+		
+		@Override
+		public ComponentPeer<?> getParent() {
+			return (ComponentPeer<?>)super.getParent();
 		}
 		
 		public Port getPort() {

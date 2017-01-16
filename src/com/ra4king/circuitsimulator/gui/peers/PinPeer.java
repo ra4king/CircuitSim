@@ -5,10 +5,10 @@ import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
@@ -26,17 +26,18 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class PinPeer extends ComponentPeer<Pin> {
-	public static final Property IS_INPUT = new Property("Is input?", Properties.YESNO_VALIDATOR, "Yes");
+	public static final Property<Boolean> IS_INPUT = new Property<>("Is input?", Properties.YESNO_VALIDATOR, true);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		Properties properties = new Properties();
-		properties.setValue(IS_INPUT, "Yes");
+		properties.setValue(IS_INPUT, true);
+		properties.setValue(Properties.DIRECTION, Direction.WEST);
 		manager.addComponent(new Pair<>("Wiring", "Input Pin"),
 		                     new Image(PinPeer.class.getResourceAsStream("/resources/InputPin.png")),
 		                     properties);
 		
 		properties = new Properties();
-		properties.setValue(IS_INPUT, "No");
+		properties.setValue(IS_INPUT, false);
 		manager.addComponent(new Pair<>("Wiring", "Output Pin"),
 		                     new Image(PinPeer.class.getResourceAsStream("/resources/OutputPin.png")),
 		                     properties);
@@ -47,18 +48,32 @@ public class PinPeer extends ComponentPeer<Pin> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(IS_INPUT);
 		properties.mergeIfExists(props);
 		
 		Pin pin = new Pin(properties.getValue(Properties.LABEL),
-		                  properties.getIntValue(Properties.BITSIZE),
-		                  properties.getValue(IS_INPUT).equals("Yes"));
+		                  properties.getValue(Properties.BITSIZE),
+		                  properties.getValue(IS_INPUT));
 		setWidth(Math.max(2, Math.min(8, pin.getBitSize())));
 		setHeight(2 + 7 * ((pin.getBitSize() - 1) / 8) / 4);
 		
-		List<Connection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, pin.getPort(0), pin.isInput() ? getWidth() : 0, 1));
+		List<PortConnection> connections = new ArrayList<>();
+		switch(properties.getValue(Properties.DIRECTION)) {
+			case EAST:
+				connections.add(new PortConnection(this, pin.getPort(0), 0, getHeight() / 2));
+				break;
+			case WEST:
+				connections.add(new PortConnection(this, pin.getPort(0), getWidth(), getHeight() / 2));
+				break;
+			case NORTH:
+				connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, getHeight()));
+				break;
+			case SOUTH:
+				connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, 0));
+				break;
+		}
 		
 		init(pin, properties, connections);
 	}

@@ -1,5 +1,9 @@
 package com.ra4king.circuitsimulator.simulator.components;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -38,47 +42,50 @@ public class RAM extends Component {
 		return dataBits;
 	}
 	
-	public void store(CircuitState circuitState, int address, WireValue data) {
-		WireValue[] memory = getMemoryContents(circuitState);
-		if(memory[address] == null) {
-			if(!data.isValidValue() || data.getValue() != 0) {
-				memory[address] = new WireValue(data);
-			}
-		} else if(data.isValidValue() && data.getValue() == 0) {
-			memory[address] = null;
-		} else {
-			memory[address].set(data);
-		}
+	private List<BiConsumer<Integer, Integer>> listeners = new ArrayList<>();
+	
+	public void addMemoryListener(BiConsumer<Integer, Integer> listener) {
+		listeners.add(listener);
 	}
 	
-	public WireValue load(CircuitState circuitState, int address) {
-		WireValue[] memory = getMemoryContents(circuitState);
-		WireValue data = memory[address];
-		return data == null ? memory[address] = new WireValue(dataBits, State.ZERO) : data;
+	public void removeMemoryListener(BiConsumer<Integer, Integer> listener) {
+		listeners.remove(listener);
+	}
+	
+	private void notifyListeners(int address, int data) {
+		listeners.forEach(listener -> listener.accept(address, data));
+	}
+	
+	public void store(CircuitState state, int address, int data) {
+		getMemoryContents(state)[address] = data;
+		
+		boolean enabled = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO;
+		boolean load = state.getLastReceived(getPort(PORT_LOAD)).getBit(0) != State.ZERO;
+		WireValue addressValue = state.getLastReceived(getPort(PORT_ADDRESS));
+		if(enabled && load && addressValue.isValidValue() && addressValue.getValue() == address) {
+			state.pushValue(getPort(PORT_DATA), WireValue.of(data, getDataBits()));
+		}
+		
+		notifyListeners(address, data);
+	}
+	
+	public int load(CircuitState circuitState, int address) {
+		return getMemoryContents(circuitState)[address];
+	}
+	
+	public int[] getMemoryContents(CircuitState circuitState) {
+		return (int[])circuitState.getComponentProperty(this);
 	}
 	
 	@Override
 	public void init(CircuitState circuitState) {
 		super.init(circuitState);
-		circuitState.putComponentProperty(this, new WireValue[1 << addressBits]);
-	}
-	
-	public WireValue[] getMemoryContents(CircuitState circuitState) {
-		return (WireValue[])circuitState.getComponentProperty(this);
-	}
-	
-	public void setMemoryContents(CircuitState circuitState, WireValue[] newValues) {
-		WireValue[] current = getMemoryContents(circuitState);
-		if(current.length != newValues.length) {
-			throw new IllegalArgumentException("Incorrect WireValue length");
-		}
-		
-		circuitState.putComponentProperty(this, newValues);
+		circuitState.putComponentProperty(this, new int[1 << addressBits]);
 	}
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		WireValue[] memory = getMemoryContents(state);
+		int[] memory = getMemoryContents(state);
 		
 		boolean enabled = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO;
 		boolean load = state.getLastReceived(getPort(PORT_LOAD)).getBit(0) != State.ZERO;
@@ -94,20 +101,23 @@ public class RAM extends Component {
 				}
 			case PORT_ADDRESS:
 				if(enabled && load && address.isValidValue()) {
-					state.pushValue(getPort(PORT_DATA), load(state, address.getValue()));
+					state.pushValue(getPort(PORT_DATA), WireValue.of(load(state, address.getValue()), getDataBits()));
 				}
 				break;
 			case PORT_CLK:
 				if(!load && value.getBit(0) == State.ONE && address.isValidValue()) {
-					store(state, address.getValue(), state.getLastReceived(getPort(PORT_DATA)));
+					WireValue lastReceived = state.getLastReceived(getPort(PORT_DATA));
+					if(lastReceived.isValidValue()) {
+						store(state, address.getValue(), lastReceived.getValue());
+					} else {
+						store(state, address.getValue(), WireValue.of(-1, getDataBits()).getValue());
+					}
 				}
 				break;
 			case PORT_CLEAR:
 				if(clear) {
-					for(WireValue wireValue : memory) {
-						if(wireValue != null) {
-							wireValue.setAllBits(State.ZERO);
-						}
+					for(int i = 0; i < memory.length; i++) {
+						store(state, i, 0);
 					}
 				}
 				break;

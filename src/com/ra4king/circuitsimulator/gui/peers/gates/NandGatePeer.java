@@ -31,8 +31,8 @@ public class NandGatePeer extends GatePeer {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.NUM_INPUTS);
 		return new NandGate(properties.getValue(Properties.LABEL),
-		                    properties.getIntValue(Properties.BITSIZE),
-		                    properties.getIntValue(Properties.NUM_INPUTS));
+		                    properties.getValue(Properties.BITSIZE),
+		                    properties.getValue(Properties.NUM_INPUTS));
 	}
 	
 	@Override

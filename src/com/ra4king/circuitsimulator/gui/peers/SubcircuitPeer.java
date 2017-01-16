@@ -12,7 +12,6 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
-import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 
@@ -32,12 +31,12 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
-		properties.ensureProperty(new Property(SUBCIRCUIT, null, ""));
 		properties.mergeIfExists(props);
 		
-		Property subcircuitProperty = properties.getProperty(SUBCIRCUIT);
-		CircuitManager subcircuitManager = ((PropertyCircuitValidator)subcircuitProperty.validator)
-				                                   .getCircuitManager(subcircuitProperty.value);
+		Property<CircuitManager> subcircuitProperty = props.getProperty(SUBCIRCUIT);
+		properties.setProperty(subcircuitProperty);
+		
+		CircuitManager subcircuitManager = subcircuitProperty.value;
 		Subcircuit subcircuit = new Subcircuit(properties.getValue(Properties.LABEL), subcircuitManager.getCircuit());
 		setHeight(Math.max(2, 1 + (subcircuit.getNumPorts() + 1) / 2));
 		

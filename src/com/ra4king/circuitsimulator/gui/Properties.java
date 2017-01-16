@@ -8,14 +8,18 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.sun.javafx.collections.ObservableListWrapper;
 import com.sun.javafx.scene.control.skin.TableHeaderRow;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -39,7 +43,7 @@ import javafx.stage.Stage;
  * @author Roi Atalla
  */
 public class Properties {
-	private Map<String, Property> properties;
+	private Map<String, Property<?>> properties;
 	
 	public Properties() {
 		properties = new LinkedHashMap<>();
@@ -58,7 +62,7 @@ public class Properties {
 		return properties.containsKey(name);
 	}
 	
-	public void forEach(Consumer<Property> consumer) {
+	public void forEach(Consumer<Property<?>> consumer) {
 		properties.values().forEach(consumer);
 	}
 	
@@ -66,110 +70,91 @@ public class Properties {
 		return properties.isEmpty();
 	}
 	
-	public void ensureProperty(Property property) {
+	public void ensureProperty(Property<?> property) {
 		setProperty(property, false);
 	}
 	
-	public void setProperty(Property property) {
+	public void setProperty(Property<?> property) {
 		setProperty(property, true);
 	}
 	
-	private void setProperty(Property property, boolean overwriteValue) {
+	private <T> void setProperty(Property<T> property, boolean overwriteValue) {
 		if(!properties.containsKey(property.name)) {
 			properties.put(property.name, property);
 		} else {
-			Property ourProperty = properties.get(property.name);
-			
-			PropertyValidator validator = chooseValidator(property.validator, ourProperty.validator);
-			String value;
-			if(overwriteValue) {
-				value = property.value.isEmpty() ? ourProperty.value : property.value;
+			if(getProperty(property.name).validator == null) {
+				parseAndSetValue(property, getProperty(property.name).value.toString());
+			} else if(property.validator == null) {
+				parseAndSetValue(getProperty(property.name), property.value.toString());
 			} else {
-				value = ourProperty.value.isEmpty() ? property.value : ourProperty.value;
+				Property<T> ourProperty = getProperty(property.name);
+				
+				PropertyValidator<T> validator = chooseValidator(property.validator, ourProperty.validator);
+				T value;
+				if(overwriteValue) {
+					value = property.value == null ? ourProperty.value : property.value;
+				} else {
+					value = ourProperty.value == null ? property.value : ourProperty.value;
+				}
+				
+				properties.put(property.name, new Property<>(property.name, validator, value));
 			}
-			
-			properties.put(property.name, new Property(property.name, validator, value));
 		}
 	}
 	
-	public void setValue(String name, String value) {
-		setValue(getProperty(name), value);
+	public <T> void parseAndSetValue(Property<T> property, String value) {
+		setValue(property, property.validator.parse(value));
 	}
 	
-	public void setValue(Property property, String value) {
-		properties.put(property.name, new Property(property, value));
+	public void parseAndSetValue(String property, String value) {
+		parseAndSetValue(getProperty(property), value);
 	}
 	
-	public void updateIfExists(Property property) {
+	public <T> void parseAndSetValue(String property, PropertyValidator<T> validator, String value) {
+		parseAndSetValue(new Property<>(property, validator, null), value);
+	}
+	
+	public <T> void setValue(Property<T> property, T value) {
+		properties.put(property.name, new Property<>(property, value));
+	}
+	
+	public void updateIfExists(Property<?> property) {
 		if(properties.containsKey(property.name)) {
 			setProperty(property, true);
 		}
 	}
 	
-	public Property getProperty(String name) {
-		return properties.get(name);
+	@SuppressWarnings("unchecked")
+	public <T> Property<T> getProperty(String name) {
+		return (Property<T>)properties.get(name);
 	}
 	
-	public String getValue(Property property) {
+	public <T> T getValue(Property<T> property) {
 		return getValue(property.name);
 	}
 	
-	public String getValue(String name) {
+	public <T> T getValue(String name) {
 		return getValueOrDefault(name, null);
 	}
 	
-	public String getValueOrDefault(Property property, String defaultValue) {
+	public <T> T getValueOrDefault(Property<T> property, T defaultValue) {
 		return getValueOrDefault(property.name, defaultValue);
 	}
 	
-	public String getValueOrDefault(String name, String defaultValue) {
+	public <T> T getValueOrDefault(String name, T defaultValue) {
 		if(properties.containsKey(name)) {
-			return properties.get(name).value;
+			return this.<T>getProperty(name).value;
 		}
 		
 		return defaultValue;
 	}
 	
-	public int getIntValue(String name) {
-		String value = getValue(name);
-		
-		try {
-			return Integer.parseInt(value);
-		} catch(Exception exc) {
-			if(value.startsWith("0x")) {
-				value = value.substring(2);
-			} else if(value.startsWith("x")) {
-				value = value.substring(1);
-			} else {
-				throw exc;
-			}
-			
-			return Integer.parseInt(value, 16);
-		}
-	}
-	
-	public int getIntValue(Property property) {
-		return getIntValue(property.name);
-	}
-	
-	public int getIntValueOrDefault(String name, int defaultValue) {
-		try {
-			return getIntValue(name);
-		} catch(Exception exc) {
-			return defaultValue;
-		}
-	}
-	
-	public int getIntValueOrDefault(Property property, int defaultValue) {
-		return getIntValueOrDefault(property.name, defaultValue);
-	}
-	
-	private PropertyValidator chooseValidator(PropertyValidator validator1, PropertyValidator validator2) {
-		if(validator1 != null && validator2 != null && !validator1.equals(validator2)) {
+	private <T> PropertyValidator<T> chooseValidator(PropertyValidator<T> v1, PropertyValidator<T> v2) {
+		if(v1 != null && v2 != null && !v1.equals(v2)) {
 			throw new IllegalArgumentException("Property with the same name but different validator!");
 		}
 		
-		return validator1 == null ? validator2 : validator1;
+		return v1 == null ? v2 : v1;
 	}
 	
 	/**
@@ -189,8 +174,8 @@ public class Properties {
 		Properties newProp = new Properties();
 		this.forEach((prop) -> {
 			if(properties.properties.containsKey(prop.name)) {
-				if(!getValue(prop).equals(properties.getValue(prop))) {
-					newProp.setValue(prop, "");
+				if(!Objects.equals(getValue(prop), properties.getValue(prop))) {
+					newProp.setValue(prop, null);
 				} else {
 					newProp.setProperty(prop);
 				}
@@ -209,76 +194,98 @@ public class Properties {
 		return false;
 	}
 	
-	public static final PropertyValidator ANY_STRING_VALIDATOR = value -> true;
-	public static final PropertyValidator YESNO_VALIDATOR = new PropertyListValidator(new String[] { "Yes", "No" });
-	public static final PropertyValidator INTEGER_VALIDATOR = value -> {
+	public static final PropertyValidator<String> ANY_STRING_VALIDATOR = value -> value;
+	public static final PropertyValidator<Boolean> YESNO_VALIDATOR =
+			new PropertyListValidator<>(new Boolean[] { true, false }, bool -> bool ? "Yes" : "No");
+	public static final PropertyValidator<Integer> INTEGER_VALIDATOR = value -> {
 		try {
-			Integer.parseInt(value);
-			return true;
+			return Integer.parseInt(value);
 		} catch(Exception exc) {
+			String modified;
 			if(value.startsWith("0x")) {
-				value = value.substring(2);
+				modified = value.substring(2);
 			} else if(value.startsWith("x")) {
-				value = value.substring(1);
+				modified = value.substring(1);
 			} else {
-				return false;
+				throw new IllegalArgumentException(value + " is not a valid integer.");
 			}
 			
 			try {
-				Integer.parseInt(value, 16);
-				return true;
+				return Integer.parseInt(modified, 16);
 			} catch(Exception exc2) {
-				return false;
+				throw new IllegalArgumentException(value + " is not a valid integer.");
 			}
 		}
 	};
 	
-	public static final Property LABEL;
-	public static final Property BITSIZE;
-	public static final Property NUM_INPUTS;
+	public static final Property<String> LABEL;
+	public static final Property<Integer> BITSIZE;
+	public static final Property<Integer> NUM_INPUTS;
+	public static final Property<Integer> ADDRESS_BITS;
+	public static final Property<Integer> SELECTOR_BITS;
+	public static final Property<Direction> DIRECTION;
 	
-	static {
-		LABEL = new Property("Label", ANY_STRING_VALIDATOR, "");
-		
-		String[] numInputsValues = new String[31];
-		for(int i = 0; i < numInputsValues.length; i++) {
-			numInputsValues[i] = String.valueOf(i + 2);
-		}
-		NUM_INPUTS = new Property("Number of Inputs", new PropertyListValidator(numInputsValues), "2");
-		
-		String[] bitSizeValues = new String[32];
-		for(int i = 0; i < bitSizeValues.length; i++) {
-			bitSizeValues[i] = String.valueOf(i + 1);
-		}
-		BITSIZE = new Property("Bitsize", new PropertyListValidator(bitSizeValues), "1");
+	public enum Direction {
+		NORTH, SOUTH, EAST, WEST
 	}
 	
-	public static class Property {
-		public final String name;
-		public final PropertyValidator validator;
-		public final String value;
+	static {
+		LABEL = new Property<>("Label", ANY_STRING_VALIDATOR, "");
 		
-		public Property(Property property) {
+		List<Integer> numInputsValues = new ArrayList<>();
+		for(int i = 2; i <= 32; i++) {
+			numInputsValues.add(i);
+		}
+		NUM_INPUTS = new Property<>("Number of Inputs", new PropertyListValidator<>(numInputsValues), 2);
+		
+		List<Integer> bitSizeValues = new ArrayList<>();
+		for(int i = 1; i <= 32; i++) {
+			bitSizeValues.add(i);
+		}
+		BITSIZE = new Property<>("Bitsize", new PropertyListValidator<>(bitSizeValues), 1);
+		
+		Direction[] directions = { Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST };
+		DIRECTION = new Property<>("Direction", new PropertyListValidator<>(directions), Direction.EAST);
+		
+		List<Integer> addressBits = new ArrayList<>();
+		for(int i = 1; i <= 16; i++) {
+			addressBits.add(i);
+		}
+		ADDRESS_BITS = new Property<>("Address bits", new PropertyListValidator<>(addressBits), 8);
+		
+		List<Integer> selBits = new ArrayList<>();
+		for(int i = 1; i <= 8; i++) {
+			selBits.add(i);
+		}
+		SELECTOR_BITS = new Property<>("Selector bits", new PropertyListValidator<>(selBits), 1);
+	}
+	
+	public static class Property<T> {
+		public final String name;
+		public final PropertyValidator<T> validator;
+		public final T value;
+		
+		public Property(Property<T> property) {
 			this(property.name, property.validator, property.value);
 		}
 		
-		public Property(Property property, String value) {
+		public Property(Property<T> property, T value) {
 			this(property.name, property.validator, value);
 		}
 		
-		public Property(String name, PropertyValidator validator, String value) {
-			if(validator != null && !value.isEmpty() && !validator.validate(value)) {
-				throw new IllegalArgumentException("Value is not validated: " + value);
-			}
-			
+		public Property(String name, PropertyValidator<T> validator, T value) {
 			this.name = name;
 			this.validator = validator;
 			this.value = value;
 		}
 		
+		public String getStringValue() {
+			return validator.toString(value);
+		}
+		
 		@Override
 		public int hashCode() {
-			return name.hashCode() ^ value.hashCode();
+			return (name.hashCode() << 13) ^ validator.hashCode() ^ value.hashCode();
 		}
 		
 		@Override
@@ -292,30 +299,58 @@ public class Properties {
 		}
 	}
 	
-	public interface PropertyValidator {
-		boolean validate(String value);
+	public interface PropertyValidator<T> {
+		T parse(String value);
 		
-		default Node createGui(Stage stage, String value, Consumer<String> onAction) {
-			TextField valueField = new TextField(value);
+		default String toString(T value) {
+			return value == null ? "" : value.toString();
+		}
+		
+		default Node createGui(Stage stage, T value, Consumer<T> onAction) {
+			TextField valueField = new TextField(toString(value));
 			valueField.setOnAction(event -> {
 				String newValue = valueField.getText();
 				if(!newValue.equals(value)) {
-					onAction.accept(newValue);
+					try {
+						onAction.accept(parse(newValue));
+					} catch(Exception exc) {
+						valueField.setText(toString(value));
+					}
 				}
 			});
 			return valueField;
 		}
 	}
 	
-	public static class PropertyListValidator implements PropertyValidator {
-		public final List<String> validValues;
+	public static class PropertyListValidator<T> implements PropertyValidator<T> {
+		private final List<T> validValues;
+		private final Function<T, String> toString;
 		
-		public PropertyListValidator(String[] validValues) {
+		public PropertyListValidator(T[] validValues) {
 			this(Arrays.asList(validValues));
 		}
 		
-		public PropertyListValidator(List<String> validValues) {
+		public PropertyListValidator(List<T> validValues) {
+			this(validValues, T::toString);
+		}
+		
+		public PropertyListValidator(T[] validValues, Function<T, String> toString) {
+			this(Arrays.asList(validValues), toString);
+		}
+		
+		public PropertyListValidator(List<T> validValues, Function<T, String> toString) {
 			this.validValues = Collections.unmodifiableList(validValues);
+			this.toString = toString;
+		}
+		
+		public List<T> getValidValues() {
+			return validValues;
+		}
+		
+		@Override
+		public int hashCode() {
+			List<String> values = validValues.stream().map(toString).collect(Collectors.toList());
+			return validValues.hashCode() ^ values.hashCode();
 		}
 		
 		@Override
@@ -329,24 +364,39 @@ public class Properties {
 		}
 		
 		@Override
-		public boolean validate(String value) {
-			return validValues.contains(value);
+		public T parse(String value) {
+			for(T t : validValues) {
+				if(toString.apply(t).equals(value)) {
+					return t;
+				}
+			}
+			
+			throw new IllegalArgumentException("Value not found: " + value);
 		}
 		
 		@Override
-		public Node createGui(Stage stage, String value, Consumer<String> onAction) {
+		public String toString(T value) {
+			return toString.apply(value);
+		}
+		
+		@Override
+		public Node createGui(Stage stage, T value, Consumer<T> onAction) {
 			ComboBox<String> valueList = new ComboBox<>();
 			
-			for(String entry : validValues) {
-				valueList.getItems().add(entry);
+			for(T t : validValues) {
+				valueList.getItems().add(toString.apply(t));
 			}
 			
-			valueList.setValue(value);
+			valueList.setValue(toString(value));
 			valueList.getSelectionModel()
 			         .selectedItemProperty()
 			         .addListener((observable, oldValue, newValue) -> {
 				         if(oldValue == null || !newValue.equals(oldValue)) {
-					         onAction.accept(newValue);
+					         try {
+						         onAction.accept(parse(newValue));
+					         } catch(Exception exc) {
+						         exc.printStackTrace();
+					         }
 				         }
 			         });
 			
@@ -354,7 +404,7 @@ public class Properties {
 		}
 	}
 	
-	public static class PropertyCircuitValidator implements PropertyValidator {
+	public static class PropertyCircuitValidator implements PropertyValidator<CircuitManager> {
 		private final CircuitSimulator circuitSimulator;
 		private CircuitManager circuitManager;
 		
@@ -368,6 +418,11 @@ public class Properties {
 		}
 		
 		@Override
+		public int hashCode() {
+			return circuitSimulator.hashCode();
+		}
+		
+		@Override
 		public boolean equals(Object other) {
 			if(other instanceof PropertyCircuitValidator) {
 				PropertyCircuitValidator validator = (PropertyCircuitValidator)other;
@@ -378,26 +433,26 @@ public class Properties {
 		}
 		
 		@Override
-		public boolean validate(String value) {
+		public CircuitManager parse(String value) {
 			if(circuitManager == null && circuitSimulator != null) {
-				circuitManager = circuitSimulator.getCircuitManager(value);
+				return circuitManager = circuitSimulator.getCircuitManager(value);
 			}
 			
-			return circuitManager != null;
+			return circuitManager;
 		}
 		
 		@Override
-		public Node createGui(Stage stage, String value, Consumer<String> onAction) {
-			return null;
+		public String toString(CircuitManager circuit) {
+			return circuitSimulator.getCircuitName(circuit);
 		}
 		
-		public CircuitManager getCircuitManager(String value) {
-			validate(value);
-			return circuitManager;
+		@Override
+		public Node createGui(Stage stage, CircuitManager value, Consumer<CircuitManager> onAction) {
+			return null;
 		}
 	}
 	
-	public static class PropertyMemoryValidator implements PropertyValidator {
+	public static class PropertyMemoryValidator implements PropertyValidator<List<MemoryLine>> {
 		private final int addressBits, dataBits;
 		
 		public PropertyMemoryValidator(int addressBits, int dataBits) {
@@ -405,54 +460,53 @@ public class Properties {
 			this.dataBits = dataBits;
 		}
 		
-		public int[] parseToArray(String memory) {
-			int[] values = new int[1 << addressBits];
-			
-			List<MemoryLine> lines = parseMemory(memory);
-			for(MemoryLine line : lines) {
-				for(int j = 0; j < line.values.size(); j++) {
-					values[line.address + j] = Integer.parseUnsignedInt(line.values.get(j), 16);
-				}
+		private String parseValue(int value) {
+			if(dataBits < 32) {
+				value &= (1 << dataBits) - 1;
 			}
-			
-			return values;
+			return String.format("%0" + (1 + (dataBits - 1) / 4) + "x", value);
 		}
 		
-		public String parseToString(int[] memory) {
-			return Arrays.stream(memory)
-			             .mapToObj(value -> String.format("%0" + (1 + (dataBits - 1) / 4) + "x", value))
-			             .reduce("", (s, s2) -> s + " " + s2);
-		}
-		
-		private String parseValue(String value) {
-			int hex;
+		private int parseValue(String value) {
 			try {
-				hex = Integer.parseUnsignedInt(value, 16);
-
-//				if(dataBits < 32 && Integer.highestOneBit(hex) >= (1 << dataBits)) {
-//					throw new IllegalArgumentException("Value does not fit in " + dataBits + " bits: " + value);
-//				}
-				
-				hex &= (1 << dataBits) - 1;
+				return Integer.parseUnsignedInt(value, 16);
 			} catch(NumberFormatException exc) {
 				throw new IllegalArgumentException("Cannot parse invalid hex value: " + value);
 			}
-			
-			return String.format("%0" + (1 + (dataBits - 1) / 4) + "x", hex);
 		}
 		
-		private List<MemoryLine> parseMemory(String memory) {
+		@Override
+		public boolean equals(Object other) {
+			if(other instanceof PropertyMemoryValidator) {
+				PropertyMemoryValidator validator = (PropertyMemoryValidator)other;
+				return validator.addressBits == this.addressBits
+						       && validator.dataBits == this.dataBits;
+			}
+			
+			return false;
+		}
+		
+		public List<MemoryLine> parse(int[] values, BiConsumer<Integer, Integer> memoryListener) {
 			List<MemoryLine> lines = new ArrayList<>();
 			
 			int address = 0;
 			MemoryLine currLine = null;
-			Scanner scanner = new Scanner(memory);
-			while(scanner.hasNext()) {
+			for(int value : values) {
 				if(currLine == null) {
 					currLine = new MemoryLine(address);
 				}
 				
-				currLine.values.add(parseValue(scanner.next()));
+				SimpleStringProperty prop = new SimpleStringProperty(parseValue(value));
+				
+				if(memoryListener != null) {
+					MemoryLine currMemoryLine = currLine;
+					int currSize = currMemoryLine.values.size();
+					prop.addListener(
+							(observable, oldValue, newValue) ->
+									memoryListener.accept(currMemoryLine.address + currSize, parseValue(newValue)));
+				}
+				
+				currLine.values.add(prop);
 				
 				if(currLine.values.size() == 16) {
 					lines.add(currLine);
@@ -466,7 +520,7 @@ public class Properties {
 					currLine = new MemoryLine(address);
 				}
 				
-				currLine.values.add(parseValue("0"));
+				currLine.values.add(new SimpleStringProperty("0"));
 				
 				if(currLine.values.size() == 16) {
 					lines.add(currLine);
@@ -483,45 +537,32 @@ public class Properties {
 		}
 		
 		@Override
-		public boolean equals(Object other) {
-			if(other instanceof PropertyMemoryValidator) {
-				PropertyMemoryValidator validator = (PropertyMemoryValidator)other;
-				return validator.addressBits == this.addressBits
-						       && validator.dataBits == this.dataBits;
+		public List<MemoryLine> parse(String value) {
+			int[] values = new int[1 << addressBits];
+			Scanner scanner = new Scanner(value);
+			for(int i = 0; i < values.length && scanner.hasNext(); i++) {
+				values[i] = parseValue(scanner.next());
 			}
-			
-			return false;
+			return parse(values, null);
 		}
 		
 		@Override
-		public boolean validate(String value) {
-			try {
-				parseMemory(value);
-				return true;
-			} catch(IllegalArgumentException exc) {
-				return false;
-			}
-		}
-		
-		@Override
-		public Node createGui(Stage stage, String value, Consumer<String> onAction) {
-			Button button = new Button("Click to edit");
-			button.setOnAction(event -> onAction.accept(createAndShowMemoryWindow(stage, value)));
-			return button;
-		}
-		
-		public String createAndShowMemoryWindow(Stage stage, String value) {
-			List<MemoryLine> lines = parseMemory(value);
-			createAndShowMemoryWindow(stage, lines);
+		public String toString(List<MemoryLine> lines) {
 			return String.join(" ", lines.stream().map(MemoryLine::toString).collect(Collectors.toList()));
 		}
 		
-		public void createAndShowMemoryWindow(Stage stage, int[] memory) {
-			int[] newMemory = parseToArray(createAndShowMemoryWindow(stage, parseToString(memory)));
-			System.arraycopy(newMemory, 0, memory, 0, memory.length);
+		@Override
+		public Node createGui(Stage stage, List<MemoryLine> value, Consumer<List<MemoryLine>> onAction) {
+			Button button = new Button("Click to edit");
+			button.setOnAction(event -> {
+				List<MemoryLine> lines = value == null ? parse(new int[0], null) : value;
+				createAndShowMemoryWindow(stage, lines);
+				onAction.accept(lines);
+			});
+			return button;
 		}
 		
-		private void createAndShowMemoryWindow(Stage stage, List<MemoryLine> lines) {
+		public void createAndShowMemoryWindow(Stage stage, List<MemoryLine> lines) {
 			Stage memoryStage = new Stage();
 			memoryStage.initOwner(stage);
 			memoryStage.setTitle("Modify memory");
@@ -546,19 +587,20 @@ public class Properties {
 					                                                param.getValue().address)));
 			tableView.getColumns().add(address);
 			
-			for(int i = 0; i < 16; i++) {
+			int columns = Math.min(1 << addressBits, 16);
+			for(int i = 0; i < columns; i++) {
 				int j = i;
 				
 				TableColumn<MemoryLine, String> column = new TableColumn<>(String.format("%x", i));
 				column.setStyle("-fx-alignment: CENTER;");
 				column.setSortable(false);
 				column.setEditable(true);
-				column.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().get(j)));
+				column.setCellValueFactory(param -> param.getValue().get(j));
 				column.setCellFactory(TextFieldTableCell.forTableColumn());
 				column.setOnEditCommit(t -> {
 					try {
-						String newValue = parseValue(t.getNewValue());
-						t.getTableView().getItems().get(t.getTablePosition().getRow()).values.set(j, newValue);
+						String newValue = parseValue(parseValue(t.getNewValue()));
+						t.getTableView().getItems().get(t.getTablePosition().getRow()).values.get(j).set(newValue);
 					} catch(IllegalArgumentException exc) {
 					}
 					
@@ -580,7 +622,7 @@ public class Properties {
 				if(selectedFile != null) {
 					try {
 						List<String> strings = Files.readAllLines(selectedFile.toPath());
-						tableView.setItems(new ObservableListWrapper<>(parseMemory(String.join(" ", strings))));
+						tableView.setItems(new ObservableListWrapper<>(parse(String.join(" ", strings))));
 					} catch(Exception exc) {
 						new Alert(AlertType.ERROR, "Could not open file").show();
 					}
@@ -614,28 +656,28 @@ public class Properties {
 			memoryStage.showAndWait();
 			memoryStage.centerOnScreen();
 		}
+	}
+	
+	public static class MemoryLine {
+		public final int address;
+		public final List<StringProperty> values;
 		
-		private static class MemoryLine {
-			private int address;
-			private List<String> values;
-			
-			private MemoryLine(int address) {
-				this.address = address;
-				values = new ArrayList<>(16);
+		public MemoryLine(int address) {
+			this.address = address;
+			values = new ArrayList<>(16);
+		}
+		
+		public StringProperty get(int index) {
+			if(index < values.size()) {
+				return values.get(index);
 			}
 			
-			private String get(int index) {
-				if(index < values.size()) {
-					return values.get(index);
-				}
-				
-				return "";
-			}
-			
-			@Override
-			public String toString() {
-				return String.join(" ", values);
-			}
+			return new SimpleStringProperty("");
+		}
+		
+		@Override
+		public String toString() {
+			return String.join(" ", values.stream().map(StringProperty::get).collect(Collectors.toList()));
 		}
 	}
 }

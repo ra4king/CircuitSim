@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -136,6 +137,16 @@ public class CircuitSimulator extends Application {
 		return tab == null ? null : circuitManagers.get(tab.getText()).getValue();
 	}
 	
+	public String getCircuitName(CircuitManager manager) {
+		for(Entry<String, Pair<ComponentLauncherInfo, CircuitManager>> entry : circuitManagers.entrySet()) {
+			if(entry.getValue().getValue() == manager) {
+				return entry.getKey();
+			}
+		}
+		
+		return null;
+	}
+	
 	public CircuitManager getCircuitManager(String name) {
 		return circuitManagers.containsKey(name) ? circuitManagers.get(name).getValue() : null;
 	}
@@ -171,7 +182,17 @@ public class CircuitSimulator extends Application {
 	
 	public void setProperties(ComponentPeer<?> componentPeer) {
 		ComponentLauncherInfo info = componentManager.get(componentPeer.getClass());
-		setProperties(info.name.getValue(), componentPeer.getProperties());
+		String name;
+		if(info == null) {
+			if(componentPeer.getClass() != SubcircuitPeer.class) {
+				throw new IllegalStateException("How does this happen?");
+			}
+			
+			name = componentPeer.getProperties().getProperty(SubcircuitPeer.SUBCIRCUIT).getStringValue();
+		} else {
+			name = info.name.getValue();
+		}
+		setProperties(name, componentPeer.getProperties());
 	}
 	
 	public void setProperties(String componentName, Properties properties) {
@@ -180,30 +201,39 @@ public class CircuitSimulator extends Application {
 		if(properties != null) {
 			componentLabel.setText(componentName);
 			
-			properties.forEach(property -> {
-				int size = propertiesTable.getChildren().size();
+			properties.forEach(new Consumer<Property<?>>() {
+				@Override
+				public void accept(Property<?> property) {
+					acceptProperty(property);
+				}
 				
-				Label name = new Label(property.name);
-				GridPane.setHgrow(name, Priority.ALWAYS);
-				name.setMaxWidth(Double.MAX_VALUE);
-				name.setMinHeight(30);
-				name.setBackground(new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
-				                                                                         : Color.WHITE, null, null)));
-				
-				Node node = property.validator.createGui(stage, property.value, newValue -> {
-					Properties newProperties = new Properties(properties);
-					newProperties.setValue(property, newValue);
-					updateProperties(newProperties);
-				});
-				
-				if(node != null) {
-					Pane valuePane = new Pane(node);
-					valuePane.setBackground(
+				// This is an interesting trick to force that all usage of "property" work on the same type.
+				private <T> void acceptProperty(Property<T> property) {
+					int size = propertiesTable.getChildren().size();
+					
+					Label name = new Label(property.name);
+					GridPane.setHgrow(name, Priority.ALWAYS);
+					name.setMaxWidth(Double.MAX_VALUE);
+					name.setMinHeight(30);
+					name.setBackground(
 							new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
 							                                                      : Color.WHITE, null, null)));
 					
-					GridPane.setHgrow(valuePane, Priority.ALWAYS);
-					propertiesTable.addRow(size, name, valuePane);
+					Node node = property.validator.createGui(stage, property.value, newValue -> {
+						Properties newProperties = new Properties();
+						newProperties.setValue(property, newValue);
+						updateProperties(newProperties);
+					});
+					
+					if(node != null) {
+						Pane valuePane = new Pane(node);
+						valuePane.setBackground(
+								new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
+								                                                      : Color.WHITE, null, null)));
+						
+						GridPane.setHgrow(valuePane, Priority.ALWAYS);
+						propertiesTable.addRow(size, name, valuePane);
+					}
 				}
 			});
 		} else {
@@ -213,9 +243,8 @@ public class CircuitSimulator extends Application {
 	
 	private Properties getDefaultProperties() {
 		Properties properties = new Properties();
-		properties.setValue(Properties.BITSIZE, String.valueOf(bitSizeSelect.getSelectionModel().getSelectedItem()));
-		properties.setValue(Properties.NUM_INPUTS,
-		                    String.valueOf(secondaryOptionSelect.getSelectionModel().getSelectedItem()));
+		properties.setValue(Properties.BITSIZE, bitSizeSelect.getSelectionModel().getSelectedItem());
+		properties.setValue(Properties.NUM_INPUTS, secondaryOptionSelect.getSelectionModel().getSelectedItem());
 		return properties;
 	}
 	
@@ -317,7 +346,7 @@ public class CircuitSimulator extends Application {
 	
 	private ComponentCreator<?> getSubcircuitPeerCreator(String name) {
 		return (props, x, y) -> {
-			props.ensureProperty(new Property(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(this), name));
+			props.parseAndSetValue(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(this), name);
 			return ComponentManager.forClass(SubcircuitPeer.class).createComponent(props, x, y);
 		};
 	}
@@ -331,8 +360,18 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private void renameCircuit(String oldName, String newName) {
-		Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(oldName);
-		circuitManagers.put(newName, new Pair<>(createCircuitLauncherInfo(newName), removed.getValue()));
+		Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.get(oldName);
+		Pair<ComponentLauncherInfo, CircuitManager> newPair =
+				new Pair<>(createCircuitLauncherInfo(newName), removed.getValue());
+		circuitManagers =
+				circuitManagers.keySet().stream()
+				               .collect(Collectors.toMap(s -> s.equals(oldName) ? newName : s,
+				                                         s -> s.equals(oldName) ? newPair
+				                                                                : circuitManagers.get(s),
+				                                         (a, b) -> {
+					                                         throw new IllegalStateException("Name already exists");
+				                                         },
+				                                         LinkedHashMap::new));
 		refreshCircuitsTab();
 		
 		circuitManagers.values().forEach(componentPair -> {
@@ -340,7 +379,7 @@ public class CircuitSimulator extends Application {
 				if(componentPeer.getClass() == SubcircuitPeer.class
 						   && ((Subcircuit)componentPeer.getComponent()).getSubcircuit()
 								      == removed.getValue().getCircuit()) {
-					componentPeer.getProperties().setValue(SubcircuitPeer.SUBCIRCUIT, newName);
+					componentPeer.getProperties().parseAndSetValue(SubcircuitPeer.SUBCIRCUIT, newName);
 				}
 			}
 		});
@@ -510,6 +549,8 @@ public class CircuitSimulator extends Application {
 					}
 					break;
 				} catch(Exception exc) {
+					exc.printStackTrace();
+					
 					Alert alert = new Alert(AlertType.ERROR);
 					alert.setTitle("Duplicate name");
 					alert.setHeaderText("Duplicate name");

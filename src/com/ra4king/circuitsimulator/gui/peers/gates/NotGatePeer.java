@@ -30,7 +30,7 @@ public class NotGatePeer extends GatePeer {
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		return new NotGate(properties.getValue(Properties.LABEL),
-		                   properties.getIntValue(Properties.BITSIZE));
+		                   properties.getValue(Properties.BITSIZE));
 	}
 	
 	@Override

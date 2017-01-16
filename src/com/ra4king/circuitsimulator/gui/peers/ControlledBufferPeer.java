@@ -35,7 +35,7 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 		properties.mergeIfExists(props);
 		
 		ControlledBuffer buffer = new ControlledBuffer(properties.getValue(Properties.LABEL),
-		                                               properties.getIntValue(Properties.BITSIZE));
+		                                               properties.getValue(Properties.BITSIZE));
 		
 		List<Connection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), "In", 1, 0));

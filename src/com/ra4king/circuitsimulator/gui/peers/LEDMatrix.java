@@ -23,11 +23,11 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class LEDMatrix extends ComponentPeer<Component> {
-	private static final Property COL_COUNT, ROW_COUNT;
+	private static final Property<Integer> COL_COUNT, ROW_COUNT;
 	
 	static {
-		COL_COUNT = new Property("Column count", Properties.BITSIZE.validator, "5");
-		ROW_COUNT = new Property("Row count", Properties.BITSIZE.validator, "7");
+		COL_COUNT = new Property<>("Column count", Properties.BITSIZE.validator, 5);
+		ROW_COUNT = new Property<>("Row count", Properties.BITSIZE.validator, 7);
 	}
 	
 	public static void installComponent(ComponentManagerInterface manager) {
@@ -43,8 +43,8 @@ public class LEDMatrix extends ComponentPeer<Component> {
 		properties.ensureProperty(ROW_COUNT);
 		properties.mergeIfExists(props);
 		
-		int rows = properties.getIntValue(ROW_COUNT);
-		int cols = properties.getIntValue(COL_COUNT);
+		int rows = properties.getValue(ROW_COUNT);
+		int cols = properties.getValue(COL_COUNT);
 		
 		setWidth(cols);
 		setHeight(rows);

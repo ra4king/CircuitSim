@@ -1,5 +1,12 @@
 package com.ra4king.circuitsimulator.gui;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
+import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -86,5 +93,31 @@ public class GuiUtils {
 				graphics.setFill(Color.BLUE.brighter());
 				break;
 		}
+	}
+	
+	public static PortConnection rotatePortCCW(PortConnection connection) {
+		int x = connection.getXOffset();
+		int y = connection.getYOffset();
+		int width = connection.getParent().getWidth();
+		
+		return new PortConnection(connection.getParent(),
+		                          connection.getPort(),
+		                          connection.getName(),
+		                          y, width - x);
+	}
+	
+	public static List<PortConnection> rotatePorts(List<PortConnection> connections,
+	                                               Direction original,
+	                                               Direction destination) {
+		List<Direction> order = Arrays.asList(Direction.EAST, Direction.NORTH, Direction.WEST, Direction.SOUTH);
+		
+		Stream<PortConnection> stream = connections.stream();
+		
+		int index = order.indexOf(original);
+		while(order.get(index++ % order.size()) != destination) {
+			stream = stream.map(GuiUtils::rotatePortCCW);
+		}
+		
+		return stream.collect(Collectors.toList());
 	}
 }

@@ -10,13 +10,13 @@ import com.ra4king.circuitsimulator.simulator.Component;
 public abstract class ComponentPeer<C extends Component> extends GuiElement {
 	private C component;
 	private Properties properties;
-	private List<Connection> connections;
+	private List<? extends Connection> connections;
 	
 	public ComponentPeer(int x, int y, int width, int height) {
 		super(x, y, width, height);
 	}
 	
-	protected final void init(C component, Properties properties, List<Connection> connections) {
+	protected final void init(C component, Properties properties, List<? extends Connection> connections) {
 		if(this.component != null) {
 			throw new IllegalStateException("ComponentPeer already initialized.");
 		}
@@ -35,7 +35,7 @@ public abstract class ComponentPeer<C extends Component> extends GuiElement {
 	}
 	
 	@Override
-	public List<Connection> getConnections() {
+	public List<? extends Connection> getConnections() {
 		return connections;
 	}
 	

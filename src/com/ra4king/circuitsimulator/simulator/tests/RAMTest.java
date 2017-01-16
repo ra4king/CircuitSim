@@ -27,7 +27,7 @@ public class RAMTest {
 		
 		int sum = 0;
 		for(int i = 0; i < 100; i++) {
-			ram.store(circuit.getTopLevelState(), i, WireValue.of(i * 2 + 5, 8));
+			ram.store(circuit.getTopLevelState(), i, i * 2 + 5);
 			sum += i * 2;
 		}
 		System.out.println("Expected sum: " + sum);

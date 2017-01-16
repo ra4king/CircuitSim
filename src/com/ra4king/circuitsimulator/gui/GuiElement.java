@@ -122,7 +122,7 @@ public abstract class GuiElement {
 		return Collections.emptyList();
 	}
 	
-	public abstract List<Connection> getConnections();
+	public abstract List<? extends Connection> getConnections();
 	
 	public abstract void paint(GraphicsContext graphics, CircuitState circuitState);
 }

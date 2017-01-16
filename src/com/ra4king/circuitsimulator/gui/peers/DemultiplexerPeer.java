@@ -9,8 +9,6 @@ import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
-import com.ra4king.circuitsimulator.gui.Properties.Property;
-import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Demultiplexer;
 
@@ -24,16 +22,6 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
-	private static final Property SELECTOR_BITS;
-	
-	static {
-		List<String> selBits = new ArrayList<>();
-		for(int i = 1; i <= 8; i++) {
-			selBits.add(String.valueOf(i));
-		}
-		SELECTOR_BITS = new Property("Selector bits", new PropertyListValidator(selBits), "1");
-	}
-	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Plexer", "Demux"),
 		                     new Image(DemultiplexerPeer.class.getResourceAsStream("/resources/Demux.png")),
@@ -46,12 +34,12 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
-		properties.ensureProperty(SELECTOR_BITS);
+		properties.ensureProperty(Properties.SELECTOR_BITS);
 		properties.mergeIfExists(props);
 		
 		Demultiplexer demux = new Demultiplexer(properties.getValue(Properties.LABEL),
-		                                        properties.getIntValue(Properties.BITSIZE),
-		                                        properties.getIntValue(SELECTOR_BITS));
+		                                        properties.getValue(Properties.BITSIZE),
+		                                        properties.getValue(Properties.SELECTOR_BITS));
 		setHeight(demux.getNumOutputs() + 2);
 		
 		List<Connection> connections = new ArrayList<>();

@@ -24,14 +24,14 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
-	private static final Property SELECTOR_BITS;
+	private static final Property<Integer> SELECTOR_BITS;
 	
 	static {
-		List<String> selBits = new ArrayList<>();
+		List<Integer> selBits = new ArrayList<>();
 		for(int i = 1; i <= 8; i++) {
-			selBits.add(String.valueOf(i));
+			selBits.add(i);
 		}
-		SELECTOR_BITS = new Property("Selector bits", new PropertyListValidator(selBits), "1");
+		SELECTOR_BITS = new Property<>("Selector bits", new PropertyListValidator<>(selBits), 1);
 	}
 	
 	public static void installComponent(ComponentManagerInterface manager) {
@@ -50,8 +50,8 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 		properties.mergeIfExists(props);
 		
 		Multiplexer mux = new Multiplexer(properties.getValue(Properties.LABEL),
-		                                  properties.getIntValue(Properties.BITSIZE),
-		                                  properties.getIntValue(SELECTOR_BITS));
+		                                  properties.getValue(Properties.BITSIZE),
+		                                  properties.getValue(SELECTOR_BITS));
 		setHeight(mux.getNumInputs() + 2);
 		
 		List<Connection> connections = new ArrayList<>();

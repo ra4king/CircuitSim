@@ -1,7 +1,6 @@
 package com.ra4king.circuitsimulator.gui.peers;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,13 +11,12 @@ import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
-import com.ra4king.circuitsimulator.gui.Properties.Property;
-import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
+import com.ra4king.circuitsimulator.gui.Properties.MemoryLine;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyMemoryValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.components.RAM;
 
+import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
@@ -29,16 +27,6 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class RAMPeer extends ComponentPeer<RAM> {
-	private static final Property ADDRESS_BITS;
-	
-	static {
-		String[] addressBits = new String[16];
-		for(int i = 0; i < addressBits.length; i++) {
-			addressBits[i] = String.valueOf(i + 1);
-		}
-		ADDRESS_BITS = new Property("Address bits", new PropertyListValidator(addressBits), "8");
-	}
-	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Memory", "RAM"),
 		                     new Image(RAMPeer.class.getResourceAsStream("/resources/RAM.png")),
@@ -51,11 +39,11 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
-		properties.ensureProperty(ADDRESS_BITS);
+		properties.ensureProperty(Properties.ADDRESS_BITS);
 		properties.mergeIfExists(props);
 		
-		int addressBits = properties.getIntValue(ADDRESS_BITS);
-		int dataBits = properties.getIntValue(Properties.BITSIZE);
+		int addressBits = properties.getValue(Properties.ADDRESS_BITS);
+		int dataBits = properties.getValue(Properties.BITSIZE);
 		
 		RAM ram = new RAM(properties.getValue(Properties.LABEL), dataBits, addressBits);
 		
@@ -77,19 +65,25 @@ public class RAMPeer extends ComponentPeer<RAM> {
 			PropertyMemoryValidator memoryValidator =
 					new PropertyMemoryValidator(getComponent().getAddressBits(), getComponent().getDataBits());
 			
-			int[] memory = Arrays.stream(getComponent().getMemoryContents(circuit.getCircuitBoard().getCurrentState()))
-			                     .mapToInt(value -> value == null ? 0 : value.getValue())
-			                     .toArray();
+			CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
+			List<MemoryLine> memory =
+					memoryValidator.parse(getComponent().getMemoryContents(currentState), (address, value) -> {
+						getComponent().store(currentState, address, value);
+						Platform.runLater(() -> {
+							try {
+								circuit.getCircuitBoard().runSim();
+							} catch(Exception exc) {
+							}
+						});
+					});
+			
+			getComponent().addMemoryListener((address, data) -> {
+				int index = address / 16;
+				MemoryLine line = memory.get(index);
+				line.values.get(address - index * 16).setValue(String.format("%x", data));
+			});
 			
 			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), memory);
-			
-			WireValue[] newMemory = Arrays.stream(memory)
-			                              .mapToObj(value -> value == 0
-			                                                 ? null
-			                                                 : WireValue.of(value, getComponent().getDataBits()))
-			                              .toArray(WireValue[]::new);
-			
-			getComponent().setMemoryContents(circuit.getCircuitBoard().getCurrentState(), newMemory);
 		});
 		return Collections.singletonList(menuItem);
 	}

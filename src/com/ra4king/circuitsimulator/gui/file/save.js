@@ -18,7 +18,7 @@ circuits.forEach(function (circuit) {
         };
 
         component.properties.forEach(function (property) {
-            json.properties[property.name] = property.value;
+            json.properties[property.name] = property.validator.toString(property.value);
         });
 
         circuitInfo.components.push(json);

@@ -7,10 +7,10 @@ import java.util.Map;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
@@ -41,6 +41,7 @@ public class Tunnel extends ComponentPeer<Component> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
@@ -48,7 +49,7 @@ public class Tunnel extends ComponentPeer<Component> {
 		int bitSize = properties.getValue(Properties.BITSIZE);
 		
 		Bounds bounds = GuiUtils.getBounds(Font.font("monospace", 15), label);
-		setWidth(1 + Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1));
+		setWidth(Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1));
 		
 		Component tunnel = new Component(label, new int[] { bitSize }) {
 			@Override
@@ -106,14 +107,35 @@ public class Tunnel extends ComponentPeer<Component> {
 			}
 		};
 		
-		List<Connection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, tunnel.getPort(0), 0, getHeight() / 2));
+		List<PortConnection> connections = new ArrayList<>();
+		switch(properties.getValue(Properties.DIRECTION)) {
+			case EAST:
+				setWidth(getWidth() + 1);
+				connections.add(new PortConnection(this, tunnel.getPort(0), 0, getHeight() / 2));
+				break;
+			case WEST:
+				setWidth(getWidth() + 1);
+				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth(), getHeight() / 2));
+				break;
+			case NORTH:
+				setWidth(Math.max(getWidth(), 2));
+				setHeight(3);
+				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, getHeight()));
+				break;
+			case SOUTH:
+				setWidth(Math.max(getWidth(), 2));
+				setHeight(3);
+				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, 0));
+				break;
+		}
 		
 		init(tunnel, properties, connections);
 	}
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		Direction direction = getProperties().getValue(Properties.DIRECTION);
+		
 		graphics.setStroke(Color.BLACK);
 		graphics.setFill(Color.WHITE);
 		
@@ -123,13 +145,51 @@ public class Tunnel extends ComponentPeer<Component> {
 		int width = getScreenWidth();
 		int height = getScreenHeight();
 		
-		graphics.beginPath();
-		graphics.moveTo(x, y + height * 0.5);
-		graphics.lineTo(x + block, y);
-		graphics.lineTo(x + width, y);
-		graphics.lineTo(x + width, y + height);
-		graphics.lineTo(x + block, y + height);
-		graphics.closePath();
+		int xOff = 0;
+		int yOff = 0;
+		
+		switch(direction) {
+			case EAST:
+				xOff = block;
+				graphics.beginPath();
+				graphics.moveTo(x, y + height * 0.5);
+				graphics.lineTo(x + block, y);
+				graphics.lineTo(x + width, y);
+				graphics.lineTo(x + width, y + height);
+				graphics.lineTo(x + block, y + height);
+				graphics.closePath();
+				break;
+			case WEST:
+				xOff = -block;
+				graphics.beginPath();
+				graphics.moveTo(x + width, y + height * 0.5);
+				graphics.lineTo(x + width - block, y + height);
+				graphics.lineTo(x, y + height);
+				graphics.lineTo(x, y);
+				graphics.lineTo(x + width - block, y);
+				graphics.closePath();
+				break;
+			case NORTH:
+				yOff = -block;
+				graphics.beginPath();
+				graphics.moveTo(x + width * 0.5, y + height);
+				graphics.lineTo(x, y + height - block);
+				graphics.lineTo(x, y);
+				graphics.lineTo(x + width, y);
+				graphics.lineTo(x + width, y + height - block);
+				graphics.closePath();
+				break;
+			case SOUTH:
+				yOff = block;
+				graphics.beginPath();
+				graphics.moveTo(x + width * 0.5, y);
+				graphics.lineTo(x + width, y + block);
+				graphics.lineTo(x + width, y + height);
+				graphics.lineTo(x, y + height);
+				graphics.lineTo(x, y + block);
+				graphics.closePath();
+				break;
+		}
 		
 		graphics.fill();
 		graphics.stroke();
@@ -137,7 +197,9 @@ public class Tunnel extends ComponentPeer<Component> {
 		if(!getComponent().getName().isEmpty()) {
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
 			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(), x + block, y + (height + bounds.getHeight()) * 0.4);
+			graphics.strokeText(getComponent().getName(),
+			                    x + xOff + ((width - xOff) - bounds.getWidth()) * 0.5,
+			                    y + yOff + ((height - yOff) + bounds.getHeight()) * 0.4);
 		}
 	}
 }

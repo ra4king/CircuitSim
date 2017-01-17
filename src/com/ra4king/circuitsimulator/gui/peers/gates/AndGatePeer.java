@@ -37,6 +37,8 @@ public class AndGatePeer extends GatePeer {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		super.paint(graphics, circuitState);
+		
 		graphics.beginPath();
 		graphics.moveTo(getScreenX(), getScreenY());
 		graphics.lineTo(getScreenX(), getScreenY() + getScreenHeight());

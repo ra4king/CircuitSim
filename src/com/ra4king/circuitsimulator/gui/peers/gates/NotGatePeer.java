@@ -1,6 +1,7 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
+import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
@@ -35,10 +36,17 @@ public class NotGatePeer extends GatePeer {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		super.paint(graphics, circuitState);
+		
+		int x = getScreenX();
+		int y = getScreenY();
+		int width = 4 * GuiUtils.BLOCK_SIZE;
+		int height = 2 * GuiUtils.BLOCK_SIZE;
+		
 		graphics.beginPath();
-		graphics.moveTo(getScreenX(), getScreenY());
-		graphics.lineTo(getScreenX(), getScreenY() + getScreenHeight());
-		graphics.lineTo(getScreenX() + getScreenWidth() * 0.8, getScreenY() + getScreenHeight() * 0.5);
+		graphics.moveTo(x, y);
+		graphics.lineTo(x, y + height);
+		graphics.lineTo(x + width * 0.8, y + height * 0.5);
 		graphics.closePath();
 		
 		graphics.setFill(Color.WHITE);
@@ -46,11 +54,7 @@ public class NotGatePeer extends GatePeer {
 		graphics.fill();
 		graphics.stroke();
 		
-		graphics.fillOval(getScreenX() + getScreenWidth() * 0.8,
-		                  getScreenY() + getScreenHeight() * 0.5 - getScreenWidth() * 0.1, getScreenWidth() * 0.2,
-		                  getScreenWidth() * 0.2);
-		graphics.strokeOval(getScreenX() + getScreenWidth() * 0.8,
-		                    getScreenY() + getScreenHeight() * 0.5 - getScreenWidth() * 0.1, getScreenWidth() * 0.2,
-		                    getScreenWidth() * 0.2);
+		graphics.fillOval(x + width * 0.8, y + height * 0.5 - width * 0.1, width * 0.2, width * 0.2);
+		graphics.strokeOval(x + width * 0.8, y + height * 0.5 - width * 0.1, width * 0.2, width * 0.2);
 	}
 }

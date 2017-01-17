@@ -37,6 +37,8 @@ public class NorGatePeer extends GatePeer {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		super.paint(graphics, circuitState);
+		
 		graphics.beginPath();
 		graphics.moveTo(getScreenX(), getScreenY() + getScreenHeight());
 		graphics.arc(getScreenX(), getScreenY() + getScreenHeight() * 0.5, getScreenWidth() * 0.25,

@@ -260,6 +260,7 @@ public class CircuitSimulator extends Application {
 		if(selectedComponent == null) {
 			modifiedSelection("", null, properties);
 		} else {
+			properties = getDefaultProperties().union(properties);
 			modifiedSelection(selectedComponent.name.getValue(), selectedComponent.creator, properties);
 		}
 	}
@@ -709,14 +710,22 @@ public class CircuitSimulator extends Application {
 								creator = ComponentManager.forClass(clazz);
 							}
 							
-							manager.getCircuitBoard().addComponent(
-									creator.createComponent(component.properties,
-									                        component.x,
-									                        component.y));
+							try {
+								manager.getCircuitBoard().addComponent(
+										creator.createComponent(component.properties,
+										                        component.x,
+										                        component.y));
+							} catch(Exception exc) {
+								exc.printStackTrace();
+							}
 						}
 						
 						for(WireInfo wire : circuit.wires) {
-							manager.getCircuitBoard().addWire(wire.x, wire.y, wire.length, wire.isHorizontal);
+							try {
+								manager.getCircuitBoard().addWire(wire.x, wire.y, wire.length, wire.isHorizontal);
+							} catch(Exception exc) {
+								exc.printStackTrace();
+							}
 						}
 					}
 					

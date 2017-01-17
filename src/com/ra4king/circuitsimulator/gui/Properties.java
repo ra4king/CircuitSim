@@ -224,6 +224,7 @@ public class Properties {
 	public static final Property<Integer> ADDRESS_BITS;
 	public static final Property<Integer> SELECTOR_BITS;
 	public static final Property<Direction> DIRECTION;
+	public static final Property<Boolean> SELECTOR_LOCATION;
 	
 	public enum Direction {
 		NORTH, SOUTH, EAST, WEST
@@ -258,6 +259,10 @@ public class Properties {
 			selBits.add(i);
 		}
 		SELECTOR_BITS = new Property<>("Selector bits", new PropertyListValidator<>(selBits), 1);
+		
+		PropertyListValidator<Boolean> leftRightValidator =
+				new PropertyListValidator<>(Arrays.asList(true, false), bool -> bool ? "Left/Top" : "Right/Down");
+		SELECTOR_LOCATION = new Property<>("Selector location", leftRightValidator, false);
 	}
 	
 	public static class Property<T> {
@@ -376,7 +381,7 @@ public class Properties {
 		
 		@Override
 		public String toString(T value) {
-			return toString.apply(value);
+			return value == null ? "" : toString.apply(value);
 		}
 		
 		@Override

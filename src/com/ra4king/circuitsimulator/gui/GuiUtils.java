@@ -1,5 +1,7 @@
 package com.ra4king.circuitsimulator.gui;
 
+import static com.ra4king.circuitsimulator.gui.Properties.Direction.*;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -95,10 +97,10 @@ public class GuiUtils {
 		}
 	}
 	
-	public static PortConnection rotatePortCCW(PortConnection connection) {
+	public static PortConnection rotatePortCCW(PortConnection connection, boolean useWidth) {
 		int x = connection.getXOffset();
 		int y = connection.getYOffset();
-		int width = connection.getParent().getWidth();
+		int width = useWidth ? connection.getParent().getWidth() : connection.getParent().getHeight();
 		
 		return new PortConnection(connection.getParent(),
 		                          connection.getPort(),
@@ -107,17 +109,67 @@ public class GuiUtils {
 	}
 	
 	public static List<PortConnection> rotatePorts(List<PortConnection> connections,
-	                                               Direction original,
+	                                               Direction source,
 	                                               Direction destination) {
-		List<Direction> order = Arrays.asList(Direction.EAST, Direction.NORTH, Direction.WEST, Direction.SOUTH);
+		List<Direction> order = Arrays.asList(Direction.EAST, NORTH, Direction.WEST, Direction.SOUTH);
 		
 		Stream<PortConnection> stream = connections.stream();
 		
-		int index = order.indexOf(original);
+		int index = order.indexOf(source);
+		boolean useWidth = true;
 		while(order.get(index++ % order.size()) != destination) {
-			stream = stream.map(GuiUtils::rotatePortCCW);
+			boolean temp = useWidth;
+			stream = stream.map(port -> rotatePortCCW(port, temp));
+			useWidth = !useWidth;
 		}
 		
 		return stream.collect(Collectors.toList());
+	}
+	
+	public static void rotateElement(GuiElement element, Direction source, Direction destination) {
+		List<Direction> order = Arrays.asList(Direction.EAST, NORTH, Direction.WEST, Direction.SOUTH);
+		
+		int index = order.indexOf(source);
+		while(order.get(index++ % order.size()) != destination) {
+			int width = element.getWidth();
+			int height = element.getHeight();
+			element.setWidth(height);
+			element.setHeight(width);
+		}
+	}
+	
+	public static void drawLabel(ComponentPeer<?> component, GraphicsContext graphics) {
+		int x = component.getScreenX();
+		int y = component.getScreenY();
+		int width = component.getScreenWidth();
+		
+		if(!component.getComponent().getName().isEmpty()) {
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), component.getComponent().getName());
+			graphics.setStroke(Color.BLACK);
+			graphics.strokeText(component.getComponent().getName(), x + (width - bounds.getWidth()) * 0.5, y - 5);
+		}
+	}
+	
+	public static void rotateGraphics(ComponentPeer<?> component, GraphicsContext graphics, Direction direction) {
+		int x = component.getScreenX();
+		int y = component.getScreenY();
+		int width = component.getScreenWidth();
+		int height = component.getScreenHeight();
+		
+		graphics.translate(x + width * 0.5, y + height * 0.5);
+		switch(direction) {
+			case NORTH:
+				graphics.rotate(270);
+				graphics.translate(-x - height * 0.5, -y - width * 0.5);
+				break;
+			case SOUTH:
+				graphics.rotate(90);
+				graphics.translate(-x - height * 0.5, -y - width * 0.5);
+				break;
+			case WEST:
+				graphics.rotate(180);
+			default:
+				graphics.translate(-x - width * 0.5, -y - height * 0.5);
+		}
 	}
 }

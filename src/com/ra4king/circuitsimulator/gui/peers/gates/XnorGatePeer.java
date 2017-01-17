@@ -38,6 +38,8 @@ public class XnorGatePeer extends GatePeer {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		super.paint(graphics, circuitState);
+		
 		graphics.beginPath();
 		graphics.moveTo(getScreenX() + getScreenWidth() * 0.1, getScreenY() + getScreenHeight());
 		graphics.arc(getScreenX() + getScreenWidth() * 0.1, getScreenY() + getScreenHeight() * 0.5,

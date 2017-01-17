@@ -260,7 +260,7 @@ public class CircuitSimulator extends Application {
 		if(selectedComponent == null) {
 			modifiedSelection("", null, properties);
 		} else {
-			properties = getDefaultProperties().union(properties);
+			properties = getDefaultProperties().union(selectedComponent.properties).union(properties);
 			modifiedSelection(selectedComponent.name.getValue(), selectedComponent.creator, properties);
 		}
 	}

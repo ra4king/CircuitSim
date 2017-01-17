@@ -27,9 +27,10 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.DIRECTION);
-		properties.union(props);
+		ensureProperties(properties);
+		properties.mergeIfExists(props);
 		
-		Gate gate = getGate(properties);
+		Gate gate = buildGate(properties);
 		
 		List<PortConnection> connections = new ArrayList<>();
 		int gateNum = gate.getNumPorts() - 1;
@@ -47,7 +48,9 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 		init(gate, properties, connections);
 	}
 	
-	public abstract Gate getGate(Properties properties);
+	protected abstract void ensureProperties(Properties properties);
+	
+	public abstract Gate buildGate(Properties properties);
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {

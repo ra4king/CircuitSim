@@ -27,10 +27,14 @@ public class XnorGatePeer extends GatePeer {
 	}
 	
 	@Override
-	public Gate getGate(Properties properties) {
+	protected void ensureProperties(Properties properties) {
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.NUM_INPUTS);
+	}
+	
+	@Override
+	public Gate buildGate(Properties properties) {
 		return new XnorGate(properties.getValue(Properties.LABEL),
 		                    properties.getValue(Properties.BITSIZE),
 		                    properties.getValue(Properties.NUM_INPUTS));

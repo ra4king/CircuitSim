@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentLauncherInfo;
+import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
 import com.ra4king.circuitsimulator.gui.file.FileFormat;
@@ -258,7 +259,7 @@ public class CircuitSimulator extends Application {
 	
 	private void updateProperties(Properties properties) {
 		if(selectedComponent == null) {
-			modifiedSelection("", null, properties);
+			modifiedSelection(componentLabel.getText(), null, properties);
 		} else {
 			properties = getDefaultProperties().union(selectedComponent.properties).union(properties);
 			modifiedSelection(selectedComponent.name.getValue(), selectedComponent.creator, properties);
@@ -867,12 +868,13 @@ public class CircuitSimulator extends Application {
 		componentLabel.setFont(Font.font("Sans serif", 15));
 		VBox propertiesBox = new VBox(componentLabel, propertiesTable);
 		propertiesBox.setAlignment(Pos.TOP_CENTER);
-		VBox.setVgrow(propertiesBox, Priority.ALWAYS);
+		VBox.setVgrow(propertiesTable, Priority.ALWAYS);
 		
-		SplitPane leftPane = new SplitPane(buttonTabPane, propertiesBox);
-		leftPane.setOrientation(Orientation.VERTICAL);
+		SplitPane leftPaneSplit = new SplitPane(buttonTabPane, propertiesBox);
+		leftPaneSplit.setOrientation(Orientation.VERTICAL);
+		leftPaneSplit.setDividerPositions(0.65);
 		
-		SplitPane canvasPropsSplit = new SplitPane(leftPane, canvasTabPane);
+		SplitPane canvasPropsSplit = new SplitPane(leftPaneSplit, canvasTabPane);
 		canvasPropsSplit.setOrientation(Orientation.HORIZONTAL);
 		canvasPropsSplit.setDividerPositions(0.25);
 		
@@ -950,6 +952,30 @@ public class CircuitSimulator extends Application {
 	
 	public void keyPressed(KeyEvent e) {
 		switch(e.getCode()) {
+			case RIGHT: {
+				Properties props = new Properties();
+				props.setValue(Properties.DIRECTION, Direction.EAST);
+				updateProperties(props);
+				break;
+			}
+			case LEFT: {
+				Properties props = new Properties();
+				props.setValue(Properties.DIRECTION, Direction.WEST);
+				updateProperties(props);
+				break;
+			}
+			case UP: {
+				Properties props = new Properties();
+				props.setValue(Properties.DIRECTION, Direction.NORTH);
+				updateProperties(props);
+				break;
+			}
+			case DOWN: {
+				Properties props = new Properties();
+				props.setValue(Properties.DIRECTION, Direction.SOUTH);
+				updateProperties(props);
+				break;
+			}
 			case ESCAPE:
 				clearSelection();
 				break;

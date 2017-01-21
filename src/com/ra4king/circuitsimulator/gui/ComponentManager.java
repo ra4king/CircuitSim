@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import com.ra4king.circuitsimulator.gui.peers.AdderPeer;
 import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
+import com.ra4king.circuitsimulator.gui.peers.ConstantPeer;
 import com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer;
 import com.ra4king.circuitsimulator.gui.peers.DecoderPeer;
 import com.ra4king.circuitsimulator.gui.peers.DemultiplexerPeer;
@@ -122,6 +123,7 @@ public class ComponentManager {
 	
 	private void registerDefaultComponents() {
 		register(PinPeer.class);
+		register(ConstantPeer.class);
 		register(ClockPeer.class);
 		register(SplitterPeer.class);
 		register(Tunnel.class);

@@ -8,23 +8,28 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
  * @author Roi Atalla
  */
 public class Constant extends Component {
-	private final WireValue value;
+	private final int bitSize;
+	private final int value;
 	
 	public static final int PORT = 0;
 	
-	public Constant(String name, WireValue value) {
-		super(name, new int[] { 1 });
-		this.value = new WireValue(value);
+	public Constant(String name, int bitSize, int value) {
+		super(name, new int[] { bitSize });
+		this.bitSize = bitSize;
+		this.value = value;
 	}
 	
-	public void setValue(CircuitState circuitState, WireValue value) {
-		this.value.set(value);
-		circuitState.getCircuit().getCircuitStates().forEach(state -> state.pushValue(getPort(PORT), value));
+	public int getBitSize() {
+		return bitSize;
+	}
+	
+	public int getValue() {
+		return value;
 	}
 	
 	@Override
 	public void init(CircuitState circuitState) {
-		circuitState.pushValue(getPort(PORT), value);
+		circuitState.pushValue(getPort(PORT), WireValue.of(value, bitSize));
 	}
 	
 	@Override

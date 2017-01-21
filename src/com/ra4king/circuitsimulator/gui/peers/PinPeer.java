@@ -29,15 +29,15 @@ public class PinPeer extends ComponentPeer<Pin> {
 	public static final Property<Boolean> IS_INPUT = new Property<>("Is input?", Properties.YESNO_VALIDATOR, true);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		Properties properties = new Properties();
+		Properties properties = new Properties(new Property<>(IS_INPUT, true),
+		                                       new Property<>(Properties.DIRECTION, Direction.WEST));
 		properties.setValue(IS_INPUT, true);
 		properties.setValue(Properties.DIRECTION, Direction.WEST);
 		manager.addComponent(new Pair<>("Wiring", "Input Pin"),
 		                     new Image(PinPeer.class.getResourceAsStream("/resources/InputPin.png")),
 		                     properties);
 		
-		properties = new Properties();
-		properties.setValue(IS_INPUT, false);
+		properties = new Properties(new Property<>(IS_INPUT, false));
 		manager.addComponent(new Pair<>("Wiring", "Output Pin"),
 		                     new Image(PinPeer.class.getResourceAsStream("/resources/OutputPin.png")),
 		                     properties);
@@ -52,7 +52,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(IS_INPUT);
 		properties.mergeIfExists(props);
-		
+		;
 		Pin pin = new Pin(properties.getValue(Properties.LABEL),
 		                  properties.getValue(Properties.BITSIZE),
 		                  properties.getValue(IS_INPUT));

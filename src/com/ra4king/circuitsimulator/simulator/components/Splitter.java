@@ -24,6 +24,10 @@ public class Splitter extends Component {
 		PORT_JOINED = getNumPorts() - 1;
 	}
 	
+	public int[] getBitFanIndices() {
+		return bitFanIndices;
+	}
+	
 	private static int[] setupBitFanIndices(int bitSize, int fanouts) {
 		int numBitsPerFan = bitSize / fanouts;
 		if((bitSize % fanouts) != 0)

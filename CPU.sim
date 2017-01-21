@@ -5,26 +5,85 @@
             "components": [
                 {
                     "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 19,
-                    "y": 11,
+                    "x": 36,
+                    "y": 15,
+                    "properties": {
+                        "Label": "A",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 62,
+                    "y": 24,
+                    "properties": {
+                        "Label": "RESET",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer",
+                    "x": 42,
+                    "y": 34,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "SOUTH",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 79,
+                    "y": 34,
+                    "properties": {
+                        "Label": "DrMEM",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 22,
+                    "y": 16,
                     "properties": {
                         "Label": "PC",
                         "Bitsize": "16"
                     }
                 },
                 {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
-                    "x": 49,
-                    "y": 11,
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 31,
+                    "y": 17,
                     "properties": {
-                        "Label": "",
-                        "Subcircuit": "Memory"
+                        "Label": "LdA",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+                    "x": 42,
+                    "y": 27,
+                    "properties": {
+                        "Label": "ALU",
+                        "Subcircuit": "ALU"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 77,
+                    "y": 30,
+                    "properties": {
+                        "Label": "RESET",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1"
                     }
                 },
                 {
                     "name": "com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer",
-                    "x": 25,
-                    "y": 20,
+                    "x": 87,
+                    "y": 34,
                     "properties": {
                         "Label": "",
                         "Direction": "SOUTH",
@@ -33,29 +92,234 @@
                 },
                 {
                     "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
-                    "x": 39,
-                    "y": 11,
+                    "x": 85,
+                    "y": 24,
+                    "properties": {
+                        "Label": "RAM",
+                        "Subcircuit": "Memory"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer",
+                    "x": 68,
+                    "y": 34,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "SOUTH",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 35,
+                    "y": 27,
+                    "properties": {
+                        "Label": "func",
+                        "Direction": "WEST",
+                        "Bitsize": "2"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 77,
+                    "y": 24,
+                    "properties": {
+                        "Label": "WrMEM",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 73,
+                    "y": 18,
+                    "properties": {
+                        "Label": "LdMAR",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+                    "x": 65,
+                    "y": 16,
                     "properties": {
                         "Label": "RegFile",
                         "Subcircuit": "Registers"
                     }
                 },
                 {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.MultiplexerPeer",
-                    "x": 14,
-                    "y": 8,
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 21,
+                    "y": 34,
+                    "properties": {
+                        "Label": "DrPC",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 100,
+                    "y": 21,
+                    "properties": {
+                        "Label": "CLK",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 81,
+                    "y": 16,
+                    "properties": {
+                        "Label": "MAR",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 22,
+                    "y": 22,
+                    "properties": {
+                        "Label": "RESET",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 9,
+                    "y": 49,
                     "properties": {
                         "Label": "",
+                        "Direction": "WEST",
+                        "Bitsize": "1",
+                        "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 15,
+                    "y": 18,
+                    "properties": {
+                        "Label": "LdPC",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 14,
+                    "y": 49,
+                    "properties": {
+                        "Label": "RESET",
+                        "Direction": "EAST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 14,
+                    "y": 44,
+                    "properties": {
+                        "Label": "CLK",
+                        "Direction": "EAST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 73,
+                    "y": 30,
+                    "properties": {
+                        "Label": "CLK",
                         "Direction": "SOUTH",
-                        "Selector location": "Left/Top",
-                        "Bitsize": "16",
-                        "Selector bits": "1"
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 94,
+                    "y": 18,
+                    "properties": {
+                        "Label": "LdIR",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 34,
+                    "y": 34,
+                    "properties": {
+                        "Label": "DrALU",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 35,
+                    "y": 20,
+                    "properties": {
+                        "Label": "CLK",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 58,
+                    "y": 24,
+                    "properties": {
+                        "Label": "CLK",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 60,
+                    "y": 34,
+                    "properties": {
+                        "Label": "DrREG",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 18,
+                    "y": 22,
+                    "properties": {
+                        "Label": "CLK",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.ClockPeer",
+                    "x": 9,
+                    "y": 44,
+                    "properties": {
+                        "Label": ""
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 42,
+                    "y": 17,
+                    "properties": {
+                        "Label": "LdB",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
                     }
                 },
                 {
                     "name": "com.ra4king.circuitsimulator.gui.peers.ControlledBufferPeer",
-                    "x": 41,
-                    "y": 20,
+                    "x": 28,
+                    "y": 34,
                     "properties": {
                         "Label": "",
                         "Direction": "SOUTH",
@@ -63,44 +327,151 @@
                     }
                 },
                 {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.AdderPeer",
-                    "x": 28,
-                    "y": 11,
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 56,
+                    "y": 20,
                     "properties": {
-                        "Label": "",
+                        "Label": "regno",
+                        "Direction": "WEST",
+                        "Bitsize": "4"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 47,
+                    "y": 15,
+                    "properties": {
+                        "Label": "B",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 56,
+                    "y": 18,
+                    "properties": {
+                        "Label": "WrREG",
+                        "Direction": "WEST",
+                        "Bitsize": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 101,
+                    "y": 16,
+                    "properties": {
+                        "Label": "IR",
                         "Bitsize": "16"
                     }
                 }
             ],
             "wires": [
                 {
-                    "x": 16,
-                    "y": 11,
-                    "length": 2,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 8,
-                    "y": 4,
+                    "x": 80,
+                    "y": 29,
                     "length": 7,
                     "isHorizontal": true
                 },
                 {
-                    "x": 15,
-                    "y": 4,
-                    "length": 21,
+                    "x": 29,
+                    "y": 39,
+                    "length": 14,
                     "isHorizontal": true
                 },
                 {
-                    "x": 42,
-                    "y": 25,
-                    "length": 12,
-                    "isHorizontal": true
+                    "x": 83,
+                    "y": 20,
+                    "length": 2,
+                    "isHorizontal": false
                 },
                 {
                     "x": 41,
-                    "y": 14,
+                    "y": 28,
                     "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 86,
+                    "y": 18,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 87,
+                    "y": 9,
+                    "length": 15,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 100,
+                    "y": 19,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 80,
+                    "y": 9,
+                    "length": 7,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 100,
+                    "y": 18,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 80,
+                    "y": 19,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 44,
+                    "y": 27,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 68,
+                    "y": 17,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 43,
+                    "y": 30,
+                    "length": 4,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 85,
+                    "y": 18,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 35,
+                    "y": 9,
+                    "length": 8,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 62,
+                    "y": 17,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 69,
+                    "y": 39,
+                    "length": 19,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 100,
+                    "y": 9,
+                    "length": 27,
                     "isHorizontal": true
                 },
                 {
@@ -110,159 +481,441 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 26,
-                    "y": 13,
+                    "x": 41,
+                    "y": 17,
+                    "length": 10,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 80,
+                    "y": 9,
+                    "length": 9,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 66,
+                    "y": 20,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 41,
+                    "y": 27,
                     "length": 2,
                     "isHorizontal": true
                 },
                 {
-                    "x": 26,
-                    "y": 22,
-                    "length": 3,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 8,
-                    "y": 25,
+                    "x": 62,
+                    "y": 9,
                     "length": 18,
                     "isHorizontal": true
                 },
                 {
-                    "x": 41,
-                    "y": 13,
+                    "x": 11,
+                    "y": 39,
+                    "length": 18,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 65,
+                    "y": 23,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 65,
+                    "y": 19,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 82,
+                    "y": 20,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 84,
+                    "y": 25,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 35,
+                    "y": 17,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 63,
+                    "y": 19,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 11,
+                    "y": 45,
                     "length": 3,
                     "isHorizontal": true
                 },
                 {
-                    "x": 36,
-                    "y": 13,
+                    "x": 52,
+                    "y": 17,
+                    "length": 10,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 11,
+                    "y": 9,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 25,
+                    "y": 21,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 26,
+                    "y": 18,
                     "length": 3,
                     "isHorizontal": true
                 },
                 {
-                    "x": 16,
-                    "y": 7,
-                    "length": 15,
+                    "x": 19,
+                    "y": 18,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 64,
+                    "y": 18,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 64,
+                    "y": 22,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 65,
+                    "y": 23,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 76,
+                    "y": 29,
+                    "length": 4,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 86,
+                    "y": 35,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 63,
+                    "y": 21,
+                    "length": 2,
                     "isHorizontal": true
                 },
                 {
                     "x": 23,
-                    "y": 13,
-                    "length": 3,
-                    "isHorizontal": true
+                    "y": 20,
+                    "length": 1,
+                    "isHorizontal": false
                 },
                 {
-                    "x": 42,
-                    "y": 22,
+                    "x": 67,
+                    "y": 20,
                     "length": 3,
                     "isHorizontal": false
                 },
                 {
-                    "x": 16,
-                    "y": 13,
-                    "length": 3,
+                    "x": 46,
+                    "y": 17,
+                    "length": 1,
                     "isHorizontal": true
                 },
                 {
-                    "x": 36,
-                    "y": 4,
-                    "length": 17,
+                    "x": 69,
+                    "y": 36,
+                    "length": 3,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 88,
+                    "y": 39,
+                    "length": 10,
                     "isHorizontal": true
                 },
                 {
                     "x": 41,
-                    "y": 12,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 8,
-                    "y": 4,
-                    "length": 21,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 30,
-                    "y": 12,
+                    "y": 35,
                     "length": 1,
                     "isHorizontal": true
                 },
                 {
-                    "x": 44,
-                    "y": 11,
-                    "length": 1,
+                    "x": 75,
+                    "y": 28,
+                    "length": 2,
                     "isHorizontal": false
                 },
                 {
-                    "x": 40,
+                    "x": 64,
+                    "y": 18,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 75,
                     "y": 21,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 13,
-                    "y": 9,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 36,
-                    "y": 14,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 42,
-                    "y": 14,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 36,
-                    "y": 12,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 26,
-                    "y": 25,
-                    "length": 16,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 16,
-                    "y": 7,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 26,
-                    "y": 13,
                     "length": 7,
                     "isHorizontal": false
                 },
                 {
-                    "x": 15,
-                    "y": 4,
-                    "length": 4,
+                    "x": 64,
+                    "y": 22,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 20,
+                    "y": 21,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 21,
+                    "y": 19,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 88,
+                    "y": 36,
+                    "length": 3,
                     "isHorizontal": false
                 },
                 {
-                    "x": 31,
-                    "y": 7,
-                    "length": 5,
+                    "x": 75,
+                    "y": 21,
+                    "length": 7,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 75,
+                    "y": 28,
+                    "length": 11,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 88,
+                    "y": 27,
+                    "length": 7,
                     "isHorizontal": false
                 },
                 {
-                    "x": 36,
-                    "y": 4,
+                    "x": 76,
+                    "y": 22,
+                    "length": 7,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 40,
+                    "y": 17,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 86,
+                    "y": 27,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 80,
+                    "y": 18,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 76,
+                    "y": 22,
+                    "length": 7,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 11,
+                    "y": 50,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 29,
+                    "y": 18,
+                    "length": 16,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 80,
+                    "y": 29,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 35,
+                    "y": 9,
+                    "length": 11,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 24,
+                    "y": 20,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 20,
+                    "y": 21,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 37,
+                    "y": 20,
+                    "length": 11,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 11,
+                    "y": 9,
+                    "length": 30,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 87,
+                    "y": 9,
+                    "length": 13,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 9,
+                    "length": 9,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 29,
+                    "y": 36,
+                    "length": 3,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 43,
+                    "y": 39,
+                    "length": 26,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 9,
+                    "length": 16,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 100,
+                    "y": 9,
+                    "length": 9,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 46,
+                    "y": 9,
                     "length": 8,
                     "isHorizontal": false
                 },
                 {
-                    "x": 36,
-                    "y": 14,
+                    "x": 51,
+                    "y": 17,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 69,
+                    "y": 17,
+                    "length": 17,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 62,
+                    "y": 9,
+                    "length": 8,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 46,
+                    "y": 9,
+                    "length": 16,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 60,
+                    "y": 23,
+                    "length": 4,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 37,
+                    "y": 19,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 87,
+                    "y": 27,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 27,
+                    "y": 35,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 102,
+                    "y": 20,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 43,
+                    "y": 36,
                     "length": 3,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 60,
+                    "y": 23,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 48,
+                    "y": 19,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 67,
+                    "y": 35,
+                    "length": 1,
                     "isHorizontal": true
                 }
             ]
@@ -270,20 +923,182 @@
         "Registers": {
             "components": [
                 {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 8,
-                    "y": 13,
+                    "name": "com.ra4king.circuitsimulator.gui.peers.DemultiplexerPeer",
+                    "x": 16,
+                    "y": 18,
                     "properties": {
-                        "Label": "Data In",
-                        "Direction": "EAST",
-                        "Bitsize": "16",
+                        "Label": "",
+                        "Bitsize": "1",
+                        "Selector bits": "4"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 14,
+                    "y": 70,
+                    "properties": {
+                        "Label": "Clock",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1",
                         "Is input?": "Yes"
                     }
                 },
                 {
                     "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
                     "x": 104,
+                    "y": 16,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 45,
+                    "y": 16,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 104,
+                    "y": 32,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 104,
+                    "y": 64,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 65,
+                    "y": 16,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 65,
+                    "y": 32,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 83,
                     "y": 48,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 45,
+                    "y": 32,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 83,
+                    "y": 16,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 104,
+                    "y": 48,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 15,
+                    "y": 75,
+                    "properties": {
+                        "Label": "Reset",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1",
+                        "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 65,
+                    "y": 48,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 12,
+                    "y": 53,
+                    "properties": {
+                        "Label": "Address",
+                        "Direction": "WEST",
+                        "Bitsize": "4",
+                        "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 132,
+                    "y": 29,
+                    "properties": {
+                        "Label": "Data Out",
+                        "Direction": "EAST",
+                        "Bitsize": "16",
+                        "Is input?": "No"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 9,
+                    "y": 26,
+                    "properties": {
+                        "Label": "WriteReg",
+                        "Direction": "WEST",
+                        "Bitsize": "1",
+                        "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 45,
+                    "y": 48,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+                    "x": 65,
+                    "y": 64,
                     "properties": {
                         "Label": "",
                         "Bitsize": "16"
@@ -300,66 +1115,8 @@
                 },
                 {
                     "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 104,
-                    "y": 32,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 14,
-                    "y": 73,
-                    "properties": {
-                        "Label": "Reset",
-                        "Direction": "EAST",
-                        "Bitsize": "1",
-                        "Is input?": "Yes"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 104,
-                    "y": 16,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 9,
-                    "y": 26,
-                    "properties": {
-                        "Label": "WriteReg",
-                        "Direction": "EAST",
-                        "Bitsize": "1",
-                        "Is input?": "Yes"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
                     "x": 45,
-                    "y": 48,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 45,
-                    "y": 16,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 83,
-                    "y": 16,
+                    "y": 64,
                     "properties": {
                         "Label": "",
                         "Bitsize": "16"
@@ -378,123 +1135,19 @@
                     }
                 },
                 {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 83,
-                    "y": 48,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 65,
-                    "y": 16,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 83,
-                    "y": 32,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 104,
-                    "y": 64,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
                     "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 12,
-                    "y": 53,
+                    "x": 8,
+                    "y": 13,
                     "properties": {
-                        "Label": "Address",
-                        "Direction": "EAST",
-                        "Bitsize": "4",
-                        "Is input?": "Yes"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.DemultiplexerPeer",
-                    "x": 16,
-                    "y": 18,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "1",
-                        "Selector bits": "4"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 14,
-                    "y": 68,
-                    "properties": {
-                        "Label": "Clock",
-                        "Direction": "EAST",
-                        "Bitsize": "1",
-                        "Is input?": "Yes"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 45,
-                    "y": 64,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 65,
-                    "y": 48,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 65,
-                    "y": 64,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 132,
-                    "y": 29,
-                    "properties": {
-                        "Label": "Data Out",
-                        "Direction": "EAST",
+                        "Label": "Data In",
+                        "Direction": "WEST",
                         "Bitsize": "16",
-                        "Is input?": "No"
+                        "Is input?": "Yes"
                     }
                 },
                 {
                     "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 65,
-                    "y": 32,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
-                    "x": 45,
+                    "x": 83,
                     "y": 32,
                     "properties": {
                         "Label": "",
@@ -504,231 +1157,33 @@
             ],
             "wires": [
                 {
-                    "x": 85,
-                    "y": 25,
-                    "length": 21,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 78,
-                    "y": 19,
-                    "length": 5,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 37,
-                    "y": 25,
-                    "length": 10,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 113,
-                    "y": 33,
-                    "length": 10,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 85,
-                    "y": 54,
-                    "length": 21,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 108,
-                    "y": 34,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 34,
-                    "y": 20,
-                    "length": 3,
+                    "x": 89,
+                    "y": 43,
+                    "length": 23,
                     "isHorizontal": false
-                },
-                {
-                    "x": 27,
-                    "y": 33,
-                    "length": 8,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 95,
-                    "y": 67,
-                    "length": 9,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 67,
-                    "y": 68,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 102,
-                    "y": 19,
-                    "length": 2,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 67,
-                    "y": 20,
-                    "length": 5,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 117,
-                    "y": 37,
-                    "length": 29,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 21,
-                    "y": 33,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 19,
-                    "y": 23,
-                    "length": 12,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 20,
-                    "y": 40,
-                    "length": 8,
-                    "isHorizontal": true
                 },
                 {
                     "x": 49,
-                    "y": 34,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 26,
-                    "y": 34,
-                    "length": 8,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 101,
                     "y": 18,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 106,
-                    "y": 52,
-                    "length": 2,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 85,
-                    "y": 44,
-                    "length": 21,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 46,
-                    "y": 69,
-                    "length": 20,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 46,
-                    "y": 68,
                     "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 66,
-                    "y": 53,
-                    "length": 18,
                     "isHorizontal": true
                 },
                 {
-                    "x": 67,
-                    "y": 44,
-                    "length": 18,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 105,
-                    "y": 52,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 34,
-                    "y": 34,
-                    "length": 13,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 71,
-                    "y": 42,
-                    "length": 44,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 33,
-                    "y": 21,
-                    "length": 3,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 28,
-                    "y": 61,
-                    "length": 67,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 75,
-                    "y": 62,
-                    "length": 5,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 19,
-                    "y": 19,
+                    "x": 16,
+                    "y": 14,
                     "length": 26,
                     "isHorizontal": true
                 },
                 {
-                    "x": 28,
-                    "y": 26,
-                    "length": 2,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 46,
-                    "y": 37,
-                    "length": 20,
+                    "x": 26,
+                    "y": 71,
+                    "length": 98,
                     "isHorizontal": true
                 },
                 {
-                    "x": 31,
-                    "y": 67,
-                    "length": 14,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 62,
-                    "y": 34,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 75,
-                    "y": 46,
-                    "length": 5,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 75,
-                    "y": 67,
-                    "length": 8,
+                    "x": 67,
+                    "y": 74,
+                    "length": 18,
                     "isHorizontal": true
                 },
                 {
@@ -738,27 +1193,111 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 47,
-                    "y": 68,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 114,
-                    "y": 34,
-                    "length": 7,
-                    "isHorizontal": false
-                },
-                {
                     "x": 101,
-                    "y": 14,
-                    "length": 4,
+                    "y": 34,
+                    "length": 16,
                     "isHorizontal": false
                 },
                 {
-                    "x": 106,
-                    "y": 68,
+                    "x": 92,
+                    "y": 45,
                     "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 47,
+                    "y": 25,
+                    "length": 20,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 62,
+                    "y": 34,
+                    "length": 16,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 47,
+                    "y": 74,
+                    "length": 20,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 31,
+                    "y": 23,
+                    "length": 9,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 110,
+                    "y": 30,
+                    "length": 8,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 117,
+                    "y": 37,
+                    "length": 29,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 29,
+                    "y": 39,
+                    "length": 23,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 126,
+                    "y": 30,
+                    "length": 6,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 78,
+                    "y": 31,
+                    "length": 20,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 36,
+                    "y": 37,
+                    "length": 16,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 31,
+                    "y": 32,
+                    "length": 13,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 61,
+                    "y": 35,
+                    "length": 4,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 24,
+                    "length": 11,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 84,
+                    "y": 21,
+                    "length": 21,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 20,
+                    "y": 34,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 50,
+                    "y": 38,
+                    "length": 12,
                     "isHorizontal": false
                 },
                 {
@@ -768,153 +1307,63 @@
                     "isHorizontal": false
                 },
                 {
-                    "x": 105,
-                    "y": 68,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 105,
-                    "y": 20,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 58,
-                    "y": 47,
-                    "length": 4,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 22,
-                    "y": 32,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 85,
-                    "y": 20,
-                    "length": 5,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 58,
-                    "y": 51,
+                    "x": 70,
+                    "y": 27,
                     "length": 7,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 69,
-                    "y": 66,
-                    "length": 2,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 69,
-                    "y": 18,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 37,
-                    "y": 74,
-                    "length": 10,
-                    "isHorizontal": true
+                    "isHorizontal": false
                 },
                 {
                     "x": 80,
+                    "y": 34,
+                    "length": 16,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 33,
+                    "y": 24,
+                    "length": 45,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 101,
+                    "y": 66,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 62,
                     "y": 50,
                     "length": 16,
                     "isHorizontal": false
                 },
                 {
-                    "x": 62,
-                    "y": 14,
-                    "length": 18,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 108,
-                    "y": 66,
-                    "length": 9,
-                    "isHorizontal": true
+                    "x": 44,
+                    "y": 32,
+                    "length": 3,
+                    "isHorizontal": false
                 },
                 {
                     "x": 101,
-                    "y": 34,
+                    "y": 50,
                     "length": 3,
                     "isHorizontal": true
                 },
                 {
-                    "x": 42,
-                    "y": 14,
-                    "length": 20,
-                    "isHorizontal": true
+                    "x": 88,
+                    "y": 40,
+                    "length": 10,
+                    "isHorizontal": false
                 },
                 {
-                    "x": 108,
-                    "y": 18,
+                    "x": 15,
+                    "y": 69,
                     "length": 1,
-                    "isHorizontal": true
+                    "isHorizontal": false
                 },
                 {
                     "x": 85,
                     "y": 74,
                     "length": 21,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 109,
-                    "y": 29,
-                    "length": 14,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 67,
-                    "y": 25,
-                    "length": 18,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 57,
-                    "y": 19,
-                    "length": 8,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 42,
-                    "y": 66,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 16,
-                    "y": 14,
-                    "length": 26,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 42,
-                    "y": 34,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 112,
-                    "y": 32,
-                    "length": 11,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 46,
-                    "y": 52,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 19,
-                    "y": 32,
-                    "length": 3,
                     "isHorizontal": true
                 },
                 {
@@ -924,21 +1373,153 @@
                     "isHorizontal": false
                 },
                 {
-                    "x": 84,
-                    "y": 37,
-                    "length": 21,
+                    "x": 37,
+                    "y": 54,
+                    "length": 10,
                     "isHorizontal": true
                 },
                 {
                     "x": 70,
-                    "y": 39,
-                    "length": 41,
+                    "y": 18,
+                    "length": 5,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 80,
+                    "y": 18,
+                    "length": 16,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 19,
+                    "y": 23,
+                    "length": 12,
                     "isHorizontal": true
                 },
                 {
-                    "x": 27,
+                    "x": 19,
+                    "y": 19,
+                    "length": 26,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 28,
+                    "y": 28,
+                    "length": 50,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 106,
+                    "y": 36,
+                    "length": 8,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 66,
+                    "y": 37,
+                    "length": 18,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 28,
+                    "y": 61,
+                    "length": 67,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 66,
+                    "y": 68,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 36,
+                    "y": 69,
+                    "length": 10,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 36,
+                    "y": 53,
+                    "length": 10,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 102,
+                    "y": 19,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 42,
+                    "y": 14,
+                    "length": 20,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
                     "y": 27,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 25,
+                    "y": 29,
                     "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 66,
+                    "y": 52,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 109,
+                    "y": 25,
+                    "length": 14,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 35,
+                    "y": 33,
+                    "length": 18,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 19,
+                    "y": 34,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 66,
+                    "y": 20,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 24,
+                    "y": 30,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 66,
+                    "y": 21,
+                    "length": 18,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 106,
+                    "y": 52,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 42,
+                    "y": 50,
+                    "length": 16,
                     "isHorizontal": false
                 },
                 {
@@ -948,93 +1529,27 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 47,
-                    "y": 54,
-                    "length": 20,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 42,
-                    "y": 50,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 108,
-                    "y": 50,
-                    "length": 5,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 85,
-                    "y": 36,
+                    "x": 50,
+                    "y": 26,
                     "length": 8,
                     "isHorizontal": false
                 },
                 {
-                    "x": 31,
-                    "y": 37,
-                    "length": 30,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 47,
-                    "y": 36,
+                    "x": 75,
+                    "y": 67,
                     "length": 8,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 88,
-                    "y": 28,
-                    "length": 35,
                     "isHorizontal": true
                 },
                 {
-                    "x": 19,
-                    "y": 25,
-                    "length": 10,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 76,
-                    "y": 30,
-                    "length": 5,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 62,
-                    "y": 18,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 66,
-                    "y": 69,
-                    "length": 18,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 84,
-                    "y": 36,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 57,
-                    "y": 19,
+                    "x": 80,
+                    "y": 14,
                     "length": 4,
                     "isHorizontal": false
                 },
                 {
-                    "x": 22,
-                    "y": 38,
-                    "length": 8,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 26,
-                    "y": 28,
-                    "length": 6,
+                    "x": 37,
+                    "y": 25,
+                    "length": 19,
                     "isHorizontal": false
                 },
                 {
@@ -1044,219 +1559,45 @@
                     "isHorizontal": false
                 },
                 {
-                    "x": 87,
-                    "y": 18,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 69,
-                    "y": 50,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 19,
-                    "y": 28,
-                    "length": 7,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 85,
-                    "y": 68,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 49,
-                    "y": 50,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 19,
-                    "y": 29,
-                    "length": 6,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 113,
-                    "y": 33,
-                    "length": 17,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 84,
-                    "y": 68,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 62,
-                    "y": 14,
-                    "length": 4,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 19,
-                    "y": 24,
-                    "length": 11,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 98,
-                    "y": 31,
-                    "length": 4,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 37,
-                    "y": 44,
-                    "length": 10,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 84,
-                    "y": 52,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 29,
-                    "y": 25,
-                    "length": 5,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 16,
-                    "y": 54,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 44,
-                    "y": 32,
-                    "length": 3,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 25,
-                    "y": 29,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 88,
-                    "y": 18,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 80,
-                    "y": 18,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 46,
-                    "y": 21,
-                    "length": 20,
-                    "isHorizontal": true
-                },
-                {
                     "x": 66,
-                    "y": 68,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 44,
-                    "y": 35,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 47,
-                    "y": 25,
-                    "length": 20,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 50,
-                    "y": 26,
-                    "length": 8,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 67,
-                    "y": 74,
+                    "y": 53,
                     "length": 18,
                     "isHorizontal": true
                 },
                 {
-                    "x": 30,
-                    "y": 24,
-                    "length": 7,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 29,
-                    "y": 30,
-                    "length": 47,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 80,
-                    "y": 50,
+                    "x": 33,
+                    "y": 21,
                     "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 85,
-                    "y": 52,
-                    "length": 2,
                     "isHorizontal": false
                 },
                 {
-                    "x": 19,
-                    "y": 22,
-                    "length": 13,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 36,
-                    "y": 69,
-                    "length": 10,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 114,
-                    "y": 34,
-                    "length": 9,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 61,
-                    "y": 31,
+                    "x": 58,
+                    "y": 47,
                     "length": 4,
                     "isHorizontal": false
                 },
                 {
-                    "x": 98,
-                    "y": 35,
-                    "length": 6,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 87,
-                    "y": 50,
+                    "x": 108,
+                    "y": 34,
                     "length": 1,
                     "isHorizontal": true
                 },
                 {
-                    "x": 32,
-                    "y": 22,
+                    "x": 115,
+                    "y": 35,
                     "length": 7,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 105,
+                    "y": 52,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 105,
+                    "y": 36,
+                    "length": 1,
                     "isHorizontal": false
                 },
                 {
@@ -1266,33 +1607,33 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 112,
-                    "y": 32,
-                    "length": 8,
-                    "isHorizontal": false
+                    "x": 84,
+                    "y": 37,
+                    "length": 21,
+                    "isHorizontal": true
                 },
                 {
-                    "x": 66,
-                    "y": 52,
+                    "x": 87,
+                    "y": 50,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 32,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 105,
+                    "y": 68,
                     "length": 1,
                     "isHorizontal": false
                 },
                 {
-                    "x": 47,
-                    "y": 74,
-                    "length": 20,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 67,
-                    "y": 54,
-                    "length": 18,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 101,
-                    "y": 50,
-                    "length": 3,
+                    "x": 23,
+                    "y": 37,
+                    "length": 8,
                     "isHorizontal": true
                 },
                 {
@@ -1302,123 +1643,81 @@
                     "isHorizontal": false
                 },
                 {
-                    "x": 80,
-                    "y": 18,
+                    "x": 114,
+                    "y": 34,
+                    "length": 7,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 47,
+                    "y": 54,
+                    "length": 20,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 62,
+                    "y": 50,
                     "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 46,
+                    "y": 52,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 109,
+                    "y": 18,
+                    "length": 7,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 75,
+                    "y": 46,
+                    "length": 5,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 47,
+                    "y": 36,
+                    "length": 8,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 47,
+                    "y": 44,
+                    "length": 20,
                     "isHorizontal": true
                 },
                 {
                     "x": 37,
                     "y": 44,
                     "length": 10,
-                    "isHorizontal": true
+                    "isHorizontal": false
                 },
                 {
                     "x": 110,
                     "y": 30,
-                    "length": 8,
+                    "length": 13,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 34,
+                    "y": 20,
+                    "length": 3,
                     "isHorizontal": false
-                },
-                {
-                    "x": 19,
-                    "y": 26,
-                    "length": 9,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 51,
-                    "y": 41,
-                    "length": 25,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 71,
-                    "y": 42,
-                    "length": 24,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 29,
-                    "y": 62,
-                    "length": 46,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 19,
-                    "y": 27,
-                    "length": 8,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 49,
-                    "y": 18,
-                    "length": 1,
-                    "isHorizontal": true
                 },
                 {
                     "x": 101,
-                    "y": 50,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 70,
-                    "y": 18,
-                    "length": 5,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 106,
-                    "y": 36,
-                    "length": 8,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 115,
-                    "y": 35,
-                    "length": 8,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 109,
-                    "y": 25,
-                    "length": 14,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 62,
                     "y": 34,
-                    "length": 16,
-                    "isHorizontal": false
+                    "length": 3,
+                    "isHorizontal": true
                 },
                 {
-                    "x": 116,
-                    "y": 36,
+                    "x": 30,
+                    "y": 24,
                     "length": 7,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 37,
-                    "y": 54,
-                    "length": 20,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 26,
-                    "y": 54,
-                    "length": 17,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 28,
-                    "y": 40,
-                    "length": 21,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 47,
-                    "y": 52,
-                    "length": 2,
                     "isHorizontal": false
                 },
                 {
@@ -1429,51 +1728,153 @@
                 },
                 {
                     "x": 42,
-                    "y": 34,
-                    "length": 16,
+                    "y": 14,
+                    "length": 20,
                     "isHorizontal": false
                 },
                 {
-                    "x": 84,
-                    "y": 53,
-                    "length": 21,
+                    "x": 21,
+                    "y": 39,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 20,
+                    "y": 40,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 33,
+                    "y": 46,
+                    "length": 42,
                     "isHorizontal": true
                 },
                 {
                     "x": 26,
-                    "y": 71,
-                    "length": 98,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 66,
-                    "y": 37,
-                    "length": 18,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 67,
-                    "y": 52,
-                    "length": 2,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 28,
-                    "y": 28,
-                    "length": 50,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 32,
-                    "y": 36,
-                    "length": 9,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 25,
-                    "y": 35,
+                    "y": 34,
                     "length": 8,
                     "isHorizontal": true
+                },
+                {
+                    "x": 33,
+                    "y": 35,
+                    "length": 11,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 19,
+                    "y": 33,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 116,
+                    "y": 36,
+                    "length": 7,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 19,
+                    "y": 29,
+                    "length": 6,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 69,
+                    "y": 50,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 31,
+                    "y": 67,
+                    "length": 14,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 61,
+                    "y": 31,
+                    "length": 4,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 87,
+                    "y": 34,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 88,
+                    "y": 18,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 42,
+                    "y": 34,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 95,
+                    "y": 67,
+                    "length": 9,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 21,
+                    "y": 33,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 106,
+                    "y": 20,
+                    "length": 5,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 50,
+                    "y": 38,
+                    "length": 60,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 42,
+                    "y": 66,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 113,
+                    "y": 33,
+                    "length": 17,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 80,
+                    "y": 66,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 46,
+                    "y": 53,
+                    "length": 20,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 111,
+                    "y": 31,
+                    "length": 8,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 80,
+                    "y": 50,
+                    "length": 16,
+                    "isHorizontal": false
                 },
                 {
                     "x": 84,
@@ -1482,81 +1883,135 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 33,
-                    "y": 24,
-                    "length": 45,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 116,
-                    "y": 36,
-                    "length": 7,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 80,
-                    "y": 34,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 51,
-                    "y": 41,
-                    "length": 63,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 88,
-                    "y": 24,
-                    "length": 35,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 50,
-                    "y": 22,
-                    "length": 73,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 31,
-                    "y": 32,
-                    "length": 13,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 84,
-                    "y": 21,
-                    "length": 21,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 70,
-                    "y": 27,
-                    "length": 53,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 37,
-                    "y": 54,
-                    "length": 10,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 24,
-                    "y": 36,
-                    "length": 8,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 50,
-                    "y": 18,
+                    "x": 98,
+                    "y": 31,
                     "length": 4,
                     "isHorizontal": false
                 },
                 {
-                    "x": 61,
+                    "x": 80,
+                    "y": 50,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 44,
                     "y": 35,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 95,
+                    "y": 61,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 85,
+                    "y": 36,
+                    "length": 8,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 98,
+                    "y": 35,
+                    "length": 6,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 58,
+                    "y": 51,
+                    "length": 7,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 85,
+                    "y": 68,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 88,
+                    "y": 28,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 26,
+                    "y": 28,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 26,
+                    "y": 54,
+                    "length": 17,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 57,
+                    "y": 19,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 31,
                     "length": 4,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 67,
+                    "y": 54,
+                    "length": 18,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 27,
+                    "y": 33,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 49,
+                    "y": 50,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 22,
+                    "y": 32,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 67,
+                    "y": 25,
+                    "length": 18,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 66,
+                    "y": 69,
+                    "length": 18,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 101,
+                    "y": 18,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 29,
+                    "y": 30,
+                    "length": 47,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 67,
+                    "y": 44,
+                    "length": 18,
                     "isHorizontal": true
                 },
                 {
@@ -1566,9 +2021,153 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 80,
-                    "y": 66,
+                    "x": 42,
+                    "y": 50,
                     "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 84,
+                    "y": 68,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 80,
+                    "y": 34,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 16,
+                    "y": 74,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 49,
+                    "y": 66,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 85,
+                    "y": 52,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 62,
+                    "y": 18,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 84,
+                    "y": 36,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 87,
+                    "y": 66,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 17,
+                    "y": 36,
+                    "length": 18,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 84,
+                    "y": 52,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 108,
+                    "y": 50,
+                    "length": 5,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 69,
+                    "y": 18,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 85,
+                    "y": 20,
+                    "length": 5,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 34,
+                    "y": 23,
+                    "length": 23,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 85,
+                    "y": 54,
+                    "length": 21,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 57,
+                    "y": 19,
+                    "length": 4,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 34,
+                    "y": 47,
+                    "length": 24,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 101,
+                    "y": 14,
+                    "length": 4,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 16,
+                    "y": 74,
+                    "length": 21,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 25,
+                    "y": 35,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 78,
+                    "y": 19,
+                    "length": 5,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 114,
+                    "y": 34,
+                    "length": 9,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 67,
+                    "y": 52,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 50,
+                    "y": 22,
+                    "length": 73,
                     "isHorizontal": true
                 },
                 {
@@ -1578,32 +2177,200 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 30,
-                    "y": 38,
-                    "length": 25,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 110,
-                    "y": 30,
-                    "length": 13,
+                    "x": 113,
+                    "y": 33,
+                    "length": 10,
                     "isHorizontal": true
                 },
                 {
-                    "x": 92,
-                    "y": 45,
+                    "x": 117,
+                    "y": 37,
                     "length": 6,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 108,
+                    "y": 18,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 62,
+                    "y": 14,
+                    "length": 18,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 87,
+                    "y": 18,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 112,
+                    "y": 32,
+                    "length": 11,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 62,
+                    "y": 14,
+                    "length": 4,
                     "isHorizontal": false
                 },
                 {
-                    "x": 78,
-                    "y": 19,
+                    "x": 31,
+                    "y": 37,
+                    "length": 30,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 66,
+                    "y": 36,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 37,
+                    "y": 74,
+                    "length": 10,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 84,
+                    "y": 20,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 32,
+                    "y": 22,
+                    "length": 7,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 47,
+                    "y": 20,
                     "length": 5,
                     "isHorizontal": false
                 },
                 {
-                    "x": 35,
-                    "y": 51,
+                    "x": 108,
+                    "y": 66,
+                    "length": 9,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 51,
+                    "y": 41,
+                    "length": 25,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 46,
+                    "y": 69,
+                    "length": 20,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 29,
+                    "y": 62,
+                    "length": 46,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 28,
+                    "y": 40,
+                    "length": 21,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 106,
+                    "y": 68,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 37,
+                    "y": 54,
+                    "length": 20,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 46,
+                    "y": 37,
+                    "length": 20,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 84,
+                    "y": 53,
+                    "length": 21,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 62,
+                    "y": 66,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 124,
+                    "y": 39,
+                    "length": 32,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 101,
+                    "y": 18,
+                    "length": 16,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 19,
+                    "y": 22,
+                    "length": 13,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 88,
+                    "y": 24,
+                    "length": 35,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 16,
+                    "y": 54,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 109,
+                    "y": 29,
+                    "length": 14,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 105,
+                    "y": 20,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 24,
+                    "y": 36,
+                    "length": 8,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 69,
+                    "y": 66,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 37,
+                    "y": 44,
                     "length": 10,
                     "isHorizontal": true
                 },
@@ -1614,165 +2381,99 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 88,
-                    "y": 28,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 111,
-                    "y": 31,
-                    "length": 12,
+                    "x": 19,
+                    "y": 21,
+                    "length": 14,
                     "isHorizontal": true
                 },
                 {
-                    "x": 17,
-                    "y": 36,
-                    "length": 18,
-                    "isHorizontal": false
+                    "x": 19,
+                    "y": 20,
+                    "length": 15,
+                    "isHorizontal": true
                 },
                 {
                     "x": 62,
-                    "y": 66,
+                    "y": 34,
                     "length": 3,
                     "isHorizontal": true
                 },
                 {
-                    "x": 47,
-                    "y": 20,
-                    "length": 5,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 32,
-                    "y": 29,
-                    "length": 70,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 42,
-                    "y": 50,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 36,
-                    "y": 21,
+                    "x": 19,
+                    "y": 25,
                     "length": 10,
                     "isHorizontal": true
                 },
                 {
-                    "x": 29,
-                    "y": 39,
-                    "length": 23,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 31,
-                    "y": 23,
-                    "length": 9,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 49,
-                    "y": 66,
-                    "length": 2,
+                    "x": 19,
+                    "y": 28,
+                    "length": 7,
                     "isHorizontal": true
                 },
                 {
-                    "x": 89,
-                    "y": 43,
-                    "length": 23,
+                    "x": 29,
+                    "y": 25,
+                    "length": 5,
                     "isHorizontal": false
                 },
                 {
-                    "x": 80,
-                    "y": 14,
-                    "length": 21,
+                    "x": 17,
+                    "y": 54,
+                    "length": 9,
                     "isHorizontal": true
                 },
                 {
                     "x": 37,
                     "y": 25,
-                    "length": 19,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 19,
-                    "y": 33,
-                    "length": 2,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 34,
-                    "y": 47,
-                    "length": 24,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 101,
-                    "y": 18,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 50,
-                    "y": 26,
-                    "length": 73,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 124,
-                    "y": 39,
-                    "length": 32,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 33,
-                    "y": 46,
-                    "length": 42,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 16,
-                    "y": 74,
-                    "length": 21,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 36,
-                    "y": 37,
                     "length": 10,
                     "isHorizontal": true
                 },
                 {
-                    "x": 62,
-                    "y": 50,
-                    "length": 3,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 69,
-                    "y": 34,
+                    "x": 46,
+                    "y": 36,
                     "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 109,
-                    "y": 29,
-                    "length": 5,
                     "isHorizontal": false
                 },
                 {
-                    "x": 87,
+                    "x": 15,
+                    "y": 69,
+                    "length": 21,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 26,
+                    "length": 9,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 112,
+                    "y": 32,
+                    "length": 8,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 49,
                     "y": 34,
                     "length": 1,
                     "isHorizontal": true
                 },
                 {
-                    "x": 24,
-                    "y": 30,
-                    "length": 6,
+                    "x": 71,
+                    "y": 42,
+                    "length": 24,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 28,
+                    "y": 26,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 42,
+                    "y": 34,
+                    "length": 16,
                     "isHorizontal": false
                 },
                 {
@@ -1782,27 +2483,21 @@
                     "isHorizontal": false
                 },
                 {
-                    "x": 78,
-                    "y": 31,
-                    "length": 20,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 21,
-                    "y": 39,
+                    "x": 115,
+                    "y": 35,
                     "length": 8,
                     "isHorizontal": true
                 },
                 {
-                    "x": 78,
-                    "y": 28,
-                    "length": 3,
-                    "isHorizontal": false
+                    "x": 76,
+                    "y": 35,
+                    "length": 7,
+                    "isHorizontal": true
                 },
                 {
-                    "x": 106,
-                    "y": 20,
-                    "length": 5,
+                    "x": 30,
+                    "y": 38,
+                    "length": 25,
                     "isHorizontal": false
                 },
                 {
@@ -1812,46 +2507,52 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 80,
-                    "y": 14,
-                    "length": 4,
-                    "isHorizontal": false
+                    "x": 85,
+                    "y": 44,
+                    "length": 21,
+                    "isHorizontal": true
                 },
                 {
-                    "x": 111,
-                    "y": 31,
-                    "length": 8,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 19,
+                    "x": 67,
                     "y": 20,
-                    "length": 15,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 35,
-                    "y": 33,
-                    "length": 18,
+                    "length": 5,
                     "isHorizontal": false
                 },
                 {
-                    "x": 50,
-                    "y": 38,
-                    "length": 60,
+                    "x": 80,
+                    "y": 18,
+                    "length": 3,
                     "isHorizontal": true
                 },
                 {
-                    "x": 115,
-                    "y": 35,
-                    "length": 7,
+                    "x": 51,
+                    "y": 41,
+                    "length": 63,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 71,
+                    "y": 42,
+                    "length": 44,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 32,
+                    "y": 36,
+                    "length": 9,
                     "isHorizontal": false
                 },
                 {
-                    "x": 117,
-                    "y": 37,
+                    "x": 47,
+                    "y": 68,
                     "length": 6,
-                    "isHorizontal": true
+                    "isHorizontal": false
+                },
+                {
+                    "x": 46,
+                    "y": 68,
+                    "length": 1,
+                    "isHorizontal": false
                 },
                 {
                     "x": 46,
@@ -1860,15 +2561,81 @@
                     "isHorizontal": false
                 },
                 {
-                    "x": 88,
-                    "y": 40,
-                    "length": 10,
+                    "x": 50,
+                    "y": 26,
+                    "length": 73,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 111,
+                    "y": 31,
+                    "length": 12,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 78,
+                    "y": 28,
+                    "length": 3,
                     "isHorizontal": false
                 },
                 {
-                    "x": 19,
-                    "y": 31,
+                    "x": 36,
+                    "y": 21,
+                    "length": 10,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 27,
+                    "y": 27,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 50,
+                    "y": 18,
                     "length": 4,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 47,
+                    "y": 52,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 70,
+                    "y": 27,
+                    "length": 53,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 101,
+                    "y": 50,
+                    "length": 16,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 109,
+                    "y": 29,
+                    "length": 5,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 36,
+                    "y": 37,
+                    "length": 10,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 70,
+                    "y": 39,
+                    "length": 41,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 69,
+                    "y": 34,
+                    "length": 1,
                     "isHorizontal": true
                 },
                 {
@@ -1878,10 +2645,10 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 32,
-                    "y": 45,
-                    "length": 60,
-                    "isHorizontal": true
+                    "x": 76,
+                    "y": 30,
+                    "length": 5,
+                    "isHorizontal": false
                 },
                 {
                     "x": 70,
@@ -1890,46 +2657,46 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 36,
-                    "y": 37,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 19,
-                    "y": 21,
-                    "length": 14,
+                    "x": 80,
+                    "y": 14,
+                    "length": 21,
                     "isHorizontal": true
                 },
                 {
-                    "x": 101,
-                    "y": 34,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 36,
-                    "y": 53,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
                     "x": 46,
-                    "y": 53,
+                    "y": 21,
                     "length": 20,
                     "isHorizontal": true
                 },
                 {
-                    "x": 23,
-                    "y": 37,
-                    "length": 8,
+                    "x": 36,
+                    "y": 53,
+                    "length": 16,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 32,
+                    "y": 29,
+                    "length": 70,
                     "isHorizontal": true
                 },
                 {
-                    "x": 50,
-                    "y": 38,
-                    "length": 12,
+                    "x": 88,
+                    "y": 28,
+                    "length": 35,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 78,
+                    "y": 19,
+                    "length": 5,
                     "isHorizontal": false
+                },
+                {
+                    "x": 22,
+                    "y": 38,
+                    "length": 8,
+                    "isHorizontal": true
                 },
                 {
                     "x": 102,
@@ -1938,64 +2705,40 @@
                     "isHorizontal": false
                 },
                 {
-                    "x": 105,
-                    "y": 36,
-                    "length": 1,
-                    "isHorizontal": false
+                    "x": 85,
+                    "y": 25,
+                    "length": 21,
+                    "isHorizontal": true
                 },
                 {
-                    "x": 20,
+                    "x": 116,
+                    "y": 36,
+                    "length": 7,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 32,
+                    "y": 45,
+                    "length": 60,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 34,
                     "y": 34,
-                    "length": 6,
+                    "length": 13,
                     "isHorizontal": false
                 },
                 {
-                    "x": 47,
-                    "y": 44,
-                    "length": 20,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 46,
-                    "y": 36,
-                    "length": 1,
+                    "x": 75,
+                    "y": 62,
+                    "length": 5,
                     "isHorizontal": false
                 },
                 {
-                    "x": 62,
-                    "y": 50,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 16,
-                    "y": 69,
-                    "length": 20,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 36,
-                    "y": 53,
+                    "x": 35,
+                    "y": 51,
                     "length": 10,
                     "isHorizontal": true
-                },
-                {
-                    "x": 33,
-                    "y": 35,
-                    "length": 11,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 109,
-                    "y": 18,
-                    "length": 7,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 66,
-                    "y": 20,
-                    "length": 1,
-                    "isHorizontal": false
                 },
                 {
                     "x": 70,
@@ -2004,88 +2747,10 @@
                     "isHorizontal": false
                 },
                 {
-                    "x": 19,
-                    "y": 34,
-                    "length": 1,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 87,
-                    "y": 66,
-                    "length": 2,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 17,
-                    "y": 54,
-                    "length": 9,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 34,
-                    "y": 23,
-                    "length": 23,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 66,
-                    "y": 36,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 76,
-                    "y": 35,
-                    "length": 7,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 80,
-                    "y": 34,
-                    "length": 16,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 126,
-                    "y": 30,
-                    "length": 6,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 95,
-                    "y": 61,
+                    "x": 67,
+                    "y": 68,
                     "length": 6,
                     "isHorizontal": false
-                },
-                {
-                    "x": 42,
-                    "y": 14,
-                    "length": 20,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 84,
-                    "y": 20,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 66,
-                    "y": 21,
-                    "length": 18,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 70,
-                    "y": 27,
-                    "length": 7,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 101,
-                    "y": 66,
-                    "length": 3,
-                    "isHorizontal": true
                 }
             ]
         },
@@ -2094,12 +2759,43 @@
                 {
                     "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
                     "x": 13,
-                    "y": 27,
+                    "y": 25,
                     "properties": {
-                        "Label": "Clear",
-                        "Direction": "WEST",
+                        "Label": "Clock",
+                        "Direction": "SOUTH",
                         "Bitsize": "1",
                         "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 13,
+                    "y": 7,
+                    "properties": {
+                        "Label": "Address",
+                        "Direction": "NORTH",
+                        "Bitsize": "16",
+                        "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.RAMPeer",
+                    "x": 25,
+                    "y": 17,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16",
+                        "Address bits": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+                    "x": 18,
+                    "y": 16,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "SOUTH",
+                        "Bitsize": "1"
                     }
                 },
                 {
@@ -2107,10 +2803,21 @@
                     "x": 29,
                     "y": 28,
                     "properties": {
-                        "Label": "",
+                        "Label": "Data out",
                         "Direction": "SOUTH",
                         "Bitsize": "16",
                         "Is input?": "No"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 29,
+                    "y": 7,
+                    "properties": {
+                        "Label": "Data in",
+                        "Direction": "NORTH",
+                        "Bitsize": "16",
+                        "Is input?": "Yes"
                     }
                 },
                 {
@@ -2135,95 +2842,22 @@
                     }
                 },
                 {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.RAMPeer",
-                    "x": 25,
-                    "y": 17,
-                    "properties": {
-                        "Label": "",
-                        "Bitsize": "16",
-                        "Address bits": "16"
-                    }
-                },
-                {
                     "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 13,
-                    "y": 7,
+                    "x": 14,
+                    "y": 29,
                     "properties": {
-                        "Label": "Address",
-                        "Direction": "NORTH",
-                        "Bitsize": "16",
-                        "Is input?": "Yes"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 13,
-                    "y": 23,
-                    "properties": {
-                        "Label": "Clock",
-                        "Direction": "WEST",
-                        "Bitsize": "1",
-                        "Is input?": "Yes"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
-                    "x": 18,
-                    "y": 16,
-                    "properties": {
-                        "Label": "",
+                        "Label": "Clear",
                         "Direction": "SOUTH",
                         "Bitsize": "1",
-                        "Number of Inputs": "2"
-                    }
-                },
-                {
-                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
-                    "x": 29,
-                    "y": 7,
-                    "properties": {
-                        "Label": "Data in",
-                        "Direction": "NORTH",
-                        "Bitsize": "16",
                         "Is input?": "Yes"
                     }
                 }
             ],
             "wires": [
                 {
-                    "x": 19,
-                    "y": 23,
-                    "length": 9,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 26,
-                    "y": 21,
-                    "length": 3,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 19,
-                    "y": 15,
-                    "length": 1,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 28,
-                    "y": 21,
-                    "length": 2,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 17,
-                    "y": 13,
-                    "length": 6,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 19,
-                    "y": 20,
-                    "length": 3,
+                    "x": 33,
+                    "y": 10,
+                    "length": 4,
                     "isHorizontal": false
                 },
                 {
@@ -2233,20 +2867,86 @@
                     "isHorizontal": true
                 },
                 {
+                    "x": 19,
+                    "y": 15,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 19,
+                    "y": 20,
+                    "length": 3,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 17,
+                    "y": 13,
+                    "length": 6,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 16,
+                    "y": 15,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 15,
+                    "length": 13,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 23,
+                    "length": 9,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 14,
+                    "y": 24,
+                    "length": 12,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 14,
+                    "y": 24,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 17,
+                    "y": 10,
+                    "length": 3,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 28,
+                    "y": 21,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 23,
+                    "y": 13,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 33,
+                    "y": 19,
+                    "length": 9,
+                    "isHorizontal": false
+                },
+                {
                     "x": 29,
                     "y": 21,
                     "length": 7,
                     "isHorizontal": false
                 },
                 {
-                    "x": 15,
-                    "y": 24,
-                    "length": 11,
-                    "isHorizontal": true
-                },
-                {
-                    "x": 33,
-                    "y": 16,
+                    "x": 26,
+                    "y": 21,
                     "length": 3,
                     "isHorizontal": false
                 },
@@ -2257,46 +2957,562 @@
                     "isHorizontal": true
                 },
                 {
-                    "x": 23,
-                    "y": 13,
-                    "length": 6,
-                    "isHorizontal": false
-                },
-                {
-                    "x": 33,
-                    "y": 19,
-                    "length": 9,
-                    "isHorizontal": false
-                },
-                {
                     "x": 15,
                     "y": 28,
                     "length": 14,
                     "isHorizontal": true
                 },
                 {
-                    "x": 17,
-                    "y": 10,
-                    "length": 3,
+                    "x": 15,
+                    "y": 28,
+                    "length": 1,
                     "isHorizontal": false
                 },
                 {
+                    "x": 33,
+                    "y": 16,
+                    "length": 3,
+                    "isHorizontal": false
+                }
+            ]
+        },
+        "ALU": {
+            "components": [
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.ConstantPeer",
+                    "x": 17,
+                    "y": 17,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "NORTH",
+                        "Bitsize": "1",
+                        "Value": "0"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.MultiplexerPeer",
+                    "x": 28,
+                    "y": 39,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "SOUTH",
+                        "Selector location": "Left/Top",
+                        "Bitsize": "16",
+                        "Selector bits": "2"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 39,
+                    "y": 10,
+                    "properties": {
+                        "Label": "B",
+                        "Direction": "SOUTH",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 21,
+                    "y": 10,
+                    "properties": {
+                        "Label": "A",
+                        "Direction": "SOUTH",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.AdderPeer",
+                    "x": 17,
+                    "y": 20,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 31,
+                    "y": 20,
+                    "properties": {
+                        "Label": "A",
+                        "Direction": "WEST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 34,
+                    "y": 34,
+                    "properties": {
+                        "Label": "+1",
+                        "Direction": "NORTH",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 18,
+                    "y": 6,
+                    "properties": {
+                        "Label": "A",
+                        "Direction": "NORTH",
+                        "Bitsize": "16",
+                        "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 31,
+                    "y": 28,
+                    "properties": {
+                        "Label": "A",
+                        "Direction": "WEST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.AdderPeer",
+                    "x": 38,
+                    "y": 28,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 43,
+                    "y": 21,
+                    "properties": {
+                        "Label": "NAND",
+                        "Direction": "EAST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.AdderPeer",
+                    "x": 17,
+                    "y": 28,
+                    "properties": {
+                        "Label": "",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.gates.NandGatePeer",
+                    "x": 37,
+                    "y": 20,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "EAST",
+                        "Bitsize": "16",
+                        "Number of Inputs": "2"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 30,
+                    "y": 34,
+                    "properties": {
+                        "Label": "SUB",
+                        "Direction": "NORTH",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 21,
+                    "y": 28,
+                    "properties": {
+                        "Label": "SUB",
+                        "Direction": "EAST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 11,
+                    "y": 39,
+                    "properties": {
+                        "Label": "Func",
+                        "Direction": "WEST",
+                        "Bitsize": "2",
+                        "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 22,
+                    "y": 34,
+                    "properties": {
+                        "Label": "ADD",
+                        "Direction": "NORTH",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 27,
+                    "y": 48,
+                    "properties": {
+                        "Label": "Out",
+                        "Direction": "SOUTH",
+                        "Bitsize": "16",
+                        "Is input?": "No"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.ConstantPeer",
+                    "x": 38,
+                    "y": 25,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "NORTH",
+                        "Bitsize": "1",
+                        "Value": "0"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.ConstantPeer",
+                    "x": 27,
+                    "y": 30,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "WEST",
+                        "Bitsize": "16",
+                        "Value": "1"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 11,
+                    "y": 22,
+                    "properties": {
+                        "Label": "B",
+                        "Direction": "WEST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 21,
+                    "y": 20,
+                    "properties": {
+                        "Label": "ADD",
+                        "Direction": "EAST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.ConstantPeer",
+                    "x": 17,
+                    "y": 25,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "NORTH",
+                        "Bitsize": "1",
+                        "Value": "0"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 31,
+                    "y": 22,
+                    "properties": {
+                        "Label": "B",
+                        "Direction": "WEST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 42,
+                    "y": 28,
+                    "properties": {
+                        "Label": "+1",
+                        "Direction": "EAST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 7,
+                    "y": 30,
+                    "properties": {
+                        "Label": "B",
+                        "Direction": "WEST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 26,
+                    "y": 34,
+                    "properties": {
+                        "Label": "NAND",
+                        "Direction": "NORTH",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+                    "x": 36,
+                    "y": 6,
+                    "properties": {
+                        "Label": "B",
+                        "Direction": "NORTH",
+                        "Bitsize": "16",
+                        "Is input?": "Yes"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 7,
+                    "y": 28,
+                    "properties": {
+                        "Label": "A",
+                        "Direction": "WEST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+                    "x": 11,
+                    "y": 30,
+                    "properties": {
+                        "Label": "",
+                        "Direction": "EAST",
+                        "Bitsize": "16"
+                    }
+                },
+                {
+                    "name": "com.ra4king.circuitsimulator.gui.peers.Tunnel",
+                    "x": 11,
+                    "y": 20,
+                    "properties": {
+                        "Label": "A",
+                        "Direction": "WEST",
+                        "Bitsize": "16"
+                    }
+                }
+            ],
+            "wires": [
+                {
                     "x": 19,
-                    "y": 15,
-                    "length": 13,
+                    "y": 21,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 10,
+                    "y": 29,
+                    "length": 7,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 41,
+                    "y": 22,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 31,
+                    "y": 42,
+                    "length": 6,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 35,
+                    "y": 37,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 34,
+                    "y": 23,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 19,
+                    "y": 29,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 15,
+                    "y": 31,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 40,
+                    "y": 29,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 10,
+                    "y": 31,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 31,
+                    "y": 37,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 24,
+                    "y": 37,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 36,
+                    "y": 30,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 32,
+                    "y": 38,
+                    "length": 3,
                     "isHorizontal": true
                 },
                 {
                     "x": 16,
-                    "y": 15,
+                    "y": 30,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 34,
+                    "y": 21,
                     "length": 3,
                     "isHorizontal": true
                 },
                 {
-                    "x": 33,
-                    "y": 10,
-                    "length": 4,
+                    "x": 24,
+                    "y": 38,
+                    "length": 5,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 35,
+                    "y": 31,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 32,
+                    "y": 38,
+                    "length": 1,
                     "isHorizontal": false
+                },
+                {
+                    "x": 13,
+                    "y": 40,
+                    "length": 15,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 30,
+                    "y": 37,
+                    "length": 2,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 29,
+                    "y": 38,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 18,
+                    "y": 27,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 31,
+                    "y": 37,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 15,
+                    "y": 22,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 22,
+                    "y": 9,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 36,
+                    "y": 30,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 34,
+                    "y": 29,
+                    "length": 4,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 14,
+                    "y": 21,
+                    "length": 3,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 14,
+                    "y": 23,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 40,
+                    "y": 9,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 18,
+                    "y": 19,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 39,
+                    "y": 27,
+                    "length": 1,
+                    "isHorizontal": false
+                },
+                {
+                    "x": 16,
+                    "y": 30,
+                    "length": 1,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 28,
+                    "y": 37,
+                    "length": 2,
+                    "isHorizontal": true
+                },
+                {
+                    "x": 15,
+                    "y": 22,
+                    "length": 2,
+                    "isHorizontal": true
                 }
             ]
         }

@@ -11,6 +11,7 @@ import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
@@ -27,7 +28,7 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 	public static final String SUBCIRCUIT = "Subcircuit";
 	
 	public SubcircuitPeer(Properties props, int x, int y) {
-		super(x, y, 2, 0);
+		super(x, y, 0, 0);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
@@ -38,31 +39,72 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		
 		CircuitManager subcircuitManager = subcircuitProperty.value;
 		Subcircuit subcircuit = new Subcircuit(properties.getValue(Properties.LABEL), subcircuitManager.getCircuit());
-		setHeight(Math.max(2, 1 + (subcircuit.getNumPorts() + 1) / 2));
 		
 		List<Connection> connections = new ArrayList<>();
-		List<PinPeer> pins = subcircuitManager.getCircuitBoard()
-		                                      .getComponents().stream()
-		                                      .filter(componentPeer -> componentPeer instanceof PinPeer)
-		                                      .map(componentPeer -> (PinPeer)componentPeer)
-		                                      .sorted((o1, o2) -> {
-			                                      int diff = o1.getX() - o2.getX();
-			                                      if(diff == 0) {
-				                                      return o1.getY() - o2.getY();
-			                                      }
-			                                      return diff;
-		                                      })
-		                                      .collect(Collectors.toList());
+		List<PinPeer> pins =
+				subcircuitManager.getCircuitBoard()
+				                 .getComponents().stream()
+				                 .filter(componentPeer -> componentPeer instanceof PinPeer)
+				                 .map(componentPeer -> (PinPeer)componentPeer)
+				                 .sorted((o1, o2) -> {
+					                 int diff = o1.getX() - o2.getX();
+					                 if(diff == 0) {
+						                 return o1.getY() - o2.getY();
+					                 }
+					                 return diff;
+				                 })
+				                 .collect(Collectors.toList());
+		
+		List<PinPeer> eastPins =
+				pins.stream()
+				    .filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.EAST)
+				    .collect(Collectors.toList());
+		List<PinPeer> westPins =
+				pins.stream()
+				    .filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.WEST)
+				    .collect(Collectors.toList());
+		List<PinPeer> northPins =
+				pins.stream()
+				    .filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.NORTH)
+				    .collect(Collectors.toList());
+		List<PinPeer> southPins =
+				pins.stream()
+				    .filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.SOUTH)
+				    .collect(Collectors.toList());
 		
 		if(pins.size() != subcircuit.getNumPorts()) {
 			throw new IllegalStateException("Pin count and ports count don't match?");
 		}
 		
-		for(int i = 0; i < pins.size(); i++) {
-			int connX = i < ((pins.size() + 1) / 2) ? 0 : getWidth();
-			int connY = 1 + (i % ((pins.size() + 1) / 2));
-			connections.add(new PortConnection(this, subcircuit.getPort(pins.get(i).getComponent()),
-			                                   pins.get(i).getComponent().getName(), connX, connY));
+		setWidth(Math.max(3, Math.max(northPins.size(), southPins.size()) + 1));
+		setHeight(Math.max(3, Math.max(eastPins.size(), westPins.size()) + 1));
+		
+		for(int i = 0; i < eastPins.size(); i++) {
+			int connX = getWidth();
+			int connY = i + 1;
+			connections.add(new PortConnection(this, subcircuit.getPort(eastPins.get(i).getComponent()),
+			                                   eastPins.get(i).getComponent().getName(), connX, connY));
+		}
+		
+		for(int i = 0; i < westPins.size(); i++) {
+			int connX = 0;
+			int connY = i + 1;
+			connections.add(new PortConnection(this, subcircuit.getPort(westPins.get(i).getComponent()),
+			                                   westPins.get(i).getComponent().getName(), connX, connY));
+		}
+		
+		for(int i = 0; i < northPins.size(); i++) {
+			int connX = i + 1;
+			int connY = 0;
+			connections.add(new PortConnection(this, subcircuit.getPort(northPins.get(i).getComponent()),
+			                                   northPins.get(i).getComponent().getName(), connX, connY));
+		}
+		
+		for(int i = 0; i < southPins.size(); i++) {
+			int connX = i + 1;
+			int connY = getHeight();
+			connections.add(new PortConnection(this, subcircuit.getPort(southPins.get(i).getComponent()),
+			                                   southPins.get(i).getComponent().getName(), connX, connY));
 		}
 		
 		init(subcircuit, properties, connections);

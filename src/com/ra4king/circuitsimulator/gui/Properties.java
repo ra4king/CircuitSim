@@ -49,6 +49,13 @@ public class Properties {
 		properties = new LinkedHashMap<>();
 	}
 	
+	public Properties(Property<?>... props) {
+		this();
+		for(Property<?> prop : props) {
+			setProperty(prop);
+		}
+	}
+	
 	public Properties(Properties prop) {
 		this();
 		union(prop);
@@ -60,6 +67,10 @@ public class Properties {
 	
 	public boolean containsProperty(String name) {
 		return properties.containsKey(name);
+	}
+	
+	public boolean containsProperty(Property<?> property) {
+		return containsProperty(property.name);
 	}
 	
 	public void forEach(Consumer<Property<?>> consumer) {

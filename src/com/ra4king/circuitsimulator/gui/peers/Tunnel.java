@@ -110,20 +110,20 @@ public class Tunnel extends ComponentPeer<Component> {
 		List<PortConnection> connections = new ArrayList<>();
 		switch(properties.getValue(Properties.DIRECTION)) {
 			case EAST:
-				setWidth(getWidth() + 1);
+				setWidth(getWidth() + 2);
 				connections.add(new PortConnection(this, tunnel.getPort(0), 0, getHeight() / 2));
 				break;
 			case WEST:
-				setWidth(getWidth() + 1);
+				setWidth(getWidth() + 2);
 				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth(), getHeight() / 2));
 				break;
 			case NORTH:
-				setWidth(Math.max(getWidth(), 2));
+				setWidth(Math.max(((getWidth() - 1) / 2) * 2 + 2, 2));
 				setHeight(3);
 				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, getHeight()));
 				break;
 			case SOUTH:
-				setWidth(Math.max(getWidth(), 2));
+				setWidth(Math.max(((getWidth() - 1) / 2) * 2 + 2, 2));
 				setHeight(3);
 				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, 0));
 				break;

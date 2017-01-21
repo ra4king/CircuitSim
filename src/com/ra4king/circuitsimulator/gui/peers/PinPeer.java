@@ -20,6 +20,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Pair;
 
 /**
@@ -57,7 +58,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		                  properties.getValue(Properties.BITSIZE),
 		                  properties.getValue(IS_INPUT));
 		setWidth(Math.max(2, Math.min(8, pin.getBitSize())));
-		setHeight(2 + 7 * ((pin.getBitSize() - 1) / 8) / 4);
+		setHeight((int)Math.round((1 + (pin.getBitSize() - 1) / 8) * 1.5));
 		
 		List<PortConnection> connections = new ArrayList<>();
 		switch(properties.getValue(Properties.DIRECTION)) {
@@ -126,6 +127,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 			}
 		}
 		
+		graphics.setFont(Font.font("monospace", 16));
 		Port port = getComponent().getPort(Pin.PORT);
 		WireValue value = isInput() ? circuitState.getLastPushedValue(port)
 		                            : circuitState.getLastReceived(port);
@@ -150,7 +152,9 @@ public class PinPeer extends ComponentPeer<Pin> {
 		for(int i = 0, row = 1; i < string.length(); row++) {
 			String sub = string.substring(i, i + Math.min(8, string.length() - i));
 			i += sub.length();
-			graphics.strokeText(sub, getScreenX() + 2, getScreenY() + 14 * row);
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), sub);
+			graphics.strokeText(sub, getScreenX() + getScreenWidth() * 0.5 - bounds.getWidth() * 0.5,
+			                    getScreenY() + 14 * row);
 		}
 	}
 }

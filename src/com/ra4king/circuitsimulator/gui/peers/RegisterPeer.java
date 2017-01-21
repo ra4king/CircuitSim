@@ -69,14 +69,24 @@ public class RegisterPeer extends ComponentPeer<Register> {
 			value = lastPushedValue.toString();
 		} else {
 			int hexDigits = 1 + (getComponent().getBitSize() - 1) / 4;
-			int num = lastPushedValue.isValidValue() ? lastPushedValue.getValue() : 0;
-			value = String.format("%0" + hexDigits + "x", num);
+			if(lastPushedValue.isValidValue()) {
+				int num = lastPushedValue.getValue();
+				value = String.format("%0" + hexDigits + "x", num);
+			} else {
+				value = "";
+				for(int i = 0; i < hexDigits; i++) {
+					value += "x";
+				}
+			}
 		}
 		
 		graphics.setStroke(Color.BLACK);
 		for(int i = 0; i * 4 < value.length(); i++) {
 			int endIndex = i * 4 + 4 > value.length() ? value.length() : 4 * i + 4;
-			graphics.strokeText(value.substring(4 * i, endIndex), getScreenX() + 2, getScreenY() + 15 + 10 * i);
+			String toPrint = value.substring(4 * i, endIndex);
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), toPrint);
+			graphics.strokeText(toPrint, getScreenX() + getScreenWidth() * 0.5 - bounds.getWidth() * 0.5,
+			                    getScreenY() + 15 + 10 * i);
 		}
 		GuiUtils.drawShape(graphics::strokeRect, this);
 	}

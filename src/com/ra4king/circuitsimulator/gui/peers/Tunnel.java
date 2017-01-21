@@ -48,7 +48,7 @@ public class Tunnel extends ComponentPeer<Component> {
 		String label = properties.getValue(Properties.LABEL);
 		int bitSize = properties.getValue(Properties.BITSIZE);
 		
-		Bounds bounds = GuiUtils.getBounds(Font.font("monospace", 15), label);
+		Bounds bounds = GuiUtils.getBounds(Font.font("monospace", 13), label);
 		setWidth(Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1));
 		
 		Component tunnel = new Component(label, new int[] { bitSize }) {
@@ -75,14 +75,17 @@ public class Tunnel extends ComponentPeer<Component> {
 			public void init(CircuitState state) {
 				List<Tunnel> toNotify = tunnels.get(label);
 				if(toNotify != null) {
-					WireValue value = new WireValue(getComponent().getPort(0).getLink().getBitSize());
+					WireValue value = new WireValue(bitSize);
 					
 					for(Tunnel tunnel : toNotify) {
 						if(tunnel != Tunnel.this
 								   && tunnel.getComponent().getCircuit() == getComponent().getCircuit()) {
 							Port port = tunnel.getComponent().getPort(0);
 							try {
-								value.merge(state.getMergedValue(port.getLink()));
+								WireValue portValue = state.getMergedValue(port.getLink());
+								if(portValue.getBitSize() == value.getBitSize()) {
+									value.merge(portValue);
+								}
 							} catch(Exception exc) {
 								break;
 							}

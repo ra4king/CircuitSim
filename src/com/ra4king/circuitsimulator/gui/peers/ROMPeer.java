@@ -49,8 +49,16 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		int dataBits = properties.getValue(Properties.BITSIZE);
 		
 		contentsProperty = new Property<>("Contents", new PropertyMemoryValidator(addressBits, dataBits), null);
-		properties.ensureProperty(contentsProperty);
-		properties.mergeIfExists(props);
+		String oldMemory;
+		Property<?> oldContents = props.getProperty("Contents");
+		if(oldContents == null) {
+			oldMemory = "";
+		} else if(oldContents.validator == null) {
+			oldMemory = props.getValue("Contents");
+		} else {
+			oldMemory = oldContents.getStringValue();
+		}
+		properties.setValue(contentsProperty, contentsProperty.validator.parse(oldMemory));
 		
 		int[] memory = memoryToArray(properties.getValue(contentsProperty));
 		ROM ram = new ROM(properties.getValue(Properties.LABEL), dataBits, addressBits, memory);
@@ -85,6 +93,15 @@ public class ROMPeer extends ComponentPeer<ROM> {
 			List<MemoryLine> lines =
 					memoryValidator.parse(memory, (address, value) -> {
 						memory[address] = value;
+						
+						int addressBits = getComponent().getAddressBits();
+						for(MemoryLine line : property.value) {
+							if(address < line.address + 16) {
+								int index = address - line.address;
+								line.get(index).set(String.format("%0" + (1 + (addressBits - 1) / 4) + "x", value));
+								break;
+							}
+						}
 						
 						for(CircuitState state : circuit.getCircuit().getCircuitStates()) {
 							getComponent().valueChanged(state, null, 0);

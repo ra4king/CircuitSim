@@ -5,10 +5,10 @@ import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyValidator;
@@ -46,25 +46,13 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(FANOUTS);
 		properties.mergeIfExists(props);
 		
 		int bitSize = properties.getValue(Properties.BITSIZE);
 		int numInputs = properties.getValue(FANOUTS);
-		
-		Splitter splitter;
-		if(props.containsProperty("Bit 0")) {
-			int[] bitFanIndices = new int[bitSize];
-			
-			for(int i = 0; i < bitFanIndices.length; i++) {
-				bitFanIndices[i] = Math.min(numInputs - 1, props.getValueOrDefault("Bit " + i, i));
-			}
-			
-			splitter = new Splitter(properties.getValue(Properties.LABEL), bitFanIndices);
-		} else {
-			splitter = new Splitter(properties.getValue(Properties.LABEL), bitSize, numInputs);
-		}
 		
 		List<Integer> fanOuts = new ArrayList<>();
 		for(int i = -1; i < numInputs; i++) {
@@ -74,22 +62,44 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 		PropertyValidator<Integer> validator =
 				new PropertyListValidator<>(fanOuts, (value) -> value == -1 ? "None" : value.toString());
 		
+		Splitter splitter;
+		if(props.containsProperty("Bit 0")) {
+			int[] bitFanIndices = new int[bitSize];
+			
+			for(int i = 0; i < bitFanIndices.length; i++) {
+				Object value = props.getValue("Bit " + i);
+				int index;
+				if(value == null) {
+					index = i;
+				} else if(value instanceof String) {
+					index = validator.parse((String)value);
+				} else {
+					index = (Integer)value;
+				}
+				bitFanIndices[i] = Math.min(numInputs - 1, index);
+			}
+			
+			splitter = new Splitter(properties.getValue(Properties.LABEL), bitFanIndices);
+		} else {
+			splitter = new Splitter(properties.getValue(Properties.LABEL), bitSize, numInputs);
+		}
+		
+		setWidth(Math.max(1, splitter.getNumPorts() - 1));
+		
 		int[] bitFanIndices = splitter.getBitFanIndices();
 		for(int i = 0; i < bitFanIndices.length; i++) {
 			properties.setProperty(new Property<>("Bit " + i, validator, bitFanIndices[i]));
 		}
 		
-		setWidth(Math.max(2, splitter.getNumPorts() - 1));
-		
-		List<Connection> connections = new ArrayList<>();
+		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, splitter.getPort(splitter.PORT_JOINED), 0, 0));
 		for(int i = 0; i < splitter.getNumPorts() - 1; i++) {
 			String tooltip = "";
 			for(int j = 0, start = -1; j < bitFanIndices.length; j++) {
-				if(bitFanIndices[j] == i) {
-					if(start == -1 || j == 0) {
+				if(bitFanIndices[j] == splitter.getNumPorts() - 2 - i) {
+					if(start == -1 || j == bitFanIndices.length - 1) {
+						tooltip += (start == -1 ? "," : "-") + j;
 						start = j;
-						tooltip += "," + j;
 					}
 				} else if(start != -1) {
 					if(start < j - 1) {
@@ -105,15 +115,24 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 			                                   i + 1, getHeight()));
 		}
 		
+		connections = GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		GuiUtils.rotateElement(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		
 		init(splitter, properties, connections);
 	}
 	
 	@Override
 	public void paint(GraphicsContext g, CircuitState circuitState) {
+		GuiUtils.rotateGraphics(this, g, getProperties().getValue(Properties.DIRECTION));
+		
+		int x = getScreenX();
+		int y = getScreenY();
+		int width = getScreenWidth() > getScreenHeight() ? getScreenWidth() : getScreenHeight();
+		int height = getScreenWidth() > getScreenHeight() ? getScreenHeight() : getScreenWidth();
+		
 		g.setLineWidth(2);
 		g.setStroke(Color.BLACK);
-		g.strokeLine(getScreenX(), getScreenY(), getScreenX() + GuiUtils.BLOCK_SIZE, getScreenY() + getScreenHeight());
-		g.strokeLine(getScreenX() + GuiUtils.BLOCK_SIZE, getScreenY() + getScreenHeight(),
-		             getScreenX() + getScreenWidth(), getScreenY() + getScreenHeight());
+		g.strokeLine(x, y, x + GuiUtils.BLOCK_SIZE, y + height);
+		g.strokeLine(x + GuiUtils.BLOCK_SIZE, y + height, x + width, y + height);
 	}
 }

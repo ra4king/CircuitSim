@@ -233,7 +233,7 @@ public class CircuitManager {
 		
 		graphics.save();
 		
-		graphics.setFont(Font.font("monospace", 15));
+		graphics.setFont(Font.font("monospace", 13));
 		
 		graphics.save();
 		graphics.setFill(Color.LIGHTGRAY);

@@ -11,13 +11,12 @@ import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.components.Constant;
-import com.ra4king.circuitsimulator.simulator.components.Pin;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -29,7 +28,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Constant"),
-		                     null,
+		                     new Image(ConstantPeer.class.getResourceAsStream("/resources/Constant.png")),
 		                     new Properties(new Property<>(Properties.DIRECTION, Direction.WEST)));
 	}
 	
@@ -81,14 +80,17 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 			                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
 		}
 		
-		Port port = getComponent().getPort(Pin.PORT);
 		graphics.setFill(Color.GRAY);
 		graphics.setStroke(Color.GRAY);
 		
 		graphics.fillRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 10, 10);
 		graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 10, 10);
 		
-		graphics.setStroke(port.getLink().getBitSize() > 1 ? Color.BLACK : Color.WHITE);
+		if(value.getBitSize() > 1) {
+			graphics.setStroke(Color.BLACK);
+		} else {
+			GuiUtils.setBitColor(graphics, value.getBit(0));
+		}
 		
 		String string = value.toString();
 		for(int i = 0, row = 1; i < string.length(); row++) {

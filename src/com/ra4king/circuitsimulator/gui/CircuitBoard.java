@@ -190,13 +190,13 @@ public class CircuitBoard {
 			}
 		}
 		
-		if(toThrow != null) {
-			throw toThrow;
-		}
-		
 		moveElements = null;
 		
 		runSim();
+		
+		if(toThrow != null) {
+			throw toThrow;
+		}
 	}
 	
 	public void removeElements(Set<? extends GuiElement> elements) throws Exception {

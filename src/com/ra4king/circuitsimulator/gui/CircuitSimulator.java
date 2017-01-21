@@ -221,7 +221,7 @@ public class CircuitSimulator extends Application {
 							                                                      : Color.WHITE, null, null)));
 					
 					Node node = property.validator.createGui(stage, property.value, newValue -> {
-						Properties newProperties = new Properties();
+						Properties newProperties = new Properties(properties);
 						newProperties.setValue(property, newValue);
 						updateProperties(newProperties);
 					});
@@ -865,7 +865,7 @@ public class CircuitSimulator extends Application {
 		
 		menuBar.getMenus().addAll(fileMenu, circuitsMenu, clockMenu);
 		
-		componentLabel.setFont(Font.font("Sans serif", 15));
+		componentLabel.setFont(Font.font("Sans serif", 16));
 		VBox propertiesBox = new VBox(componentLabel, propertiesTable);
 		propertiesBox.setAlignment(Pos.TOP_CENTER);
 		VBox.setVgrow(propertiesTable, Priority.ALWAYS);

@@ -150,6 +150,9 @@ public class GuiUtils {
 		}
 	}
 	
+	/**
+	 * Source orientation is assumed EAST
+	 */
 	public static void rotateGraphics(ComponentPeer<?> component, GraphicsContext graphics, Direction direction) {
 		int x = component.getScreenX();
 		int y = component.getScreenY();

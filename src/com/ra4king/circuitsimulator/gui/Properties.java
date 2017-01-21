@@ -633,12 +633,20 @@ public class Properties {
 			Button loadButton = new Button("Load from file");
 			loadButton.setOnAction(event -> {
 				FileChooser fileChooser = new FileChooser();
-				fileChooser.setTitle("Choose sim file");
+				fileChooser.setTitle("Choose save file");
 				File selectedFile = fileChooser.showOpenDialog(memoryStage);
 				if(selectedFile != null) {
 					try {
 						List<String> strings = Files.readAllLines(selectedFile.toPath());
-						tableView.setItems(new ObservableListWrapper<>(parse(String.join(" ", strings))));
+						List<MemoryLine> fileLines = parse(String.join(" ", strings));
+						for(int i = 0; i < fileLines.size(); i++) {
+							MemoryLine fileLine = fileLines.get(i);
+							MemoryLine tableLine = lines.get(i);
+							
+							for(int j = 0; j < fileLine.values.size() && j < tableLine.values.size(); j++) {
+								tableLine.values.get(j).set(fileLine.values.get(j).get());
+							}
+						}
 					} catch(Exception exc) {
 						new Alert(AlertType.ERROR, "Could not open file").show();
 					}

@@ -80,7 +80,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 			getComponent().addMemoryListener((address, data) -> {
 				int index = address / 16;
 				MemoryLine line = memory.get(index);
-				line.values.get(address - index * 16).setValue(String.format("%x", data));
+				line.values.get(address - index * 16).setValue(memoryValidator.parseValue(data));
 			});
 			
 			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), memory);

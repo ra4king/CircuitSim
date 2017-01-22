@@ -18,6 +18,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Pair;
 
 /**
@@ -48,7 +49,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		                                 properties.getValue(Properties.BITSIZE),
 		                                 properties.getValue(VALUE));
 		setWidth(Math.max(2, Math.min(8, constant.getBitSize())));
-		setHeight(2 + 7 * ((constant.getBitSize() - 1) / 8) / 4);
+		setHeight((int)Math.round((1 + (constant.getBitSize() - 1) / 8) * 1.5));
 		
 		value = WireValue.of(constant.getValue(), constant.getBitSize());
 		
@@ -80,6 +81,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 			                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
 		}
 		
+		graphics.setFont(Font.font("monospace", 16));
 		graphics.setFill(Color.GRAY);
 		graphics.setStroke(Color.GRAY);
 		

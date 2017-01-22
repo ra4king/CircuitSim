@@ -476,14 +476,14 @@ public class Properties {
 			this.dataBits = dataBits;
 		}
 		
-		private String parseValue(int value) {
+		public String parseValue(int value) {
 			if(dataBits < 32) {
 				value &= (1 << dataBits) - 1;
 			}
 			return String.format("%0" + (1 + (dataBits - 1) / 4) + "x", value);
 		}
 		
-		private int parseValue(String value) {
+		public int parseValue(String value) {
 			try {
 				return Integer.parseUnsignedInt(value, 16);
 			} catch(NumberFormatException exc) {

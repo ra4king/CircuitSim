@@ -135,12 +135,29 @@ public class Tunnel extends ComponentPeer<Component> {
 		init(tunnel, properties, connections);
 	}
 	
+	private boolean isIncompatible() {
+		String label = getComponent().getName();
+		int bitSize = getComponent().getPort(0).getLink().getBitSize();
+		
+		if(tunnels.containsKey(label)) {
+			for(Tunnel tunnel : tunnels.get(label)) {
+				if(tunnel.getComponent().getPort(0).getLink().getBitSize() != bitSize) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		Direction direction = getProperties().getValue(Properties.DIRECTION);
 		
+		boolean isIncompatible = isIncompatible();
+		
 		graphics.setStroke(Color.BLACK);
-		graphics.setFill(Color.WHITE);
+		graphics.setFill(isIncompatible ? Color.ORANGE : Color.WHITE);
 		
 		int block = GuiUtils.BLOCK_SIZE;
 		int x = getScreenX();
@@ -203,6 +220,21 @@ public class Tunnel extends ComponentPeer<Component> {
 			graphics.strokeText(getComponent().getName(),
 			                    x + xOff + ((width - xOff) - bounds.getWidth()) * 0.5,
 			                    y + yOff + ((height - yOff) + bounds.getHeight()) * 0.4);
+		}
+		
+		if(isIncompatible) {
+			PortConnection port = (PortConnection)getConnections().get(0);
+			
+			graphics.setStroke(Color.BLACK);
+			graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),
+			                    port.getScreenX() + 11,
+			                    port.getScreenY() + 21);
+			
+			graphics.setStroke(Color.ORANGE);
+			graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
+			graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),
+			                    port.getScreenX() + 10,
+			                    port.getScreenY() + 20);
 		}
 	}
 }

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
@@ -40,7 +39,7 @@ public class DecoderPeer extends ComponentPeer<Decoder> {
 		                              properties.getValue(Properties.SELECTOR_BITS));
 		setHeight(decoder.getNumOutputs() + 2);
 		
-		List<Connection> connections = new ArrayList<>();
+		List<PortConnection> connections = new ArrayList<>();
 		for(int i = 0; i < decoder.getNumOutputs(); i++) {
 			connections.add(new PortConnection(this, decoder.getOutputPort(i), getWidth(), i + 1));
 		}

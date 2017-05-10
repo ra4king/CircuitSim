@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
@@ -40,7 +39,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		Register register = new Register(properties.getValue(Properties.LABEL),
 		                                 properties.getValue(Properties.BITSIZE));
 		
-		List<Connection> connections = new ArrayList<>();
+		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), "In", 0, 2));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_ENABLE), "Enable", 0, 3));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_CLK), "Clock", 1, getHeight()));

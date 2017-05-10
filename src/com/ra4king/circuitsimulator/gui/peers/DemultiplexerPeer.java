@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
@@ -42,7 +41,7 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 		                                        properties.getValue(Properties.SELECTOR_BITS));
 		setHeight(demux.getNumOutputs() + 2);
 		
-		List<Connection> connections = new ArrayList<>();
+		List<PortConnection> connections = new ArrayList<>();
 		for(int i = 0; i < demux.getNumOutputs(); i++) {
 			connections.add(new PortConnection(this, demux.getOutputPort(i), getWidth(), i + 1));
 		}

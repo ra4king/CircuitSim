@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
@@ -39,7 +38,7 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		Adder adder = new Adder(properties.getValue(Properties.LABEL),
 		                        properties.getValue(Properties.BITSIZE));
 		
-		List<Connection> connections = new ArrayList<>();
+		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_A), "A", 0, 1));
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_B), "B", 0, 2));
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_IN), "Carry in", 1, 0));

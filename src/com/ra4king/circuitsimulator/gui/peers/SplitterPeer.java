@@ -63,7 +63,11 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 				new PropertyListValidator<>(fanOuts, (value) -> value == -1 ? "None" : value.toString());
 		
 		Splitter splitter;
-		if(props.containsProperty("Bit 0")) {
+		
+		int availableBits = 0;
+		while(props.containsProperty("Bit " + availableBits)) availableBits++;
+		
+		if(availableBits == bitSize) {
 			int[] bitFanIndices = new int[bitSize];
 			
 			for(int i = 0; i < bitFanIndices.length; i++) {

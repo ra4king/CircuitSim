@@ -8,7 +8,6 @@ import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
-import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -30,7 +29,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Constant"),
 		                     new Image(ConstantPeer.class.getResourceAsStream("/resources/Constant.png")),
-		                     new Properties(new Property<>(Properties.DIRECTION, Direction.WEST)));
+		                     new Properties());
 	}
 	
 	private final WireValue value;
@@ -56,16 +55,16 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		List<PortConnection> connections = new ArrayList<>();
 		switch(properties.getValue(Properties.DIRECTION)) {
 			case EAST:
-				connections.add(new PortConnection(this, constant.getPort(0), 0, getHeight() / 2));
-				break;
-			case WEST:
 				connections.add(new PortConnection(this, constant.getPort(0), getWidth(), getHeight() / 2));
 				break;
+			case WEST:
+				connections.add(new PortConnection(this, constant.getPort(0), 0, getHeight() / 2));
+				break;
 			case NORTH:
-				connections.add(new PortConnection(this, constant.getPort(0), getWidth() / 2, getHeight()));
+				connections.add(new PortConnection(this, constant.getPort(0), getWidth() / 2, 0));
 				break;
 			case SOUTH:
-				connections.add(new PortConnection(this, constant.getPort(0), getWidth() / 2, 0));
+				connections.add(new PortConnection(this, constant.getPort(0), getWidth() / 2, getHeight()));
 				break;
 		}
 		

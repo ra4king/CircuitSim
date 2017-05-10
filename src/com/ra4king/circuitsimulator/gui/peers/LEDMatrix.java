@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
@@ -57,7 +56,7 @@ public class LEDMatrix extends ComponentPeer<Component> {
 			public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
 		};
 		
-		List<Connection> connections = new ArrayList<>();
+		List<PortConnection> connections = new ArrayList<>();
 		for(int i = 0; i < rows; i++) {
 			connections.add(new PortConnection(this, component.getPort(i), 0, i));
 		}

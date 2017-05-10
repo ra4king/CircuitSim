@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
@@ -33,12 +32,26 @@ public class ClockPeer extends ComponentPeer<Clock> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.DIRECTION);
 		properties.mergeIfExists(props);
 		
 		Clock clock = new Clock(properties.getValue(Properties.LABEL));
 		
-		List<Connection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth(), getHeight() / 2));
+		List<PortConnection> connections = new ArrayList<>();
+		switch(properties.getValue(Properties.DIRECTION)) {
+			case EAST:
+				connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth(), getHeight() / 2));
+				break;
+			case WEST:
+				connections.add(new PortConnection(this, clock.getPort(Clock.PORT), 0, getHeight() / 2));
+				break;
+			case NORTH:
+				connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth() / 2, 0));
+				break;
+			case SOUTH:
+				connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth() / 2, getHeight()));
+				break;
+		}
 		
 		init(clock, properties, connections);
 	}

@@ -30,18 +30,14 @@ public class PinPeer extends ComponentPeer<Pin> {
 	public static final Property<Boolean> IS_INPUT = new Property<>("Is input?", Properties.YESNO_VALIDATOR, true);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		Properties properties = new Properties(new Property<>(IS_INPUT, true),
-		                                       new Property<>(Properties.DIRECTION, Direction.WEST));
-		properties.setValue(IS_INPUT, true);
-		properties.setValue(Properties.DIRECTION, Direction.WEST);
 		manager.addComponent(new Pair<>("Wiring", "Input Pin"),
 		                     new Image(PinPeer.class.getResourceAsStream("/resources/InputPin.png")),
-		                     properties);
+		                     new Properties(new Property<>(IS_INPUT, true)));
 		
-		properties = new Properties(new Property<>(IS_INPUT, false));
 		manager.addComponent(new Pair<>("Wiring", "Output Pin"),
 		                     new Image(PinPeer.class.getResourceAsStream("/resources/OutputPin.png")),
-		                     properties);
+		                     new Properties(new Property<>(IS_INPUT, false),
+		                                    new Property<>(Properties.DIRECTION, Direction.WEST)));
 	}
 	
 	public PinPeer(Properties props, int x, int y) {
@@ -63,16 +59,16 @@ public class PinPeer extends ComponentPeer<Pin> {
 		List<PortConnection> connections = new ArrayList<>();
 		switch(properties.getValue(Properties.DIRECTION)) {
 			case EAST:
-				connections.add(new PortConnection(this, pin.getPort(0), 0, getHeight() / 2));
-				break;
-			case WEST:
 				connections.add(new PortConnection(this, pin.getPort(0), getWidth(), getHeight() / 2));
 				break;
+			case WEST:
+				connections.add(new PortConnection(this, pin.getPort(0), 0, getHeight() / 2));
+				break;
 			case NORTH:
-				connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, getHeight()));
+				connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, 0));
 				break;
 			case SOUTH:
-				connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, 0));
+				connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, getHeight()));
 				break;
 		}
 		

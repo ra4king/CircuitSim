@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import com.ra4king.circuitsimulator.gui.CircuitManager;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
@@ -40,7 +39,7 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		CircuitManager subcircuitManager = subcircuitProperty.value;
 		Subcircuit subcircuit = new Subcircuit(properties.getValue(Properties.LABEL), subcircuitManager.getCircuit());
 		
-		List<Connection> connections = new ArrayList<>();
+		List<PortConnection> connections = new ArrayList<>();
 		List<PinPeer> pins =
 				subcircuitManager.getCircuitBoard()
 				                 .getComponents().stream()
@@ -73,21 +72,22 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 				    .collect(Collectors.toList());
 		
 		if(pins.size() != subcircuit.getNumPorts()) {
-			throw new IllegalStateException("Pin count and ports count don't match?");
+			throw new IllegalStateException("Pin count and ports count don't match? " + pins.size() + " vs " + 
+					                                subcircuit.getNumPorts());
 		}
 		
 		setWidth(Math.max(3, Math.max(northPins.size(), southPins.size()) + 1));
 		setHeight(Math.max(3, Math.max(eastPins.size(), westPins.size()) + 1));
 		
 		for(int i = 0; i < eastPins.size(); i++) {
-			int connX = getWidth();
+			int connX = 0;
 			int connY = i + 1;
 			connections.add(new PortConnection(this, subcircuit.getPort(eastPins.get(i).getComponent()),
 			                                   eastPins.get(i).getComponent().getName(), connX, connY));
 		}
 		
 		for(int i = 0; i < westPins.size(); i++) {
-			int connX = 0;
+			int connX = getWidth();
 			int connY = i + 1;
 			connections.add(new PortConnection(this, subcircuit.getPort(westPins.get(i).getComponent()),
 			                                   westPins.get(i).getComponent().getName(), connX, connY));
@@ -95,14 +95,14 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		
 		for(int i = 0; i < northPins.size(); i++) {
 			int connX = i + 1;
-			int connY = 0;
+			int connY = getHeight();
 			connections.add(new PortConnection(this, subcircuit.getPort(northPins.get(i).getComponent()),
 			                                   northPins.get(i).getComponent().getName(), connX, connY));
 		}
 		
 		for(int i = 0; i < southPins.size(); i++) {
 			int connX = i + 1;
-			int connY = getHeight();
+			int connY = 0;
 			connections.add(new PortConnection(this, subcircuit.getPort(southPins.get(i).getComponent()),
 			                                   southPins.get(i).getComponent().getName(), connX, connY));
 		}

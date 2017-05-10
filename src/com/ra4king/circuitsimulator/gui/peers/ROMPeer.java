@@ -7,7 +7,6 @@ import java.util.List;
 import com.ra4king.circuitsimulator.gui.CircuitManager;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
-import com.ra4king.circuitsimulator.gui.Connection;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
@@ -63,7 +62,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		int[] memory = memoryToArray(properties.getValue(contentsProperty));
 		ROM ram = new ROM(properties.getValue(Properties.LABEL), dataBits, addressBits, memory);
 		
-		List<Connection> connections = new ArrayList<>();
+		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_ADDRESS), "Address", 0, 2));
 		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_ENABLE), "Enable", 2, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_DATA), "Data", getWidth(), 2));

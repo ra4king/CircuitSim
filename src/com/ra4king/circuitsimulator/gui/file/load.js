@@ -1,6 +1,6 @@
 var json = JSON.parse(file);
 
-if (json.version != version) {
+if (Math.floor(json.version) != Math.floor(version)) {
     throw new Error("Incompatible version!");
 }
 

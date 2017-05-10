@@ -2,6 +2,7 @@ package com.ra4king.circuitsimulator.gui;
 
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.simulator.Component;
 
 /**
@@ -10,13 +11,13 @@ import com.ra4king.circuitsimulator.simulator.Component;
 public abstract class ComponentPeer<C extends Component> extends GuiElement {
 	private C component;
 	private Properties properties;
-	private List<? extends Connection> connections;
+	private List<PortConnection> connections;
 	
 	public ComponentPeer(int x, int y, int width, int height) {
 		super(x, y, width, height);
 	}
 	
-	protected final void init(C component, Properties properties, List<? extends Connection> connections) {
+	protected final void init(C component, Properties properties, List<PortConnection> connections) {
 		if(this.component != null) {
 			throw new IllegalStateException("ComponentPeer already initialized.");
 		}
@@ -35,7 +36,7 @@ public abstract class ComponentPeer<C extends Component> extends GuiElement {
 	}
 	
 	@Override
-	public List<? extends Connection> getConnections() {
+	public List<PortConnection> getConnections() {
 		return connections;
 	}
 	

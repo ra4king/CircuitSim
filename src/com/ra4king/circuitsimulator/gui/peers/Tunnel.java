@@ -11,6 +11,7 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
+import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
@@ -33,7 +34,7 @@ public class Tunnel extends ComponentPeer<Component> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Tunnel"),
 		                     new Image(Tunnel.class.getResourceAsStream("/resources/Tunnel.png")),
-		                     new Properties());
+		                     new Properties(new Property<>(Properties.DIRECTION, Direction.WEST)));
 	}
 	
 	public Tunnel(Properties props, int x, int y) {
@@ -72,7 +73,7 @@ public class Tunnel extends ComponentPeer<Component> {
 			}
 			
 			@Override
-			public void init(CircuitState state) {
+			public void init(CircuitState state, Object lastProperty) {
 				List<Tunnel> toNotify = tunnels.get(label);
 				if(toNotify != null) {
 					WireValue value = new WireValue(bitSize);
@@ -114,21 +115,21 @@ public class Tunnel extends ComponentPeer<Component> {
 		switch(properties.getValue(Properties.DIRECTION)) {
 			case EAST:
 				setWidth(getWidth() + 2);
-				connections.add(new PortConnection(this, tunnel.getPort(0), 0, getHeight() / 2));
+				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth(), getHeight() / 2));
 				break;
 			case WEST:
 				setWidth(getWidth() + 2);
-				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth(), getHeight() / 2));
+				connections.add(new PortConnection(this, tunnel.getPort(0), 0, getHeight() / 2));
 				break;
 			case NORTH:
 				setWidth(Math.max(((getWidth() - 1) / 2) * 2 + 2, 2));
 				setHeight(3);
-				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, getHeight()));
+				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, 0));
 				break;
 			case SOUTH:
 				setWidth(Math.max(((getWidth() - 1) / 2) * 2 + 2, 2));
 				setHeight(3);
-				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, 0));
+				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, getHeight()));
 				break;
 		}
 		
@@ -170,16 +171,6 @@ public class Tunnel extends ComponentPeer<Component> {
 		
 		switch(direction) {
 			case EAST:
-				xOff = block;
-				graphics.beginPath();
-				graphics.moveTo(x, y + height * 0.5);
-				graphics.lineTo(x + block, y);
-				graphics.lineTo(x + width, y);
-				graphics.lineTo(x + width, y + height);
-				graphics.lineTo(x + block, y + height);
-				graphics.closePath();
-				break;
-			case WEST:
 				xOff = -block;
 				graphics.beginPath();
 				graphics.moveTo(x + width, y + height * 0.5);
@@ -189,17 +180,17 @@ public class Tunnel extends ComponentPeer<Component> {
 				graphics.lineTo(x + width - block, y);
 				graphics.closePath();
 				break;
-			case NORTH:
-				yOff = -block;
+			case WEST:
+				xOff = block;
 				graphics.beginPath();
-				graphics.moveTo(x + width * 0.5, y + height);
-				graphics.lineTo(x, y + height - block);
-				graphics.lineTo(x, y);
+				graphics.moveTo(x, y + height * 0.5);
+				graphics.lineTo(x + block, y);
 				graphics.lineTo(x + width, y);
-				graphics.lineTo(x + width, y + height - block);
+				graphics.lineTo(x + width, y + height);
+				graphics.lineTo(x + block, y + height);
 				graphics.closePath();
 				break;
-			case SOUTH:
+			case NORTH:
 				yOff = block;
 				graphics.beginPath();
 				graphics.moveTo(x + width * 0.5, y);
@@ -207,6 +198,16 @@ public class Tunnel extends ComponentPeer<Component> {
 				graphics.lineTo(x + width, y + height);
 				graphics.lineTo(x, y + height);
 				graphics.lineTo(x, y + block);
+				graphics.closePath();
+				break;
+			case SOUTH:
+				yOff = -block;
+				graphics.beginPath();
+				graphics.moveTo(x + width * 0.5, y + height);
+				graphics.lineTo(x, y + height - block);
+				graphics.lineTo(x, y);
+				graphics.lineTo(x + width, y);
+				graphics.lineTo(x + width, y + height - block);
 				graphics.closePath();
 				break;
 		}

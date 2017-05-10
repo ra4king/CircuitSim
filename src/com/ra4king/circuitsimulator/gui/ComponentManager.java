@@ -67,6 +67,8 @@ public class ComponentManager {
 				            .newInstance(properties, x, y);
 			} catch(NoSuchMethodException exc) {
 				throw new RuntimeException("Must have constructor taking (Properties props, int x, int y");
+			} catch(RuntimeException exc) {
+				throw exc;
 			} catch(Exception exc) {
 				throw new RuntimeException(exc);
 			}
@@ -115,7 +117,10 @@ public class ComponentManager {
 					                                                                                  defaultProperties,
 					                                                                                  creator)));
 		} catch(NoSuchMethodException exc) {
-			throw new RuntimeException("Must implement static void installComponent(ComponentManagerInterface)");
+			throw new RuntimeException("Must implement: public static void installComponent" +
+					                           "(ComponentManagerInterface)");
+		} catch(RuntimeException exc) {
+			throw exc;
 		} catch(Exception exc) {
 			throw new RuntimeException(exc);
 		}

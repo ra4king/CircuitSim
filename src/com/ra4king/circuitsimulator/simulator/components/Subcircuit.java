@@ -77,9 +77,7 @@ public class Subcircuit extends Component {
 	}
 	
 	@Override
-	public void init(CircuitState circuitState) {
-		super.init(circuitState);
-		
+	public void init(CircuitState circuitState, Object lastProperty) {
 		CircuitState subcircuitState = new CircuitState(subcircuit);
 		circuitState.putComponentProperty(this, subcircuitState);
 		
@@ -93,7 +91,8 @@ public class Subcircuit extends Component {
 		}
 		
 		for(Component component : subcircuit.getComponents()) {
-			component.init(subcircuitState);
+			component.init(subcircuitState,
+			               lastProperty == null ? null : ((CircuitState)lastProperty).getComponentProperty(component));
 		}
 	}
 	
@@ -107,7 +106,7 @@ public class Subcircuit extends Component {
 		subcircuit.getComponents().forEach(component -> component.uninit(subcircuitState));
 		subcircuit.getCircuitStates().remove(subcircuitState);
 		if(pinListeners.containsKey(circuitState)) {
-			Pair<CircuitState, PinChangeListener> pair = new Pair<>(circuitState, pinListeners.get(circuitState));
+			Pair<CircuitState, PinChangeListener> pair = new Pair<>(subcircuitState, pinListeners.get(circuitState));
 			pins.forEach(pin -> pin.removeChangeListener(pair));
 		}
 	}

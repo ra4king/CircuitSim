@@ -28,6 +28,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -40,7 +41,7 @@ import javafx.scene.text.Text;
  */
 public class CircuitManager {
 	private final CircuitSimulator simulatorWindow;
-	private final Canvas canvas;
+	private final ScrollPane canvasScrollPane;
 	private final CircuitBoard circuitBoard;
 	
 	private ContextMenu menu;
@@ -67,12 +68,12 @@ public class CircuitManager {
 	private long messageSetTime;
 	private static final int MESSAGE_POST_DURATION = 3000;
 	
-	public CircuitManager(CircuitSimulator simulatorWindow, Canvas canvas, Simulator simulator) {
+	public CircuitManager(CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
 		this.simulatorWindow = simulatorWindow;
-		this.canvas = canvas;
+		this.canvasScrollPane = canvasScrollPane;
 		circuitBoard = new CircuitBoard(simulator);
 		
-		canvas.setOnContextMenuRequested(event -> {
+		getCanvas().setOnContextMenuRequested(event -> {
 			menu = new ContextMenu();
 			
 			MenuItem delete = new MenuItem("Delete");
@@ -98,17 +99,25 @@ public class CircuitManager {
 			}
 			
 			if(menu.getItems().size() > 0) {
-				menu.show(canvas, event.getScreenX(), event.getScreenY());
+				menu.show(getCanvas(), event.getScreenX(), event.getScreenY());
 			}
 		});
+	}
+	
+	public void destroy() {
+		circuitBoard.destroy();
 	}
 	
 	public CircuitSimulator getSimulatorWindow() {
 		return simulatorWindow;
 	}
 	
+	public ScrollPane getCanvasScrollPane() {
+		return canvasScrollPane;
+	}
+	
 	public Canvas getCanvas() {
-		return canvas;
+		return (Canvas)canvasScrollPane.getContent();
 	}
 	
 	public Circuit getCircuit() {
@@ -171,27 +180,26 @@ public class CircuitManager {
 					                   .filter(element -> element instanceof ComponentPeer<?>)
 					                   .map(element -> (ComponentPeer<?>)element)
 					                   .collect(Collectors.toSet());
-			mayThrow(() -> circuitBoard.removeElements(components));
 			
-			Set<ComponentPeer<?>> newComponents =
-					components.stream().map(
+			Map<ComponentPeer<?>, ComponentPeer<?>> newComponents =
+					components.stream().collect(Collectors.toMap(
+							component -> component,
 							component -> (ComponentPeer<?>)ComponentManager
 									                               .forClass(component.getClass())
 									                               .createComponent(
 											                               component.getProperties()
 											                                        .mergeIfExists(properties),
 											                               component.getX(),
-											                               component.getY()))
-					          .collect(Collectors.toSet());
+											                               component.getY())));
 			
-			newComponents.forEach(component -> mayThrow(() -> circuitBoard.addComponent(component)));
+			newComponents.forEach((oldComponent, newComponent) ->
+					                      mayThrow(() -> circuitBoard.updateComponent(oldComponent, newComponent)));
 			
 			selectedElementsMap = Stream.concat(
 					selectedElementsMap.keySet().stream().filter(element -> !(element instanceof ComponentPeer<?>)),
-					newComponents.stream())
-			                            .collect(Collectors.toMap(element -> element,
-			                                                      element -> new Point2D(element.getX(),
-			                                                                             element.getY())));
+					newComponents.values().stream()).collect(Collectors.toMap(element -> element,
+			                                                                  element -> new Point2D(element.getX(),
+			                                                                                         element.getY())));
 			
 			
 			return getCommonSelectedProperties();
@@ -220,7 +228,7 @@ public class CircuitManager {
 	private int frameCount;
 	
 	public void paint() {
-		GraphicsContext graphics = canvas.getGraphicsContext2D();
+		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		
 		long now = System.nanoTime();
 		if(now - lastRepaint >= 1e9) {
@@ -237,11 +245,11 @@ public class CircuitManager {
 		
 		graphics.save();
 		graphics.setFill(Color.LIGHTGRAY);
-		graphics.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+		graphics.fillRect(0, 0, getCanvas().getWidth(), getCanvas().getHeight());
 		
 		graphics.setFill(Color.BLACK);
-		for(int i = 0; i < canvas.getWidth(); i += GuiUtils.BLOCK_SIZE) {
-			for(int j = 0; j < canvas.getHeight(); j += GuiUtils.BLOCK_SIZE) {
+		for(int i = 0; i < getCanvas().getWidth(); i += GuiUtils.BLOCK_SIZE) {
+			for(int j = 0; j < getCanvas().getHeight(); j += GuiUtils.BLOCK_SIZE) {
 				graphics.fillRect(i, j, 1, 1);
 			}
 		}
@@ -331,7 +339,8 @@ public class CircuitManager {
 		if(System.nanoTime() - messageSetTime < MESSAGE_POST_DURATION * 1000000L) {
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
 			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(message, (canvas.getWidth() - bounds.getWidth()) * 0.5, canvas.getHeight() - 50);
+			graphics.strokeText(message, (getCanvas().getWidth() - bounds.getWidth()) * 0.5,
+			                    getCanvas().getHeight() - 50);
 		}
 		
 		graphics.save();
@@ -477,7 +486,8 @@ public class CircuitManager {
 						selectedElementsMap.put(selectedElement,
 						                        new Point2D(selectedElement.getX(), selectedElement.getY()));
 						
-						if(selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
+						if(circuitBoard.getCurrentState() == getCircuit().getTopLevelState() &&
+								   selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
 							((PinPeer)selectedElement).clicked(circuitBoard.getCurrentState(),
 							                                   (int)e.getX(),
 							                                   (int)e.getY());

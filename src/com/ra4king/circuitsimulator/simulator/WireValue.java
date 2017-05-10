@@ -30,6 +30,12 @@ public class WireValue {
 		System.arraycopy(value.bits, 0, bits, 0, bits.length);
 	}
 	
+	public WireValue(WireValue value, int newSize) {
+		bits = new State[newSize];
+		setAllBits(State.ZERO);
+		System.arraycopy(value.bits, 0, bits, 0, newSize < value.bits.length ? newSize : value.bits.length);
+	}
+	
 	public WireValue merge(WireValue value) {
 		if(getBitSize() != value.getBitSize()) {
 			throw new IllegalArgumentException("Cannot merge different bit-sized wires");

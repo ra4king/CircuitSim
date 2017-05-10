@@ -1,6 +1,8 @@
 package com.ra4king.circuitsimulator.simulator;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
@@ -26,6 +28,10 @@ public class CircuitState {
 		return circuit;
 	}
 	
+	public HashMap<Component, Object> getComponentProperties() {
+		return componentProperties;
+	}
+	
 	public Object getComponentProperty(Component component) {
 		return componentProperties.get(component);
 	}
@@ -34,8 +40,8 @@ public class CircuitState {
 		componentProperties.put(component, property);
 	}
 	
-	public void removeComponentProperty(Component component) {
-		componentProperties.remove(component);
+	public Object removeComponentProperty(Component component) {
+		return componentProperties.remove(component);
 	}
 	
 	public WireValue getMergedValue(Link link) {
@@ -187,19 +193,25 @@ public class CircuitState {
 		}
 		
 		void propagate() {
+			Set<Port> toNotify = new HashSet<>();
+			
 			for(Port participantPort : participants.keySet()) {
 				try {
 					WireValue incomingValue = getIncomingValue(participantPort);
 					WireValue lastReceived = getLastReceived(participantPort);
 					if(!lastReceived.equals(incomingValue)) {
 						lastReceived.set(incomingValue);
-						participantPort.component.valueChanged(CircuitState.this,
-						                                       incomingValue,
-						                                       participantPort.portIndex);
+						toNotify.add(participantPort);
 					}
 				} catch(ShortCircuitException exc) {
 					// ignore short circuits
 				}
+			}
+			
+			for(Port participantPort : toNotify) {
+				participantPort.component.valueChanged(CircuitState.this,
+				                                       getLastReceived(participantPort),
+				                                       participantPort.portIndex);
 			}
 		}
 		

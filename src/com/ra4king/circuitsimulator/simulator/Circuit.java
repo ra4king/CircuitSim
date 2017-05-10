@@ -38,12 +38,28 @@ public class Circuit {
 		}
 		
 		component.setCircuit(this);
-		states.forEach(component::init);
 		components.add(component);
+		states.forEach(state -> component.init(state, null));
 		
 		listeners.forEach(listener -> listener.circuitChanged(this, component, true));
 		
 		return component;
+	}
+	
+	public <T extends Component> void updateComponent(T oldComponent, T newComponent, Runnable inBetween) {
+		oldComponent.setCircuit(null);
+		components.remove(oldComponent);
+		states.forEach(oldComponent::uninit);
+		
+		listeners.forEach(listener -> listener.circuitChanged(this, oldComponent, false));
+		
+		inBetween.run();
+		
+		newComponent.setCircuit(this);
+		components.add(newComponent);
+		states.forEach(state -> newComponent.init(state, state.removeComponentProperty(oldComponent)));
+		
+		listeners.forEach(listener -> listener.circuitChanged(this, newComponent, true));
 	}
 	
 	public void removeComponent(Component component) {
@@ -77,6 +93,10 @@ public class Circuit {
 	
 	public void addListener(CircuitChangeListener listener) {
 		listeners.add(listener);
+	}
+	
+	public List<CircuitChangeListener> getListeners() {
+		return listeners;
 	}
 	
 	public void removeListener(CircuitChangeListener listener) {

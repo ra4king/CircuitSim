@@ -634,6 +634,7 @@ public class Properties {
 			loadButton.setOnAction(event -> {
 				FileChooser fileChooser = new FileChooser();
 				fileChooser.setTitle("Choose save file");
+				fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
 				File selectedFile = fileChooser.showOpenDialog(memoryStage);
 				if(selectedFile != null) {
 					try {

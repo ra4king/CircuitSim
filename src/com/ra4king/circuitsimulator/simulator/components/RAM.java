@@ -78,8 +78,7 @@ public class RAM extends Component {
 	}
 	
 	@Override
-	public void init(CircuitState circuitState) {
-		super.init(circuitState);
+	public void init(CircuitState circuitState, Object lastProperty) {
 		circuitState.putComponentProperty(this, new int[1 << addressBits]);
 	}
 	

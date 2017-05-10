@@ -28,7 +28,7 @@ public class Constant extends Component {
 	}
 	
 	@Override
-	public void init(CircuitState circuitState) {
+	public void init(CircuitState circuitState, Object lastProperty) {
 		circuitState.pushValue(getPort(PORT), WireValue.of(value, bitSize));
 	}
 	

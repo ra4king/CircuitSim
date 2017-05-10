@@ -35,6 +35,10 @@ public class Simulator {
 		circuits.add(circuit);
 	}
 	
+	public synchronized void removeCircuit(Circuit circuit) {
+		circuits.remove(circuit);
+	}
+	
 	public synchronized void valueChanged(CircuitState state, Port port) {
 		valueChanged(state, port.getLink());
 	}

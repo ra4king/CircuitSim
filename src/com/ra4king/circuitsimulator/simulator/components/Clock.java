@@ -93,9 +93,7 @@ public class Clock extends Component {
 	}
 	
 	@Override
-	public void init(CircuitState circuitState) {
-		super.init(circuitState);
-		
+	public void init(CircuitState circuitState, Object lastProperty) {
 		circuitState.pushValue(getPort(PORT), WireValue.of(clock ? 1 : 0, 1));
 	}
 	

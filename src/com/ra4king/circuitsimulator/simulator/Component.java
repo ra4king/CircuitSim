@@ -41,7 +41,7 @@ public abstract class Component {
 		return ports.length;
 	}
 	
-	public void init(CircuitState circuitState) {}
+	public void init(CircuitState circuitState, Object lastProperty) {}
 	
 	public void uninit(CircuitState circuitState) {}
 	

@@ -46,6 +46,10 @@ public class CircuitBoard {
 		connectionsMap = new HashMap<>();
 	}
 	
+	public void destroy() {
+		circuit.getSimulator().removeCircuit(circuit);
+	}
+	
 	public Circuit getCircuit() {
 		return circuit;
 	}
@@ -96,7 +100,7 @@ public class CircuitBoard {
 	
 	public void addComponent(ComponentPeer<?> component) throws Exception {
 		for(ComponentPeer<?> c : components) {
-			if(c.getX() == component.getX() && c.getY() == component.getY()) {
+			if(c != component && c.getX() == component.getX() && c.getY() == component.getY()) {
 				throw new IllegalStateException("Cannot place component here.");
 			}
 		}
@@ -144,6 +148,20 @@ public class CircuitBoard {
 		rejoinWires();
 		
 		runSim();
+	}
+	
+	public void updateComponent(ComponentPeer<?> oldComponent, ComponentPeer<?> newComponent) throws Exception {
+		removeComponent(oldComponent);
+		
+		try {
+			circuit.updateComponent(oldComponent.getComponent(), newComponent.getComponent(),
+			                        () -> components.add(newComponent));
+		} catch(Exception exc) {
+			components.remove(newComponent);
+			throw exc;
+		}
+		
+		addComponent(newComponent);
 	}
 	
 	public void initMove(Set<GuiElement> elements) throws Exception {
@@ -208,7 +226,10 @@ public class CircuitBoard {
 		
 		for(GuiElement element : elements) {
 			if(element instanceof ComponentPeer<?>) {
-				removeComponent((ComponentPeer<?>)element, removeFromCircuit);
+				removeComponent((ComponentPeer<?>)element);
+				if(removeFromCircuit) {
+					circuit.removeComponent(((ComponentPeer<?>)element).getComponent());
+				}
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
 				if(!links.contains(wire.getLinkWires())) {
@@ -457,7 +478,7 @@ public class CircuitBoard {
 		}
 	}
 	
-	private void removeComponent(ComponentPeer<?> component, boolean removeFromCircuit) {
+	private void removeComponent(ComponentPeer<?> component) {
 		for(Connection connection : component.getConnections()) {
 			removeConnection(connection);
 			
@@ -473,10 +494,6 @@ public class CircuitBoard {
 		}
 		if(!components.remove(component)) {
 			throw new IllegalStateException("Couldn't find component!");
-		}
-		
-		if(removeFromCircuit) {
-			circuit.removeComponent(component.getComponent());
 		}
 	}
 	

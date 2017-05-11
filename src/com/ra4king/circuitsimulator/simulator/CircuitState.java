@@ -118,6 +118,16 @@ public class CircuitState {
 		}
 	}
 	
+	public void ensureUnlinked(Component component) {
+		for(int i = 0; i < component.getNumPorts(); i++) {
+			Port port = component.getPort(i);
+			Link link = port.getLink();
+			if(link != null && linkStates.containsKey(link) && linkStates.get(link).participants.size() > 1) {
+				throw new RuntimeException("Must unlink port before removing it.");
+			}
+		}
+	}
+	
 	private class LinkState {
 		private final Link link;
 		private final HashMap<Port, PortStateInfo> participants;

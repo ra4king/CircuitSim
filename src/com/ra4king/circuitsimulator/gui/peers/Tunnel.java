@@ -142,7 +142,8 @@ public class Tunnel extends ComponentPeer<Component> {
 		
 		if(tunnels.containsKey(label)) {
 			for(Tunnel tunnel : tunnels.get(label)) {
-				if(tunnel.getComponent().getPort(0).getLink().getBitSize() != bitSize) {
+				if(tunnel.getComponent().getCircuit() == getComponent().getCircuit() &&
+						   tunnel.getComponent().getPort(0).getLink().getBitSize() != bitSize) {
 					return true;
 				}
 			}
@@ -224,7 +225,7 @@ public class Tunnel extends ComponentPeer<Component> {
 		}
 		
 		if(isIncompatible) {
-			PortConnection port = (PortConnection)getConnections().get(0);
+			PortConnection port = getConnections().get(0);
 			
 			graphics.setStroke(Color.BLACK);
 			graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),

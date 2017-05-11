@@ -1,6 +1,5 @@
 package com.ra4king.circuitsimulator.gui;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -71,7 +70,7 @@ public class CircuitManager {
 	public CircuitManager(CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
 		this.simulatorWindow = simulatorWindow;
 		this.canvasScrollPane = canvasScrollPane;
-		circuitBoard = new CircuitBoard(simulator);
+		circuitBoard = new CircuitBoard(this, simulator, simulatorWindow.getEditHistory());
 		
 		getCanvas().setOnContextMenuRequested(event -> {
 			menu = new ContextMenu();
@@ -144,15 +143,13 @@ public class CircuitManager {
 	}
 	
 	private void updateSelectedProperties() {
-		long componentCount = selectedElementsMap.keySet().stream()
-		                                         .filter(element -> element instanceof ComponentPeer<?>)
-		                                         .count();
-		if(componentCount == 1) {
-			ComponentPeer<?> peer = selectedElementsMap.keySet().stream()
-			                                           .filter(element -> element instanceof ComponentPeer<?>)
-			                                           .map(element -> ((ComponentPeer<?>)element))
-			                                           .findAny().get();
-			simulatorWindow.setProperties(peer);
+		Optional<? extends ComponentPeer<?>> peer =
+				selectedElementsMap.keySet().stream()
+				                   .filter(element -> element instanceof ComponentPeer<?>)
+				                   .map(element -> ((ComponentPeer<?>)element))
+				                   .findAny();
+		if(peer.isPresent()) {
+			simulatorWindow.setProperties(peer.get());
 		} else {
 			simulatorWindow.setProperties("Multiple selections", getCommonSelectedProperties());
 		}
@@ -201,26 +198,13 @@ public class CircuitManager {
 			                                                                  element -> new Point2D(element.getX(),
 			                                                                                         element.getY())));
 			
-			
 			return getCommonSelectedProperties();
+		} else if(!selectedElementsMap.isEmpty()) {
+			selectedElementsMap = new HashMap<>();
 		}
 		
 		potentialComponent = null;
 		return new Properties();
-	}
-	
-	public void recreateComponent(ComponentPeer<?> componentPeer, Properties newProperties) throws Exception {
-		circuitBoard.removeElements(Collections.singleton(componentPeer));
-		
-		ComponentPeer<?> newComponent =
-				ComponentManager.forClass(componentPeer.getClass())
-				                .createComponent(newProperties, componentPeer.getX(), componentPeer.getY());
-		
-		circuitBoard.addComponent(newComponent);
-		
-		if(selectedElementsMap.containsKey(componentPeer)) {
-			selectedElementsMap.put(newComponent, selectedElementsMap.remove(componentPeer));
-		}
 	}
 	
 	private long lastRepaint = System.nanoTime();
@@ -521,6 +505,7 @@ public class CircuitManager {
 			              : endConnection.getY();
 			
 			if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
+				simulatorWindow.getEditHistory().beginGroup();
 				if(isDraggedHorizontally) {
 					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
 					                                    endMidX - startConnection.getX(), true));
@@ -532,6 +517,7 @@ public class CircuitManager {
 					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), endMidY,
 					                                    endMidX - startConnection.getX(), true));
 				}
+				simulatorWindow.getEditHistory().endGroup();
 			} else if(endMidX - startConnection.getX() != 0) {
 				mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
 				                                    endMidX - startConnection.getX(), true));

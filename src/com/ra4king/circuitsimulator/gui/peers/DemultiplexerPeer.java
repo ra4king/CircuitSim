@@ -46,7 +46,8 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 			connections.add(new PortConnection(this, demux.getOutputPort(i), getWidth(), i + 1));
 		}
 		
-		connections.add(new PortConnection(this, demux.getSelectorPort(), "Selector", getWidth() / 2, getHeight()));
+		connections.add(new PortConnection(this, demux.getSelectorPort(), "Selector", getWidth() / 2 + 1, getHeight
+				                                                                                                  ()));
 		connections.add(new PortConnection(this, demux.getInputPort(), "In", 0, getHeight() / 2));
 		
 		init(demux, properties, connections);

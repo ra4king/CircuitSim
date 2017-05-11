@@ -38,6 +38,7 @@ import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.Event;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -113,7 +114,8 @@ public class CircuitSimulator extends Application {
 	
 	private File saveFile, lastSaveFile;
 	
-	private boolean hasUnsavedChanges;
+	private EditHistory editHistory;
+	private int savedEditStackSize;
 	
 	private int currentClockHz = 1;
 	
@@ -128,9 +130,15 @@ public class CircuitSimulator extends Application {
 						try {
 							manager.getCircuitBoard().runSim();
 						} catch(Exception exc) {
+							System.out.println("RunSim has thrown an exception: " + exc);
+							exc.printStackTrace();
 						}
 					}
 				}));
+	}
+	
+	public EditHistory getEditHistory() {
+		return editHistory;
 	}
 	
 	public Stage getStage() {
@@ -327,24 +335,13 @@ public class CircuitSimulator extends Application {
 			buttons.addRow(buttons.getChildren().size(), toggleButton);
 		});
 	}
-
-//	private boolean hasUnsavedChanges() {
-//		for(Pair<ComponentLauncherInfo, CircuitManager> circuitPair : circuitManagers.values()) {
-//			if(!circuitPair.getValue().getCircuitBoard().getComponents().isEmpty()
-//					   || !circuitPair.getValue().getCircuitBoard().getLinks().isEmpty()) {
-//				return true;
-//			}
-//		}
-//		
-//		return circuitManagers.size() > 1;
-//	}
 	
 	private void updateTitle() {
 		String name = "";
 		if(saveFile != null) {
 			name = " - " + saveFile.getName();
 		}
-		if(hasUnsavedChanges) {
+		if(editHistory.editStackSize() != savedEditStackSize) {
 			name += " *";
 		}
 		stage.setTitle("Circuit simulator" + name);
@@ -417,14 +414,13 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private void circuitModified(Circuit circuit, Component component, boolean added) {
-		circuitManagers.values().stream().map(Pair::getValue).forEach(this::updateCanvasSize);
+		if(component == null || !added) {
+			clearSelection();
+		}
 		
 		if(component != null && !(component instanceof Pin)) {
 			return;
 		}
-		
-		hasUnsavedChanges = true;
-		updateTitle();
 		
 		circuitManagers.values().forEach(componentPair -> {
 			for(ComponentPeer<?> componentPeer :
@@ -451,9 +447,12 @@ public class CircuitSimulator extends Application {
 									                   componentPeer.getY());
 							
 							try {
+								editHistory.disable();
 								componentPair.getValue().getCircuitBoard().updateComponent(peer, newSubcircuit);
 							} catch(Exception exc) {
 								exc.printStackTrace();
+							} finally {
+								editHistory.enable();
 							}
 							
 							node.subcircuit = newSubcircuit.getComponent();
@@ -513,6 +512,85 @@ public class CircuitSimulator extends Application {
 		
 		for(CircuitNode child : node.children) {
 			resetSubcircuitStates(child);
+		}
+	}
+	
+	private void checkUnsavedChanges(Event event) {
+		if(editHistory.editStackSize() != savedEditStackSize) {
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Unsaved changes");
+			alert.setHeaderText("Unsaved changes");
+			alert.setContentText("There are unsaved changes, do you want to save them?");
+			
+			ButtonType discard = new ButtonType("Discard", ButtonData.NO);
+			alert.getButtonTypes().add(discard);
+			
+			Optional<ButtonType> result = alert.showAndWait();
+			if(result.isPresent()) {
+				if(result.get() == ButtonType.OK) {
+					saveCircuit();
+					if(saveFile == null && event != null) {
+						event.consume();
+					}
+				} else if(result.get() == ButtonType.CANCEL && event != null) {
+					event.consume();
+				}
+			}
+		}
+	}
+	
+	private void saveCircuit() {
+		if(saveFile == null) {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Choose sim file");
+			fileChooser.setInitialDirectory(lastSaveFile == null ? new File(System.getProperty("user.dir"))
+			                                                     : lastSaveFile.getParentFile());
+			fileChooser.setInitialFileName("My circuit.sim");
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
+			saveFile = fileChooser.showSaveDialog(stage);
+		}
+		
+		if(saveFile != null) {
+			lastSaveFile = saveFile;
+			
+			List<CircuitInfo> circuits = new ArrayList<>();
+			
+			canvasTabPane.getTabs().forEach(tab -> {
+				String name = tab.getText();
+				
+				CircuitManager manager = circuitManagers.get(name).getValue();
+				
+				Set<ComponentInfo> components =
+						manager.getCircuitBoard()
+						       .getComponents().stream()
+						       .map(component ->
+								            new ComponentInfo(component.getClass().getName(),
+								                              component.getX(), component.getY(),
+								                              component.getProperties())).collect(
+								Collectors.toSet());
+				Set<WireInfo> wires = manager.getCircuitBoard()
+				                             .getLinks().stream()
+				                             .flatMap(linkWires -> linkWires.getWires().stream())
+				                             .map(wire -> new WireInfo(wire.getX(), wire.getY(),
+				                                                       wire.getLength(), wire.isHorizontal()))
+				                             .collect(Collectors.toSet());
+				
+				circuits.add(new CircuitInfo(name, components, wires));
+			});
+			
+			try {
+				FileFormat.save(saveFile, circuits);
+				savedEditStackSize = editHistory.editStackSize();
+				updateTitle();
+			} catch(Exception exc) {
+				exc.printStackTrace();
+				
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error saving circuit");
+				alert.setHeaderText("Error saving circuit.");
+				alert.setContentText("Error when saving the circuits: " + exc.getMessage());
+				alert.show();
+			}
 		}
 	}
 	
@@ -618,6 +696,12 @@ public class CircuitSimulator extends Application {
 	public void start(Stage stage) {
 		this.stage = stage;
 		
+		editHistory = new EditHistory();
+		editHistory.addListener((action, manager, params) -> {
+			updateTitle();
+			circuitManagers.values().stream().map(Pair::getValue).forEach(this::updateCanvasSize);
+		});
+		
 		componentManager = new ComponentManager();
 		
 		bitSizeSelect = new ComboBox<>();
@@ -694,6 +778,8 @@ public class CircuitSimulator extends Application {
 		MenuItem load = new MenuItem("Load");
 		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.CONTROL_DOWN));
 		load.setOnAction(event -> {
+			checkUnsavedChanges(null);
+			
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Choose sim file");
 			fileChooser.setInitialDirectory(lastSaveFile == null ? new File(System.getProperty("user.dir"))
@@ -757,9 +843,6 @@ public class CircuitSimulator extends Application {
 					if(circuits.size() == 0) {
 						createCircuit("New circuit");
 					}
-					
-					hasUnsavedChanges = false;
-					updateTitle();
 				} catch(Exception exc) {
 					circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
 					circuitManagers.clear();
@@ -773,66 +856,16 @@ public class CircuitSimulator extends Application {
 					alert.setContentText("Error when loading circuits file: " + exc.getMessage()
 							                     + "\nPlease send the stack trace to a developer.");
 					alert.show();
+				} finally {
+					editHistory.clear();
+					savedEditStackSize = 0;
 				}
 			}
 		});
 		
 		MenuItem save = new MenuItem("Save");
 		save.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN));
-		save.setOnAction(event -> {
-			if(saveFile == null) {
-				FileChooser fileChooser = new FileChooser();
-				fileChooser.setTitle("Choose sim file");
-				fileChooser.setInitialDirectory(lastSaveFile == null ? new File(System.getProperty("user.dir"))
-				                                                     : lastSaveFile.getParentFile());
-				fileChooser.setInitialFileName("My circuit.sim");
-				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
-				saveFile = fileChooser.showSaveDialog(stage);
-			}
-			
-			if(saveFile != null) {
-				lastSaveFile = saveFile;
-				
-				List<CircuitInfo> circuits = new ArrayList<>();
-				
-				canvasTabPane.getTabs().forEach(tab -> {
-					String name = tab.getText();
-					
-					CircuitManager manager = circuitManagers.get(name).getValue();
-					
-					Set<ComponentInfo> components =
-							manager.getCircuitBoard()
-							       .getComponents().stream()
-							       .map(component ->
-									            new ComponentInfo(component.getClass().getName(),
-									                              component.getX(), component.getY(),
-									                              component.getProperties())).collect(
-									Collectors.toSet());
-					Set<WireInfo> wires = manager.getCircuitBoard()
-					                             .getLinks().stream()
-					                             .flatMap(linkWires -> linkWires.getWires().stream())
-					                             .map(wire -> new WireInfo(wire.getX(), wire.getY(),
-					                                                       wire.getLength(), wire.isHorizontal()))
-					                             .collect(Collectors.toSet());
-					
-					circuits.add(new CircuitInfo(name, components, wires));
-				});
-				
-				try {
-					FileFormat.save(saveFile, circuits);
-					hasUnsavedChanges = false;
-					updateTitle();
-				} catch(Exception exc) {
-					exc.printStackTrace();
-					
-					Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Error saving circuit");
-					alert.setHeaderText("Error saving circuit.");
-					alert.setContentText("Error when saving the circuits: " + exc.getMessage());
-					alert.show();
-				}
-			}
-		});
+		save.setOnAction(event -> saveCircuit());
 		
 		MenuItem saveAs = new MenuItem("Save as");
 		saveAs.setAccelerator(
@@ -851,6 +884,27 @@ public class CircuitSimulator extends Application {
 		});
 		
 		fileMenu.getItems().addAll(load, save, saveAs);
+		
+		Menu editMenu = new Menu("Edit");
+		MenuItem undo = new MenuItem("Undo");
+		undo.setAccelerator(new KeyCharacterCombination("Z", KeyCombination.CONTROL_DOWN));
+		undo.setOnAction(event -> {
+			CircuitManager manager = editHistory.undo();
+			if(manager != null) {
+				switchToCircuit(manager.getCircuit());
+			}
+		});
+		
+		MenuItem redo = new MenuItem("Redo");
+		redo.setAccelerator(new KeyCharacterCombination("Y", KeyCombination.CONTROL_DOWN));
+		redo.setOnAction(event -> {
+			CircuitManager manager = editHistory.redo();
+			if(manager != null) {
+				switchToCircuit(manager.getCircuit());
+			}
+		});
+		
+		editMenu.getItems().addAll(undo, redo);
 		
 		Menu circuitsMenu = new Menu("Circuits");
 		MenuItem newCircuit = new MenuItem("New circuit");
@@ -892,12 +946,16 @@ public class CircuitSimulator extends Application {
 		
 		clockMenu.getItems().addAll(startClock, tickClock, frequenciesMenu);
 		
-		menuBar.getMenus().addAll(fileMenu, circuitsMenu, clockMenu);
+		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, clockMenu);
 		
 		componentLabel.setFont(Font.font("Sans serif", 16));
-		VBox propertiesBox = new VBox(componentLabel, propertiesTable);
+		
+		ScrollPane propertiesScrollPane = new ScrollPane(propertiesTable);
+		propertiesScrollPane.setFitToWidth(true);
+		
+		VBox propertiesBox = new VBox(componentLabel, propertiesScrollPane);
 		propertiesBox.setAlignment(Pos.TOP_CENTER);
-		VBox.setVgrow(propertiesTable, Priority.ALWAYS);
+		VBox.setVgrow(propertiesScrollPane, Priority.ALWAYS);
 		
 		SplitPane leftPaneSplit = new SplitPane(buttonTabPane, propertiesBox);
 		leftPaneSplit.setOrientation(Orientation.VERTICAL);
@@ -942,29 +1000,7 @@ public class CircuitSimulator extends Application {
 		stage.show();
 		stage.centerOnScreen();
 		
-		stage.setOnCloseRequest(event -> {
-			if(hasUnsavedChanges) {
-				Alert alert = new Alert(AlertType.CONFIRMATION);
-				alert.setTitle("Unsaved changes");
-				alert.setHeaderText("Unsaved changes");
-				alert.setContentText("There are unsaved changes, do you want to save them?");
-				
-				ButtonType discard = new ButtonType("Discard", ButtonData.NO);
-				alert.getButtonTypes().add(discard);
-				
-				Optional<ButtonType> result = alert.showAndWait();
-				if(result.isPresent()) {
-					if(result.get() == ButtonType.OK) {
-						save.fire();
-						if(saveFile == null) {
-							event.consume();
-						}
-					} else if(result.get() == ButtonType.CANCEL) {
-						event.consume();
-					}
-				}
-			}
-		});
+		stage.setOnCloseRequest(this::checkUnsavedChanges);
 		
 		new AnimationTimer() {
 			@Override
@@ -1053,7 +1089,6 @@ public class CircuitSimulator extends Application {
 		if(manager != null) {
 			manager.mouseDragged(e);
 		}
-		;
 	}
 	
 	public void mouseEntered(MouseEvent e) {

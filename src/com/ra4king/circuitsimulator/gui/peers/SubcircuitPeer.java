@@ -111,7 +111,8 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 	}
 	
 	public void switchToSubcircuit(CircuitManager circuit) {
-		CircuitManager manager = circuit.getSimulatorWindow().switchToCircuit(getComponent().getSubcircuit());
+		circuit.getSimulatorWindow().switchToCircuit(getComponent().getSubcircuit());
+		CircuitManager manager = circuit.getSimulatorWindow().getCircuitManager(getComponent().getSubcircuit());
 		manager.getCircuitBoard()
 		       .setCurrentState(getComponent().getSubcircuitState(circuit.getCircuitBoard().getCurrentState()));
 	}

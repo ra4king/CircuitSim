@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentLauncherInfo;
+import com.ra4king.circuitsimulator.gui.EditHistory.EditAction;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
@@ -147,7 +148,15 @@ public class CircuitSimulator extends Application {
 	
 	private CircuitManager getCurrentCircuit() {
 		Tab tab = canvasTabPane.getSelectionModel().getSelectedItem();
-		return tab == null ? null : circuitManagers.get(tab.getText()).getValue();
+		
+		// sigh yes this sometimes happens
+		if(!canvasTabPane.getTabs().contains(tab)) {
+			return null;
+		}
+		
+		return tab == null || circuitManagers.get(tab.getText()) == null
+		       ? null
+		       : circuitManagers.get(tab.getText()).getValue();
 	}
 	
 	public String getCircuitName(CircuitManager manager) {
@@ -174,19 +183,66 @@ public class CircuitSimulator extends Application {
 		return null;
 	}
 	
-	public CircuitManager switchToCircuit(Circuit circuit) {
+	private Tab getTabForCircuit(Circuit circuit) {
 		for(Entry<String, Pair<ComponentLauncherInfo, CircuitManager>> entry : circuitManagers.entrySet()) {
 			if(entry.getValue().getValue().getCircuit() == circuit) {
 				for(Tab tab : canvasTabPane.getTabs()) {
 					if(tab.getText().equals(entry.getKey())) {
-						canvasTabPane.getSelectionModel().select(tab);
-						return entry.getValue().getValue();
+						return tab;
 					}
 				}
 			}
 		}
 		
 		return null;
+	}
+	
+	public void switchToCircuit(Circuit circuit) {
+		Tab tab = getTabForCircuit(circuit);
+		if(tab != null) {
+			canvasTabPane.getSelectionModel().select(tab);
+		}
+	}
+	
+	public void readdCircuit(CircuitManager manager, Tab tab, int index) {
+		canvasTabPane.getTabs().add(Math.min(index, canvasTabPane.getTabs().size()), tab);
+		circuitManagers.put(tab.getText(), new Pair<>(createCircuitLauncherInfo(tab.getText()), manager));
+		
+		canvasTabPane.getSelectionModel().select(tab);
+		
+		refreshCircuitsTab();
+	}
+	
+	public void deleteCircuit(CircuitManager manager, boolean removeTab) {
+		Tab tab = getTabForCircuit(manager.getCircuit());
+		if(tab == null) {
+			throw new IllegalStateException("Tab shouldn't be null.");
+		}
+		
+		int idx = canvasTabPane.getTabs().indexOf(tab);
+		if(idx == -1) throw new IllegalStateException("Tab should be in the tab pane.");
+		
+		if(removeTab) {
+			canvasTabPane.getTabs().remove(tab);
+		}
+		
+		editHistory.beginGroup();
+		
+		Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(tab.getText());
+		circuitModified(removed.getValue().getCircuit(), null, false);
+		
+		editHistory.addAction(EditAction.DELETE_CIRCUIT, manager, tab, idx);
+		
+		if(!removeTab && canvasTabPane.getTabs().size() == 1) {
+			createCircuit("New circuit");
+			canvasTabPane.getSelectionModel().select(0);
+		} else {
+			canvasTabPane.getSelectionModel().select(Math.max(0, idx - 1));
+		}
+		
+		editHistory.endGroup();
+		
+		refreshCircuitsTab();
 	}
 	
 	public void clearProperties() {
@@ -328,9 +384,10 @@ public class CircuitSimulator extends Application {
 			circuitButtonsTab.setContent(new GridPane());
 		}
 		
-		circuitManagers.forEach((name, circuitPair) -> {
-			GridPane buttons = (GridPane)circuitButtonsTab.getContent();
+		circuitManagers.keySet().stream().sorted().forEach((name) -> {
+			Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
 			
+			GridPane buttons = (GridPane)circuitButtonsTab.getContent();
 			ToggleButton toggleButton = setupButton(buttonsToggleGroup, circuitPair.getKey());
 			buttons.addRow(buttons.getChildren().size(), toggleButton);
 		});
@@ -362,7 +419,9 @@ public class CircuitSimulator extends Application {
 		                                 getSubcircuitPeerCreator(name));
 	}
 	
-	private void renameCircuit(String oldName, String newName) {
+	public void renameCircuit(Tab tab, String newName) {
+		String oldName = tab.getText();
+		
 		Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.get(oldName);
 		Pair<ComponentLauncherInfo, CircuitManager> newPair =
 				new Pair<>(createCircuitLauncherInfo(newName), removed.getValue());
@@ -387,6 +446,10 @@ public class CircuitSimulator extends Application {
 				}
 			}
 		});
+		
+		tab.setText(newName);
+		
+		editHistory.addAction(EditAction.RENAME_CIRCUIT, null, this, tab, oldName, newName);
 	}
 	
 	private void updateCanvasSize(CircuitManager circuitManager) {
@@ -414,10 +477,6 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private void circuitModified(Circuit circuit, Component component, boolean added) {
-		if(component == null || !added) {
-			clearSelection();
-		}
-		
 		if(component != null && !(component instanceof Pin)) {
 			return;
 		}
@@ -643,8 +702,7 @@ public class CircuitSimulator extends Application {
 					Optional<String> value = dialog.showAndWait();
 					if(value.isPresent() && !(lastTyped = value.get().trim()).isEmpty()
 							   && !lastTyped.equals(canvasTab.getText())) {
-						renameCircuit(canvasTab.getText(), lastTyped);
-						canvasTab.setText(value.get());
+						renameCircuit(canvasTab, lastTyped);
 					}
 					break;
 				} catch(Exception exc) {
@@ -673,14 +731,7 @@ public class CircuitSimulator extends Application {
 			if(!result.isPresent() || result.get() != ButtonType.OK) {
 				event.consume();
 			} else {
-				Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(canvasTab.getText());
-				circuitModified(removed.getValue().getCircuit(), null, false);
-				
-				if(canvasTabPane.getTabs().size() == 1) {
-					createCircuit("New circuit");
-				}
-				
-				refreshCircuitsTab();
+				deleteCircuit(circuitManager, false);
 			}
 		});
 		
@@ -688,6 +739,9 @@ public class CircuitSimulator extends Application {
 		canvasTabPane.getTabs().add(canvasTab);
 		
 		refreshCircuitsTab();
+		
+		editHistory.addAction(EditAction.CREATE_CIRCUIT, circuitManager, canvasTab, canvasTabPane.getTabs().size() -
+				                                                                            1);
 		
 		return circuitManager;
 	}
@@ -745,9 +799,8 @@ public class CircuitSimulator extends Application {
 			                            ? null : circuitManagers.get(newValue.getText()).getValue();
 			if(oldManager != null && newManager != null) {
 				newManager.setLastMousePosition(oldManager.getLastMousePosition());
+				modifiedSelection(selectedComponent);
 			}
-			
-			modifiedSelection(selectedComponent);
 		});
 		
 		buttonsToggleGroup = new ToggleGroup();
@@ -771,7 +824,9 @@ public class CircuitSimulator extends Application {
 			buttons.addRow(buttons.getChildren().size(), toggleButton);
 		});
 		
+		editHistory.disable();
 		createCircuit("New circuit");
+		editHistory.enable();
 		
 		MenuBar menuBar = new MenuBar();
 		Menu fileMenu = new Menu("File");

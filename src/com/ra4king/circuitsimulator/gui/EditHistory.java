@@ -9,11 +9,40 @@ import java.util.Set;
 
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 
+import javafx.scene.control.Tab;
+
 /**
  * @author Roi Atalla
  */
 public class EditHistory {
 	public enum EditAction {
+		CREATE_CIRCUIT {
+			protected void redo(CircuitManager manager, Object[] params) {
+				manager.getSimulatorWindow().readdCircuit(manager, (Tab)params[0], (int)params[1]);
+			}
+			
+			protected void undo(CircuitManager manager, Object[] params) {
+				manager.getSimulatorWindow().deleteCircuit(manager, true);
+			}
+		},
+		RENAME_CIRCUIT {
+			protected void redo(CircuitManager manager, Object[] params) {
+				((CircuitSimulator)params[0]).renameCircuit((Tab)params[1], (String)params[3]);
+			}
+			
+			protected void undo(CircuitManager manager, Object[] params) {
+				((CircuitSimulator)params[0]).renameCircuit((Tab)params[1], (String)params[2]);
+			}
+		},
+		DELETE_CIRCUIT {
+			protected void redo(CircuitManager manager, Object[] params) {
+				CREATE_CIRCUIT.undo(manager, params);
+			}
+			
+			protected void undo(CircuitManager manager, Object[] params) {
+				CREATE_CIRCUIT.redo(manager, params);
+			}
+		},
 		ADD_COMPONENT {
 			protected void redo(CircuitManager manager, Object[] params) {
 				try {
@@ -228,7 +257,7 @@ public class EditHistory {
 	}
 	
 	public int editStackSize() {
-		return editStack.size();
+		return editStack.size() + (currentGroup == null || currentGroup.isEmpty() ? 0 : 1);
 	}
 	
 	public CircuitManager undo() {
@@ -241,7 +270,9 @@ public class EditHistory {
 		List<Edit> popped = editStack.pop();
 		redoStack.push(popped);
 		
-		for(Edit edit : popped) {
+		for(int i = popped.size() - 1; i >= 0; i--) {
+			Edit edit = popped.get(i);
+			
 			edit.action.undo(edit.circuitManager, edit.params);
 			editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
 		}
@@ -261,9 +292,7 @@ public class EditHistory {
 		List<Edit> popped = redoStack.pop();
 		editStack.push(popped);
 		
-		for(int i = popped.size() - 1; i >= 0; i--) {
-			Edit edit = popped.get(i);
-			
+		for(Edit edit : popped) {
 			edit.action.redo(edit.circuitManager, edit.params);
 			editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
 		}

@@ -105,11 +105,19 @@ public class CircuitBoard {
 		}
 	}
 	
-	public void addComponent(ComponentPeer<?> component) throws Exception {
+	public boolean isValidLocation(ComponentPeer<?> component) {
 		for(ComponentPeer<?> c : components) {
 			if(c != component && c.getX() == component.getX() && c.getY() == component.getY()) {
-				throw new IllegalStateException("Cannot place component here.");
+				return false;
 			}
+		}
+		
+		return true;
+	}
+	
+	public void addComponent(ComponentPeer<?> component) throws Exception {
+		if(!isValidLocation(component)) {
+			throw new IllegalStateException("Cannot place component here.");
 		}
 		
 		// Component must be added before added to the circuit as listeners will be triggered to recreate Subcircuits
@@ -222,6 +230,17 @@ public class CircuitBoard {
 		}
 		
 		editHistory.disable();
+		
+		for(GuiElement element : moveElements) {
+			if(element instanceof ComponentPeer<?> && !isValidLocation((ComponentPeer<?>)element)) {
+				for(GuiElement element1 : moveElements) {
+					element1.setX(element1.getX() - moveDeltaX);
+					element1.setY(element1.getY() - moveDeltaY);
+				}
+				
+				break;
+			}
+		}
 		
 		Exception toThrow = null;
 		for(GuiElement element : moveElements) {

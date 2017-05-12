@@ -34,6 +34,7 @@ public class EditHistory {
 										    && component.getY() == toRemove.getY()
 										    && component.getProperties().equals(toRemove.getProperties()))) {
 							manager.getCircuitBoard().removeElements(Collections.singleton(component));
+							break;
 						}
 					}
 				} catch(Exception exc) {
@@ -160,6 +161,7 @@ public class EditHistory {
 	
 	public void clear() {
 		editStack.clear();
+		redoStack.clear();
 	}
 	
 	private int disableDepth = 0;

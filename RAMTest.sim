@@ -10,11 +10,14 @@
                     "properties": {
                         "Label": "",
                         "Bitsize": "1",
-                        "Address bits": "1",
-                        "Contents": "0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0"
+                        "Address bits": "1"
                     }
                 }
             ],
+            "wires": []
+        },
+        "New circuit1": {
+            "components": [],
             "wires": []
         }
     }

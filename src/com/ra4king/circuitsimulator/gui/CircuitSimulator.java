@@ -859,6 +859,7 @@ public class CircuitSimulator extends Application {
 				} finally {
 					editHistory.clear();
 					savedEditStackSize = 0;
+					updateTitle();
 				}
 			}
 		});

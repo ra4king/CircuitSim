@@ -441,7 +441,9 @@ public class CircuitManager {
 					simulatorWindow.setProperties(newComponent);
 				}
 			} else {
+				HashMap<GuiElement, Point2D> tempElements = new HashMap<>(selectedElementsMap);
 				reset();
+				selectedElementsMap = tempElements;
 				
 				startPoint = new Point2D(e.getX(), e.getY());
 				curDraggedPoint = startPoint;

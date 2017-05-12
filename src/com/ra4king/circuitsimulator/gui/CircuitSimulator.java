@@ -1017,9 +1017,13 @@ public class CircuitSimulator extends Application {
 		leftPaneSplit.setOrientation(Orientation.VERTICAL);
 		leftPaneSplit.setDividerPositions(0.65);
 		
+		SplitPane.setResizableWithParent(buttonTabPane, Boolean.FALSE);
+		
 		SplitPane canvasPropsSplit = new SplitPane(leftPaneSplit, canvasTabPane);
 		canvasPropsSplit.setOrientation(Orientation.HORIZONTAL);
 		canvasPropsSplit.setDividerPositions(0.25);
+		
+		SplitPane.setResizableWithParent(leftPaneSplit, Boolean.FALSE);
 		
 		ToolBar toolBar = new ToolBar();
 		

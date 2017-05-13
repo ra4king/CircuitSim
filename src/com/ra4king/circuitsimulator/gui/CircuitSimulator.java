@@ -43,6 +43,7 @@ import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -102,6 +103,8 @@ public class CircuitSimulator extends Application {
 	
 	private Simulator simulator;
 	
+	private MenuItem toggleClock;
+	
 	private ComponentManager componentManager;
 	
 	private TabPane buttonTabPane;
@@ -137,7 +140,9 @@ public class CircuitSimulator extends Application {
 						try {
 							manager.getCircuitBoard().runSim();
 						} catch(Exception exc) {
-							System.out.println("RunSim has thrown an exception: " + exc);
+							if(Clock.isRunning()) {
+								toggleClock.fire();
+							}
 							exc.printStackTrace();
 						}
 					}
@@ -786,6 +791,7 @@ public class CircuitSimulator extends Application {
 		                     .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
 		
 		buttonTabPane = new TabPane();
+		buttonTabPane.setSide(Side.LEFT);
 		buttonTabPane.setMinWidth(100);
 		
 		propertiesTable = new GridPane();
@@ -858,7 +864,9 @@ public class CircuitSimulator extends Application {
 					System.out.printf("Loaded file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 					
 					clearSelection();
-					Clock.stopClock();
+					if(Clock.isRunning()) {
+						toggleClock.fire();
+					}
 					circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
 					circuitManagers.clear();
 					canvasTabPane.getTabs().clear();
@@ -1101,15 +1109,15 @@ public class CircuitSimulator extends Application {
 		circuitsMenu.getItems().add(newCircuit);
 		
 		Menu clockMenu = new Menu("Clock");
-		MenuItem startClock = new MenuItem("Start clock");
-		startClock.setAccelerator(new KeyCharacterCombination("K", KeyCombination.CONTROL_DOWN));
-		startClock.setOnAction(event -> {
-			if(startClock.getText().startsWith("Start")) {
+		toggleClock = new MenuItem("Start clock");
+		toggleClock.setAccelerator(new KeyCharacterCombination("K", KeyCombination.CONTROL_DOWN));
+		toggleClock.setOnAction(event -> {
+			if(toggleClock.getText().startsWith("Start")) {
 				Clock.startClock(currentClockHz);
-				startClock.setText("Stop clock");
+				toggleClock.setText("Stop clock");
 			} else {
 				Clock.stopClock();
-				startClock.setText("Start clock");
+				toggleClock.setText("Start clock");
 			}
 		});
 		
@@ -1133,7 +1141,7 @@ public class CircuitSimulator extends Application {
 			frequenciesMenu.getItems().add(freq);
 		}
 		
-		clockMenu.getItems().addAll(startClock, tickClock, frequenciesMenu);
+		clockMenu.getItems().addAll(toggleClock, tickClock, frequenciesMenu);
 		
 		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, clockMenu);
 		

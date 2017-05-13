@@ -1015,6 +1015,24 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		
+		MenuItem cut = new MenuItem("Cut");
+		cut.setAccelerator(new KeyCharacterCombination("X", KeyCombination.CONTROL_DOWN));
+		cut.setOnAction(event -> {
+			CircuitManager manager = getCurrentCircuit();
+			if(manager != null) {
+				copy.fire();
+				
+				Set<GuiElement> selectedElements = manager.getSelectedElements();
+				try {
+					manager.getCircuitBoard().removeElements(selectedElements);
+				} catch(Exception exc) {
+					exc.printStackTrace();
+				}
+				
+				clearSelection();
+			}
+		});
+		
 		MenuItem paste = new MenuItem("Paste");
 		paste.setAccelerator(new KeyCharacterCombination("V", KeyCombination.CONTROL_DOWN));
 		paste.setOnAction(event -> {
@@ -1105,7 +1123,7 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		
-		editMenu.getItems().addAll(undo, redo, copy, paste, selectAll);
+		editMenu.getItems().addAll(undo, redo, copy, cut, paste, selectAll);
 		
 		Menu circuitsMenu = new Menu("Circuits");
 		MenuItem newCircuit = new MenuItem("New circuit");

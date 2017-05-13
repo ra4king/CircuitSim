@@ -412,8 +412,9 @@ public class CircuitSimulator extends Application {
 	
 	private ComponentCreator<?> getSubcircuitPeerCreator(String name) {
 		return (props, x, y) -> {
-			props.parseAndSetValue(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(this), name);
-			return ComponentManager.forClass(SubcircuitPeer.class).createComponent(props, x, y);
+			Properties properties = new Properties(props);
+			properties.parseAndSetValue(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(this), name);
+			return ComponentManager.forClass(SubcircuitPeer.class).createComponent(properties, x, y);
 		};
 	}
 	
@@ -1079,7 +1080,20 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		
-		editMenu.getItems().addAll(undo, redo, copy, paste);
+		MenuItem selectAll = new MenuItem("Select All");
+		selectAll.setAccelerator(new KeyCharacterCombination("A", KeyCombination.CONTROL_DOWN));
+		selectAll.setOnAction(event -> {
+			CircuitManager manager = getCurrentCircuit();
+			if(manager != null) {
+				manager.setSelectedElements(
+						Stream.concat(manager.getCircuitBoard().getComponents().stream(),
+						              manager.getCircuitBoard().getLinks()
+						                     .stream().flatMap(link -> link.getWires().stream()))
+						      .collect(Collectors.toSet()));
+			}
+		});
+		
+		editMenu.getItems().addAll(undo, redo, copy, paste, selectAll);
 		
 		Menu circuitsMenu = new Menu("Circuits");
 		MenuItem newCircuit = new MenuItem("New circuit");

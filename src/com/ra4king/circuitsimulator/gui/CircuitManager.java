@@ -141,6 +141,7 @@ public class CircuitManager {
 	}
 	
 	public void setSelectedElements(Set<GuiElement> elements) {
+		mayThrow(circuitBoard::finalizeMove);
 		selectedElementsMap = elements.stream().collect(
 				Collectors.toMap(peer -> peer,
 				                 peer -> new Point2D(peer.getX(),

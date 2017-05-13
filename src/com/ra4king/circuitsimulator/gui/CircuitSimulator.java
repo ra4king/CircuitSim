@@ -503,6 +503,8 @@ public class CircuitSimulator extends Application {
 								getSubcircuitStates(peer.getComponent(),
 								                    componentPair.getValue().getCircuitBoard().getCurrentState());
 						
+						componentPair.getValue().getSelectedElements().remove(peer);
+						
 						if(component == null) {
 							try {
 								componentPair.getValue().getCircuitBoard().removeElements(Collections.singleton(peer));
@@ -962,6 +964,7 @@ public class CircuitSimulator extends Application {
 		undo.setOnAction(event -> {
 			CircuitManager manager = editHistory.undo();
 			if(manager != null) {
+				manager.getSelectedElements().clear();
 				switchToCircuit(manager.getCircuit());
 			}
 		});
@@ -971,6 +974,7 @@ public class CircuitSimulator extends Application {
 		redo.setOnAction(event -> {
 			CircuitManager manager = editHistory.redo();
 			if(manager != null) {
+				manager.getSelectedElements().clear();
 				switchToCircuit(manager.getCircuit());
 			}
 		});

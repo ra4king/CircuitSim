@@ -79,6 +79,7 @@ public class CircuitManager {
 			delete.setOnAction(event1 -> {
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 				selectedElementsMap.clear();
+				mayThrow(circuitBoard::finalizeMove);
 				simulatorWindow.clearProperties();
 				reset();
 			});
@@ -133,6 +134,17 @@ public class CircuitManager {
 	
 	public void setLastMousePosition(Point2D lastMousePosition) {
 		this.lastMousePosition = lastMousePosition;
+	}
+	
+	public Set<GuiElement> getSelectedElements() {
+		return selectedElementsMap.keySet();
+	}
+	
+	public void setSelectedElements(Set<GuiElement> elements) {
+		selectedElementsMap = elements.stream().collect(
+				Collectors.toMap(peer -> peer,
+				                 peer -> new Point2D(peer.getX(),
+				                                     peer.getY())));
 	}
 	
 	private Properties getCommonSelectedProperties() {
@@ -401,10 +413,10 @@ public class CircuitManager {
 					if(draggedDelta.getX() != 0 || draggedDelta.getY() != 0) {
 						mayThrow(() -> circuitBoard.moveElements(-(int)draggedDelta.getX(),
 						                                         -(int)draggedDelta.getY()));
-						mayThrow(circuitBoard::finalizeMove);
 						draggedDelta = new Point2D(0, 0);
 					}
 					selectedElementsMap.clear();
+					mayThrow(circuitBoard::finalizeMove);
 					simulatorWindow.clearProperties();
 				}
 				reset();
@@ -450,10 +462,11 @@ public class CircuitManager {
 				draggedDelta = new Point2D(0, 0);
 				
 				Optional<GuiElement> clickedComponent =
-						Stream.concat(circuitBoard.getComponents().stream(),
-						              circuitBoard.getLinks()
-						                          .stream()
-						                          .flatMap(link -> link.getWires().stream()))
+						Stream.concat(Stream.concat(circuitBoard.getComponents().stream(),
+						                            circuitBoard.getLinks()
+						                                        .stream()
+						                                        .flatMap(link -> link.getWires().stream())),
+						              selectedElementsMap.keySet().stream())
 						      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
 						      .findAny();
 				if(clickedComponent.isPresent()) {
@@ -467,6 +480,7 @@ public class CircuitManager {
 						
 						if(!ctrlDown && selectedElementsMap.size() == 1) {
 							selectedElementsMap.clear();
+							mayThrow(circuitBoard::finalizeMove);
 						}
 						
 						selectedElementsMap.put(selectedElement,
@@ -485,6 +499,7 @@ public class CircuitManager {
 				} else if(!ctrlDown) {
 					selecting = false;
 					selectedElementsMap.clear();
+					mayThrow(circuitBoard::finalizeMove);
 				}
 				
 				updateSelectedProperties();
@@ -531,6 +546,7 @@ public class CircuitManager {
 				                                                          startConnection.getY());
 				if(!ctrlDown) {
 					selectedElementsMap.clear();
+					mayThrow(circuitBoard::finalizeMove);
 				}
 				
 				selecting = true;
@@ -579,6 +595,7 @@ public class CircuitManager {
 				
 				if(!ctrlDown) {
 					selectedElementsMap.clear();
+					mayThrow(circuitBoard::finalizeMove);
 				}
 				
 				selectedElementsMap.putAll(Stream.concat(circuitBoard.getComponents().stream(),

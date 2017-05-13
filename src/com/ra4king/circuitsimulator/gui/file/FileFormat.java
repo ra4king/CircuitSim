@@ -107,17 +107,7 @@ public class FileFormat {
 	public static void init() {}
 	
 	public static void save(File file, List<CircuitInfo> circuits) {
-		Bindings bindings = new SimpleBindings();
-		bindings.put("version", VERSION);
-		bindings.put("circuits", circuits);
-		
-		String json;
-		try {
-			json = (String)engine.eval(saveScript, bindings);
-		} catch(Exception exc) {
-			exc.printStackTrace();
-			throw new RuntimeException(exc);
-		}
+		String json = stringify(circuits);
 		
 		try(FileWriter writer = new FileWriter(file)) {
 			writer.write(json + "\n");
@@ -126,10 +116,27 @@ public class FileFormat {
 		}
 	}
 	
-	public static List<CircuitInfo> load(File file) {
+	public static String stringify(List<CircuitInfo> circuits) {
 		Bindings bindings = new SimpleBindings();
 		bindings.put("version", VERSION);
-		bindings.put("file", readFile(file));
+		bindings.put("circuits", circuits);
+		
+		try {
+			return (String)engine.eval(saveScript, bindings);
+		} catch(Exception exc) {
+			exc.printStackTrace();
+			throw new RuntimeException(exc);
+		}
+	}
+	
+	public static List<CircuitInfo> load(File file) {
+		return parse(readFile(file));
+	}
+	
+	public static List<CircuitInfo> parse(String contents) {
+		Bindings bindings = new SimpleBindings();
+		bindings.put("version", VERSION);
+		bindings.put("file", contents);
 		
 		try {
 			@SuppressWarnings("unchecked")

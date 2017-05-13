@@ -179,6 +179,8 @@ public class EditHistory {
 	private Deque<List<Edit>> editStack;
 	private Deque<List<Edit>> redoStack;
 	
+	private static final int MAX_HISTORY = 300;
+	
 	private List<EditListener> editListeners;
 	
 	public EditHistory() {
@@ -238,6 +240,9 @@ public class EditHistory {
 			
 			if(!currentGroup.isEmpty()) {
 				editStack.push(currentGroup);
+				if(editStack.size() > MAX_HISTORY) {
+					editStack.removeLast();
+				}
 			}
 			
 			currentGroup = null;
@@ -291,6 +296,9 @@ public class EditHistory {
 		
 		List<Edit> popped = redoStack.pop();
 		editStack.push(popped);
+		if(editStack.size() > MAX_HISTORY) {
+			editStack.removeLast();
+		}
 		
 		for(Edit edit : popped) {
 			edit.action.redo(edit.circuitManager, edit.params);

@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentLauncherInfo;
 import com.ra4king.circuitsimulator.gui.EditHistory.EditAction;
+import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
@@ -68,6 +69,9 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -114,6 +118,8 @@ public class CircuitSimulator extends Application {
 	private ComponentLauncherInfo selectedComponent;
 	
 	private File saveFile, lastSaveFile;
+	
+	private DataFormat copyDataFormat = new DataFormat("x-circuit-simulator");
 	
 	private EditHistory editHistory;
 	private int savedEditStackSize;
@@ -960,7 +966,120 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		
-		editMenu.getItems().addAll(undo, redo);
+		MenuItem copy = new MenuItem("Copy");
+		copy.setAccelerator(new KeyCharacterCombination("C", KeyCombination.CONTROL_DOWN));
+		copy.setOnAction(event -> {
+			CircuitManager manager = getCurrentCircuit();
+			if(manager != null) {
+				Set<GuiElement> selectedElements = manager.getSelectedElements();
+				
+				Set<ComponentInfo> components =
+						selectedElements
+								.stream()
+								.filter(element -> element instanceof ComponentPeer<?>)
+								.map(element -> (ComponentPeer<?>)element)
+								.map(component ->
+										     new ComponentInfo(component.getClass().getName(),
+										                       component.getX(), component.getY(),
+										                       component.getProperties())).collect(
+								Collectors.toSet());
+				
+				Set<WireInfo> wires = selectedElements
+						                      .stream()
+						                      .filter(element -> element instanceof Wire)
+						                      .map(element -> (Wire)element)
+						                      .map(wire -> new WireInfo(wire.getX(), wire.getY(),
+						                                                wire.getLength(), wire.isHorizontal()))
+						                      .collect(Collectors.toSet());
+				
+				String data = FileFormat.stringify(
+						Collections.singletonList(new CircuitInfo("Copy", components, wires)));
+				
+				Clipboard clipboard = Clipboard.getSystemClipboard();
+				ClipboardContent content = new ClipboardContent();
+				content.put(copyDataFormat, data);
+				clipboard.setContent(content);
+			}
+		});
+		
+		MenuItem paste = new MenuItem("Paste");
+		paste.setAccelerator(new KeyCharacterCombination("V", KeyCombination.CONTROL_DOWN));
+		paste.setOnAction(event -> {
+			Clipboard clipboard = Clipboard.getSystemClipboard();
+			String data = (String)clipboard.getContent(copyDataFormat);
+			
+			if(data != null) {
+				try {
+					editHistory.beginGroup();
+					
+					List<CircuitInfo> parsed = FileFormat.parse(data);
+					
+					CircuitManager manager = getCurrentCircuit();
+					if(manager != null) {
+						outer:
+						for(int i = 3; ; i += 3) {
+							Set<GuiElement> elementsCreated = new HashSet<>();
+							
+							for(CircuitInfo circuit : parsed) {
+								for(ComponentInfo component : circuit.components) {
+									@SuppressWarnings("unchecked")
+									Class<? extends ComponentPeer<?>> clazz =
+											(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
+									
+									ComponentCreator<?> creator;
+									if(clazz == SubcircuitPeer.class) {
+										creator = getSubcircuitPeerCreator(
+												component.properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
+									} else {
+										creator = ComponentManager.forClass(clazz);
+									}
+									
+									try {
+										ComponentPeer<?> created = creator.createComponent(component.properties,
+										                                                   component.x + i,
+										                                                   component.y + i);
+										
+										if(!manager.getCircuitBoard().isValidLocation(created)) {
+											elementsCreated.clear();
+											continue outer;
+										}
+										
+										elementsCreated.add(created);
+									} catch(Exception exc) {
+										exc.printStackTrace();
+									}
+								}
+							}
+							
+							elementsCreated.forEach(
+									element -> manager.getCircuit().addComponent(
+											((ComponentPeer<?>)element).getComponent()));
+							
+							for(CircuitInfo circuit : parsed) {
+								for(WireInfo wire : circuit.wires) {
+									try {
+										elementsCreated.add(new Wire(null, wire.x + i, wire.y + i,
+										                             wire.length, wire.isHorizontal));
+									} catch(Exception exc) {
+										exc.printStackTrace();
+									}
+								}
+							}
+							
+							manager.setSelectedElements(elementsCreated);
+							manager.getCircuitBoard().initMove(elementsCreated, false);
+							break;
+						}
+					}
+				} catch(Exception exc) {
+					exc.printStackTrace();
+				} finally {
+					editHistory.endGroup();
+				}
+			}
+		});
+		
+		editMenu.getItems().addAll(undo, redo, copy, paste);
 		
 		Menu circuitsMenu = new Menu("Circuits");
 		MenuItem newCircuit = new MenuItem("New circuit");

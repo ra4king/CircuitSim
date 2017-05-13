@@ -15,7 +15,7 @@ var circuits = new ArrayList();
 
 for (var name in json.circuits) {
     var circuit = json.circuits[name];
-    
+
     var components = new HashSet();
 
     circuit.components.forEach(function (component) {

@@ -35,6 +35,7 @@ public class CircuitBoard {
 	private Set<LinkWires> badLinks;
 	
 	private Set<GuiElement> moveElements;
+	private boolean addMoveAction;
 	private int moveDeltaX, moveDeltaY;
 	
 	private Map<Pair<Integer, Integer>, Set<Connection>> connectionsMap;
@@ -106,18 +107,15 @@ public class CircuitBoard {
 	}
 	
 	public boolean isValidLocation(ComponentPeer<?> component) {
-		for(ComponentPeer<?> c : components) {
-			if(c != component && c.getX() == component.getX() && c.getY() == component.getY()) {
-				return false;
-			}
-		}
-		
-		return true;
+		return Stream.concat(components.stream(),
+		                     moveElements != null ? moveElements.stream().filter(e -> e instanceof ComponentPeer<?>)
+		                                          : Stream.empty())
+		             .noneMatch(c -> c != component && c.getX() == component.getX() && c.getY() == component.getY());
 	}
 	
 	public void addComponent(ComponentPeer<?> component) throws Exception {
 		if(!isValidLocation(component)) {
-			throw new IllegalStateException("Cannot place component here.");
+			throw new IllegalArgumentException("Cannot place component here.");
 		}
 		
 		// Component must be added before added to the circuit as listeners will be triggered to recreate Subcircuits
@@ -194,7 +192,15 @@ public class CircuitBoard {
 		}
 	}
 	
+	public boolean isMoving() {
+		return moveElements != null;
+	}
+	
 	public void initMove(Set<GuiElement> elements) throws Exception {
+		initMove(elements, true);
+	}
+	
+	public void initMove(Set<GuiElement> elements, boolean remove) throws Exception {
 		if(moveElements != null) {
 			try {
 				finalizeMove();
@@ -206,7 +212,10 @@ public class CircuitBoard {
 		try {
 			editHistory.disable();
 			moveElements = elements;
-			removeElements(elements, false);
+			addMoveAction = remove;
+			if(remove) {
+				removeElements(elements, false);
+			}
 		} finally {
 			editHistory.enable();
 		}
@@ -229,7 +238,11 @@ public class CircuitBoard {
 			return;
 		}
 		
-		editHistory.disable();
+		if(addMoveAction) {
+			editHistory.disable();
+		} else {
+			editHistory.beginGroup();
+		}
 		
 		for(GuiElement element : moveElements) {
 			if(element instanceof ComponentPeer<?> && !isValidLocation((ComponentPeer<?>)element)) {
@@ -260,9 +273,13 @@ public class CircuitBoard {
 			}
 		}
 		
-		editHistory.enable();
-		editHistory.addAction(EditAction.MOVE_ELEMENTS, circuitManager,
-		                      new HashSet<>(moveElements), moveDeltaX, moveDeltaY);
+		if(addMoveAction) {
+			editHistory.enable();
+			editHistory.addAction(EditAction.MOVE_ELEMENTS, circuitManager,
+			                      new HashSet<>(moveElements), moveDeltaX, moveDeltaY);
+		} else {
+			editHistory.endGroup();
+		}
 		
 		moveElements = null;
 		moveDeltaX = 0;
@@ -339,7 +356,7 @@ public class CircuitBoard {
 		}
 	}
 	
-	public void addWire(int x, int y, int length, boolean horizontal) throws Exception {
+	public Set<Wire> addWire(int x, int y, int length, boolean horizontal) throws Exception {
 		try {
 			editHistory.beginGroup();
 			
@@ -428,9 +445,9 @@ public class CircuitBoard {
 			
 			toSplit.forEach(this::splitWire);
 			
-			rejoinWires();
-			
 			runSim();
+			
+			return wiresToAdd;
 		} finally {
 			editHistory.endGroup();
 		}

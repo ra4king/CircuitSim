@@ -338,14 +338,14 @@ public class CircuitBoard {
 					                : new HashSet<>();
 					set.add(wire);
 					wiresToRemove.put(linkWires, set);
-					
-					editHistory.addAction(EditAction.REMOVE_WIRE, circuitManager, wire);
 				}
 			}
 			
 			wiresToRemove.forEach((linkWires, wires) -> {
 				links.remove(linkWires);
 				links.addAll(linkWires.splitWires(wires));
+				
+				wires.forEach((wire) -> editHistory.addAction(EditAction.REMOVE_WIRE, circuitManager, wire));
 			});
 			
 			rejoinWires();

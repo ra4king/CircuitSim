@@ -386,19 +386,22 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private void refreshCircuitsTab() {
+		ScrollPane pane = new ScrollPane(new GridPane());
+		pane.setFitToWidth(true);
+		
 		if(circuitButtonsTab == null) {
 			circuitButtonsTab = new Tab("Circuits");
 			circuitButtonsTab.setClosable(false);
-			circuitButtonsTab.setContent(new GridPane());
+			circuitButtonsTab.setContent(pane);
 			buttonTabPane.getTabs().add(circuitButtonsTab);
 		} else {
-			circuitButtonsTab.setContent(new GridPane());
+			circuitButtonsTab.setContent(pane);
 		}
 		
 		circuitManagers.keySet().stream().sorted().forEach((name) -> {
 			Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
 			
-			GridPane buttons = (GridPane)circuitButtonsTab.getContent();
+			GridPane buttons = (GridPane)pane.getContent();
 			ToggleButton toggleButton = setupButton(buttonsToggleGroup, circuitPair.getKey());
 			buttons.addRow(buttons.getChildren().size(), toggleButton);
 		});
@@ -793,7 +796,7 @@ public class CircuitSimulator extends Application {
 		                     .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
 		
 		buttonTabPane = new TabPane();
-		buttonTabPane.setSide(Side.LEFT);
+		buttonTabPane.setSide(Side.TOP);
 		buttonTabPane.setMinWidth(100);
 		
 		propertiesTable = new GridPane();
@@ -828,12 +831,16 @@ public class CircuitSimulator extends Application {
 			} else {
 				tab = new Tab(componentInfo.name.getKey());
 				tab.setClosable(false);
-				tab.setContent(new GridPane());
+				
+				ScrollPane pane = new ScrollPane(new GridPane());
+				pane.setFitToWidth(true);
+				
+				tab.setContent(pane);
 				buttonTabPane.getTabs().add(tab);
 				buttonTabs.put(componentInfo.name.getKey(), tab);
 			}
 			
-			GridPane buttons = (GridPane)tab.getContent();
+			GridPane buttons = (GridPane)((ScrollPane)tab.getContent()).getContent();
 			
 			ToggleButton toggleButton = setupButton(buttonsToggleGroup, componentInfo);
 			buttons.addRow(buttons.getChildren().size(), toggleButton);

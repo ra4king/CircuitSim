@@ -106,45 +106,33 @@ public class FileFormat {
 	 */
 	public static void init() {}
 	
-	public static void save(File file, List<CircuitInfo> circuits) {
+	public static void save(File file, List<CircuitInfo> circuits) throws Exception {
 		String json = stringify(circuits);
 		
 		try(FileWriter writer = new FileWriter(file)) {
 			writer.write(json + "\n");
-		} catch(Exception exc) {
-			throw new RuntimeException(exc);
 		}
 	}
 	
-	public static String stringify(List<CircuitInfo> circuits) {
+	public static String stringify(List<CircuitInfo> circuits) throws Exception {
 		Bindings bindings = new SimpleBindings();
 		bindings.put("version", VERSION);
 		bindings.put("circuits", circuits);
 		
-		try {
-			return (String)engine.eval(saveScript, bindings);
-		} catch(Exception exc) {
-			exc.printStackTrace();
-			throw new RuntimeException(exc);
-		}
+		return (String)engine.eval(saveScript, bindings);
 	}
 	
-	public static List<CircuitInfo> load(File file) {
+	public static List<CircuitInfo> load(File file) throws Exception {
 		return parse(readFile(file));
 	}
 	
-	public static List<CircuitInfo> parse(String contents) {
+	public static List<CircuitInfo> parse(String contents) throws Exception {
 		Bindings bindings = new SimpleBindings();
 		bindings.put("version", VERSION);
 		bindings.put("file", contents);
 		
-		try {
-			@SuppressWarnings("unchecked")
-			List<CircuitInfo> circuits = (List<CircuitInfo>)engine.eval(loadScript, bindings);
-			return circuits;
-		} catch(Exception exc) {
-			exc.printStackTrace();
-			throw new RuntimeException(exc);
-		}
+		@SuppressWarnings("unchecked")
+		List<CircuitInfo> circuits = (List<CircuitInfo>)engine.eval(loadScript, bindings);
+		return circuits;
 	}
 }

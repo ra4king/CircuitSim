@@ -66,7 +66,7 @@ public class ComponentManager {
 				return clazz.getConstructor(Properties.class, Integer.TYPE, Integer.TYPE)
 				            .newInstance(properties, x, y);
 			} catch(NoSuchMethodException exc) {
-				throw new RuntimeException("Must have constructor taking (Properties props, int x, int y");
+				throw new RuntimeException("Must have constructor taking (Properties props, int x, int y)");
 			} catch(RuntimeException exc) {
 				throw exc;
 			} catch(Exception exc) {

@@ -141,15 +141,10 @@ public class CircuitSimulator extends Application {
 		Clock.addChangeListener(
 				value -> Platform.runLater(() -> {
 					CircuitManager manager = getCurrentCircuit();
-					if(manager != null) {
-						try {
-							manager.getCircuitBoard().runSim();
-						} catch(Exception exc) {
-							if(Clock.isRunning()) {
-								toggleClock.fire();
-							}
-							exc.printStackTrace();
-						}
+					if(manager != null
+							   && manager.mayThrow(() -> manager.getCircuitBoard().runSim())
+							   && Clock.isRunning()) {
+						toggleClock.fire();
 					}
 				}));
 	}
@@ -514,11 +509,10 @@ public class CircuitSimulator extends Application {
 						componentPair.getValue().getSelectedElements().remove(peer);
 						
 						if(component == null) {
-							try {
-								componentPair.getValue().getCircuitBoard().removeElements(Collections.singleton(peer));
-							} catch(Exception exc) {
-								exc.printStackTrace();
-							}
+							componentPair.getValue().mayThrow(
+									() -> componentPair.getValue()
+									                   .getCircuitBoard()
+									                   .removeElements(Collections.singleton(peer)));
 							
 							resetSubcircuitStates(node);
 						} else {
@@ -527,14 +521,12 @@ public class CircuitSimulator extends Application {
 									                   componentPeer.getX(),
 									                   componentPeer.getY());
 							
-							try {
-								editHistory.disable();
-								componentPair.getValue().getCircuitBoard().updateComponent(peer, newSubcircuit);
-							} catch(Exception exc) {
-								exc.printStackTrace();
-							} finally {
-								editHistory.enable();
-							}
+							editHistory.disable();
+							componentPair.getValue().mayThrow(
+									() -> componentPair.getValue()
+									                   .getCircuitBoard()
+									                   .updateComponent(peer, newSubcircuit));
+							editHistory.enable();
 							
 							node.subcircuit = newSubcircuit.getComponent();
 							updateSubcircuitStates(node, componentPair.getValue()
@@ -666,22 +658,15 @@ public class CircuitSimulator extends Application {
 							creator = ComponentManager.forClass(clazz);
 						}
 						
-						try {
-							manager.getCircuitBoard().addComponent(
-									creator.createComponent(component.properties,
-									                        component.x,
-									                        component.y));
-						} catch(Exception exc) {
-							exc.printStackTrace();
-						}
+						manager.mayThrow(
+								() -> manager.getCircuitBoard().addComponent(
+										creator.createComponent(component.properties, component.x, component.y)));
 					}
 					
 					for(WireInfo wire : circuit.wires) {
-						try {
-							manager.getCircuitBoard().addWire(wire.x, wire.y, wire.length, wire.isHorizontal);
-						} catch(Exception exc) {
-							exc.printStackTrace();
-						}
+						manager.mayThrow(
+								() -> manager.getCircuitBoard()
+								             .addWire(wire.x, wire.y, wire.length, wire.isHorizontal));
 					}
 				}
 				
@@ -899,8 +884,6 @@ public class CircuitSimulator extends Application {
 		canvasTabPane = new TabPane();
 		canvasTabPane.setPrefWidth(800);
 		canvasTabPane.setPrefHeight(600);
-		//canvasTabPane.setMaxWidth(Double.MAX_VALUE);
-		//canvasTabPane.setMaxHeight(Double.MAX_VALUE);
 		canvasTabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			CircuitManager oldManager = oldValue == null || !circuitManagers.containsKey(oldValue.getText())
@@ -1017,13 +1000,17 @@ public class CircuitSimulator extends Application {
 						                                                wire.getLength(), wire.isHorizontal()))
 						                      .collect(Collectors.toSet());
 				
-				String data = FileFormat.stringify(
-						Collections.singletonList(new CircuitInfo("Copy", components, wires)));
-				
-				Clipboard clipboard = Clipboard.getSystemClipboard();
-				ClipboardContent content = new ClipboardContent();
-				content.put(copyDataFormat, data);
-				clipboard.setContent(content);
+				try {
+					String data = FileFormat.stringify(
+							Collections.singletonList(new CircuitInfo("Copy", components, wires)));
+					
+					Clipboard clipboard = Clipboard.getSystemClipboard();
+					ClipboardContent content = new ClipboardContent();
+					content.put(copyDataFormat, data);
+					clipboard.setContent(content);
+				} catch(Exception exc) {
+					exc.printStackTrace();
+				}
 			}
 		});
 		
@@ -1034,18 +1021,10 @@ public class CircuitSimulator extends Application {
 			if(manager != null) {
 				copy.fire();
 				
-				try {
-					manager.getCircuitBoard().finalizeMove();
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
 				
-				try {
-					Set<GuiElement> selectedElements = manager.getSelectedElements();
-					manager.getCircuitBoard().removeElements(selectedElements);
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				Set<GuiElement> selectedElements = manager.getSelectedElements();
+				manager.mayThrow(() -> manager.getCircuitBoard().removeElements(selectedElements));
 				
 				clearSelection();
 			}
@@ -1071,19 +1050,20 @@ public class CircuitSimulator extends Application {
 							
 							for(CircuitInfo circuit : parsed) {
 								for(ComponentInfo component : circuit.components) {
-									@SuppressWarnings("unchecked")
-									Class<? extends ComponentPeer<?>> clazz =
-											(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
-									
-									ComponentCreator<?> creator;
-									if(clazz == SubcircuitPeer.class) {
-										creator = getSubcircuitPeerCreator(
-												component.properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
-									} else {
-										creator = ComponentManager.forClass(clazz);
-									}
-									
 									try {
+										@SuppressWarnings("unchecked")
+										Class<? extends ComponentPeer<?>> clazz =
+												(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
+										
+										ComponentCreator<?> creator;
+										if(clazz == SubcircuitPeer.class) {
+											creator = getSubcircuitPeerCreator(
+													component.properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT,
+													                                       ""));
+										} else {
+											creator = ComponentManager.forClass(clazz);
+										}
+										
 										ComponentPeer<?> created = creator.createComponent(component.properties,
 										                                                   component.x + i,
 										                                                   component.y + i);
@@ -1106,17 +1086,13 @@ public class CircuitSimulator extends Application {
 							
 							for(CircuitInfo circuit : parsed) {
 								for(WireInfo wire : circuit.wires) {
-									try {
-										elementsCreated.add(new Wire(null, wire.x + i, wire.y + i,
-										                             wire.length, wire.isHorizontal));
-									} catch(Exception exc) {
-										exc.printStackTrace();
-									}
+									elementsCreated.add(
+											new Wire(null, wire.x + i, wire.y + i, wire.length, wire.isHorizontal));
 								}
 							}
 							
 							manager.setSelectedElements(elementsCreated);
-							manager.getCircuitBoard().initMove(elementsCreated, false);
+							manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false));
 							break;
 						}
 					}

@@ -75,7 +75,7 @@ public class CircuitManager {
 	
 	private Map<GuiElement, Point2D> selectedElementsMap = new HashMap<>();
 	
-	private String lastErrorMessage;
+	private Exception lastException;
 	
 	public CircuitManager(CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
 		this.simulatorWindow = simulatorWindow;
@@ -149,11 +149,11 @@ public class CircuitManager {
 	}
 	
 	public String getCurrentError() {
-		if(circuitBoard.getLastException() != null) {
-			return lastErrorMessage;
-		}
-		
-		return "";
+		return lastException == null
+		       ? ""
+		       : lastException instanceof ShortCircuitException
+		         ? "Short circuit detected"
+		         : lastException.getMessage();
 	}
 	
 	public Point2D getLastMousePosition() {
@@ -382,16 +382,18 @@ public class CircuitManager {
 		graphics.restore();
 	}
 	
-	private interface ThrowableRunnable {
+	interface ThrowableRunnable {
 		void run() throws Exception;
 	}
 	
-	private void mayThrow(ThrowableRunnable runnable) {
+	boolean mayThrow(ThrowableRunnable runnable) {
 		try {
 			runnable.run();
+			return false;
 		} catch(Exception exc) {
 			// exc.printStackTrace();
-			lastErrorMessage = exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
+			lastException = exc;
+			return true;
 		}
 	}
 	

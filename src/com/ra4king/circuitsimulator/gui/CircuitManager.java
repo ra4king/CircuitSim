@@ -149,11 +149,12 @@ public class CircuitManager {
 	}
 	
 	public String getCurrentError() {
-		return lastException == null
-		       ? ""
-		       : lastException instanceof ShortCircuitException
-		         ? "Short circuit detected"
-		         : lastException.getMessage();
+		if(lastException == null && circuitBoard.getLastException() == null) {
+			return "";
+		}
+		
+		Exception exc = lastException == null ? circuitBoard.getLastException() : lastException;
+		return exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
 	}
 	
 	public Point2D getLastMousePosition() {
@@ -389,6 +390,7 @@ public class CircuitManager {
 	boolean mayThrow(ThrowableRunnable runnable) {
 		try {
 			runnable.run();
+			lastException = null;
 			return false;
 		} catch(Exception exc) {
 			// exc.printStackTrace();

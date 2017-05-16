@@ -93,14 +93,25 @@ public class CircuitBoard {
 		return links;
 	}
 	
+	private Exception lastException;
+	
+	public Exception getLastException() {
+		return lastException;
+	}
+	
 	public void runSim() throws Exception {
 		if(Platform.isFxApplicationThread()) {
-			if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(
-					Collectors.toSet())).size() > 0) {
-				throw badLinks.iterator().next().getLastException();
+			try {
+				if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(
+						Collectors.toSet())).size() > 0) {
+					throw badLinks.iterator().next().getLastException();
+				}
+				
+				circuit.getSimulator().stepAll();
+				lastException = null;
+			} catch(Exception exc) {
+				lastException = exc;
 			}
-			
-			circuit.getSimulator().stepAll();
 		} else {
 			throw new IllegalStateException("Not running on FX thread!");
 		}

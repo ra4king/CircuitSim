@@ -49,7 +49,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(IS_INPUT);
 		properties.mergeIfExists(props);
-		;
+		
 		Pin pin = new Pin(properties.getValue(Properties.LABEL),
 		                  properties.getValue(Properties.BITSIZE),
 		                  properties.getValue(IS_INPUT));
@@ -148,7 +148,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		for(int i = 0, row = 1; i < string.length(); row++) {
 			String sub = string.substring(i, i + Math.min(8, string.length() - i));
 			i += sub.length();
-			graphics.strokeText(sub, getScreenX() + 2, getScreenY() + 14 * row);
+			graphics.strokeText(sub, getScreenX() + 1, getScreenY() + 14 * row);
 		}
 	}
 }

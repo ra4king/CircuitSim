@@ -148,9 +148,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		for(int i = 0, row = 1; i < string.length(); row++) {
 			String sub = string.substring(i, i + Math.min(8, string.length() - i));
 			i += sub.length();
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), sub);
-			graphics.strokeText(sub, getScreenX() + getScreenWidth() * 0.5 - bounds.getWidth() * 0.5,
-			                    getScreenY() + 14 * row);
+			graphics.strokeText(sub, getScreenX() + 2, getScreenY() + 14 * row);
 		}
 	}
 }

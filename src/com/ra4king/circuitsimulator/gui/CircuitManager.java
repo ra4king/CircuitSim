@@ -340,7 +340,7 @@ public class CircuitManager {
 				break;
 			}
 			case PLACING_COMPONENT: {
-				if(isMouseInsideCanvas) {
+				if(potentialComponent != null && isMouseInsideCanvas) {
 					graphics.save();
 					potentialComponent.paint(graphics, dummyCircuit.getTopLevelState());
 					graphics.restore();
@@ -510,7 +510,7 @@ public class CircuitManager {
 				reset();
 				setSelectedElements(Collections.singleton(newComponent));
 				
-				currentState = SelectingState.ELEMENT_SELECTED;
+				currentState = SelectingState.PLACING_COMPONENT;
 				break;
 		}
 		
@@ -527,9 +527,6 @@ public class CircuitManager {
 		System.out.println("Mouse Released before: " + currentState);
 		
 		switch(currentState) {
-			case PLACING_COMPONENT:
-				throw new IllegalStateException("What??");
-			
 			case IDLE:
 			case ELEMENT_SELECTED:
 				Optional<GuiElement> clickedComponent =
@@ -614,6 +611,7 @@ public class CircuitManager {
 			}
 			
 			case HIGHLIGHT_DRAGGED:
+			case PLACING_COMPONENT:
 				currentState = SelectingState.IDLE;
 				break;
 		}
@@ -634,9 +632,6 @@ public class CircuitManager {
 		System.out.println("Mouse Dragged before: " + currentState);
 		
 		switch(currentState) {
-			case PLACING_COMPONENT:
-				throw new IllegalStateException("Huh?!!");
-			
 			case IDLE:
 			case HIGHLIGHT_DRAGGED:
 				currentState = SelectingState.HIGHLIGHT_DRAGGED;
@@ -662,6 +657,7 @@ public class CircuitManager {
 			
 			case ELEMENT_SELECTED:
 			case ELEMENT_DRAGGED:
+			case PLACING_COMPONENT:
 				currentState = SelectingState.ELEMENT_DRAGGED;
 				
 				int dx = GuiUtils.getCircuitCoord(lastMousePosition.getX() - lastMousePressed.getX());

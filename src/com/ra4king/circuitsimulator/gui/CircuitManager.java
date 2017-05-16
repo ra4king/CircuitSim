@@ -652,10 +652,12 @@ public class CircuitManager {
 					mayThrow(circuitBoard::finalizeMove);
 				}
 				
-				setSelectedElements(Stream.concat(circuitBoard.getComponents().stream(),
-				                                  circuitBoard.getLinks().stream()
-				                                              .flatMap(link -> link.getWires().stream()))
-				                          .filter(peer -> peer.isWithinScreenCoord(startX, startY, width, height))
+				setSelectedElements(Stream.concat(
+						getSelectedElements().stream(),
+						Stream.concat(circuitBoard.getComponents().stream(),
+						              circuitBoard.getLinks().stream()
+						                          .flatMap(link -> link.getWires().stream()))
+						      .filter(peer -> peer.isWithinScreenCoord(startX, startY, width, height)))
 				                          .collect(Collectors.toSet()));
 				break;
 			

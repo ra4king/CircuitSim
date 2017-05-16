@@ -1,6 +1,8 @@
 package com.ra4king.circuitsimulator.gui;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +41,18 @@ import javafx.scene.text.Text;
  * @author Roi Atalla
  */
 public class CircuitManager {
+	private enum SelectingState {
+		IDLE,
+		HIGHLIGHT_DRAGGED,
+		ELEMENT_SELECTED,
+		CONNECTION_SELECTED,
+		ELEMENT_DRAGGED,
+		CONNECTION_DRAGGED,
+		PLACING_COMPONENT,
+	}
+	
+	private SelectingState currentState = SelectingState.IDLE;
+	
 	private final CircuitSimulator simulatorWindow;
 	private final ScrollPane canvasScrollPane;
 	private final CircuitBoard circuitBoard;
@@ -46,26 +60,22 @@ public class CircuitManager {
 	private ContextMenu menu;
 	
 	private Point2D lastMousePosition = new Point2D(0, 0);
-	private ComponentPeer<?> potentialComponent;
-	private Circuit dummyCircuit = new Circuit(new Simulator());
+	private Point2D lastMousePressed = new Point2D(0, 0);
 	
-	private boolean mouseInside;
-	
-	private Connection startConnection, endConnection;
-	private Point2D startPoint, curDraggedPoint, draggedDelta = new Point2D(0, 0);
+	private boolean isMouseInsideCanvas;
 	private boolean isDraggedHorizontally;
-	
 	private boolean ctrlDown;
 	
-	private Map<GuiElement, Point2D> selectedElementsMap = new HashMap<>();
-	private boolean selecting;
-	
+	private Circuit dummyCircuit = new Circuit(new Simulator());
+	private ComponentPeer<?> potentialComponent;
 	private ComponentCreator componentCreator;
 	private Properties properties;
 	
-	private String message;
-	private long messageSetTime;
-	private static final int MESSAGE_POST_DURATION = 3000;
+	private Connection startConnection, endConnection;
+	
+	private Map<GuiElement, Point2D> selectedElementsMap = new HashMap<>();
+	
+	private String lastErrorMessage;
 	
 	public CircuitManager(CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
 		this.simulatorWindow = simulatorWindow;
@@ -78,9 +88,7 @@ public class CircuitManager {
 			MenuItem delete = new MenuItem("Delete");
 			delete.setOnAction(event1 -> {
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
-				selectedElementsMap.clear();
-				mayThrow(circuitBoard::finalizeMove);
-				simulatorWindow.clearProperties();
+				setSelectedElements(Collections.emptySet());
 				reset();
 			});
 			
@@ -102,6 +110,18 @@ public class CircuitManager {
 				menu.show(getCanvas(), event.getScreenX(), event.getScreenY());
 			}
 		});
+	}
+	
+	private void reset() {
+		currentState = SelectingState.IDLE;
+		
+		setSelectedElements(Collections.emptySet());
+		simulatorWindow.clearSelection();
+		dummyCircuit.clearComponents();
+		potentialComponent = null;
+		isDraggedHorizontally = false;
+		startConnection = null;
+		endConnection = null;
 	}
 	
 	public void destroy() {
@@ -128,6 +148,14 @@ public class CircuitManager {
 		return circuitBoard;
 	}
 	
+	public String getCurrentError() {
+		if(circuitBoard.getLastException() != null) {
+			return lastErrorMessage;
+		}
+		
+		return "";
+	}
+	
 	public Point2D getLastMousePosition() {
 		return lastMousePosition;
 	}
@@ -146,6 +174,7 @@ public class CircuitManager {
 				Collectors.toMap(peer -> peer,
 				                 peer -> new Point2D(peer.getX(),
 				                                     peer.getY())));
+		updateSelectedProperties();
 	}
 	
 	private Properties getCommonSelectedProperties() {
@@ -156,24 +185,31 @@ public class CircuitManager {
 	}
 	
 	private void updateSelectedProperties() {
-		Optional<? extends ComponentPeer<?>> peer =
-				selectedElementsMap.keySet().stream()
-				                   .filter(element -> element instanceof ComponentPeer<?>)
-				                   .map(element -> ((ComponentPeer<?>)element))
-				                   .findAny();
-		if(peer.isPresent()) {
-			simulatorWindow.setProperties(peer.get());
+		long componentCount = selectedElementsMap.keySet().stream()
+		                                         .filter(element -> element instanceof ComponentPeer<?>)
+		                                         .count();
+		if(componentCount == 1) {
+			Optional<? extends ComponentPeer<?>> peer = selectedElementsMap
+					                                            .keySet().stream()
+					                                            .filter(element -> element instanceof ComponentPeer<?>)
+					                                            .map(element -> ((ComponentPeer<?>)element))
+					                                            .findAny();
+			peer.ifPresent(simulatorWindow::setProperties);
 		} else {
 			simulatorWindow.setProperties("Multiple selections", getCommonSelectedProperties());
 		}
 	}
 	
-	public Properties modifiedSelection(ComponentCreator componentCreator, Properties properties) {
+	public void modifiedSelection(ComponentCreator componentCreator, Properties properties) {
 		this.componentCreator = componentCreator;
 		this.properties = properties;
 		
+		if(currentState != SelectingState.IDLE && currentState != SelectingState.PLACING_COMPONENT) {
+			reset();
+		}
+		
 		if(componentCreator != null) {
-			dummyCircuit.clearComponents();
+			currentState = SelectingState.PLACING_COMPONENT;
 			
 			potentialComponent = componentCreator.createComponent(properties,
 			                                                      GuiUtils.getCircuitCoord(lastMousePosition.getX()),
@@ -181,60 +217,41 @@ public class CircuitManager {
 			mayThrow(() -> dummyCircuit.addComponent(potentialComponent.getComponent()));
 			potentialComponent.setX(potentialComponent.getX() - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(potentialComponent.getY() - potentialComponent.getHeight() / 2);
-			return potentialComponent.getProperties();
-		} else if(properties != null && !properties.isEmpty() && !selectedElementsMap.isEmpty()) {
-			potentialComponent = null;
-			
-			Set<ComponentPeer<?>> components =
-					selectedElementsMap.keySet().stream()
-					                   .filter(element -> element instanceof ComponentPeer<?>)
-					                   .map(element -> (ComponentPeer<?>)element)
-					                   .collect(Collectors.toSet());
-			
+			simulatorWindow.setProperties(potentialComponent);
+			return;
+		}
+		
+		if(properties != null && !properties.isEmpty() && !selectedElementsMap.isEmpty()) {
 			Map<ComponentPeer<?>, ComponentPeer<?>> newComponents =
-					components.stream().collect(Collectors.toMap(
-							component -> component,
-							component -> (ComponentPeer<?>)ComponentManager
-									                               .forClass(component.getClass())
-									                               .createComponent(
-											                               component.getProperties()
-											                                        .mergeIfExists(properties),
-											                               component.getX(),
-											                               component.getY())));
+					selectedElementsMap
+							.keySet().stream()
+							.filter(element -> element instanceof ComponentPeer<?>)
+							.map(element -> (ComponentPeer<?>)element)
+							.collect(Collectors.toMap(
+									component -> component,
+									component -> (ComponentPeer<?>)ComponentManager
+											                               .forClass(component.getClass())
+											                               .createComponent(
+													                               component.getProperties()
+													                                        .mergeIfExists(properties),
+													                               component.getX(),
+													                               component.getY())));
 			
 			newComponents.forEach((oldComponent, newComponent) ->
 					                      mayThrow(() -> circuitBoard.updateComponent(oldComponent, newComponent)));
 			
-			selectedElementsMap = Stream.concat(
+			setSelectedElements(Stream.concat(
 					selectedElementsMap.keySet().stream().filter(element -> !(element instanceof ComponentPeer<?>)),
-					newComponents.values().stream()).collect(Collectors.toMap(element -> element,
-			                                                                  element -> new Point2D(element.getX(),
-			                                                                                         element.getY())));
-			
-			return getCommonSelectedProperties();
-		} else if(!selectedElementsMap.isEmpty()) {
-			selectedElementsMap = new HashMap<>();
+					newComponents.values().stream())
+			                          .collect(Collectors.toSet()));
+			return;
 		}
 		
-		potentialComponent = null;
-		return new Properties();
+		setSelectedElements(Collections.emptySet());
 	}
-	
-	private long lastRepaint = System.nanoTime();
-	private int lastFrameCount;
-	private int frameCount;
 	
 	public void paint() {
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
-		
-		long now = System.nanoTime();
-		if(now - lastRepaint >= 1e9) {
-			lastFrameCount = frameCount;
-			frameCount = 0;
-			lastRepaint = now;
-		}
-		
-		frameCount++;
 		
 		graphics.save();
 		
@@ -255,22 +272,61 @@ public class CircuitManager {
 		
 		circuitBoard.paint(graphics);
 		
-		if(startConnection != null) {
-			graphics.save();
-			
-			graphics.setLineWidth(2);
-			graphics.setStroke(Color.GREEN);
-			graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10, 10);
-			
-			if(endConnection != null) {
-				graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10, 10);
-			}
-			
-			if(curDraggedPoint != null) {
+		switch(currentState) {
+			case IDLE:
+			case CONNECTION_SELECTED:
+				if(startConnection != null) {
+					graphics.save();
+					
+					graphics.setLineWidth(2);
+					graphics.setStroke(Color.GREEN);
+					graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10, 10);
+					
+					if(endConnection != null) {
+						graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10, 10);
+					}
+					
+					if(startConnection instanceof PortConnection) {
+						PortConnection portConnection = (PortConnection)startConnection;
+						String name = portConnection.getName();
+						if(!name.isEmpty()) {
+							Text text = new Text(name);
+							text.setFont(graphics.getFont());
+							Bounds bounds = text.getLayoutBounds();
+							
+							double x = startConnection.getScreenX() - bounds.getWidth() / 2 - 3;
+							double y = startConnection.getScreenY() + 30;
+							double width = bounds.getWidth() + 6;
+							double height = bounds.getHeight() + 3;
+							
+							graphics.setLineWidth(1);
+							graphics.setStroke(Color.BLACK);
+							graphics.setFill(Color.ORANGE.brighter());
+							graphics.fillRect(x, y, width, height);
+							graphics.strokeRect(x, y, width, height);
+							
+							graphics.strokeText(name, x + 3, y + height - 5);
+						}
+					}
+					
+					graphics.restore();
+				}
+				break;
+			case CONNECTION_DRAGGED: {
+				graphics.save();
+				
+				graphics.setLineWidth(2);
+				graphics.setStroke(Color.GREEN);
+				graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10, 10);
+				
+				if(endConnection != null) {
+					graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10, 10);
+				}
+				
 				int startX = startConnection.getScreenX() + startConnection.getScreenWidth() / 2;
 				int startY = startConnection.getScreenY() + startConnection.getScreenHeight() / 2;
-				int pointX = GuiUtils.getScreenCircuitCoord(curDraggedPoint.getX());
-				int pointY = GuiUtils.getScreenCircuitCoord(curDraggedPoint.getY());
+				int pointX = GuiUtils.getScreenCircuitCoord(lastMousePosition.getX());
+				int pointY = GuiUtils.getScreenCircuitCoord(lastMousePosition.getY());
 				graphics.setStroke(Color.BLACK);
 				if(isDraggedHorizontally) {
 					graphics.strokeLine(startX, startY, pointX, startY);
@@ -279,48 +335,38 @@ public class CircuitManager {
 					graphics.strokeLine(startX, startY, startX, pointY);
 					graphics.strokeLine(startX, pointY, pointX, pointY);
 				}
-			} else if(startConnection instanceof PortConnection) {
-				PortConnection portConnection = (PortConnection)startConnection;
-				String name = portConnection.getName();
-				if(!name.isEmpty()) {
-					Text text = new Text(name);
-					text.setFont(graphics.getFont());
-					Bounds bounds = text.getLayoutBounds();
-					
-					double x = startConnection.getScreenX() - bounds.getWidth() / 2 - 3;
-					double y = startConnection.getScreenY() + 30;
-					double width = bounds.getWidth() + 6;
-					double height = bounds.getHeight() + 3;
-					
-					graphics.setLineWidth(1);
-					graphics.setStroke(Color.BLACK);
-					graphics.setFill(Color.ORANGE.brighter());
-					graphics.fillRect(x, y, width, height);
-					graphics.strokeRect(x, y, width, height);
-					
-					graphics.strokeText(name, x + 3, y + height - 5);
-				}
-			}
-			
-			graphics.restore();
-		} else if(potentialComponent != null && mouseInside) {
-			graphics.save();
-			potentialComponent.paint(graphics, dummyCircuit.getTopLevelState());
-			graphics.restore();
-			
-			for(Connection connection : potentialComponent.getConnections()) {
-				graphics.save();
-				connection.paint(graphics, dummyCircuit.getTopLevelState());
+				
 				graphics.restore();
+				break;
 			}
-		} else if(!selecting && startPoint != null) {
-			double startX = startPoint.getX() < curDraggedPoint.getX() ? startPoint.getX() : curDraggedPoint.getX();
-			double startY = startPoint.getY() < curDraggedPoint.getY() ? startPoint.getY() : curDraggedPoint.getY();
-			double width = Math.abs(curDraggedPoint.getX() - startPoint.getX());
-			double height = Math.abs(curDraggedPoint.getY() - startPoint.getY());
-			
-			graphics.setStroke(Color.GREEN.darker());
-			graphics.strokeRect(startX, startY, width, height);
+			case PLACING_COMPONENT: {
+				if(isMouseInsideCanvas) {
+					graphics.save();
+					potentialComponent.paint(graphics, dummyCircuit.getTopLevelState());
+					graphics.restore();
+					
+					for(Connection connection : potentialComponent.getConnections()) {
+						graphics.save();
+						connection.paint(graphics, dummyCircuit.getTopLevelState());
+						graphics.restore();
+					}
+				}
+				break;
+			}
+			case HIGHLIGHT_DRAGGED: {
+				double startX = lastMousePressed.getX() < lastMousePosition.getX()
+				                ? lastMousePressed.getX()
+				                : lastMousePosition.getX();
+				double startY = lastMousePressed.getY() < lastMousePosition.getY()
+				                ? lastMousePressed.getY()
+				                : lastMousePosition.getY();
+				double width = Math.abs(lastMousePosition.getX() - lastMousePressed.getX());
+				double height = Math.abs(lastMousePosition.getY() - lastMousePressed.getY());
+				
+				graphics.setStroke(Color.GREEN.darker());
+				graphics.strokeRect(startX, startY, width, height);
+				break;
+			}
 		}
 		
 		for(GuiElement selectedElement : selectedElementsMap.keySet()) {
@@ -333,19 +379,6 @@ public class CircuitManager {
 			}
 		}
 		
-		if(System.nanoTime() - messageSetTime < MESSAGE_POST_DURATION * 1000000L) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(message, (getCanvas().getWidth() - bounds.getWidth()) * 0.5,
-			                    getCanvas().getHeight() - 50);
-		}
-		
-		graphics.save();
-		graphics.setFont(Font.font("monospace", 10));
-		graphics.setStroke(Color.BLACK);
-		graphics.strokeText("FPS: " + lastFrameCount, 5, 10);
-		graphics.restore();
-		
 		graphics.restore();
 	}
 	
@@ -357,22 +390,9 @@ public class CircuitManager {
 		try {
 			runnable.run();
 		} catch(Exception exc) {
-			exc.printStackTrace();
-			message = exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
-			messageSetTime = System.nanoTime();
+			// exc.printStackTrace();
+			lastErrorMessage = exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
 		}
-	}
-	
-	private void reset() {
-		simulatorWindow.clearSelection();
-		dummyCircuit.clearComponents();
-		potentialComponent = null;
-		isDraggedHorizontally = false;
-		startConnection = null;
-		endConnection = null;
-		startPoint = null;
-		curDraggedPoint = null;
-		selecting = false;
 	}
 	
 	public void keyPressed(KeyEvent e) {
@@ -407,19 +427,11 @@ public class CircuitManager {
 			case BACK_SPACE:
 			case DELETE:
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
-				selectedElementsMap.clear();
-				simulatorWindow.clearProperties();
 			case ESCAPE:
-				if(!selectedElementsMap.isEmpty()) {
-					if(draggedDelta.getX() != 0 || draggedDelta.getY() != 0) {
-						mayThrow(() -> circuitBoard.moveElements(-(int)draggedDelta.getX(),
-						                                         -(int)draggedDelta.getY()));
-						draggedDelta = new Point2D(0, 0);
-					}
-					selectedElementsMap.clear();
-					mayThrow(circuitBoard::finalizeMove);
-					simulatorWindow.clearProperties();
+				if(currentState == SelectingState.ELEMENT_DRAGGED) {
+					mayThrow(() -> circuitBoard.moveElements(0, 0));
 				}
+				
 				reset();
 				break;
 		}
@@ -438,215 +450,271 @@ public class CircuitManager {
 			menu.hide();
 		}
 		
-		if(e.getButton() == MouseButton.PRIMARY) {
-			if(startConnection != null) {
-				curDraggedPoint = new Point2D(e.getX(), e.getY());
-				potentialComponent = null;
-			} else if(potentialComponent != null) {
-				if(componentCreator != null) {
-					ComponentPeer<?> newComponent = componentCreator.createComponent(properties,
-					                                                                 potentialComponent.getX(),
-					                                                                 potentialComponent.getY());
-					mayThrow(() -> circuitBoard.addComponent(newComponent));
-					reset();
-					selectedElementsMap.clear();
-					selectedElementsMap.put(newComponent, new Point2D(newComponent.getX(), newComponent.getY()));
-					simulatorWindow.setProperties(newComponent);
+		if(e.getButton() != MouseButton.PRIMARY) {
+			return;
+		}
+		
+		lastMousePosition = new Point2D(e.getX(), e.getY());
+		lastMousePressed = new Point2D(e.getX(), e.getY());
+		
+		System.out.println("Mouse Pressed before: " + currentState);
+		
+		switch(currentState) {
+			case ELEMENT_DRAGGED:
+			case CONNECTION_SELECTED:
+			case CONNECTION_DRAGGED:
+			case HIGHLIGHT_DRAGGED:
+				throw new IllegalStateException("How?!");
+			
+			case IDLE:
+			case ELEMENT_SELECTED:
+				if(startConnection != null) {
+					currentState = SelectingState.CONNECTION_SELECTED;
+				} else {
+					Optional<GuiElement> clickedComponent =
+							Stream.concat(Stream.concat(circuitBoard.getComponents().stream(),
+							                            circuitBoard.getLinks()
+							                                        .stream()
+							                                        .flatMap(link -> link.getWires().stream())),
+							              getSelectedElements().stream())
+							      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
+							      .findAny();
+					if(clickedComponent.isPresent()) {
+						GuiElement selectedElement = clickedComponent.get();
+						
+						if(e.getClickCount() == 2 && selectedElement instanceof SubcircuitPeer) {
+							reset();
+							((SubcircuitPeer)selectedElement).switchToSubcircuit(this);
+						} else if(ctrlDown) {
+							Set<GuiElement> elements = new HashSet<>(getSelectedElements());
+							elements.add(selectedElement);
+							setSelectedElements(elements);
+						} else if(!getSelectedElements().contains(selectedElement)) {
+							setSelectedElements(Collections.singleton(selectedElement));
+						}
+						
+						if(currentState == SelectingState.IDLE) {
+							currentState = SelectingState.ELEMENT_SELECTED;
+						}
+					} else if(!ctrlDown) {
+						reset();
+					}
 				}
-			} else {
-				HashMap<GuiElement, Point2D> tempElements = new HashMap<>(selectedElementsMap);
+				break;
+			
+			case PLACING_COMPONENT:
+				ComponentPeer<?> newComponent = componentCreator.createComponent(properties,
+				                                                                 potentialComponent.getX(),
+				                                                                 potentialComponent.getY());
+				mayThrow(() -> circuitBoard.addComponent(newComponent));
 				reset();
-				selectedElementsMap = tempElements;
+				setSelectedElements(Collections.singleton(newComponent));
 				
-				startPoint = new Point2D(e.getX(), e.getY());
-				curDraggedPoint = startPoint;
-				draggedDelta = new Point2D(0, 0);
-				
+				currentState = SelectingState.ELEMENT_SELECTED;
+				break;
+		}
+		
+		System.out.println("Mouse Pressed after: " + currentState);
+	}
+	
+	public void mouseReleased(MouseEvent e) {
+		if(e.getButton() != MouseButton.PRIMARY) {
+			return;
+		}
+		
+		lastMousePosition = new Point2D(e.getX(), e.getY());
+		
+		System.out.println("Mouse Released before: " + currentState);
+		
+		switch(currentState) {
+			case PLACING_COMPONENT:
+				throw new IllegalStateException("What??");
+			
+			case IDLE:
+			case ELEMENT_SELECTED:
 				Optional<GuiElement> clickedComponent =
-						Stream.concat(Stream.concat(circuitBoard.getComponents().stream(),
-						                            circuitBoard.getLinks()
-						                                        .stream()
-						                                        .flatMap(link -> link.getWires().stream())),
-						              selectedElementsMap.keySet().stream())
+						Stream.concat(circuitBoard.getComponents().stream(),
+						              circuitBoard.getLinks()
+						                          .stream()
+						                          .flatMap(link -> link.getWires().stream()))
 						      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
 						      .findAny();
 				if(clickedComponent.isPresent()) {
 					GuiElement selectedElement = clickedComponent.get();
 					
-					if(e.getClickCount() == 2 && selectedElement instanceof SubcircuitPeer) {
-						reset();
-						((SubcircuitPeer)selectedElement).switchToSubcircuit(this);
-					} else {
-						selecting = true;
-						
-						if(!ctrlDown && selectedElementsMap.size() == 1) {
-							selectedElementsMap.clear();
-							mayThrow(circuitBoard::finalizeMove);
-						}
-						
-						selectedElementsMap.put(selectedElement,
-						                        new Point2D(selectedElement.getX(), selectedElement.getY()));
-						
-						if(circuitBoard.getCurrentState() == getCircuit().getTopLevelState() &&
-								   selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
-							((PinPeer)selectedElement).clicked(circuitBoard.getCurrentState(),
-							                                   (int)e.getX(),
-							                                   (int)e.getY());
-							mayThrow(circuitBoard::runSim);
-						} else if(selectedElement instanceof ClockPeer) {
-							Clock.tick();
-						}
+					if(circuitBoard.getCurrentState() == getCircuit().getTopLevelState() &&
+							   selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
+						((PinPeer)selectedElement).clicked(circuitBoard.getCurrentState(),
+						                                   (int)lastMousePosition.getX(),
+						                                   (int)lastMousePosition.getY());
+						mayThrow(circuitBoard::runSim);
+					} else if(selectedElement instanceof ClockPeer) {
+						Clock.tick();
 					}
-				} else if(!ctrlDown) {
-					selecting = false;
-					selectedElementsMap.clear();
-					mayThrow(circuitBoard::finalizeMove);
 				}
-				
-				updateSelectedProperties();
-			}
-		}
-	}
-	
-	public void mouseReleased(MouseEvent e) {
-		if(selecting && !selectedElementsMap.isEmpty()) {
-			mayThrow(circuitBoard::finalizeMove);
-			draggedDelta = new Point2D(0, 0);
-		}
-		
-		if(curDraggedPoint != null && startConnection != null) {
-			int endMidX = endConnection == null
-			              ? GuiUtils.getCircuitCoord(curDraggedPoint.getX())
-			              : endConnection.getX();
-			int endMidY = endConnection == null
-			              ? GuiUtils.getCircuitCoord(curDraggedPoint.getY())
-			              : endConnection.getY();
+			case ELEMENT_DRAGGED:
+				mayThrow(circuitBoard::finalizeMove);
+				currentState = SelectingState.IDLE;
+				break;
 			
-			if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
-				simulatorWindow.getEditHistory().beginGroup();
-				if(isDraggedHorizontally) {
-					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
-					                                    endMidX - startConnection.getX(), true));
-					mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(),
-					                                    endMidY - startConnection.getY(), false));
-				} else {
-					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
-					                                    endMidY - startConnection.getY(), false));
-					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), endMidY,
-					                                    endMidX - startConnection.getX(), true));
-				}
-				simulatorWindow.getEditHistory().endGroup();
-			} else if(endMidX - startConnection.getX() != 0) {
-				mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
-				                                    endMidX - startConnection.getX(), true));
-			} else if(endMidY - startConnection.getY() != 0) {
-				mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(), endMidY - startConnection.getY(),
-				                                    false));
-			} else {
+			case CONNECTION_SELECTED: {
 				Set<Connection> connections = circuitBoard.getConnections(startConnection.getX(),
 				                                                          startConnection.getY());
-				if(!ctrlDown) {
-					selectedElementsMap.clear();
-					mayThrow(circuitBoard::finalizeMove);
+				
+				setSelectedElements(Stream.concat(ctrlDown ? getSelectedElements().stream() : Stream.empty(),
+				                                  connections.stream().map(Connection::getParent))
+				                          .collect(Collectors.toSet()));
+				currentState = SelectingState.IDLE;
+				break;
+			}
+			
+			case CONNECTION_DRAGGED: {
+				int endMidX = endConnection == null
+				              ? GuiUtils.getCircuitCoord(lastMousePosition.getX())
+				              : endConnection.getX();
+				int endMidY = endConnection == null
+				              ? GuiUtils.getCircuitCoord(lastMousePosition.getY())
+				              : endConnection.getY();
+				
+				if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
+					simulatorWindow.getEditHistory().beginGroup();
+					if(isDraggedHorizontally) {
+						mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+						                                    endMidX - startConnection.getX(), true));
+						mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(),
+						                                    endMidY - startConnection.getY(),
+						                                    false));
+					} else {
+						mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+						                                    endMidY - startConnection.getY(), false));
+						mayThrow(() -> circuitBoard.addWire(startConnection.getX(), endMidY,
+						                                    endMidX - startConnection.getX(), true));
+					}
+					simulatorWindow.getEditHistory().endGroup();
+				} else if(endMidX - startConnection.getX() != 0) {
+					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+					                                    endMidX - startConnection.getX(), true));
+				} else if(endMidY - startConnection.getY() != 0) {
+					mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(),
+					                                    endMidY - startConnection.getY(),
+					                                    false));
+				} else {
+					Set<Connection> connections = circuitBoard.getConnections(startConnection.getX(),
+					                                                          startConnection.getY());
+					
+					setSelectedElements(Stream.concat(ctrlDown ? getSelectedElements().stream() : Stream.empty(),
+					                                  connections.stream().map(Connection::getParent))
+					                          .collect(Collectors.toSet()));
 				}
 				
-				selecting = true;
-				selectedElementsMap.putAll(
-						connections.stream()
-						           .collect(Collectors.toMap(Connection::getParent,
-						                                     conn -> new Point2D(conn.getParent().getX(),
-						                                                         conn.getParent().getY()))));
-				
-				updateSelectedProperties();
+				currentState = SelectingState.IDLE;
+				startConnection = null;
+				endConnection = null;
+				break;
 			}
+			
+			case HIGHLIGHT_DRAGGED:
+				currentState = SelectingState.IDLE;
+				break;
 		}
 		
-		startConnection = null;
-		endConnection = null;
-		startPoint = null;
-		curDraggedPoint = null;
+		System.out.println("Mouse Released after: " + currentState);
 		
 		mouseMoved(e);
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-		Point2D curPos = new Point2D(e.getX(), e.getY());
+		if(e.getButton() != MouseButton.PRIMARY) {
+			return;
+		}
 		
-		if(startPoint != null) {
-			if(selecting && !selectedElementsMap.isEmpty()) {
-				Point2D diff = curPos.subtract(startPoint).multiply(1.0 / GuiUtils.BLOCK_SIZE);
-				int dx = (int)(diff.getX() - draggedDelta.getX());
-				int dy = (int)(diff.getY() - draggedDelta.getY());
+		Point2D prevMousePosition = lastMousePosition;
+		lastMousePosition = new Point2D(e.getX(), e.getY());
+		
+		System.out.println("Mouse Dragged before: " + currentState);
+		
+		switch(currentState) {
+			case PLACING_COMPONENT:
+				throw new IllegalStateException("Huh?!!");
+			
+			case IDLE:
+			case HIGHLIGHT_DRAGGED:
+				currentState = SelectingState.HIGHLIGHT_DRAGGED;
 				
-				if(dx != 0 || dy != 0) {
-					if(draggedDelta.getX() == 0 && draggedDelta.getY() == 0) {
-						mayThrow(() -> circuitBoard.initMove(selectedElementsMap.keySet()));
-					}
-					
-					mayThrow(() -> circuitBoard.moveElements(dx, dy));
-					draggedDelta = draggedDelta.add(dx, dy);
-				}
-			} else {
-				int startX = (int)(startPoint.getX() < curDraggedPoint.getX() ? startPoint.getX()
-				                                                              : curDraggedPoint.getX());
-				int startY = (int)(startPoint.getY() < curDraggedPoint.getY() ? startPoint.getY()
-				                                                              : curDraggedPoint.getY());
-				int width = (int)Math.abs(curDraggedPoint.getX() - startPoint.getX());
-				int height = (int)Math.abs(curDraggedPoint.getY() - startPoint.getY());
+				int startX = (int)(lastMousePressed.getX() < lastMousePosition.getX() ? lastMousePressed.getX()
+				                                                                      : lastMousePosition.getX());
+				int startY = (int)(lastMousePressed.getY() < lastMousePosition.getY() ? lastMousePressed.getY()
+				                                                                      : lastMousePosition.getY());
+				int width = (int)Math.abs(lastMousePosition.getX() - lastMousePressed.getX());
+				int height = (int)Math.abs(lastMousePosition.getY() - lastMousePressed.getY());
 				
 				if(!ctrlDown) {
 					selectedElementsMap.clear();
 					mayThrow(circuitBoard::finalizeMove);
 				}
 				
-				selectedElementsMap.putAll(Stream.concat(circuitBoard.getComponents().stream(),
-				                                         circuitBoard.getLinks()
-				                                                     .stream()
-				                                                     .flatMap(link -> link.getWires().stream()))
-				                                 .filter(peer -> peer.isWithinScreenCoord(startX, startY, width,
-				                                                                          height))
-				                                 .collect(
-						                                 Collectors.toMap(peer -> peer,
-						                                                  peer -> new Point2D(peer.getX(),
-						                                                                      peer.getY()))));
+				setSelectedElements(Stream.concat(circuitBoard.getComponents().stream(),
+				                                  circuitBoard.getLinks().stream()
+				                                              .flatMap(link -> link.getWires().stream()))
+				                          .filter(peer -> peer.isWithinScreenCoord(startX, startY, width, height))
+				                          .collect(Collectors.toSet()));
+				break;
+			
+			case ELEMENT_SELECTED:
+			case ELEMENT_DRAGGED:
+				currentState = SelectingState.ELEMENT_DRAGGED;
 				
-				updateSelectedProperties();
-			}
+				int dx = GuiUtils.getCircuitCoord(lastMousePosition.getX() - lastMousePressed.getX());
+				int dy = GuiUtils.getCircuitCoord(lastMousePosition.getY() - lastMousePressed.getY());
+				
+				if(!circuitBoard.isMoving()) {
+					mayThrow(() -> circuitBoard.initMove(getSelectedElements()));
+				}
+				
+				mayThrow(() -> circuitBoard.moveElements(dx, dy));
+				break;
+			
+			case CONNECTION_SELECTED:
+			case CONNECTION_DRAGGED:
+				currentState = SelectingState.CONNECTION_DRAGGED;
+				
+				if(startConnection != null) {
+					int currDiffX = GuiUtils.getCircuitCoord(e.getX()) - startConnection.getX();
+					int prevDiffX = GuiUtils.getCircuitCoord(prevMousePosition.getX()) - startConnection.getX();
+					int currDiffY = GuiUtils.getCircuitCoord(e.getY()) - startConnection.getY();
+					int prevDiffY = GuiUtils.getCircuitCoord(prevMousePosition.getY()) - startConnection.getY();
+					
+					if(currDiffX == 0 || prevDiffX == 0 ||
+							   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
+						isDraggedHorizontally = false;
+					}
+					
+					if(currDiffY == 0 || prevDiffY == 0 ||
+							   currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
+						isDraggedHorizontally = true;
+					}
+				}
+				
+				endConnection = circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
+				                                            GuiUtils.getCircuitCoord(lastMousePosition.getY()));
+				
+				break;
 		}
 		
-		if(curDraggedPoint != null) {
-			if(startConnection != null) {
-				int currDiffX = GuiUtils.getCircuitCoord(e.getX()) - startConnection.getX();
-				int prevDiffX = GuiUtils.getCircuitCoord(curDraggedPoint.getX()) - startConnection.getX();
-				int currDiffY = GuiUtils.getCircuitCoord(e.getY()) - startConnection.getY();
-				int prevDiffY = GuiUtils.getCircuitCoord(curDraggedPoint.getY()) - startConnection.getY();
-				
-				if(currDiffX == 0 || prevDiffX == 0 ||
-						   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
-					isDraggedHorizontally = false;
-				}
-				
-				if(currDiffY == 0 || prevDiffY == 0 ||
-						   currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
-					isDraggedHorizontally = true;
-				}
-			}
-			
-			curDraggedPoint = curPos;
-			endConnection = circuitBoard.findConnection(
-					GuiUtils.getCircuitCoord(curDraggedPoint.getX()),
-					GuiUtils.getCircuitCoord(curDraggedPoint.getY()));
-		}
+		System.out.println("Mouse Dragged after: " + currentState);
+		
+		mouseMoved(e);
 	}
 	
 	public void mouseMoved(MouseEvent e) {
 		lastMousePosition = new Point2D(e.getX(), e.getY());
+		
 		if(potentialComponent != null) {
 			potentialComponent.setX(GuiUtils.getCircuitCoord(e.getX()) - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(GuiUtils.getCircuitCoord(e.getY()) - potentialComponent.getHeight() / 2);
 		}
 		
-		if(selectedElementsMap.isEmpty()) {
+		if(currentState != SelectingState.CONNECTION_DRAGGED) {
 			Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()),
 			                                                            GuiUtils.getCircuitCoord(e.getY()));
 			
@@ -663,20 +731,16 @@ public class CircuitManager {
 				selected = selectedConns.iterator().next();
 			}
 			
-			if(selected != startConnection) {
-				startConnection = selected;
-			}
-		} else {
-			startConnection = null;
+			startConnection = selected;
 		}
 	}
 	
 	public void mouseEntered(MouseEvent e) {
-		mouseInside = true;
+		isMouseInsideCanvas = true;
 	}
 	
 	public void mouseExited(MouseEvent e) {
-		mouseInside = false;
+		isMouseInsideCanvas = false;
 		ctrlDown = false;
 	}
 }

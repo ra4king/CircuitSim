@@ -41,12 +41,14 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
+import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -82,6 +84,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -106,6 +109,8 @@ public class CircuitSimulator extends Application {
 	private MenuItem toggleClock;
 	
 	private ComponentManager componentManager;
+	
+	private Canvas overlayCanvas;
 	
 	private TabPane buttonTabPane;
 	private ToggleGroup buttonsToggleGroup;
@@ -338,10 +343,10 @@ public class CircuitSimulator extends Application {
 	
 	private void updateProperties(Properties properties) {
 		if(selectedComponent == null) {
-			modifiedSelection(componentLabel.getText(), null, properties);
+			modifiedSelection(null, properties);
 		} else {
 			properties = getDefaultProperties().union(selectedComponent.properties).union(properties);
-			modifiedSelection(selectedComponent.name.getValue(), selectedComponent.creator, properties);
+			modifiedSelection(selectedComponent.creator, properties);
 		}
 	}
 	
@@ -349,16 +354,16 @@ public class CircuitSimulator extends Application {
 		selectedComponent = component;
 		if(component != null) {
 			Properties properties = getDefaultProperties().union(component.properties);
-			modifiedSelection(component.name.getValue(), component.creator, properties);
+			modifiedSelection(component.creator, properties);
 		} else {
-			modifiedSelection("", null, null);
+			modifiedSelection(null, null);
 		}
 	}
 	
-	private void modifiedSelection(String componentName, ComponentCreator<?> creator, Properties properties) {
+	private void modifiedSelection(ComponentCreator<?> creator, Properties properties) {
 		CircuitManager current = getCurrentCircuit();
 		if(current != null) {
-			setProperties(componentName, current.modifiedSelection(creator, properties));
+			current.modifiedSelection(creator, properties);
 		}
 	}
 	
@@ -604,7 +609,7 @@ public class CircuitSimulator extends Application {
 			Optional<ButtonType> result = alert.showAndWait();
 			if(result.isPresent()) {
 				if(result.get() == ButtonType.OK) {
-					saveCircuit();
+					saveCircuits();
 					if(saveFile == null && event != null) {
 						event.consume();
 					}
@@ -615,7 +620,96 @@ public class CircuitSimulator extends Application {
 		}
 	}
 	
-	private void saveCircuit() {
+	private void loadCircuits() {
+		checkUnsavedChanges(null);
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Choose sim file");
+		fileChooser.setInitialDirectory(lastSaveFile == null ? new File(System.getProperty("user.dir"))
+		                                                     : lastSaveFile.getParentFile());
+		fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
+		File selectedFile = fileChooser.showOpenDialog(stage);
+		if(selectedFile != null) {
+			lastSaveFile = saveFile = selectedFile;
+			
+			try {
+				long now = System.nanoTime();
+				List<CircuitInfo> circuits = FileFormat.load(selectedFile);
+				
+				System.out.printf("Loaded file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
+				
+				clearSelection();
+				if(Clock.isRunning()) {
+					toggleClock.fire();
+				}
+				circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
+				circuitManagers.clear();
+				canvasTabPane.getTabs().clear();
+				
+				for(CircuitInfo circuit : circuits) {
+					createCircuit(circuit.name);
+				}
+				
+				for(CircuitInfo circuit : circuits) {
+					CircuitManager manager = getCircuitManager(circuit.name);
+					
+					for(ComponentInfo component : circuit.components) {
+						@SuppressWarnings("unchecked")
+						Class<? extends ComponentPeer<?>> clazz =
+								(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
+						
+						ComponentCreator<?> creator;
+						if(clazz == SubcircuitPeer.class) {
+							creator = getSubcircuitPeerCreator(
+									component.properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
+						} else {
+							creator = ComponentManager.forClass(clazz);
+						}
+						
+						try {
+							manager.getCircuitBoard().addComponent(
+									creator.createComponent(component.properties,
+									                        component.x,
+									                        component.y));
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+					}
+					
+					for(WireInfo wire : circuit.wires) {
+						try {
+							manager.getCircuitBoard().addWire(wire.x, wire.y, wire.length, wire.isHorizontal);
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+					}
+				}
+				
+				if(circuits.size() == 0) {
+					createCircuit("New circuit");
+				}
+			} catch(Exception exc) {
+				circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
+				circuitManagers.clear();
+				canvasTabPane.getTabs().clear();
+				
+				exc.printStackTrace();
+				
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error loading circuits");
+				alert.setHeaderText("Error loading circuits");
+				alert.setContentText("Error when loading circuits file: " + exc.getMessage()
+						                     + "\nPlease send the stack trace to a developer.");
+				alert.show();
+			} finally {
+				editHistory.clear();
+				savedEditStackSize = 0;
+				updateTitle();
+			}
+		}
+	}
+	
+	private void saveCircuits() {
 		if(saveFile == null) {
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Choose sim file");
@@ -797,18 +891,16 @@ public class CircuitSimulator extends Application {
 		
 		buttonTabPane = new TabPane();
 		buttonTabPane.setSide(Side.TOP);
-		buttonTabPane.setMinWidth(100);
 		
 		propertiesTable = new GridPane();
-		propertiesTable.setMaxWidth(Double.MAX_VALUE);
 		
 		componentLabel = new Label();
 		
 		canvasTabPane = new TabPane();
 		canvasTabPane.setPrefWidth(800);
 		canvasTabPane.setPrefHeight(600);
-		canvasTabPane.setMaxWidth(Double.MAX_VALUE);
-		canvasTabPane.setMaxHeight(Double.MAX_VALUE);
+		//canvasTabPane.setMaxWidth(Double.MAX_VALUE);
+		//canvasTabPane.setMaxHeight(Double.MAX_VALUE);
 		canvasTabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			CircuitManager oldManager = oldValue == null || !circuitManagers.containsKey(oldValue.getText())
@@ -854,98 +946,11 @@ public class CircuitSimulator extends Application {
 		Menu fileMenu = new Menu("File");
 		MenuItem load = new MenuItem("Load");
 		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.CONTROL_DOWN));
-		load.setOnAction(event -> {
-			checkUnsavedChanges(null);
-			
-			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Choose sim file");
-			fileChooser.setInitialDirectory(lastSaveFile == null ? new File(System.getProperty("user.dir"))
-			                                                     : lastSaveFile.getParentFile());
-			fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
-			File selectedFile = fileChooser.showOpenDialog(stage);
-			if(selectedFile != null) {
-				lastSaveFile = saveFile = selectedFile;
-				
-				try {
-					long now = System.nanoTime();
-					List<CircuitInfo> circuits = FileFormat.load(selectedFile);
-					
-					System.out.printf("Loaded file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
-					
-					clearSelection();
-					if(Clock.isRunning()) {
-						toggleClock.fire();
-					}
-					circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
-					circuitManagers.clear();
-					canvasTabPane.getTabs().clear();
-					
-					for(CircuitInfo circuit : circuits) {
-						createCircuit(circuit.name);
-					}
-					
-					for(CircuitInfo circuit : circuits) {
-						CircuitManager manager = getCircuitManager(circuit.name);
-						
-						for(ComponentInfo component : circuit.components) {
-							@SuppressWarnings("unchecked")
-							Class<? extends ComponentPeer<?>> clazz =
-									(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
-							
-							ComponentCreator<?> creator;
-							if(clazz == SubcircuitPeer.class) {
-								creator = getSubcircuitPeerCreator(
-										component.properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
-							} else {
-								creator = ComponentManager.forClass(clazz);
-							}
-							
-							try {
-								manager.getCircuitBoard().addComponent(
-										creator.createComponent(component.properties,
-										                        component.x,
-										                        component.y));
-							} catch(Exception exc) {
-								exc.printStackTrace();
-							}
-						}
-						
-						for(WireInfo wire : circuit.wires) {
-							try {
-								manager.getCircuitBoard().addWire(wire.x, wire.y, wire.length, wire.isHorizontal);
-							} catch(Exception exc) {
-								exc.printStackTrace();
-							}
-						}
-					}
-					
-					if(circuits.size() == 0) {
-						createCircuit("New circuit");
-					}
-				} catch(Exception exc) {
-					circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
-					circuitManagers.clear();
-					canvasTabPane.getTabs().clear();
-					
-					exc.printStackTrace();
-					
-					Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Error loading circuits");
-					alert.setHeaderText("Error loading circuits");
-					alert.setContentText("Error when loading circuits file: " + exc.getMessage()
-							                     + "\nPlease send the stack trace to a developer.");
-					alert.show();
-				} finally {
-					editHistory.clear();
-					savedEditStackSize = 0;
-					updateTitle();
-				}
-			}
-		});
+		load.setOnAction(event -> loadCircuits());
 		
 		MenuItem save = new MenuItem("Save");
 		save.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN));
-		save.setOnAction(event -> saveCircuit());
+		save.setOnAction(event -> saveCircuits());
 		
 		MenuItem saveAs = new MenuItem("Save as");
 		saveAs.setAccelerator(
@@ -954,7 +959,7 @@ public class CircuitSimulator extends Application {
 			lastSaveFile = saveFile;
 			
 			saveFile = null;
-			save.fire();
+			saveCircuits();
 			
 			if(saveFile == null) {
 				saveFile = lastSaveFile;
@@ -1029,8 +1034,14 @@ public class CircuitSimulator extends Application {
 			if(manager != null) {
 				copy.fire();
 				
-				Set<GuiElement> selectedElements = manager.getSelectedElements();
 				try {
+					manager.getCircuitBoard().finalizeMove();
+				} catch(Exception exc) {
+					exc.printStackTrace();
+				}
+				
+				try {
+					Set<GuiElement> selectedElements = manager.getSelectedElements();
 					manager.getCircuitBoard().removeElements(selectedElements);
 				} catch(Exception exc) {
 					exc.printStackTrace();
@@ -1186,12 +1197,24 @@ public class CircuitSimulator extends Application {
 		SplitPane leftPaneSplit = new SplitPane(buttonTabPane, propertiesBox);
 		leftPaneSplit.setOrientation(Orientation.VERTICAL);
 		leftPaneSplit.setDividerPositions(0.65);
+		leftPaneSplit.setPrefWidth(450);
 		
 		SplitPane.setResizableWithParent(buttonTabPane, Boolean.FALSE);
 		
-		SplitPane canvasPropsSplit = new SplitPane(leftPaneSplit, canvasTabPane);
+		overlayCanvas = new Canvas();
+		overlayCanvas.setDisable(true);
+		
+		Pane pane = new Pane(overlayCanvas);
+		pane.setDisable(true);
+		
+		overlayCanvas.widthProperty().bind(pane.widthProperty());
+		overlayCanvas.heightProperty().bind(pane.heightProperty());
+		
+		StackPane canvasStackPane = new StackPane(canvasTabPane, pane);
+		
+		SplitPane canvasPropsSplit = new SplitPane(leftPaneSplit, canvasStackPane);
 		canvasPropsSplit.setOrientation(Orientation.HORIZONTAL);
-		canvasPropsSplit.setDividerPositions(0.25);
+		canvasPropsSplit.setDividerPositions(0.35);
 		
 		SplitPane.setResizableWithParent(leftPaneSplit, Boolean.FALSE);
 		
@@ -1233,13 +1256,46 @@ public class CircuitSimulator extends Application {
 		stage.setOnCloseRequest(this::checkUnsavedChanges);
 		
 		new AnimationTimer() {
+			private long lastRepaint;
+			private int lastFrameCount;
+			private int frameCount;
+			
 			@Override
 			public void handle(long now) {
 				Platform.runLater(() -> {
+					if(now - lastRepaint >= 1e9) {
+						lastFrameCount = frameCount;
+						frameCount = 0;
+						lastRepaint = now;
+					}
+					
+					frameCount++;
+					
 					CircuitManager manager = getCurrentCircuit();
 					if(manager != null) {
 						manager.paint();
 					}
+					
+					GraphicsContext graphics = overlayCanvas.getGraphicsContext2D();
+					graphics.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
+					
+					graphics.save();
+					graphics.setFont(Font.font("monospace", 10));
+					graphics.setStroke(Color.BLACK);
+					graphics.strokeText("FPS: " + lastFrameCount, 5, 50);
+					
+					if(manager != null) {
+						String message = manager.getCurrentError();
+						
+						Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
+						graphics.setFont(Font.font("monospace", 13));
+						graphics.setStroke(Color.BLACK);
+						graphics.strokeText(message,
+						                    (overlayCanvas.getWidth() - bounds.getWidth()) * 0.5,
+						                    overlayCanvas.getHeight() - 50);
+					}
+					
+					graphics.restore();
 				});
 			}
 		}.start();

@@ -63,7 +63,7 @@ public class CircuitBoard {
 					              links.stream()
 					                   .flatMap(links -> links.getWires().stream())).collect(Collectors.toSet()));
 		} catch(Exception exc) {
-			exc.printStackTrace();
+			// exc.printStackTrace();
 		}
 		
 		circuit.getSimulator().removeCircuit(circuit);
@@ -93,14 +93,26 @@ public class CircuitBoard {
 		return links;
 	}
 	
+	private Exception lastException;
+	
+	public Exception getLastException() {
+		return lastException;
+	}
+	
 	public void runSim() throws Exception {
 		if(Platform.isFxApplicationThread()) {
-			if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(
-					Collectors.toSet())).size() != 0) {
-				throw badLinks.iterator().next().getLastException();
+			try {
+				if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(
+						Collectors.toSet())).size() > 0) {
+					throw badLinks.iterator().next().getLastException();
+				}
+				
+				circuit.getSimulator().stepAll();
+				lastException = null;
+			} catch(Exception exc) {
+				lastException = exc;
+				throw exc;
 			}
-			
-			circuit.getSimulator().stepAll();
 		} else {
 			throw new IllegalStateException("Not running on FX thread!");
 		}
@@ -159,7 +171,7 @@ public class CircuitBoard {
 				try {
 					addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
 				} catch(Exception exc) {
-					exc.printStackTrace();
+					// exc.printStackTrace();
 				}
 			}
 			
@@ -205,7 +217,7 @@ public class CircuitBoard {
 			try {
 				finalizeMove();
 			} catch(Exception exc) {
-				exc.printStackTrace();
+				// exc.printStackTrace();
 			}
 		}
 		
@@ -223,12 +235,12 @@ public class CircuitBoard {
 	
 	public void moveElements(int dx, int dy) {
 		for(GuiElement element : moveElements) {
-			element.setX(element.getX() + dx);
-			element.setY(element.getY() + dy);
+			element.setX(element.getX() + (-moveDeltaX + dx));
+			element.setY(element.getY() + (-moveDeltaY + dy));
 		}
 		
-		moveDeltaX += dx;
-		moveDeltaY += dy;
+		moveDeltaX = dx;
+		moveDeltaY = dy;
 		
 		// TODO: Add wires to attach connections
 	}

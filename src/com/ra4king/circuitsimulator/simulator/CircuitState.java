@@ -203,18 +203,16 @@ public class CircuitState {
 		}
 		
 		void propagate() {
+			getMergedValue(); // check for short circuit before propagating
+			
 			Set<Port> toNotify = new HashSet<>();
 			
 			for(Port participantPort : participants.keySet()) {
-				try {
-					WireValue incomingValue = getIncomingValue(participantPort);
-					WireValue lastReceived = getLastReceived(participantPort);
-					if(!lastReceived.equals(incomingValue)) {
-						lastReceived.set(incomingValue);
-						toNotify.add(participantPort);
-					}
-				} catch(ShortCircuitException exc) {
-					// ignore short circuits
+				WireValue incomingValue = getIncomingValue(participantPort);
+				WireValue lastReceived = getLastReceived(participantPort);
+				if(!lastReceived.equals(incomingValue)) {
+					lastReceived.set(incomingValue);
+					toNotify.add(participantPort);
 				}
 			}
 			

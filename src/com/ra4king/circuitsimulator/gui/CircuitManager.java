@@ -459,7 +459,7 @@ public class CircuitManager {
 		lastMousePosition = new Point2D(e.getX(), e.getY());
 		lastMousePressed = new Point2D(e.getX(), e.getY());
 		
-		System.out.println("Mouse Pressed before: " + currentState);
+		// System.out.println("Mouse Pressed before: " + currentState);
 		
 		switch(currentState) {
 			case ELEMENT_DRAGGED:
@@ -516,7 +516,7 @@ public class CircuitManager {
 				break;
 		}
 		
-		System.out.println("Mouse Pressed after: " + currentState);
+		// System.out.println("Mouse Pressed after: " + currentState);
 	}
 	
 	public void mouseReleased(MouseEvent e) {
@@ -526,7 +526,7 @@ public class CircuitManager {
 		
 		lastMousePosition = new Point2D(e.getX(), e.getY());
 		
-		System.out.println("Mouse Released before: " + currentState);
+		// System.out.println("Mouse Released before: " + currentState);
 		
 		switch(currentState) {
 			case IDLE:
@@ -618,7 +618,7 @@ public class CircuitManager {
 				break;
 		}
 		
-		System.out.println("Mouse Released after: " + currentState);
+		// System.out.println("Mouse Released after: " + currentState);
 		
 		mouseMoved(e);
 	}
@@ -631,7 +631,7 @@ public class CircuitManager {
 		Point2D prevMousePosition = lastMousePosition;
 		lastMousePosition = new Point2D(e.getX(), e.getY());
 		
-		System.out.println("Mouse Dragged before: " + currentState);
+		// System.out.println("Mouse Dragged before: " + currentState);
 		
 		switch(currentState) {
 			case IDLE:
@@ -699,7 +699,7 @@ public class CircuitManager {
 				break;
 		}
 		
-		System.out.println("Mouse Dragged after: " + currentState);
+		// System.out.println("Mouse Dragged after: " + currentState);
 		
 		mouseMoved(e);
 	}

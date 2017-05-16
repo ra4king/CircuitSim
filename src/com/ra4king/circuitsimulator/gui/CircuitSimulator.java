@@ -685,7 +685,7 @@ public class CircuitSimulator extends Application {
 				alert.setHeaderText("Error loading circuits");
 				alert.setContentText("Error when loading circuits file: " + exc.getMessage()
 						                     + "\nPlease send the stack trace to a developer.");
-				alert.show();
+				alert.showAndWait();
 			} finally {
 				editHistory.clear();
 				savedEditStackSize = 0;
@@ -744,7 +744,7 @@ public class CircuitSimulator extends Application {
 				alert.setTitle("Error saving circuit");
 				alert.setHeaderText("Error saving circuit.");
 				alert.setContentText("Error when saving the circuits: " + exc.getMessage());
-				alert.show();
+				alert.showAndWait();
 			}
 		}
 	}
@@ -1159,7 +1159,17 @@ public class CircuitSimulator extends Application {
 		
 		clockMenu.getItems().addAll(toggleClock, tickClock, frequenciesMenu);
 		
-		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, clockMenu);
+		Menu helpMenu = new Menu("Help");
+		MenuItem about = new MenuItem("About");
+		about.setOnAction(event -> {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("About");
+			alert.setContentText("Circuit Simulator created by Roi Atalla © 2017");
+			alert.showAndWait();
+		});
+		helpMenu.getItems().addAll(about);
+		
+		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, clockMenu, helpMenu);
 		
 		componentLabel.setFont(Font.font("Sans serif", 16));
 		

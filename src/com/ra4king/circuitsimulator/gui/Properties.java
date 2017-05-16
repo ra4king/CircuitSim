@@ -618,6 +618,7 @@ public class Properties {
 						String newValue = parseValue(parseValue(t.getNewValue()));
 						t.getTableView().getItems().get(t.getTablePosition().getRow()).values.get(j).set(newValue);
 					} catch(IllegalArgumentException exc) {
+						// ignore
 					}
 					
 					// refresh the column
@@ -649,7 +650,7 @@ public class Properties {
 							}
 						}
 					} catch(Exception exc) {
-						new Alert(AlertType.ERROR, "Could not open file").show();
+						new Alert(AlertType.ERROR, "Could not open file").showAndWait();
 					}
 				}
 			});
@@ -664,7 +665,7 @@ public class Properties {
 					try {
 						Files.write(selectedFile.toPath(), strings);
 					} catch(Exception exc) {
-						new Alert(AlertType.ERROR, "Could not open file").show();
+						new Alert(AlertType.ERROR, "Could not open file").showAndWait();
 					}
 				}
 			});

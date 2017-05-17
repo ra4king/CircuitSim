@@ -77,6 +77,8 @@ public class CircuitManager {
 	private Map<GuiElement, Point2D> selectedElementsMap = new HashMap<>();
 	
 	private Exception lastException;
+	private long lastErrorTime;
+	private static final long SHOW_ERROR_DURATION = 3000;
 	
 	private boolean needsRepaint;
 	
@@ -125,6 +127,8 @@ public class CircuitManager {
 		isDraggedHorizontally = false;
 		startConnection = null;
 		endConnection = null;
+		
+		needsRepaint = true;
 	}
 	
 	public void destroy() {
@@ -152,6 +156,10 @@ public class CircuitManager {
 	}
 	
 	public String getCurrentError() {
+		if(lastException != null && SHOW_ERROR_DURATION < System.currentTimeMillis() - lastErrorTime) {
+			lastException = null;
+		}
+		
 		if(lastException == null && circuitBoard.getLastException() == null) {
 			return "";
 		}
@@ -212,11 +220,15 @@ public class CircuitManager {
 		this.componentCreator = componentCreator;
 		this.properties = properties;
 		
+		needsRepaint = true;
+		
 		if(currentState != SelectingState.IDLE && currentState != SelectingState.PLACING_COMPONENT) {
 			reset();
 		}
 		
 		if(componentCreator != null) {
+			setSelectedElements(Collections.emptySet());
+			
 			currentState = SelectingState.PLACING_COMPONENT;
 			
 			potentialComponent = componentCreator.createComponent(properties,
@@ -401,11 +413,16 @@ public class CircuitManager {
 	boolean mayThrow(ThrowableRunnable runnable) {
 		try {
 			runnable.run();
-			lastException = null;
+			
+			if(lastException != null && SHOW_ERROR_DURATION < System.currentTimeMillis() - lastErrorTime) {
+				lastException = null;
+			}
+			
 			return false;
 		} catch(Exception exc) {
 			exc.printStackTrace();
 			lastException = exc;
+			lastErrorTime = System.currentTimeMillis();
 			return true;
 		}
 	}
@@ -460,7 +477,8 @@ public class CircuitManager {
 					}
 					currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
 					selectedPin.getComponent().setValue(circuitBoard.getCurrentState(), currentValue);
-					mayThrow(circuitBoard::runSim);
+					circuitBoard.runSim();
+					needsRepaint = true;
 				}
 				break;
 			case BACK_SPACE:
@@ -652,9 +670,12 @@ public class CircuitManager {
 				ComponentPeer<?> newComponent = componentCreator.createComponent(properties,
 				                                                                 potentialComponent.getX(),
 				                                                                 potentialComponent.getY());
+				
 				mayThrow(() -> circuitBoard.addComponent(newComponent));
 				reset();
-				setSelectedElements(Collections.singleton(newComponent));
+				if(circuitBoard.getComponents().contains(newComponent)) {
+					setSelectedElements(Collections.singleton(newComponent));
+				}
 				
 				currentState = SelectingState.PLACING_COMPONENT;
 				break;
@@ -692,7 +713,7 @@ public class CircuitManager {
 						((PinPeer)selectedElement).clicked(circuitBoard.getCurrentState(),
 						                                   (int)lastMousePosition.getX(),
 						                                   (int)lastMousePosition.getY());
-						mayThrow(circuitBoard::runSim);
+						circuitBoard.runSim();
 					} else if(selectedElement instanceof ClockPeer) {
 						Clock.tick();
 					}

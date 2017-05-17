@@ -99,7 +99,7 @@ public class CircuitBoard {
 		return lastException;
 	}
 	
-	public void runSim() throws Exception {
+	public void runSim() {
 		if(Platform.isFxApplicationThread()) {
 			try {
 				if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(

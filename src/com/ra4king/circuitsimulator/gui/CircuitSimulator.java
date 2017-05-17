@@ -762,6 +762,7 @@ public class CircuitSimulator extends Application {
 		CircuitManager circuitManager = new CircuitManager(this, canvasScrollPane, simulator);
 		circuitManager.getCircuit().addListener(this::circuitModified);
 		
+		canvas.addEventHandler(MouseEvent.ANY, e -> canvas.requestFocus());
 		canvas.addEventHandler(MouseEvent.MOUSE_MOVED, circuitManager::mouseMoved);
 		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, circuitManager::mouseDragged);
 		canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, circuitManager::mousePressed);

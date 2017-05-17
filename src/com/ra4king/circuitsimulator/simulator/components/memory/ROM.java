@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.simulator.components;
+package com.ra4king.circuitsimulator.simulator.components.memory;
 
 import java.util.Arrays;
 

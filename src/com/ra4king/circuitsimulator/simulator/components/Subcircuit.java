@@ -10,7 +10,8 @@ import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.components.Pin.PinChangeListener;
+import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
+import com.ra4king.circuitsimulator.simulator.components.wiring.Pin.PinChangeListener;
 
 import javafx.util.Pair;
 

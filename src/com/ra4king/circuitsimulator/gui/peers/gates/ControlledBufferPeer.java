@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.gui.peers;
+package com.ra4king.circuitsimulator.gui.peers.gates;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.ControlledBuffer;
+import com.ra4king.circuitsimulator.simulator.components.gates.ControlledBuffer;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;

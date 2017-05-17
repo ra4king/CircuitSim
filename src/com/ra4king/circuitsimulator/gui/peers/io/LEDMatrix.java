@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.gui.peers;
+package com.ra4king.circuitsimulator.gui.peers.io;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.gui.peers;
+package com.ra4king.circuitsimulator.gui.peers.wiring;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.Splitter;
+import com.ra4king.circuitsimulator.simulator.components.wiring.Splitter;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;

@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.simulator.components;
+package com.ra4king.circuitsimulator.simulator.components.wiring;
 
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;

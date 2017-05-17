@@ -124,7 +124,7 @@ public class CircuitBoard {
 		             .noneMatch(c -> c != component && c.getX() == component.getX() && c.getY() == component.getY());
 	}
 	
-	public void addComponent(ComponentPeer<?> component) throws Exception {
+	public void addComponent(ComponentPeer<?> component) {
 		if(!isValidLocation(component)) {
 			throw new IllegalArgumentException("Cannot place component here.");
 		}
@@ -182,7 +182,7 @@ public class CircuitBoard {
 		}
 	}
 	
-	public void updateComponent(ComponentPeer<?> oldComponent, ComponentPeer<?> newComponent) throws Exception {
+	public void updateComponent(ComponentPeer<?> oldComponent, ComponentPeer<?> newComponent) {
 		try {
 			editHistory.disable();
 			
@@ -207,11 +207,11 @@ public class CircuitBoard {
 		return moveElements != null;
 	}
 	
-	public void initMove(Set<GuiElement> elements) throws Exception {
+	public void initMove(Set<GuiElement> elements) {
 		initMove(elements, true);
 	}
 	
-	public void initMove(Set<GuiElement> elements, boolean remove) throws Exception {
+	public void initMove(Set<GuiElement> elements, boolean remove) {
 		if(moveElements != null) {
 			try {
 				finalizeMove();
@@ -244,7 +244,7 @@ public class CircuitBoard {
 		// TODO: Add wires to attach connections
 	}
 	
-	public void finalizeMove() throws Exception {
+	public void finalizeMove() {
 		if(moveElements == null) {
 			return;
 		}
@@ -266,19 +266,19 @@ public class CircuitBoard {
 			}
 		}
 		
-		Exception toThrow = null;
+		RuntimeException toThrow = null;
 		for(GuiElement element : moveElements) {
 			if(element instanceof ComponentPeer<?>) {
 				try {
 					addComponent((ComponentPeer<?>)element);
-				} catch(Exception exc) {
+				} catch(RuntimeException exc) {
 					toThrow = exc;
 				}
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
 				try {
 					addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
-				} catch(Exception exc) {
+				} catch(RuntimeException exc) {
 					toThrow = exc;
 				}
 			}
@@ -303,11 +303,11 @@ public class CircuitBoard {
 		}
 	}
 	
-	public void removeElements(Set<? extends GuiElement> elements) throws Exception {
+	public void removeElements(Set<? extends GuiElement> elements) {
 		removeElements(elements, true);
 	}
 	
-	private void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) throws Exception {
+	private void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) {
 		try {
 			editHistory.beginGroup();
 			
@@ -367,7 +367,7 @@ public class CircuitBoard {
 		}
 	}
 	
-	public Set<Wire> addWire(int x, int y, int length, boolean horizontal) throws Exception {
+	public Set<Wire> addWire(int x, int y, int length, boolean horizontal) {
 		try {
 			editHistory.beginGroup();
 			

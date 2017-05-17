@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.gui.peers;
+package com.ra4king.circuitsimulator.gui.peers.arithmetic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.Adder;
+import com.ra4king.circuitsimulator.simulator.components.arithmetic.Adder;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;

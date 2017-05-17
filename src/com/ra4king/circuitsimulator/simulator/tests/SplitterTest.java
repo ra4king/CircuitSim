@@ -3,9 +3,9 @@ package com.ra4king.circuitsimulator.simulator.tests;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.components.Pin;
-import com.ra4king.circuitsimulator.simulator.components.Splitter;
 import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
+import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
+import com.ra4king.circuitsimulator.simulator.components.wiring.Splitter;
 
 /**
  * @author Roi Atalla

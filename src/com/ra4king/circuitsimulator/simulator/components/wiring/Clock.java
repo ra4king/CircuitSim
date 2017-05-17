@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.simulator.components;
+package com.ra4king.circuitsimulator.simulator.components.wiring;
 
 import java.util.ArrayList;
 import java.util.HashSet;

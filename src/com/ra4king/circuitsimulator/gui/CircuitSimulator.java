@@ -32,9 +32,9 @@ import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.Simulator;
-import com.ra4king.circuitsimulator.simulator.components.Clock;
-import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
+import com.ra4king.circuitsimulator.simulator.components.wiring.Clock;
+import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;

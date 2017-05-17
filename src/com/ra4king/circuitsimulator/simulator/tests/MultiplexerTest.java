@@ -3,12 +3,12 @@ package com.ra4king.circuitsimulator.simulator.tests;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.components.Multiplexer;
-import com.ra4king.circuitsimulator.simulator.components.Pin;
 import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
 import com.ra4king.circuitsimulator.simulator.components.gates.NotGate;
 import com.ra4king.circuitsimulator.simulator.components.gates.OrGate;
 import com.ra4king.circuitsimulator.simulator.components.gates.XorGate;
+import com.ra4king.circuitsimulator.simulator.components.plexers.Multiplexer;
+import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
 /**
  * @author Roi Atalla

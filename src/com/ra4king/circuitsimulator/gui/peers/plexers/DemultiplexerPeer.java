@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.gui.peers;
+package com.ra4king.circuitsimulator.gui.peers.plexers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.Decoder;
+import com.ra4king.circuitsimulator.simulator.components.plexers.Demultiplexer;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
@@ -20,33 +20,37 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class DecoderPeer extends ComponentPeer<Decoder> {
+public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Plexer", "Decoder"),
-		                     new Image(DemultiplexerPeer.class.getResourceAsStream("/resources/Decoder.png")),
+		manager.addComponent(new Pair<>("Plexer", "Demux"),
+		                     new Image(DemultiplexerPeer.class.getResourceAsStream("/resources/Demux.png")),
 		                     new Properties());
 	}
 	
-	public DecoderPeer(Properties props, int x, int y) {
+	public DemultiplexerPeer(Properties props, int x, int y) {
 		super(x, y, 3, 0);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.SELECTOR_BITS);
 		properties.mergeIfExists(props);
 		
-		Decoder decoder = new Decoder(properties.getValue(Properties.LABEL),
-		                              properties.getValue(Properties.SELECTOR_BITS));
-		setHeight(decoder.getNumOutputs() + 2);
+		Demultiplexer demux = new Demultiplexer(properties.getValue(Properties.LABEL),
+		                                        properties.getValue(Properties.BITSIZE),
+		                                        properties.getValue(Properties.SELECTOR_BITS));
+		setHeight(demux.getNumOutputs() + 2);
 		
 		List<PortConnection> connections = new ArrayList<>();
-		for(int i = 0; i < decoder.getNumOutputs(); i++) {
-			connections.add(new PortConnection(this, decoder.getOutputPort(i), getWidth(), i + 1));
+		for(int i = 0; i < demux.getNumOutputs(); i++) {
+			connections.add(new PortConnection(this, demux.getOutputPort(i), getWidth(), i + 1));
 		}
 		
-		connections.add(new PortConnection(this, decoder.getSelectorPort(), "Selector", getWidth() / 2, getHeight()));
+		connections.add(new PortConnection(this, demux.getSelectorPort(), "Selector", getWidth() / 2 + 1, getHeight
+				                                                                                                  ()));
+		connections.add(new PortConnection(this, demux.getInputPort(), "In", 0, getHeight() / 2));
 		
-		init(decoder, properties, connections);
+		init(demux, properties, connections);
 	}
 	
 	@Override

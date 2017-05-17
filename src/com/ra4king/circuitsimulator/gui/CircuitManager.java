@@ -296,6 +296,16 @@ public class CircuitManager {
 		
 		circuitBoard.paint(graphics);
 		
+		for(GuiElement selectedElement : selectedElementsMap.keySet()) {
+			graphics.setStroke(Color.RED);
+			if(selectedElement instanceof Wire) {
+				graphics.strokeRect(selectedElement.getScreenX() - 1, selectedElement.getScreenY() - 1,
+				                    selectedElement.getScreenWidth() + 2, selectedElement.getScreenHeight() + 2);
+			} else {
+				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
+			}
+		}
+		
 		switch(currentState) {
 			case IDLE:
 			case CONNECTION_SELECTED:
@@ -390,16 +400,6 @@ public class CircuitManager {
 				graphics.setStroke(Color.GREEN.darker());
 				graphics.strokeRect(startX, startY, width, height);
 				break;
-			}
-		}
-		
-		for(GuiElement selectedElement : selectedElementsMap.keySet()) {
-			graphics.setStroke(Color.RED);
-			if(selectedElement instanceof Wire) {
-				graphics.strokeRect(selectedElement.getScreenX() - 1, selectedElement.getScreenY() - 1,
-				                    selectedElement.getScreenWidth() + 2, selectedElement.getScreenHeight() + 2);
-			} else {
-				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
 			}
 		}
 		

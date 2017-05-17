@@ -28,7 +28,7 @@ public class AdderPeer extends ComponentPeer<Adder> {
 	}
 	
 	public AdderPeer(Properties props, int x, int y) {
-		super(x, y, 2, 3);
+		super(x, y, 4, 4);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
@@ -40,10 +40,10 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_A), "A", 0, 1));
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_B), "B", 0, 2));
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_IN), "Carry in", 1, 0));
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_OUT), "Out", getWidth(), 1));
-		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_OUT), "Carry out", 1, getHeight()));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_B), "B", 0, 3));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_IN), "Carry in", 2, 0));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_OUT), "Out", getWidth(), 2));
+		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_CARRY_OUT), "Carry out", 2, getHeight()));
 		
 		init(adder, properties, connections);
 	}

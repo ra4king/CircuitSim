@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import com.ra4king.circuitsimulator.gui.peers.arithmetic.AdderPeer;
+import com.ra4king.circuitsimulator.gui.peers.arithmetic.BitExtenderPeer;
+import com.ra4king.circuitsimulator.gui.peers.arithmetic.ComparatorPeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.ControlledBufferPeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.NandGatePeer;
@@ -151,6 +153,8 @@ public class ComponentManager {
 		register(ROMPeer.class);
 		
 		register(AdderPeer.class);
+		register(ComparatorPeer.class);
+		register(BitExtenderPeer.class);
 		
 		register(LEDMatrix.class);
 	}

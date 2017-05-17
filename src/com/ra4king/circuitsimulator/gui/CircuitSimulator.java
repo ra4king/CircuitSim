@@ -1221,7 +1221,13 @@ public class CircuitSimulator extends Application {
 			button.setMinWidth(50);
 			button.setMinHeight(50);
 			button.setToggleGroup(buttonsToggleGroup);
-			button.setOnAction(event -> modifiedSelection(info));
+			button.setOnAction(event -> {
+				if(button.isSelected()) {
+					modifiedSelection(info);
+				} else {
+					modifiedSelection(null);
+				}
+			});
 			return button;
 		};
 		

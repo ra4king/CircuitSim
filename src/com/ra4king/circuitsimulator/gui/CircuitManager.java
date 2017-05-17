@@ -269,7 +269,14 @@ public class CircuitManager {
 			return;
 		}
 		
+		currentState = SelectingState.IDLE;
 		setSelectedElements(Collections.emptySet());
+		dummyCircuit.clearComponents();
+		potentialComponent = null;
+		isDraggedHorizontally = false;
+		startConnection = null;
+		endConnection = null;
+		needsRepaint = true;
 	}
 	
 	public void paint() {

@@ -7,7 +7,11 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
  */
 public class OrGate extends Gate {
 	public OrGate(String name, int bitSize, int numInputs) {
-		super(name, bitSize, numInputs);
+		super(name, bitSize, numInputs, false);
+	}
+	
+	protected OrGate(String name, int bitSize, int numInputs, boolean negateOutput) {
+		super(name, bitSize, numInputs, negateOutput);
 	}
 	
 	@Override

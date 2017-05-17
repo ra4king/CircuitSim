@@ -731,16 +731,18 @@ public class CircuitManager {
 			case ELEMENT_SELECTED:
 			case ELEMENT_DRAGGED:
 			case PLACING_COMPONENT:
-				currentState = SelectingState.ELEMENT_DRAGGED;
-				
 				int dx = GuiUtils.getCircuitCoord(lastMousePosition.getX() - lastMousePressed.getX());
 				int dy = GuiUtils.getCircuitCoord(lastMousePosition.getY() - lastMousePressed.getY());
 				
-				if(!circuitBoard.isMoving()) {
-					mayThrow(() -> circuitBoard.initMove(getSelectedElements()));
+				if(dx != 0 || dy != 0 || currentState == SelectingState.ELEMENT_DRAGGED) {
+					currentState = SelectingState.ELEMENT_DRAGGED;
+					
+					if(!circuitBoard.isMoving()) {
+						mayThrow(() -> circuitBoard.initMove(getSelectedElements()));
+					}
+					
+					mayThrow(() -> circuitBoard.moveElements(dx, dy));
 				}
-				
-				mayThrow(() -> circuitBoard.moveElements(dx, dy));
 				break;
 			
 			case CONNECTION_SELECTED:

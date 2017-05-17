@@ -13,12 +13,14 @@ import com.ra4king.circuitsimulator.simulator.WireValue.State;
 public abstract class Gate extends Component {
 	private final int bitSize;
 	private final int numInputs;
+	private final boolean negateOutput;
 	
-	public Gate(String name, int bitSize, int numInputs) {
+	public Gate(String name, int bitSize, int numInputs, boolean negateOutput) {
 		super(name, Utils.getFilledArray(numInputs + 1, bitSize));
 		
 		this.bitSize = bitSize;
 		this.numInputs = numInputs;
+		this.negateOutput = negateOutput;
 	}
 	
 	public int getBitSize() {
@@ -52,6 +54,8 @@ public abstract class Gate extends Component {
 			
 			if(isX) {
 				result.setBit(bit, State.X);
+			} else if(negateOutput) {
+				result.setBit(bit, result.getBit(bit) == State.ONE ? State.ZERO : State.ONE);
 			}
 		}
 		

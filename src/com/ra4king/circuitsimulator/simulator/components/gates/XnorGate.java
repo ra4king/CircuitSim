@@ -1,17 +1,10 @@
 package com.ra4king.circuitsimulator.simulator.components.gates;
 
-import com.ra4king.circuitsimulator.simulator.WireValue.State;
-
 /**
  * @author Roi Atalla
  */
-public class XnorGate extends Gate {
+public class XnorGate extends XorGate {
 	public XnorGate(String name, int bitSize, int numInputs) {
-		super(name, bitSize, numInputs);
-	}
-	
-	@Override
-	protected State operate(State acc, State bit) {
-		return acc != State.X && bit != State.X && acc == bit ? State.ONE : State.ZERO;
+		super(name, bitSize, numInputs, true);
 	}
 }

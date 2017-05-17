@@ -21,7 +21,6 @@ import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentLauncherInfo;
 import com.ra4king.circuitsimulator.gui.EditHistory.EditAction;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
-import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
 import com.ra4king.circuitsimulator.gui.file.FileFormat;
@@ -480,7 +479,8 @@ public class CircuitSimulator extends Application {
 		int maxWidth = ((maxX.isPresent() ? maxX.getAsInt() : 0) + 5) * GuiUtils.BLOCK_SIZE;
 		circuitManager.getCanvas().setWidth(
 				maxWidth < circuitManager.getCanvasScrollPane().getWidth() ? circuitManager.getCanvasScrollPane()
-				                                                                           .getWidth() : maxWidth);
+				                                                                           .getWidth()
+				                                                           : maxWidth);
 		
 		OptionalInt maxY = Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
 		                                 circuitManager.getCircuitBoard().getLinks().stream().flatMap(
@@ -491,7 +491,8 @@ public class CircuitSimulator extends Application {
 		int maxHeight = ((maxY.isPresent() ? maxY.getAsInt() : 0) + 5) * GuiUtils.BLOCK_SIZE;
 		circuitManager.getCanvas().setHeight(
 				maxHeight < circuitManager.getCanvasScrollPane().getHeight() ? circuitManager.getCanvasScrollPane()
-				                                                                             .getHeight() : maxHeight);
+				                                                                             .getHeight()
+				                                                             : maxHeight);
 		
 		needsRepaint = true;
 	}
@@ -756,24 +757,19 @@ public class CircuitSimulator extends Application {
 	
 	private CircuitManager createCircuit(String name) {
 		Canvas canvas = new Canvas(800, 600);
-		canvas.addEventHandler(MouseEvent.ANY, event -> canvas.requestFocus());
-		canvas.addEventHandler(MouseEvent.MOUSE_MOVED, this::mouseMoved);
-		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, this::mouseDragged);
-		canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, this::mouseClicked);
-		canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
-		canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
-		canvas.addEventHandler(MouseEvent.MOUSE_ENTERED, this::mouseEntered);
-		canvas.addEventHandler(MouseEvent.MOUSE_EXITED, this::mouseExited);
-		canvas.addEventHandler(KeyEvent.KEY_PRESSED, this::keyPressed);
-		canvas.addEventHandler(KeyEvent.KEY_TYPED, this::keyTyped);
-		canvas.addEventHandler(KeyEvent.KEY_RELEASED, this::keyReleased);
-		
-		canvas.requestFocus();
-		
 		ScrollPane canvasScrollPane = new ScrollPane(canvas);
 		
 		CircuitManager circuitManager = new CircuitManager(this, canvasScrollPane, simulator);
 		circuitManager.getCircuit().addListener(this::circuitModified);
+		
+		canvas.addEventHandler(MouseEvent.MOUSE_MOVED, circuitManager::mouseMoved);
+		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, circuitManager::mouseDragged);
+		canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, circuitManager::mousePressed);
+		canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, circuitManager::mouseReleased);
+		canvas.addEventHandler(MouseEvent.MOUSE_ENTERED, circuitManager::mouseEntered);
+		canvas.addEventHandler(MouseEvent.MOUSE_EXITED, circuitManager::mouseExited);
+		canvas.addEventHandler(KeyEvent.KEY_PRESSED, circuitManager::keyPressed);
+		canvas.addEventHandler(KeyEvent.KEY_RELEASED, circuitManager::keyReleased);
 		
 		canvasScrollPane.widthProperty().addListener(
 				(observable, oldValue, newValue) -> this.updateCanvasSize(circuitManager));
@@ -843,6 +839,8 @@ public class CircuitSimulator extends Application {
 		
 		editHistory.addAction(EditAction.CREATE_CIRCUIT, circuitManager, canvasTab, canvasTabPane.getTabs().size() -
 				                                                                            1);
+		
+		canvas.requestFocus();
 		
 		return circuitManager;
 	}
@@ -1295,95 +1293,5 @@ public class CircuitSimulator extends Application {
 				});
 			}
 		}.start();
-	}
-	
-	public void keyPressed(KeyEvent e) {
-		switch(e.getCode()) {
-			case RIGHT: {
-				Properties props = new Properties();
-				props.setValue(Properties.DIRECTION, Direction.EAST);
-				updateProperties(props);
-				break;
-			}
-			case LEFT: {
-				Properties props = new Properties();
-				props.setValue(Properties.DIRECTION, Direction.WEST);
-				updateProperties(props);
-				break;
-			}
-			case UP: {
-				Properties props = new Properties();
-				props.setValue(Properties.DIRECTION, Direction.NORTH);
-				updateProperties(props);
-				break;
-			}
-			case DOWN: {
-				Properties props = new Properties();
-				props.setValue(Properties.DIRECTION, Direction.SOUTH);
-				updateProperties(props);
-				break;
-			}
-			case ESCAPE:
-				clearSelection();
-				break;
-		}
-		
-		CircuitManager manager = getCurrentCircuit();
-		if(manager != null) {
-			manager.keyPressed(e);
-		}
-	}
-	
-	public void keyReleased(KeyEvent e) {
-		CircuitManager manager = getCurrentCircuit();
-		if(manager != null) {
-			manager.keyReleased(e);
-		}
-	}
-	
-	public void keyTyped(KeyEvent e) {}
-	
-	public void mouseClicked(MouseEvent e) {}
-	
-	public void mousePressed(MouseEvent e) {
-		CircuitManager manager = getCurrentCircuit();
-		if(manager != null) {
-			manager.mousePressed(e);
-		}
-	}
-	
-	public void mouseReleased(MouseEvent e) {
-		CircuitManager manager = getCurrentCircuit();
-		if(manager != null) {
-			manager.mouseReleased(e);
-		}
-	}
-	
-	public void mouseMoved(MouseEvent e) {
-		CircuitManager manager = getCurrentCircuit();
-		if(manager != null) {
-			manager.mouseMoved(e);
-		}
-	}
-	
-	public void mouseDragged(MouseEvent e) {
-		CircuitManager manager = getCurrentCircuit();
-		if(manager != null) {
-			manager.mouseDragged(e);
-		}
-	}
-	
-	public void mouseEntered(MouseEvent e) {
-		CircuitManager manager = getCurrentCircuit();
-		if(manager != null) {
-			manager.mouseEntered(e);
-		}
-	}
-	
-	public void mouseExited(MouseEvent e) {
-		CircuitManager manager = getCurrentCircuit();
-		if(manager != null) {
-			manager.mouseExited(e);
-		}
 	}
 }

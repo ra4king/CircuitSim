@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
+import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.peers.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.PinPeer;
 import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
@@ -244,8 +245,10 @@ public class CircuitManager {
 													                               component.getX(),
 													                               component.getY())));
 			
+			simulatorWindow.getEditHistory().beginGroup();
 			newComponents.forEach((oldComponent, newComponent) ->
 					                      mayThrow(() -> circuitBoard.updateComponent(oldComponent, newComponent)));
+			simulatorWindow.getEditHistory().endGroup();
 			
 			setSelectedElements(Stream.concat(
 					selectedElementsMap.keySet().stream().filter(element -> !(element instanceof ComponentPeer<?>)),
@@ -409,6 +412,30 @@ public class CircuitManager {
 	
 	public void keyPressed(KeyEvent e) {
 		switch(e.getCode()) {
+			case RIGHT: {
+				Properties props = new Properties();
+				props.setValue(Properties.DIRECTION, Direction.EAST);
+				modifiedSelection(componentCreator, props);
+				break;
+			}
+			case LEFT: {
+				Properties props = new Properties();
+				props.setValue(Properties.DIRECTION, Direction.WEST);
+				modifiedSelection(componentCreator, props);
+				break;
+			}
+			case UP: {
+				Properties props = new Properties();
+				props.setValue(Properties.DIRECTION, Direction.NORTH);
+				modifiedSelection(componentCreator, props);
+				break;
+			}
+			case DOWN: {
+				Properties props = new Properties();
+				props.setValue(Properties.DIRECTION, Direction.SOUTH);
+				modifiedSelection(componentCreator, props);
+				break;
+			}
 			case CONTROL:
 				ctrlDown = true;
 				break;

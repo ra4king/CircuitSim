@@ -393,7 +393,7 @@ public class CircuitManager {
 			lastException = null;
 			return false;
 		} catch(Exception exc) {
-			// exc.printStackTrace();
+			exc.printStackTrace();
 			lastException = exc;
 			return true;
 		}
@@ -449,6 +449,91 @@ public class CircuitManager {
 		}
 	}
 	
+	private void addCurrentWire() {
+		int endMidX = endConnection == null
+		              ? GuiUtils.getCircuitCoord(lastMousePosition.getX())
+		              : endConnection.getX();
+		int endMidY = endConnection == null
+		              ? GuiUtils.getCircuitCoord(lastMousePosition.getY())
+		              : endConnection.getY();
+		
+		if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
+			simulatorWindow.getEditHistory().beginGroup();
+			if(isDraggedHorizontally) {
+				mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+				                                    endMidX - startConnection.getX(), true));
+				mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(),
+				                                    endMidY - startConnection.getY(),
+				                                    false));
+			} else {
+				mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+				                                    endMidY - startConnection.getY(), false));
+				mayThrow(() -> circuitBoard.addWire(startConnection.getX(), endMidY,
+				                                    endMidX - startConnection.getX(), true));
+			}
+			simulatorWindow.getEditHistory().endGroup();
+		} else if(endMidX - startConnection.getX() != 0) {
+			mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
+			                                    endMidX - startConnection.getX(), true));
+		} else if(endMidY - startConnection.getY() != 0) {
+			mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(),
+			                                    endMidY - startConnection.getY(),
+			                                    false));
+		} else {
+			Set<Connection> connections = circuitBoard.getConnections(startConnection.getX(),
+			                                                          startConnection.getY());
+			
+			setSelectedElements(Stream.concat(ctrlDown ? getSelectedElements().stream() : Stream.empty(),
+			                                  connections.stream().map(Connection::getParent))
+			                          .collect(Collectors.toSet()));
+		}
+	}
+	
+	private void checkStartConnection() {
+		if(currentState != SelectingState.CONNECTION_DRAGGED) {
+			Set<Connection> selectedConns = circuitBoard.getConnections(
+					GuiUtils.getCircuitCoord(lastMousePosition.getX()),
+					GuiUtils.getCircuitCoord(lastMousePosition.getY()));
+			
+			Connection selected = null;
+			
+			for(Connection connection : selectedConns) {
+				if(connection instanceof PortConnection) {
+					selected = connection;
+					break;
+				}
+			}
+			
+			if(selected == null && !selectedConns.isEmpty()) {
+				selected = selectedConns.iterator().next();
+			}
+			
+			startConnection = selected;
+		}
+	}
+	
+	private void checkEndConnection(Point2D prevMousePosition) {
+		if(currentState == SelectingState.CONNECTION_DRAGGED) {
+			int currDiffX = GuiUtils.getCircuitCoord(lastMousePosition.getX()) - startConnection.getX();
+			int prevDiffX = GuiUtils.getCircuitCoord(prevMousePosition.getX()) - startConnection.getX();
+			int currDiffY = GuiUtils.getCircuitCoord(lastMousePosition.getY()) - startConnection.getY();
+			int prevDiffY = GuiUtils.getCircuitCoord(prevMousePosition.getY()) - startConnection.getY();
+			
+			if(currDiffX == 0 || prevDiffX == 0 ||
+					   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
+				isDraggedHorizontally = false;
+			}
+			
+			if(currDiffY == 0 || prevDiffY == 0 ||
+					   currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
+				isDraggedHorizontally = true;
+			}
+			
+			endConnection = circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
+			                                            GuiUtils.getCircuitCoord(lastMousePosition.getY()));
+		}
+	}
+	
 	public void mousePressed(MouseEvent e) {
 		if(menu != null) {
 			menu.hide();
@@ -466,14 +551,17 @@ public class CircuitManager {
 		switch(currentState) {
 			case ELEMENT_DRAGGED:
 			case CONNECTION_SELECTED:
-			case CONNECTION_DRAGGED:
 			case HIGHLIGHT_DRAGGED:
 				throw new IllegalStateException("How?!");
 			
 			case IDLE:
 			case ELEMENT_SELECTED:
 				if(startConnection != null) {
-					currentState = SelectingState.CONNECTION_SELECTED;
+					if(ctrlDown) {
+						currentState = SelectingState.CONNECTION_DRAGGED;
+					} else {
+						currentState = SelectingState.CONNECTION_SELECTED;
+					}
 				} else {
 					Optional<GuiElement> clickedComponent =
 							Stream.concat(Stream.concat(circuitBoard.getComponents().stream(),
@@ -503,6 +591,21 @@ public class CircuitManager {
 					} else if(!ctrlDown) {
 						reset();
 					}
+				}
+				break;
+			
+			case CONNECTION_DRAGGED:
+				addCurrentWire();
+				if(ctrlDown) {
+					Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()),
+					                                                            GuiUtils.getCircuitCoord(e.getY()));
+					if(!selectedConns.isEmpty()) {
+						startConnection = selectedConns.iterator().next();
+					}
+				} else {
+					currentState = SelectingState.IDLE;
+					startConnection = null;
+					endConnection = null;
 				}
 				break;
 			
@@ -570,47 +673,12 @@ public class CircuitManager {
 			}
 			
 			case CONNECTION_DRAGGED: {
-				int endMidX = endConnection == null
-				              ? GuiUtils.getCircuitCoord(lastMousePosition.getX())
-				              : endConnection.getX();
-				int endMidY = endConnection == null
-				              ? GuiUtils.getCircuitCoord(lastMousePosition.getY())
-				              : endConnection.getY();
-				
-				if(endMidX - startConnection.getX() != 0 && endMidY - startConnection.getY() != 0) {
-					simulatorWindow.getEditHistory().beginGroup();
-					if(isDraggedHorizontally) {
-						mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
-						                                    endMidX - startConnection.getX(), true));
-						mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(),
-						                                    endMidY - startConnection.getY(),
-						                                    false));
-					} else {
-						mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
-						                                    endMidY - startConnection.getY(), false));
-						mayThrow(() -> circuitBoard.addWire(startConnection.getX(), endMidY,
-						                                    endMidX - startConnection.getX(), true));
-					}
-					simulatorWindow.getEditHistory().endGroup();
-				} else if(endMidX - startConnection.getX() != 0) {
-					mayThrow(() -> circuitBoard.addWire(startConnection.getX(), startConnection.getY(),
-					                                    endMidX - startConnection.getX(), true));
-				} else if(endMidY - startConnection.getY() != 0) {
-					mayThrow(() -> circuitBoard.addWire(endMidX, startConnection.getY(),
-					                                    endMidY - startConnection.getY(),
-					                                    false));
-				} else {
-					Set<Connection> connections = circuitBoard.getConnections(startConnection.getX(),
-					                                                          startConnection.getY());
-					
-					setSelectedElements(Stream.concat(ctrlDown ? getSelectedElements().stream() : Stream.empty(),
-					                                  connections.stream().map(Connection::getParent))
-					                          .collect(Collectors.toSet()));
+				if(!ctrlDown) {
+					addCurrentWire();
+					currentState = SelectingState.IDLE;
+					startConnection = null;
+					endConnection = null;
 				}
-				
-				currentState = SelectingState.IDLE;
-				startConnection = null;
-				endConnection = null;
 				break;
 			}
 			
@@ -622,7 +690,7 @@ public class CircuitManager {
 		
 		// System.out.println("Mouse Released after: " + currentState);
 		
-		mouseMoved(e);
+		checkStartConnection();
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -649,7 +717,6 @@ public class CircuitManager {
 				
 				if(!ctrlDown) {
 					selectedElementsMap.clear();
-					mayThrow(circuitBoard::finalizeMove);
 				}
 				
 				setSelectedElements(Stream.concat(
@@ -679,36 +746,17 @@ public class CircuitManager {
 			case CONNECTION_SELECTED:
 			case CONNECTION_DRAGGED:
 				currentState = SelectingState.CONNECTION_DRAGGED;
-				
-				if(startConnection != null) {
-					int currDiffX = GuiUtils.getCircuitCoord(e.getX()) - startConnection.getX();
-					int prevDiffX = GuiUtils.getCircuitCoord(prevMousePosition.getX()) - startConnection.getX();
-					int currDiffY = GuiUtils.getCircuitCoord(e.getY()) - startConnection.getY();
-					int prevDiffY = GuiUtils.getCircuitCoord(prevMousePosition.getY()) - startConnection.getY();
-					
-					if(currDiffX == 0 || prevDiffX == 0 ||
-							   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
-						isDraggedHorizontally = false;
-					}
-					
-					if(currDiffY == 0 || prevDiffY == 0 ||
-							   currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
-						isDraggedHorizontally = true;
-					}
-				}
-				
-				endConnection = circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
-				                                            GuiUtils.getCircuitCoord(lastMousePosition.getY()));
-				
+				checkEndConnection(prevMousePosition);
 				break;
 		}
 		
 		// System.out.println("Mouse Dragged after: " + currentState);
 		
-		mouseMoved(e);
+		checkStartConnection();
 	}
 	
 	public void mouseMoved(MouseEvent e) {
+		Point2D prevMousePosition = lastMousePosition;
 		lastMousePosition = new Point2D(e.getX(), e.getY());
 		
 		if(potentialComponent != null) {
@@ -716,25 +764,8 @@ public class CircuitManager {
 			potentialComponent.setY(GuiUtils.getCircuitCoord(e.getY()) - potentialComponent.getHeight() / 2);
 		}
 		
-		if(currentState != SelectingState.CONNECTION_DRAGGED) {
-			Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()),
-			                                                            GuiUtils.getCircuitCoord(e.getY()));
-			
-			Connection selected = null;
-			
-			for(Connection connection : selectedConns) {
-				if(connection instanceof PortConnection) {
-					selected = connection;
-					break;
-				}
-			}
-			
-			if(selected == null && !selectedConns.isEmpty()) {
-				selected = selectedConns.iterator().next();
-			}
-			
-			startConnection = selected;
-		}
+		checkStartConnection();
+		checkEndConnection(prevMousePosition);
 	}
 	
 	public void mouseEntered(MouseEvent e) {

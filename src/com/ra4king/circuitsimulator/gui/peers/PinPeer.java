@@ -145,10 +145,16 @@ public class PinPeer extends ComponentPeer<Pin> {
 		graphics.setStroke(port.getLink().getBitSize() > 1 ? Color.BLACK : Color.WHITE);
 		
 		String string = value.toString();
-		for(int i = 0, row = 1; i < string.length(); row++) {
-			String sub = string.substring(i, i + Math.min(8, string.length() - i));
-			i += sub.length();
-			graphics.strokeText(sub, getScreenX() + 1, getScreenY() + 14 * row);
+		if(getComponent().getBitSize() == 1) {
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string);
+			graphics.strokeText(string, getScreenX() + getScreenWidth() * 0.5 - bounds.getWidth() * 0.5,
+			                    getScreenY() + 14);
+		} else {
+			for(int i = 0, row = 1; i < string.length(); row++) {
+				String sub = string.substring(i, i + Math.min(8, string.length() - i));
+				i += sub.length();
+				graphics.strokeText(sub, getScreenX() + 1, getScreenY() + 14 * row);
+			}
 		}
 	}
 }

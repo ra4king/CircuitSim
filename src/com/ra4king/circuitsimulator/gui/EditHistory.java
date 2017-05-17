@@ -45,74 +45,51 @@ public class EditHistory {
 		},
 		ADD_COMPONENT {
 			protected void redo(CircuitManager manager, Object[] params) {
-				try {
-					manager.getCircuitBoard().addComponent((ComponentPeer<?>)params[0]);
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				manager.mayThrow(() -> manager.getCircuitBoard().addComponent((ComponentPeer<?>)params[0]));
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
-				try {
-					ComponentPeer<?> toRemove = (ComponentPeer<?>)params[0];
-					
-					for(ComponentPeer<?> component : manager.getCircuitBoard().getComponents()) {
-						if(component == toRemove ||
-								   (component.getClass() == toRemove.getClass()
-										    && component.getX() == toRemove.getX()
-										    && component.getY() == toRemove.getY()
-										    && component.getProperties().equals(toRemove.getProperties()))) {
-							manager.getCircuitBoard().removeElements(Collections.singleton(component));
-							break;
-						}
+				ComponentPeer<?> toRemove = (ComponentPeer<?>)params[0];
+				
+				for(ComponentPeer<?> component : manager.getCircuitBoard().getComponents()) {
+					if(component == toRemove ||
+							   (component.getClass() == toRemove.getClass()
+									    && component.getX() == toRemove.getX()
+									    && component.getY() == toRemove.getY()
+									    && component.getProperties().equals(toRemove.getProperties()))) {
+						manager.mayThrow(() -> manager.getCircuitBoard()
+						                              .removeElements(Collections.singleton(component)));
+						break;
 					}
-				} catch(Exception exc) {
-					exc.printStackTrace();
 				}
 			}
 		},
 		UPDATE_COMPONENT {
 			protected void redo(CircuitManager manager, Object[] params) {
-				try {
-					manager.getCircuitBoard().updateComponent((ComponentPeer<?>)params[1],
-					                                          (ComponentPeer<?>)params[0]);
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				manager.mayThrow(() -> manager.getCircuitBoard().updateComponent((ComponentPeer<?>)params[0],
+				                                                                 (ComponentPeer<?>)params[1]));
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
-				try {
-					manager.getCircuitBoard().updateComponent((ComponentPeer<?>)params[0],
-					                                          (ComponentPeer<?>)params[1]);
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				manager.mayThrow(() -> manager.getCircuitBoard().updateComponent((ComponentPeer<?>)params[1],
+				                                                                 (ComponentPeer<?>)params[0]));
 			}
 		},
 		MOVE_ELEMENTS {
 			protected void redo(CircuitManager manager, Object[] params) {
-				try {
-					@SuppressWarnings("unchecked")
-					Set<GuiElement> elements = (Set<GuiElement>)params[0];
-					manager.getCircuitBoard().initMove(elements);
-					manager.getCircuitBoard().moveElements((int)params[1], (int)params[2]);
-					manager.getCircuitBoard().finalizeMove();
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				@SuppressWarnings("unchecked")
+				Set<GuiElement> elements = (Set<GuiElement>)params[0];
+				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements));
+				manager.getCircuitBoard().moveElements((int)params[1], (int)params[2]);
+				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
-				try {
-					@SuppressWarnings("unchecked")
-					Set<GuiElement> elements = (Set<GuiElement>)params[0];
-					manager.getCircuitBoard().initMove(elements);
-					manager.getCircuitBoard().moveElements(-(int)params[1], -(int)params[2]);
-					manager.getCircuitBoard().finalizeMove();
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				@SuppressWarnings("unchecked")
+				Set<GuiElement> elements = (Set<GuiElement>)params[0];
+				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements));
+				manager.getCircuitBoard().moveElements(-(int)params[1], -(int)params[2]);
+				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
 			}
 		},
 		REMOVE_COMPONENT {
@@ -126,20 +103,15 @@ public class EditHistory {
 		},
 		ADD_WIRE {
 			protected void redo(CircuitManager manager, Object[] params) {
-				try {
-					Wire wire = (Wire)params[0];
-					manager.getCircuitBoard().addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				Wire wire = (Wire)params[0];
+				manager.mayThrow(() -> manager.getCircuitBoard()
+				                              .addWire(wire.getX(), wire.getY(), wire.getLength(),
+				                                       wire.isHorizontal()));
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
-				try {
-					manager.getCircuitBoard().removeElements(Collections.singleton((Wire)params[0]));
-				} catch(Exception exc) {
-					exc.printStackTrace();
-				}
+				manager.mayThrow(() -> manager.getCircuitBoard()
+				                              .removeElements(Collections.singleton((Wire)params[0])));
 			}
 		},
 		REMOVE_WIRE {

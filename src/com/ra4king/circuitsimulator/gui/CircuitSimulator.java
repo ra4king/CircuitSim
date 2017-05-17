@@ -132,6 +132,8 @@ public class CircuitSimulator extends Application {
 	private EditHistory editHistory;
 	private int savedEditStackSize;
 	
+	private volatile boolean needsRepaint = true;
+	
 	private int currentClockHz = 1;
 	
 	@Override
@@ -141,6 +143,7 @@ public class CircuitSimulator extends Application {
 		Clock.addChangeListener(
 				value -> Platform.runLater(() -> {
 					CircuitManager manager = getCurrentCircuit();
+					needsRepaint = true;
 					if(manager != null
 							   && manager.mayThrow(() -> manager.getCircuitBoard().runSim())
 							   && Clock.isRunning()) {
@@ -489,6 +492,8 @@ public class CircuitSimulator extends Application {
 		circuitManager.getCanvas().setHeight(
 				maxHeight < circuitManager.getCanvasScrollPane().getHeight() ? circuitManager.getCanvasScrollPane()
 				                                                                             .getHeight() : maxHeight);
+		
+		needsRepaint = true;
 	}
 	
 	private void circuitModified(Circuit circuit, Component component, boolean added) {
@@ -885,6 +890,8 @@ public class CircuitSimulator extends Application {
 		canvasTabPane.setPrefWidth(800);
 		canvasTabPane.setPrefHeight(600);
 		canvasTabPane.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
+		canvasTabPane.widthProperty().addListener((observable, oldValue, newValue) -> needsRepaint = true);
+		canvasTabPane.heightProperty().addListener((observable, oldValue, newValue) -> needsRepaint = true);
 		canvasTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 			CircuitManager oldManager = oldValue == null || !circuitManagers.containsKey(oldValue.getText())
 			                            ? null : circuitManagers.get(oldValue.getText()).getValue();
@@ -893,6 +900,8 @@ public class CircuitSimulator extends Application {
 			if(oldManager != null && newManager != null) {
 				newManager.setLastMousePosition(oldManager.getLastMousePosition());
 				modifiedSelection(selectedComponent);
+				
+				needsRepaint = true;
 			}
 		});
 		
@@ -1258,8 +1267,9 @@ public class CircuitSimulator extends Application {
 					frameCount++;
 					
 					CircuitManager manager = getCurrentCircuit();
-					if(manager != null) {
+					if(manager != null && (needsRepaint || manager.needsRepaint())) {
 						manager.paint();
+						needsRepaint = false;
 					}
 					
 					GraphicsContext graphics = overlayCanvas.getGraphicsContext2D();

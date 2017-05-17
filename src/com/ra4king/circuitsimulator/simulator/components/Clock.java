@@ -51,7 +51,9 @@ public class Clock extends Component {
 	public static void tick() {
 		long now = System.nanoTime();
 		if(now - lastTime >= 1e9) {
-			System.out.println((tickCount >> 1) + " Hz");
+			if(lastTime > 0) {
+				System.out.println((tickCount >> 1) + " Hz");
+			}
 			tickCount = 0;
 			lastTime = now;
 		}

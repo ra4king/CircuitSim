@@ -77,6 +77,8 @@ public class CircuitManager {
 	
 	private Exception lastException;
 	
+	private boolean needsRepaint;
+	
 	public CircuitManager(CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
 		this.simulatorWindow = simulatorWindow;
 		this.canvasScrollPane = canvasScrollPane;
@@ -178,6 +180,10 @@ public class CircuitManager {
 		updateSelectedProperties();
 	}
 	
+	public boolean needsRepaint() {
+		return needsRepaint;
+	}
+	
 	private Properties getCommonSelectedProperties() {
 		return selectedElementsMap.keySet().stream()
 		                          .filter(element -> element instanceof ComponentPeer<?>)
@@ -252,6 +258,8 @@ public class CircuitManager {
 	}
 	
 	public void paint() {
+		needsRepaint = false;
+		
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		
 		graphics.save();
@@ -509,6 +517,8 @@ public class CircuitManager {
 			}
 			
 			startConnection = selected;
+			
+			needsRepaint = true;
 		}
 	}
 	
@@ -531,6 +541,8 @@ public class CircuitManager {
 			
 			endConnection = circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
 			                                            GuiUtils.getCircuitCoord(lastMousePosition.getY()));
+			
+			needsRepaint = true;
 		}
 	}
 	
@@ -622,6 +634,8 @@ public class CircuitManager {
 		}
 		
 		// System.out.println("Mouse Pressed after: " + currentState);
+		
+		needsRepaint = true;
 	}
 	
 	public void mouseReleased(MouseEvent e) {
@@ -691,6 +705,8 @@ public class CircuitManager {
 		// System.out.println("Mouse Released after: " + currentState);
 		
 		checkStartConnection();
+		
+		needsRepaint = true;
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -755,6 +771,8 @@ public class CircuitManager {
 		// System.out.println("Mouse Dragged after: " + currentState);
 		
 		checkStartConnection();
+		
+		needsRepaint = true;
 	}
 	
 	public void mouseMoved(MouseEvent e) {
@@ -768,6 +786,8 @@ public class CircuitManager {
 		
 		checkStartConnection();
 		checkEndConnection(prevMousePosition);
+		
+		needsRepaint = true;
 	}
 	
 	public void mouseEntered(MouseEvent e) {

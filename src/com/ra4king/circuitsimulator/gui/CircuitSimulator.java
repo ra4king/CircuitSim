@@ -470,9 +470,10 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private void updateCanvasSize(CircuitManager circuitManager) {
-		OptionalInt maxX = Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
-		                                 circuitManager.getCircuitBoard().getLinks().stream().flatMap(
-				                                 links -> links.getWires().stream()))
+		OptionalInt maxX = Stream.concat(circuitManager.getSelectedElements().stream(),
+		                                 Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
+		                                               circuitManager.getCircuitBoard().getLinks().stream().flatMap(
+				                                               links -> links.getWires().stream())))
 		                         .mapToInt(componentPeer -> componentPeer.getX() + componentPeer.getWidth())
 		                         .max();
 		
@@ -482,9 +483,10 @@ public class CircuitSimulator extends Application {
 				                                                                           .getWidth()
 				                                                           : maxWidth);
 		
-		OptionalInt maxY = Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
-		                                 circuitManager.getCircuitBoard().getLinks().stream().flatMap(
-				                                 links -> links.getWires().stream()))
+		OptionalInt maxY = Stream.concat(circuitManager.getSelectedElements().stream(),
+		                                 Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
+		                                               circuitManager.getCircuitBoard().getLinks().stream().flatMap(
+				                                               links -> links.getWires().stream())))
 		                         .mapToInt(componentPeer -> componentPeer.getY() + componentPeer.getHeight())
 		                         .max();
 		
@@ -764,7 +766,10 @@ public class CircuitSimulator extends Application {
 		
 		canvas.addEventHandler(MouseEvent.ANY, e -> canvas.requestFocus());
 		canvas.addEventHandler(MouseEvent.MOUSE_MOVED, circuitManager::mouseMoved);
-		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, circuitManager::mouseDragged);
+		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
+			circuitManager.mouseDragged(e);
+			updateCanvasSize(circuitManager);
+		});
 		canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, circuitManager::mousePressed);
 		canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, circuitManager::mouseReleased);
 		canvas.addEventHandler(MouseEvent.MOUSE_ENTERED, circuitManager::mouseEntered);
@@ -1066,8 +1071,8 @@ public class CircuitSimulator extends Application {
 										ComponentCreator<?> creator;
 										if(clazz == SubcircuitPeer.class) {
 											creator = getSubcircuitPeerCreator(
-													component.properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT,
-													                                       ""));
+													component.properties
+															.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
 										} else {
 											creator = ComponentManager.forClass(clazz);
 										}
@@ -1151,7 +1156,7 @@ public class CircuitSimulator extends Application {
 		
 		Menu frequenciesMenu = new Menu("Frequency");
 		ToggleGroup freqToggleGroup = new ToggleGroup();
-		for(int i = 0; i <= 10; i++) {
+		for(int i = 0; i <= 14; i++) {
 			RadioMenuItem freq = new RadioMenuItem((1 << i) + " Hz");
 			freq.setToggleGroup(freqToggleGroup);
 			freq.setSelected(i == 0);
@@ -1287,6 +1292,10 @@ public class CircuitSimulator extends Application {
 					
 					if(manager != null) {
 						String message = manager.getCurrentError();
+						
+						if(!message.isEmpty()) {
+							Clock.stopClock();
+						}
 						
 						Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
 						graphics.setFont(Font.font("monospace", 13));

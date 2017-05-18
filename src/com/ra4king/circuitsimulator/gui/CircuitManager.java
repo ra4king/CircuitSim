@@ -197,7 +197,7 @@ public class CircuitManager {
 		return selectedElementsMap.keySet().stream()
 		                          .filter(element -> element instanceof ComponentPeer<?>)
 		                          .map(element -> ((ComponentPeer<?>)element).getProperties())
-		                          .reduce(Properties::intersect).orElse(null);
+		                          .reduce(Properties::intersect).orElse(new Properties());
 	}
 	
 	private void updateSelectedProperties() {
@@ -211,8 +211,10 @@ public class CircuitManager {
 					                                            .map(element -> ((ComponentPeer<?>)element))
 					                                            .findAny();
 			peer.ifPresent(simulatorWindow::setProperties);
-		} else {
+		} else if(componentCount > 1) {
 			simulatorWindow.setProperties("Multiple selections", getCommonSelectedProperties());
+		} else {
+			simulatorWindow.clearProperties();
 		}
 	}
 	
@@ -295,7 +297,7 @@ public class CircuitManager {
 		graphics.setFill(Color.BLACK);
 		for(int i = 0; i < getCanvas().getWidth(); i += GuiUtils.BLOCK_SIZE) {
 			for(int j = 0; j < getCanvas().getHeight(); j += GuiUtils.BLOCK_SIZE) {
-				graphics.fillRect(i, j, 1, 1);
+				graphics.getPixelWriter().setColor(i, j, Color.BLACK);
 			}
 		}
 		
@@ -437,25 +439,29 @@ public class CircuitManager {
 	public void keyPressed(KeyEvent e) {
 		switch(e.getCode()) {
 			case RIGHT: {
-				Properties props = new Properties();
+				e.consume();
+				Properties props = getCommonSelectedProperties();
 				props.setValue(Properties.DIRECTION, Direction.EAST);
 				modifiedSelection(componentCreator, props);
 				break;
 			}
 			case LEFT: {
-				Properties props = new Properties();
+				e.consume();
+				Properties props = getCommonSelectedProperties();
 				props.setValue(Properties.DIRECTION, Direction.WEST);
 				modifiedSelection(componentCreator, props);
 				break;
 			}
 			case UP: {
-				Properties props = new Properties();
+				e.consume();
+				Properties props = getCommonSelectedProperties();
 				props.setValue(Properties.DIRECTION, Direction.NORTH);
 				modifiedSelection(componentCreator, props);
 				break;
 			}
 			case DOWN: {
-				Properties props = new Properties();
+				e.consume();
+				Properties props = getCommonSelectedProperties();
 				props.setValue(Properties.DIRECTION, Direction.SOUTH);
 				modifiedSelection(componentCreator, props);
 				break;
@@ -628,13 +634,13 @@ public class CircuitManager {
 					}
 				} else {
 					Optional<GuiElement> clickedComponent =
-							Stream.concat(Stream.concat(circuitBoard.getComponents().stream(),
+							Stream.concat(getSelectedElements().stream(),
+							              Stream.concat(circuitBoard.getComponents().stream(),
 							                            circuitBoard.getLinks()
 							                                        .stream()
-							                                        .flatMap(link -> link.getWires().stream())),
-							              getSelectedElements().stream())
+							                                        .flatMap(link -> link.getWires().stream())))
 							      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
-							      .findAny();
+							      .findFirst();
 					if(clickedComponent.isPresent()) {
 						GuiElement selectedElement = clickedComponent.get();
 						
@@ -706,12 +712,13 @@ public class CircuitManager {
 			case IDLE:
 			case ELEMENT_SELECTED:
 				Optional<GuiElement> clickedComponent =
-						Stream.concat(circuitBoard.getComponents().stream(),
-						              circuitBoard.getLinks()
-						                          .stream()
-						                          .flatMap(link -> link.getWires().stream()))
+						Stream.concat(getSelectedElements().stream(),
+						              Stream.concat(circuitBoard.getComponents().stream(),
+						                            circuitBoard.getLinks()
+						                                        .stream()
+						                                        .flatMap(link -> link.getWires().stream())))
 						      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
-						      .findAny();
+						      .findFirst();
 				if(clickedComponent.isPresent()) {
 					GuiElement selectedElement = clickedComponent.get();
 					

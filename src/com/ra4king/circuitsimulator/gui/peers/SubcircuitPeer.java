@@ -73,8 +73,8 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 				    .collect(Collectors.toList());
 		
 		if(pins.size() != subcircuit.getNumPorts()) {
-			throw new IllegalStateException("Pin count and ports count don't match? " + pins.size() + " vs " + 
-					                                subcircuit.getNumPorts());
+			System.err.println("Pin count and ports count don't match? " + pins.size() + " vs " +
+					                   subcircuit.getNumPorts());
 		}
 		
 		setWidth(Math.max(3, Math.max(northPins.size(), southPins.size()) + 1));

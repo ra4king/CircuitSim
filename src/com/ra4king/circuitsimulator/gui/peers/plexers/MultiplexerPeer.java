@@ -48,32 +48,34 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 		
 		boolean location = properties.getValue(Properties.SELECTOR_LOCATION);
 		
-		int offset = 0;
+		int outOffset = 0, selOffset = 0;
 		List<PortConnection> connections = new ArrayList<>();
 		switch(properties.getValue(Properties.DIRECTION)) {
 			case WEST:
-				offset = getWidth();
+				outOffset = getWidth();
+				selOffset = 1;
 			case EAST:
 				for(int i = 0; i < mux.getNumInputs(); i++) {
-					connections.add(new PortConnection(this, mux.getPort(i), offset, i + 1));
+					connections.add(new PortConnection(this, mux.getPort(i), outOffset, i + 1));
 				}
 				connections.add(
-						new PortConnection(this, mux.getSelectorPort(), "Selector", getWidth() / 2,
+						new PortConnection(this, mux.getSelectorPort(), "Selector", getWidth() / 2 + selOffset,
 						                   location ? 0 : getHeight()));
 				connections.add(
-						new PortConnection(this, mux.getOutPort(), "Out", getWidth() - offset, getHeight() / 2));
+						new PortConnection(this, mux.getOutPort(), "Out", getWidth() - outOffset, getHeight() / 2));
 				break;
 			case NORTH:
-				offset = getHeight();
+				outOffset = getHeight();
+				selOffset = 1;
 			case SOUTH:
 				for(int i = 0; i < mux.getNumInputs(); i++) {
-					connections.add(new PortConnection(this, mux.getPort(i), i + 1, offset));
+					connections.add(new PortConnection(this, mux.getPort(i), i + 1, outOffset));
 				}
 				connections.add(
 						new PortConnection(this, mux.getSelectorPort(), "Selector", location ? 0 : getWidth(),
-						                   getHeight() / 2));
+						                   getHeight() / 2 + selOffset));
 				connections.add(
-						new PortConnection(this, mux.getOutPort(), "Out", getWidth() / 2, getHeight() - offset));
+						new PortConnection(this, mux.getOutPort(), "Out", getWidth() / 2, getHeight() - outOffset));
 				break;
 		}
 		

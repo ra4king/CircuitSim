@@ -76,7 +76,7 @@ public class Clock extends Component {
 		tickCount = 0;
 		
 		long nanosPerTick = (long)(1e9 / (2 * hertz));
-		System.out.println(hertz + " Hz = " + nanosPerTick + " nanos per tick");
+		System.out.println("Starting clock: " + hertz + " Hz = " + nanosPerTick + " nanos per tick");
 		
 		stopClock();
 		timer.scheduleAtFixedRate(currentClock = new TimerTask() {
@@ -96,6 +96,7 @@ public class Clock extends Component {
 	
 	public static void stopClock() {
 		if(currentClock != null) {
+			System.out.println("Stopping clock");
 			currentClock.cancel();
 			currentClock = null;
 		}

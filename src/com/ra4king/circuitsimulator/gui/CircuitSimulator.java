@@ -143,10 +143,8 @@ public class CircuitSimulator extends Application {
 				value -> Platform.runLater(() -> {
 					CircuitManager manager = getCurrentCircuit();
 					needsRepaint = true;
-					if(manager != null
-							   && manager.mayThrow(() -> manager.getCircuitBoard().runSim())
-							   && Clock.isRunning()) {
-						toggleClock.fire();
+					if(manager != null) {
+						manager.getCircuitBoard().runSim();
 					}
 				}));
 	}
@@ -970,9 +968,14 @@ public class CircuitSimulator extends Application {
 		MenuItem undo = new MenuItem("Undo");
 		undo.setAccelerator(new KeyCharacterCombination("Z", KeyCombination.CONTROL_DOWN));
 		undo.setOnAction(event -> {
-			CircuitManager manager = editHistory.undo();
+			CircuitManager manager = getCurrentCircuit();
 			if(manager != null) {
-				manager.getSelectedElements().clear();
+				manager.setSelectedElements(Collections.emptySet());
+			}
+			
+			manager = editHistory.undo();
+			if(manager != null) {
+				manager.setSelectedElements(Collections.emptySet());
 				switchToCircuit(manager.getCircuit());
 			}
 		});
@@ -1093,9 +1096,13 @@ public class CircuitSimulator extends Application {
 								}
 							}
 							
+							editHistory.disable();
+							manager.getCircuitBoard().finalizeMove();
 							elementsCreated.forEach(
-									element -> manager.getCircuit().addComponent(
-											((ComponentPeer<?>)element).getComponent()));
+									element -> manager.getCircuitBoard()
+									                  .addComponent((ComponentPeer<?>)element, false));
+							manager.getCircuitBoard().removeElements(elementsCreated, false);
+							editHistory.enable();
 							
 							for(CircuitInfo circuit : parsed) {
 								for(WireInfo wire : circuit.wires) {
@@ -1177,6 +1184,7 @@ public class CircuitSimulator extends Application {
 		about.setOnAction(event -> {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("About");
+			alert.setHeaderText("About");
 			alert.setContentText("Circuit Simulator created by Roi Atalla © 2017");
 			alert.showAndWait();
 		});

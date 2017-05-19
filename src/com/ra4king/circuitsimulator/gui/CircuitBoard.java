@@ -102,8 +102,8 @@ public class CircuitBoard {
 	public void runSim() {
 		if(Platform.isFxApplicationThread()) {
 			try {
-				if((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(
-						Collectors.toSet())).size() > 0) {
+				if((badLinks = links.stream().filter(
+						link -> !link.isLinkValid()).collect(Collectors.toSet())).size() > 0) {
 					throw badLinks.iterator().next().getLastException();
 				}
 				
@@ -125,6 +125,10 @@ public class CircuitBoard {
 	}
 	
 	public void addComponent(ComponentPeer<?> component) {
+		addComponent(component, true);
+	}
+	
+	void addComponent(ComponentPeer<?> component, boolean splitWires) {
 		if(!isValidLocation(component)) {
 			throw new IllegalArgumentException("Cannot place component here.");
 		}
@@ -143,38 +147,40 @@ public class CircuitBoard {
 			editHistory.beginGroup();
 			editHistory.addAction(EditAction.ADD_COMPONENT, circuitManager, component);
 			
-			Set<Wire> toReAdd = new HashSet<>();
-			
-			for(Connection connection : component.getConnections()) {
-				Set<Connection> connections = getConnections(connection.getX(), connection.getY());
-				if(connections != null) {
-					for(Connection attached : connections) {
-						LinkWires linkWires = attached.getLinkWires();
-						linkWires.addPort((PortConnection)connection);
-						links.add(linkWires);
-						
-						if(attached instanceof WireConnection) {
-							Wire wire = (Wire)attached.getParent();
-							if(attached != wire.getStartConnection() && attached != wire.getEndConnection()) {
-								toReAdd.add(wire);
+			if(splitWires) {
+				Set<Wire> toReAdd = new HashSet<>();
+				
+				for(Connection connection : component.getConnections()) {
+					Set<Connection> connections = getConnections(connection.getX(), connection.getY());
+					if(connections != null) {
+						for(Connection attached : connections) {
+							LinkWires linkWires = attached.getLinkWires();
+							linkWires.addPort((PortConnection)connection);
+							links.add(linkWires);
+							
+							if(attached instanceof WireConnection) {
+								Wire wire = (Wire)attached.getParent();
+								if(attached != wire.getStartConnection() && attached != wire.getEndConnection()) {
+									toReAdd.add(wire);
+								}
 							}
 						}
 					}
+					
+					addConnection(connection);
 				}
 				
-				addConnection(connection);
-			}
-			
-			for(Wire wire : toReAdd) {
-				removeWire(wire);
-				try {
-					addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
-				} catch(Exception exc) {
-					// exc.printStackTrace();
+				for(Wire wire : toReAdd) {
+					removeWire(wire);
+					try {
+						addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+					} catch(Exception exc) {
+						// exc.printStackTrace();
+					}
 				}
+				
+				rejoinWires();
 			}
-			
-			rejoinWires();
 			
 			runSim();
 		} finally {
@@ -307,7 +313,7 @@ public class CircuitBoard {
 		removeElements(elements, true);
 	}
 	
-	private void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) {
+	void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) {
 		try {
 			editHistory.beginGroup();
 			

@@ -121,7 +121,7 @@ public class LinkWires {
 		
 		Connection start = wire.getConnections().get(0);
 		Connection end = wire.getConnections().get(wire.getConnections().size() - 1);
-		for(Iterator<Wire> iter = wires.iterator(); iter.hasNext();) {
+		for(Iterator<Wire> iter = wires.iterator(); iter.hasNext(); ) {
 			Wire w = iter.next();
 			
 			boolean added = false;
@@ -246,8 +246,9 @@ public class LinkWires {
 			
 			setLinkWires(linkWires);
 			
-			if(length == 0)
+			if(length == 0) {
 				throw new IllegalArgumentException("Length cannot be 0");
+			}
 			
 			if(length < 0) {
 				if(horizontal) {
@@ -314,8 +315,18 @@ public class LinkWires {
 		
 		public boolean isWithin(Wire wire) {
 			return wire.horizontal == this.horizontal &&
-					       this.getX() >= wire.getX() && this.getX() + this.getWidth() <= wire.getX() + wire.getWidth() &&
-						   this.getY() >= wire.getY() && this.getY() + this.getHeight() <= wire.getY() + wire.getHeight();
+					       this.getX() >= wire.getX() && this.getX() + this.getWidth() <= wire.getX() + wire.getWidth
+							                                                                                         () &&
+					
+					       this.getY() >= wire.getY() && this.getY() + this.getHeight() <= wire.getY() + wire
+							                                                                                     .getHeight();
+		}
+		
+		public boolean overlaps(Wire wire) {
+			return wire.horizontal == this.horizontal &&
+					       (wire.horizontal
+					        ? !(wire.getX() >= getX() + getLength() || getX() >= wire.getX() + wire.getLength())
+					        : !(wire.getY() >= getY() + getLength() || getY() >= wire.getY() + wire.getLength()));
 		}
 		
 		public Connection getStartConnection() {
@@ -340,7 +351,8 @@ public class LinkWires {
 		public boolean equals(Object other) {
 			if(other instanceof Wire) {
 				Wire wire = (Wire)other;
-				return this.getX() == wire.getX() && this.getY() == wire.getY() && this.horizontal == wire.horizontal && this.length == wire.length;
+				return this.getX() == wire.getX() && this.getY() == wire.getY() && this.horizontal == wire.horizontal
+						       && this.length == wire.length;
 			}
 			
 			return false;

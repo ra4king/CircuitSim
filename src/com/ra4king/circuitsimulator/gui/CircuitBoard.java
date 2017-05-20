@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,6 @@ import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 
-import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
@@ -100,20 +100,16 @@ public class CircuitBoard {
 	}
 	
 	public void runSim() {
-		if(Platform.isFxApplicationThread()) {
-			try {
-				if((badLinks = links.stream().filter(
-						link -> !link.isLinkValid()).collect(Collectors.toSet())).size() > 0) {
-					throw badLinks.iterator().next().getLastException();
-				}
-				
-				circuit.getSimulator().stepAll();
-				lastException = null;
-			} catch(Exception exc) {
-				lastException = exc;
+		try {
+			if((badLinks = links.stream().filter(
+					link -> !link.isLinkValid()).collect(Collectors.toSet())).size() > 0) {
+				throw badLinks.iterator().next().getLastException();
 			}
-		} else {
-			throw new IllegalStateException("Not running on FX thread!");
+			
+			circuit.getSimulator().stepAll();
+			lastException = null;
+		} catch(Exception exc) {
+			lastException = exc;
 		}
 	}
 	
@@ -172,11 +168,7 @@ public class CircuitBoard {
 				
 				for(Wire wire : toReAdd) {
 					removeWire(wire);
-					try {
-						addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
-					} catch(Exception exc) {
-						// exc.printStackTrace();
-					}
+					addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
 				}
 				
 				rejoinWires();
@@ -309,17 +301,23 @@ public class CircuitBoard {
 		}
 	}
 	
-	public void removeElements(Set<? extends GuiElement> elements) {
+	public void removeElements(Set<GuiElement> elements) {
 		removeElements(elements, true);
 	}
 	
-	void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) {
+	void removeElements(Set<GuiElement> elements, boolean removeFromCircuit) {
 		try {
 			editHistory.beginGroup();
 			
 			Map<LinkWires, Set<Wire>> wiresToRemove = new HashMap<>();
 			
-			for(GuiElement element : elements) {
+			Set<GuiElement> elementsToRemove = new HashSet<>(elements);
+			
+			while(!elementsToRemove.isEmpty()) {
+				Iterator<GuiElement> iterator = elementsToRemove.iterator();
+				GuiElement element = iterator.next();
+				iterator.remove();
+				
 				if(element instanceof ComponentPeer<?>) {
 					removeComponent((ComponentPeer<?>)element);
 					if(removeFromCircuit) {
@@ -327,34 +325,55 @@ public class CircuitBoard {
 					}
 				} else if(element instanceof Wire) {
 					Wire wire = (Wire)element;
-					if(!links.contains(wire.getLinkWires())) {
-						outer:
-						for(LinkWires link : links) {
-							for(Wire w : link.getWires()) {
-								if(w.equals(wire)) {
-									wire = w;
-									break outer;
-								}
-							}
-						}
+					
+					Set<Wire> toRemove = new HashSet<>();
+					for(int i = 0; i < wire.getLength(); i++) {
+						int x = wire.isHorizontal() ? wire.getX() + i : wire.getX();
+						int y = wire.isHorizontal() ? wire.getY() : wire.getY() + i;
+						new HashSet<>(getConnections(x, y))
+								.stream()
+								.filter(conn -> conn.getParent() instanceof Wire)
+								.map(conn -> (Wire)conn.getParent())
+								.filter(w -> w.isHorizontal() == wire.isHorizontal())
+								.anyMatch(w -> {
+									if(w.equals(wire)) {
+										toRemove.add(w);
+										return true;
+									} else if(w.isWithin(wire)) {
+										toRemove.add(w);
+										elementsToRemove.addAll(spliceWire(wire, w));
+										return true;
+									} else if(wire.isWithin(w)) {
+										LinkWires linkWires = w.getLinkWires();
+										removeWire(w);
+										spliceWire(w, wire).forEach(
+												w1 -> addWire(linkWires, w1));
+										return true;
+									} else if(w.overlaps(wire)) {
+										LinkWires linkWires = w.getLinkWires();
+										removeWire(w);
+										
+										Pair<Wire, Wire> pair = spliceOverlappingWire(wire, w);
+										elementsToRemove.add(pair.getKey());
+										addWire(linkWires, pair.getValue());
+										
+										return true;
+									}
+									
+									return false;
+								});
+					}
+					
+					toRemove.forEach(w -> {
+						w.getConnections().forEach(this::removeConnection);
 						
-						if(wire == element) {
-							continue;
-						}
-					}
-					
-					wire.getConnections().forEach(this::removeConnection);
-					
-					LinkWires linkWires = wire.getLinkWires();
-					if(linkWires == null) {
-						continue;
-					}
-					
-					Set<Wire> set = wiresToRemove.containsKey(linkWires)
-					                ? wiresToRemove.get(linkWires)
-					                : new HashSet<>();
-					set.add(wire);
-					wiresToRemove.put(linkWires, set);
+						LinkWires linkWires = w.getLinkWires();
+						Set<Wire> set = wiresToRemove.containsKey(linkWires)
+						                ? wiresToRemove.get(linkWires)
+						                : new HashSet<>();
+						set.add(w);
+						wiresToRemove.put(linkWires, set);
+					});
 				}
 			}
 			
@@ -462,6 +481,8 @@ public class CircuitBoard {
 			
 			toSplit.forEach(this::splitWire);
 			
+			rejoinWires();
+			
 			runSim();
 			
 			return wiresToAdd;
@@ -486,6 +507,79 @@ public class CircuitBoard {
 		}
 		
 		return null;
+	}
+	
+	private Set<Wire> spliceWire(Wire toSplice, Wire within) {
+		if(!within.isWithin(toSplice)) throw new IllegalArgumentException("toSplice must contain within");
+		
+		Set<Wire> wires = new HashSet<>();
+		
+		if(toSplice.isHorizontal()) {
+			if(toSplice.getX() < within.getX()) {
+				wires.add(new Wire(toSplice.getLinkWires(),
+				                   toSplice.getX(), toSplice.getY(), within.getX() - toSplice.getX(), true));
+			}
+			
+			int withinEnd = within.getX() + within.getLength();
+			int toSpliceEnd = toSplice.getX() + toSplice.getLength();
+			if(withinEnd < toSpliceEnd) {
+				wires.add(new Wire(toSplice.getLinkWires(),
+				                   withinEnd, toSplice.getY(), toSpliceEnd - withinEnd, true));
+			}
+		} else {
+			if(toSplice.getY() < within.getY()) {
+				wires.add(new Wire(toSplice.getLinkWires(),
+				                   toSplice.getX(), toSplice.getY(), within.getY() - toSplice.getY(), false));
+			}
+			
+			int withinEnd = within.getY() + within.getLength();
+			int toSpliceEnd = toSplice.getY() + toSplice.getLength();
+			if(withinEnd < toSpliceEnd) {
+				wires.add(new Wire(toSplice.getLinkWires(),
+				                   toSplice.getX(), withinEnd, toSpliceEnd - withinEnd, false));
+			}
+		}
+		
+		return wires;
+	}
+	
+	// returns (wireToRemove, wireToAdd)
+	private Pair<Wire, Wire> spliceOverlappingWire(Wire toSplice, Wire overlap) {
+		if(!toSplice.overlaps(overlap)) throw new IllegalArgumentException("wires must overlap");
+		
+		if(toSplice.isHorizontal()) {
+			Wire left = toSplice.getX() < overlap.getX() ? toSplice : overlap;
+			Wire right = toSplice.getX() < overlap.getX() ? overlap : toSplice;
+			
+			Wire leftPiece = new Wire(left.getLinkWires(), left.getX(), left.getY(), right.getX() - left.getX(), true);
+			Wire rightPiece = new Wire(right.getLinkWires(),
+			                           left.getX() + left.getLength(),
+			                           left.getY(),
+			                           right.getX() + right.getLength() - left.getX() - left.getLength(),
+			                           true);
+			
+			if(left == toSplice) {
+				return new Pair<>(leftPiece, rightPiece);
+			} else {
+				return new Pair<>(rightPiece, leftPiece);
+			}
+		} else {
+			Wire top = toSplice.getY() < overlap.getY() ? toSplice : overlap;
+			Wire bottom = toSplice.getY() < overlap.getY() ? overlap : toSplice;
+			
+			Wire topPiece = new Wire(top.getLinkWires(), top.getX(), top.getY(), bottom.getY() - top.getY(), true);
+			Wire bottomPiece = new Wire(bottom.getLinkWires(),
+			                            top.getX(),
+			                            top.getY() + top.getLength(),
+			                            bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
+			                            true);
+			
+			if(top == toSplice) {
+				return new Pair<>(topPiece, bottomPiece);
+			} else {
+				return new Pair<>(bottomPiece, topPiece);
+			}
+		}
 	}
 	
 	private void splitWire(Wire wire, Connection connection) {
@@ -604,6 +698,7 @@ public class CircuitBoard {
 				}
 			}
 		}
+		
 		if(!components.remove(component)) {
 			throw new IllegalStateException("Couldn't find component!");
 		}

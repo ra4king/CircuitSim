@@ -39,7 +39,6 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.Event;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -139,14 +138,13 @@ public class CircuitSimulator extends Application {
 	public void init() {
 		simulator = new Simulator();
 		circuitManagers = new LinkedHashMap<>();
-		Clock.addChangeListener(
-				value -> Platform.runLater(() -> {
-					CircuitManager manager = getCurrentCircuit();
-					needsRepaint = true;
-					if(manager != null) {
-						manager.getCircuitBoard().runSim();
-					}
-				}));
+		Clock.addChangeListener(value -> {
+			CircuitManager manager = getCurrentCircuit();
+			needsRepaint = true;
+			if(manager != null) {
+				manager.getCircuitBoard().runSim();
+			}
+		});
 	}
 	
 	public EditHistory getEditHistory() {
@@ -212,6 +210,7 @@ public class CircuitSimulator extends Application {
 		Tab tab = getTabForCircuit(circuit);
 		if(tab != null) {
 			canvasTabPane.getSelectionModel().select(tab);
+			needsRepaint = true;
 		}
 	}
 	
@@ -594,7 +593,7 @@ public class CircuitSimulator extends Application {
 		}
 	}
 	
-	private void checkUnsavedChanges(Event event) {
+	private boolean checkUnsavedChanges() {
 		if(editHistory.editStackSize() != savedEditStackSize) {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Unsaved changes");
@@ -608,18 +607,26 @@ public class CircuitSimulator extends Application {
 			if(result.isPresent()) {
 				if(result.get() == ButtonType.OK) {
 					saveCircuits();
-					if(saveFile == null && event != null) {
-						event.consume();
+					if(saveFile == null) {
+						return true;
 					}
-				} else if(result.get() == ButtonType.CANCEL && event != null) {
-					event.consume();
+				} else if(result.get() == ButtonType.CANCEL) {
+					return true;
 				}
 			}
 		}
+		
+		return false;
 	}
 	
 	private void loadCircuits() {
-		checkUnsavedChanges(null);
+		if(checkUnsavedChanges()) {
+			return;
+		}
+		
+		if(Clock.isRunning()) {
+			toggleClock.fire();
+		}
 		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Choose sim file");
@@ -637,9 +644,6 @@ public class CircuitSimulator extends Application {
 				System.out.printf("Loaded file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 				
 				clearSelection();
-				if(Clock.isRunning()) {
-					toggleClock.fire();
-				}
 				circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
 				circuitManagers.clear();
 				canvasTabPane.getTabs().clear();
@@ -1043,6 +1047,8 @@ public class CircuitSimulator extends Application {
 				manager.mayThrow(() -> manager.getCircuitBoard().removeElements(selectedElements));
 				
 				clearSelection();
+				
+				needsRepaint = true;
 			}
 		});
 		
@@ -1096,8 +1102,9 @@ public class CircuitSimulator extends Application {
 								}
 							}
 							
-							editHistory.disable();
 							manager.getCircuitBoard().finalizeMove();
+							
+							editHistory.disable();
 							elementsCreated.forEach(
 									element -> manager.getCircuitBoard()
 									                  .addComponent((ComponentPeer<?>)element, false));
@@ -1113,6 +1120,7 @@ public class CircuitSimulator extends Application {
 							
 							manager.setSelectedElements(elementsCreated);
 							manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false));
+							
 							break;
 						}
 					}
@@ -1120,6 +1128,7 @@ public class CircuitSimulator extends Application {
 					exc.printStackTrace();
 				} finally {
 					editHistory.endGroup();
+					needsRepaint = true;
 				}
 			}
 		});
@@ -1134,6 +1143,7 @@ public class CircuitSimulator extends Application {
 						              manager.getCircuitBoard().getLinks()
 						                     .stream().flatMap(link -> link.getWires().stream()))
 						      .collect(Collectors.toSet()));
+				needsRepaint = true;
 			}
 		});
 		
@@ -1266,7 +1276,12 @@ public class CircuitSimulator extends Application {
 		stage.show();
 		stage.centerOnScreen();
 		
-		stage.setOnCloseRequest(this::checkUnsavedChanges);
+		stage.setOnCloseRequest(event -> {
+			if(checkUnsavedChanges()) {
+				event.consume();
+			}
+		});
+		stage.setOnHidden(event -> System.exit(0));
 		
 		new AnimationTimer() {
 			private long lastRepaint;
@@ -1301,8 +1316,8 @@ public class CircuitSimulator extends Application {
 					if(manager != null) {
 						String message = manager.getCurrentError();
 						
-						if(!message.isEmpty()) {
-							Clock.stopClock();
+						if(message != null && !message.isEmpty() && Clock.isRunning()) {
+							toggleClock.fire();
 						}
 						
 						Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);

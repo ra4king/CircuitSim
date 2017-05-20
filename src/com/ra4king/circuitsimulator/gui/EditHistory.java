@@ -133,13 +133,11 @@ public class EditHistory {
 		EditAction action;
 		
 		CircuitManager circuitManager;
-		boolean withLast;
 		Object[] params;
 		
-		Edit(EditAction action, CircuitManager circuitManager, boolean withLast, Object[] params) {
+		Edit(EditAction action, CircuitManager circuitManager, Object[] params) {
 			this.action = action;
 			this.circuitManager = circuitManager;
-			this.withLast = withLast;
 			this.params = params;
 		}
 	}
@@ -203,7 +201,7 @@ public class EditHistory {
 	}
 	
 	public void endGroup() {
-		if(groupDepth == 0) throw new IllegalStateException("What is going on?!?!?!?!");
+		if(groupDepth == 0) throw new IllegalStateException("Mismatched call to endGroup.");
 		
 		groupDepth--;
 		
@@ -224,7 +222,7 @@ public class EditHistory {
 	public void addAction(EditAction action, CircuitManager manager, Object... params) {
 		if(disableDepth == 0) {
 			beginGroup();
-			currentGroup.add(new Edit(action, manager, groupDepth > 0, params));
+			currentGroup.add(new Edit(action, manager, params));
 			endGroup();
 			
 			redoStack.clear();

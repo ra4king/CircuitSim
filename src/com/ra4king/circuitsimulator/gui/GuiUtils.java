@@ -49,21 +49,23 @@ public class GuiUtils {
 	}
 	
 	public static void setBitColor(GraphicsContext graphics, CircuitState circuitState, LinkWires linkWires) {
-		if(linkWires.isLinkValid()) {
-			Link link = linkWires.getLink();
-			if(link != null) {
-				if(circuitState.isShortCircuited(link)) {
-					graphics.setStroke(Color.RED);
-					graphics.setFill(Color.RED);
+		synchronized(circuitState.getCircuit().getSimulator()) {
+			if(linkWires.isLinkValid()) {
+				Link link = linkWires.getLink();
+				if(link != null) {
+					if(circuitState.isShortCircuited(link)) {
+						graphics.setStroke(Color.RED);
+						graphics.setFill(Color.RED);
+					} else {
+						setBitColor(graphics, circuitState.getMergedValue(link));
+					}
 				} else {
-					setBitColor(graphics, circuitState.getMergedValue(link));
+					setBitColor(graphics, new WireValue(1));
 				}
 			} else {
-				setBitColor(graphics, new WireValue(1));
+				graphics.setStroke(Color.ORANGE);
+				graphics.setFill(Color.ORANGE);
 			}
-		} else {
-			graphics.setStroke(Color.ORANGE);
-			graphics.setFill(Color.ORANGE);
 		}
 	}
 	

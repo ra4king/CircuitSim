@@ -45,19 +45,27 @@ public class CircuitState {
 	}
 	
 	public WireValue getMergedValue(Link link) {
-		return get(link).getMergedValue();
+		synchronized(circuit.getSimulator()) {
+			return get(link).getMergedValue();
+		}
 	}
 	
 	public WireValue getLastReceived(Port port) {
-		return new WireValue(get(port.getLink()).getLastReceived(port));
+		synchronized(circuit.getSimulator()) {
+			return new WireValue(get(port.getLink()).getLastReceived(port));
+		}
 	}
 	
 	public WireValue getLastPushedValue(Port port) {
-		return new WireValue(get(port.getLink()).getLastPushed(port));
+		synchronized(circuit.getSimulator()) {
+			return new WireValue(get(port.getLink()).getLastPushed(port));
+		}
 	}
 	
 	public boolean isShortCircuited(Link link) {
-		return get(link).isShortCircuit();
+		synchronized(circuit.getSimulator()) {
+			return get(link).isShortCircuit();
+		}
 	}
 	
 	private LinkState get(Link link) {
@@ -79,31 +87,37 @@ public class CircuitState {
 	}
 	
 	void link(Link link1, Link link2) {
-		get(link1).link(get(link2));
+		synchronized(circuit.getSimulator()) {
+			get(link1).link(get(link2));
+		}
 	}
 	
 	void unlink(Link link, Port port) {
-		get(link).unlink(port);
+		synchronized(circuit.getSimulator()) {
+			get(link).unlink(port);
+		}
 	}
 	
 	void propagateSignal(Link link) {
-		LinkState linkState = get(link);
-		
-		linkState.participants.forEach((port, info) -> {
-			WireValue lastMerged = info.lastMerged;
-			WireValue lastPushed = info.lastPushed;
+		synchronized(circuit.getSimulator()) {
+			LinkState linkState = get(link);
 			
-			if(!lastMerged.equals(lastPushed)) {
-				lastMerged.set(lastPushed);
-			}
-		});
-		
-		linkState.propagate();
+			linkState.participants.forEach((port, info) -> {
+				WireValue lastMerged = info.lastMerged;
+				WireValue lastPushed = info.lastPushed;
+				
+				if(!lastMerged.equals(lastPushed)) {
+					lastMerged.set(lastPushed);
+				}
+			});
+			
+			linkState.propagate();
+		}
 	}
 	
 	public void pushValue(Port port, WireValue value) {
 		boolean changed;
-		synchronized(this) {
+		synchronized(circuit.getSimulator()) {
 			LinkState linkState = get(port.getLink());
 			
 			Utils.ensureBitSize(this, value, linkState.link.getBitSize());

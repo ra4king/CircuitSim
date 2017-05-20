@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
@@ -17,8 +15,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
  * @author Roi Atalla
  */
 public class Clock extends Component {
-	private static final Timer timer = new Timer("clock", true);
-	private static TimerTask currentClock;
+	private static Thread currentClock;
 	private static boolean clock;
 	private static Set<Clock> clocks = new HashSet<>();
 	
@@ -50,17 +47,6 @@ public class Clock extends Component {
 	}
 	
 	public static void tick() {
-		long now = System.nanoTime();
-		if(now - lastPrintTime >= 1e9) {
-			if(lastPrintTime > 0) {
-				System.out.println((tickCount >> 1) + " Hz");
-			}
-			tickCount = 0;
-			lastPrintTime = now;
-		}
-		
-		tickCount++;
-		
 		clock = !clock;
 		WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 		clocks.forEach(clock ->
@@ -79,15 +65,36 @@ public class Clock extends Component {
 		System.out.println("Starting clock: " + hertz + " Hz = " + nanosPerTick + " nanos per tick");
 		
 		stopClock();
-		timer.scheduleAtFixedRate(currentClock = new TimerTask() {
-			@Override
-			public void run() {
-				do {
-					tick();
-					lastTickTime += nanosPerTick;
-				} while(lastTickTime < System.nanoTime());
+		Thread clockThread = new Thread(() -> {
+			Thread thread = currentClock;
+			
+			while(thread != null && !thread.isInterrupted()) {
+				long now = System.nanoTime();
+				if(now - lastPrintTime >= 1e9) {
+					if(lastPrintTime > 0) {
+						System.out.println((tickCount >> 1) + " Hz");
+					}
+					tickCount = 0;
+					lastPrintTime = now;
+				}
+				
+				tick();
+				tickCount++;
+				
+				lastTickTime += nanosPerTick;
+				
+				long diff = lastTickTime - System.nanoTime();
+				if(diff >= 1e6) {
+					try {
+						Thread.sleep((long)(diff / 1e6));
+					} catch(InterruptedException exc) {
+						break;
+					}
+				}
 			}
-		}, 10, hertz <= 500 ? Math.round(500.0 / hertz) : 1);
+		});
+		currentClock = clockThread;
+		clockThread.start();
 	}
 	
 	public static boolean isRunning() {
@@ -97,7 +104,7 @@ public class Clock extends Component {
 	public static void stopClock() {
 		if(currentClock != null) {
 			System.out.println("Stopping clock");
-			currentClock.cancel();
+			currentClock.interrupt();
 			currentClock = null;
 		}
 	}

@@ -28,7 +28,6 @@ public class NotGatePeer extends GatePeer {
 	
 	@Override
 	protected void ensureProperties(Properties properties) {
-		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 	}
 	

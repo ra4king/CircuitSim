@@ -27,7 +27,6 @@ public class OrGatePeer extends GatePeer {
 	
 	@Override
 	protected void ensureProperties(Properties properties) {
-		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.NUM_INPUTS);
 	}

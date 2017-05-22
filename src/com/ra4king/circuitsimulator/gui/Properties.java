@@ -228,8 +228,11 @@ public class Properties {
 			}
 		}
 	};
+	public static final PropertyListValidator<Boolean> LOCATION_VALIDATOR =
+			new PropertyListValidator<>(Arrays.asList(true, false), bool -> bool ? "Left/Top" : "Right/Down");
 	
 	public static final Property<String> LABEL;
+	public static final Property<Direction> LABEL_LOCATION;
 	public static final Property<Integer> BITSIZE;
 	public static final Property<Integer> NUM_INPUTS;
 	public static final Property<Integer> ADDRESS_BITS;
@@ -238,11 +241,30 @@ public class Properties {
 	public static final Property<Boolean> SELECTOR_LOCATION;
 	
 	public enum Direction {
-		NORTH, SOUTH, EAST, WEST
+		NORTH, SOUTH, EAST, WEST;
+		
+		public static Direction opposite(Direction dir) {
+			switch(dir) {
+				case NORTH:
+					return SOUTH;
+				case SOUTH:
+					return NORTH;
+				case EAST:
+					return WEST;
+				case WEST:
+					return EAST;
+				default:
+					throw new IllegalArgumentException("Uhh... how??");
+			}
+		}
 	}
 	
 	static {
 		LABEL = new Property<>("Label", ANY_STRING_VALIDATOR, "");
+		
+		LABEL_LOCATION = new Property<>("Label location",
+		                                new PropertyListValidator<>(Direction.values()),
+		                                Direction.WEST);
 		
 		List<Integer> numInputsValues = new ArrayList<>();
 		for(int i = 2; i <= 32; i++) {
@@ -256,8 +278,7 @@ public class Properties {
 		}
 		BITSIZE = new Property<>("Bitsize", new PropertyListValidator<>(bitSizeValues), 1);
 		
-		Direction[] directions = { Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST };
-		DIRECTION = new Property<>("Direction", new PropertyListValidator<>(directions), Direction.EAST);
+		DIRECTION = new Property<>("Direction", new PropertyListValidator<>(Direction.values()), Direction.EAST);
 		
 		List<Integer> addressBits = new ArrayList<>();
 		for(int i = 1; i <= 16; i++) {
@@ -271,9 +292,7 @@ public class Properties {
 		}
 		SELECTOR_BITS = new Property<>("Selector bits", new PropertyListValidator<>(selBits), 1);
 		
-		PropertyListValidator<Boolean> leftRightValidator =
-				new PropertyListValidator<>(Arrays.asList(true, false), bool -> bool ? "Left/Top" : "Right/Down");
-		SELECTOR_LOCATION = new Property<>("Selector location", leftRightValidator, false);
+		SELECTOR_LOCATION = new Property<>("Selector location", LOCATION_VALIDATOR, false);
 	}
 	
 	public static class Property<T> {

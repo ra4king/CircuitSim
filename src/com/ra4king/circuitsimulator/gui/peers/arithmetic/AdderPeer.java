@@ -32,6 +32,7 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
@@ -50,6 +51,8 @@ public class AdderPeer extends ComponentPeer<Adder> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
+		
 		graphics.setFill(Color.WHITE);
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::fillRect, this);

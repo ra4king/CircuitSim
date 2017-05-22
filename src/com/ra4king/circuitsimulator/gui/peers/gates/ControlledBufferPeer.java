@@ -53,7 +53,7 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		GuiUtils.drawLabel(this, graphics);
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));
 		
 		graphics.beginPath();

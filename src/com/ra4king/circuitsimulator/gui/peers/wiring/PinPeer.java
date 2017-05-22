@@ -16,7 +16,6 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -43,8 +42,20 @@ public class PinPeer extends ComponentPeer<Pin> {
 	public PinPeer(Properties props, int x, int y) {
 		super(x, y, 0, 0);
 		
+		Object value = props.getValue(IS_INPUT.name);
+		boolean isInput;
+		if(value == null) {
+			isInput = false;
+		} else if(value instanceof String) {
+			isInput = Boolean.parseBoolean((String)value);
+		} else {
+			isInput = (Boolean)value;
+		}
+		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(
+				new Property<>(Properties.LABEL_LOCATION, isInput ? Direction.WEST : Direction.EAST));
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(IS_INPUT);
@@ -111,17 +122,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		if(!getComponent().getName().isEmpty()) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
-			graphics.setStroke(Color.BLACK);
-			if(isInput()) {
-				graphics.strokeText(getComponent().getName(), getScreenX() - bounds.getWidth() - 5,
-				                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
-			} else {
-				graphics.strokeText(getComponent().getName(), getScreenX() + getScreenWidth() + 5,
-				                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
-			}
-		}
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
 		graphics.setFont(Font.font("monospace", 16));
 		Port port = getComponent().getPort(Pin.PORT);
@@ -144,17 +145,6 @@ public class PinPeer extends ComponentPeer<Pin> {
 		
 		graphics.setStroke(port.getLink().getBitSize() > 1 ? Color.BLACK : Color.WHITE);
 		
-		String string = value.toString();
-		if(getComponent().getBitSize() == 1) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string);
-			graphics.strokeText(string, getScreenX() + getScreenWidth() * 0.5 - bounds.getWidth() * 0.5,
-			                    getScreenY() + 14);
-		} else {
-			for(int i = 0, row = 1; i < string.length(); row++) {
-				String sub = string.substring(i, i + Math.min(8, string.length() - i));
-				i += sub.length();
-				graphics.strokeText(sub, getScreenX() + 1, getScreenY() + 14 * row);
-			}
-		}
+		GuiUtils.drawValue(graphics, value.toString(), getScreenX(), getScreenY(), getScreenWidth());
 	}
 }

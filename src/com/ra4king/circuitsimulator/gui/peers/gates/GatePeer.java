@@ -26,6 +26,7 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.DIRECTION);
 		ensureProperties(properties);
 		properties.mergeIfExists(props);
@@ -43,7 +44,7 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 		connections.add(new PortConnection(this, gate.getPort(gateNum), getWidth(), getHeight() / 2));
 		
 		connections = GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
-		GuiUtils.rotateElement(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		
 		init(gate, properties, connections);
 	}
@@ -54,7 +55,7 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		GuiUtils.drawLabel(this, graphics);
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));
 	}
 }

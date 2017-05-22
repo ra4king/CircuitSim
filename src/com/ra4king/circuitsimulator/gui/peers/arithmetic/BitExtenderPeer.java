@@ -36,14 +36,11 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(new Property<>("Input Bitsize", Properties.BITSIZE.validator, 1));
 		properties.ensureProperty(new Property<>("Output Bitsize", Properties.BITSIZE.validator, 1));
 		properties.ensureProperty(new Property<>("Extension Type",
-		                                         new PropertyListValidator<>(new ExtensionType[] {
-				                                         ExtensionType.ZERO,
-				                                         ExtensionType.ONE,
-				                                         ExtensionType.SIGN
-		                                         }),
+		                                         new PropertyListValidator<>(ExtensionType.values()),
 		                                         ExtensionType.ZERO));
 		properties.mergeIfExists(props);
 		
@@ -61,6 +58,8 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
+		
 		graphics.setStroke(Color.BLACK);
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);
@@ -93,7 +92,13 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		
 		Bounds typeBounds = GuiUtils.getBounds(graphics.getFont(), typeString);
 		graphics.strokeText(typeString,
-		                    getScreenX() + getScreenWidth() * 0.5 - typeBounds.getWidth() * 0.5,
-		                    getScreenY() + 12);
+		                    getScreenX() + (getScreenWidth() - typeBounds.getWidth()) * 0.5,
+		                    getScreenY() + typeBounds.getHeight());
+		
+		String extendString = "extend";
+		Bounds extendBounds = GuiUtils.getBounds(graphics.getFont(), extendString);
+		graphics.strokeText(extendString,
+		                    getScreenX() + (getScreenWidth() - extendBounds.getWidth()) * 0.5,
+		                    getScreenY() + getScreenHeight() - 5);
 	}
 }

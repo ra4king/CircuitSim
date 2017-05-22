@@ -12,7 +12,6 @@ import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.plexers.Demultiplexer;
 
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -33,6 +32,7 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.SELECTOR_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
@@ -44,7 +44,7 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 		                                        properties.getValue(Properties.SELECTOR_BITS));
 		setHeight(demux.getNumOutputs() + 2);
 		
-		GuiUtils.rotateElement(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		
 		boolean location = properties.getValue(Properties.SELECTOR_LOCATION);
 		
@@ -56,26 +56,24 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 				selOffset = 1;
 			case WEST:
 				for(int i = 0; i < demux.getNumOutputs(); i++) {
-					connections.add(new PortConnection(this, demux.getPort(i), outOffset, i + 1));
+					connections.add(new PortConnection(this, demux.getPort(i), String.valueOf(i), outOffset, i + 1));
 				}
-				connections.add(
-						new PortConnection(this, demux.getSelectorPort(), "Selector", getWidth() / 2 + selOffset,
-						                   location ? 0 : getHeight()));
-				connections.add(
-						new PortConnection(this, demux.getInputPort(), "In", getWidth() - outOffset, getHeight() / 2));
+				connections.add(new PortConnection(this, demux.getSelectorPort(), "Selector",
+				                                   getWidth() / 2 + selOffset, location ? 0 : getHeight()));
+				connections.add(new PortConnection(this, demux.getInputPort(), "In",
+				                                   getWidth() - outOffset, getHeight() / 2));
 				break;
 			case SOUTH:
 				outOffset = getHeight();
 				selOffset = 1;
 			case NORTH:
 				for(int i = 0; i < demux.getNumOutputs(); i++) {
-					connections.add(new PortConnection(this, demux.getPort(i), i + 1, outOffset));
+					connections.add(new PortConnection(this, demux.getPort(i), String.valueOf(i), i + 1, outOffset));
 				}
-				connections.add(
-						new PortConnection(this, demux.getSelectorPort(), "Selector", location ? 0 : getWidth(),
-						                   getHeight() / 2 + selOffset));
-				connections.add(
-						new PortConnection(this, demux.getInputPort(), "In", getWidth() / 2, getHeight() - outOffset));
+				connections.add(new PortConnection(this, demux.getSelectorPort(), "Selector",
+				                                   location ? 0 : getWidth(), getHeight() / 2 + selOffset));
+				connections.add(new PortConnection(this, demux.getInputPort(), "In",
+				                                   getWidth() / 2, getHeight() - outOffset));
 				break;
 		}
 		
@@ -84,14 +82,7 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		if(!getComponent().getName().isEmpty()) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(),
-			                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-			                    getScreenY() - 5);
-		}
-		
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		Direction direction = getProperties().getValue(Properties.DIRECTION);
 		
 		int x = getScreenX();

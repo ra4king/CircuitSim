@@ -25,6 +25,7 @@ import javafx.util.Pair;
  */
 public class SplitterPeer extends ComponentPeer<Splitter> {
 	private static final Property<Integer> FANOUTS;
+	private static final Property<Boolean> INPUT_LOCATION;
 	
 	static {
 		List<Integer> fanOuts = new ArrayList<>();
@@ -33,6 +34,8 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 		}
 		
 		FANOUTS = new Property<>("Fanouts", new PropertyListValidator<>(fanOuts), 1);
+		
+		INPUT_LOCATION = new Property<>("Input location", Properties.LOCATION_VALIDATOR, true);
 	}
 	
 	public static void installComponent(ComponentManagerInterface manager) {
@@ -42,11 +45,13 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 	}
 	
 	public SplitterPeer(Properties props, int x, int y) {
-		super(x, y, 0, 1);
+		super(x, y, 2, 0);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.DIRECTION);
+		properties.ensureProperty(INPUT_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(FANOUTS);
 		properties.mergeIfExists(props);
@@ -88,15 +93,19 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 			splitter = new Splitter(properties.getValue(Properties.LABEL), bitSize, numInputs);
 		}
 		
-		setWidth(Math.max(1, splitter.getNumPorts() - 1));
+		setHeight(Math.max(2, splitter.getNumPorts()));
 		
 		int[] bitFanIndices = splitter.getBitFanIndices();
 		for(int i = 0; i < bitFanIndices.length; i++) {
 			properties.setProperty(new Property<>("Bit " + i, validator, bitFanIndices[i]));
 		}
 		
+		Direction direction = properties.getValue(Properties.DIRECTION);
+		boolean inputOnTopLeft = properties.getValue(INPUT_LOCATION);
+		
+		GuiUtils.rotateElementSize(this, Direction.EAST, direction);
+		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, splitter.getPort(splitter.PORT_JOINED), 0, 0));
 		for(int i = 0; i < splitter.getNumPorts() - 1; i++) {
 			String tooltip = "";
 			for(int j = 0, start = -1; j < bitFanIndices.length; j++) {
@@ -114,29 +123,92 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 				}
 			}
 			
+			int cx, cy;
+			switch(direction) {
+				case EAST:
+					cx = getWidth();
+					cy = inputOnTopLeft ? i + 2 : getHeight() - i - 2;
+					break;
+				case WEST:
+					cx = 0;
+					cy = inputOnTopLeft ? i + 2 : getHeight() - i - 2;
+					break;
+				case SOUTH:
+					cx = inputOnTopLeft ? i + 2 : getWidth() - i - 2;
+					cy = getHeight();
+					break;
+				case NORTH:
+					cx = inputOnTopLeft ? i + 2 : getWidth() - i - 2;
+					cy = 0;
+					break;
+				default:
+					throw new IllegalArgumentException("Why are you doing this?");
+			}
+			
 			connections.add(new PortConnection(this, splitter.getPort(splitter.getNumPorts() - 2 - i),
-			                                   tooltip.isEmpty() ? tooltip : tooltip.substring(1),
-			                                   i + 1, getHeight()));
+			                                   tooltip.isEmpty() ? tooltip : tooltip.substring(1), cx, cy));
 		}
 		
-		connections = GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
-		GuiUtils.rotateElement(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		switch(direction) {
+			case EAST:
+				connections.add(new PortConnection(this, splitter.getPort(splitter.PORT_JOINED),
+				                                   0, inputOnTopLeft ? 0 : getHeight()));
+				break;
+			case WEST:
+				connections.add(new PortConnection(this, splitter.getPort(splitter.PORT_JOINED),
+				                                   getWidth(), inputOnTopLeft ? 0 : getHeight()));
+				break;
+			case SOUTH:
+				connections.add(new PortConnection(this, splitter.getPort(splitter.PORT_JOINED),
+				                                   inputOnTopLeft ? 0 : getWidth(), 0));
+				break;
+			case NORTH:
+				connections.add(new PortConnection(this, splitter.getPort(splitter.PORT_JOINED),
+				                                   inputOnTopLeft ? 0 : getWidth(), getHeight()));
+				break;
+		}
 		
 		init(splitter, properties, connections);
 	}
 	
 	@Override
-	public void paint(GraphicsContext g, CircuitState circuitState) {
-		GuiUtils.rotateGraphics(this, g, getProperties().getValue(Properties.DIRECTION));
+	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
-		int x = getScreenX();
-		int y = getScreenY();
-		int width = getScreenWidth() > getScreenHeight() ? getScreenWidth() : getScreenHeight();
-		int height = getScreenWidth() > getScreenHeight() ? getScreenHeight() : getScreenWidth();
-		
-		g.setLineWidth(2);
-		g.setStroke(Color.BLACK);
-		g.strokeLine(x, y, x + GuiUtils.BLOCK_SIZE, y + height);
-		g.strokeLine(x + GuiUtils.BLOCK_SIZE, y + height, x + width, y + height);
+		Direction direction = getProperties().getValue(Properties.DIRECTION);
+		boolean inputOnTop = getProperties().getValue(INPUT_LOCATION);
+		switch(direction) {
+			case SOUTH:
+			case WEST:
+				inputOnTop = !inputOnTop;
+			case EAST:
+			case NORTH:
+				GuiUtils.rotateGraphics(this, graphics, direction);
+				
+				int x = getScreenX();
+				int y = getScreenY();
+				int height = getScreenWidth() > getScreenHeight() ? getScreenWidth() : getScreenHeight();
+				
+				graphics.setLineWidth(3);
+				graphics.setStroke(Color.BLACK);
+				
+				graphics.strokeLine(x,
+				                    y + (inputOnTop ? 0 : height),
+				                    x + GuiUtils.BLOCK_SIZE,
+				                    y + (inputOnTop ? GuiUtils.BLOCK_SIZE : height - GuiUtils.BLOCK_SIZE));
+				
+				graphics.strokeLine(x + GuiUtils.BLOCK_SIZE,
+				                    y + (inputOnTop ? GuiUtils.BLOCK_SIZE : height - GuiUtils.BLOCK_SIZE),
+				                    x + GuiUtils.BLOCK_SIZE,
+				                    y + (inputOnTop ? height : 0));
+				
+				for(int i = 2 * GuiUtils.BLOCK_SIZE; i <= height; i += GuiUtils.BLOCK_SIZE) {
+					int offset = inputOnTop ? 0 : 2 * GuiUtils.BLOCK_SIZE;
+					graphics.strokeLine(x + GuiUtils.BLOCK_SIZE,
+					                    y + i - offset,
+					                    x + 2 * GuiUtils.BLOCK_SIZE,
+					                    y + i - offset);
+				}
+		}
 	}
 }

@@ -13,7 +13,6 @@ import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.components.wiring.Constant;
 
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -39,6 +38,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(VALUE);
@@ -73,12 +73,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		if(!getComponent().getName().isEmpty()) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(), getScreenX() - bounds.getWidth() - 5,
-			                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
-		}
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
 		graphics.setFont(Font.font("monospace", 16));
 		graphics.setFill(Color.GRAY);
@@ -93,11 +88,6 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 			GuiUtils.setBitColor(graphics, value.getBit(0));
 		}
 		
-		String string = value.toString();
-		for(int i = 0, row = 1; i < string.length(); row++) {
-			String sub = string.substring(i, i + Math.min(8, string.length() - i));
-			i += sub.length();
-			graphics.strokeText(sub, getScreenX() + 2, getScreenY() + 14 * row);
-		}
+		GuiUtils.drawValue(graphics, value.toString(), getScreenX(), getScreenY(), getScreenWidth());
 	}
 }

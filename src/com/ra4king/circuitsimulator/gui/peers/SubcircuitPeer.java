@@ -16,7 +16,6 @@ import com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
@@ -32,6 +31,7 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.mergeIfExists(props);
 		
 		Property<CircuitManager> subcircuitProperty = props.getProperty(SUBCIRCUIT);
@@ -127,13 +127,7 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		if(!getComponent().getName().isEmpty()) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(),
-			                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-			                    getScreenY() - 5);
-		}
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);

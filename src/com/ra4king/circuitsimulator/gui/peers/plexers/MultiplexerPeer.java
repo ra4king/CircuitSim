@@ -12,7 +12,6 @@ import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.plexers.Multiplexer;
 
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -33,6 +32,7 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.SELECTOR_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
@@ -44,7 +44,7 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 		                                  properties.getValue(Properties.SELECTOR_BITS));
 		setHeight(mux.getNumInputs() + 2);
 		
-		GuiUtils.rotateElement(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		
 		boolean location = properties.getValue(Properties.SELECTOR_LOCATION);
 		
@@ -56,26 +56,25 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 				selOffset = 1;
 			case EAST:
 				for(int i = 0; i < mux.getNumInputs(); i++) {
-					connections.add(new PortConnection(this, mux.getPort(i), outOffset, i + 1));
+					connections.add(new PortConnection(this, mux.getPort(i), String.valueOf(i), outOffset, i + 1));
 				}
-				connections.add(
-						new PortConnection(this, mux.getSelectorPort(), "Selector", getWidth() / 2 + selOffset,
-						                   location ? 0 : getHeight()));
-				connections.add(
-						new PortConnection(this, mux.getOutPort(), "Out", getWidth() - outOffset, getHeight() / 2));
+				connections.add(new PortConnection(this, mux.getSelectorPort(), "Selector",
+				                                   getWidth() / 2 + selOffset,
+				                                   location ? 0 : getHeight()));
+				connections.add(new PortConnection(this, mux.getOutPort(), "Out",
+				                                   getWidth() - outOffset, getHeight() / 2));
 				break;
 			case NORTH:
 				outOffset = getHeight();
 				selOffset = 1;
 			case SOUTH:
 				for(int i = 0; i < mux.getNumInputs(); i++) {
-					connections.add(new PortConnection(this, mux.getPort(i), i + 1, outOffset));
+					connections.add(new PortConnection(this, mux.getPort(i), String.valueOf(i), i + 1, outOffset));
 				}
-				connections.add(
-						new PortConnection(this, mux.getSelectorPort(), "Selector", location ? 0 : getWidth(),
-						                   getHeight() / 2 + selOffset));
-				connections.add(
-						new PortConnection(this, mux.getOutPort(), "Out", getWidth() / 2, getHeight() - outOffset));
+				connections.add(new PortConnection(this, mux.getSelectorPort(), "Selector",
+				                                   location ? 0 : getWidth(), getHeight() / 2 + selOffset));
+				connections.add(new PortConnection(this, mux.getOutPort(), "Out",
+				                                   getWidth() / 2, getHeight() - outOffset));
 				break;
 		}
 		
@@ -84,13 +83,7 @@ public class MultiplexerPeer extends ComponentPeer<Multiplexer> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		if(!getComponent().getName().isEmpty()) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(),
-			                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-			                    getScreenY() - 5);
-		}
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
 		Direction direction = getProperties().getValue(Properties.DIRECTION);
 		

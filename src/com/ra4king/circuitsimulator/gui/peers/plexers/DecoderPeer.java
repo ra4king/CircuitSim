@@ -8,10 +8,10 @@ import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
+import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.plexers.Decoder;
 
-import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -32,6 +32,9 @@ public class DecoderPeer extends ComponentPeer<Decoder> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
+		properties.ensureProperty(Properties.DIRECTION);
+		properties.ensureProperty(Properties.SELECTOR_LOCATION);
 		properties.ensureProperty(Properties.SELECTOR_BITS);
 		properties.mergeIfExists(props);
 		
@@ -39,38 +42,78 @@ public class DecoderPeer extends ComponentPeer<Decoder> {
 		                              properties.getValue(Properties.SELECTOR_BITS));
 		setHeight(decoder.getNumOutputs() + 2);
 		
-		List<PortConnection> connections = new ArrayList<>();
-		for(int i = 0; i < decoder.getNumOutputs(); i++) {
-			connections.add(new PortConnection(this, decoder.getOutputPort(i), getWidth(), i + 1));
-		}
+		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		
-		connections.add(new PortConnection(this, decoder.getSelectorPort(), "Selector", getWidth() / 2, getHeight()));
+		boolean location = properties.getValue(Properties.SELECTOR_LOCATION);
+		
+		int outOffset = 0, selOffset = 0;
+		List<PortConnection> connections = new ArrayList<>();
+		switch(properties.getValue(Properties.DIRECTION)) {
+			case EAST:
+				outOffset = getWidth();
+				selOffset = 1;
+			case WEST:
+				for(int i = 0; i < decoder.getNumOutputs(); i++) {
+					connections.add(new PortConnection(this, decoder.getPort(i), String.valueOf(i), outOffset, i + 1));
+				}
+				connections.add(new PortConnection(this, decoder.getSelectorPort(), "Selector",
+				                                   getWidth() / 2 + selOffset, location ? 0 : getHeight()));
+				break;
+			case SOUTH:
+				outOffset = getHeight();
+				selOffset = 1;
+			case NORTH:
+				for(int i = 0; i < decoder.getNumOutputs(); i++) {
+					connections.add(new PortConnection(this, decoder.getPort(i), String.valueOf(i), i + 1, outOffset));
+				}
+				connections.add(new PortConnection(this, decoder.getSelectorPort(), "Selector",
+				                                   location ? 0 : getWidth(), getHeight() / 2 + selOffset));
+				break;
+		}
 		
 		init(decoder, properties, connections);
 	}
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		int block = GuiUtils.BLOCK_SIZE;
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
+		Direction direction = getProperties().getValue(Properties.DIRECTION);
+		
 		int x = getScreenX();
 		int y = getScreenY();
-		int width = getScreenWidth();
-		int height = getScreenHeight();
+		int width = 3 * GuiUtils.BLOCK_SIZE;
+		int height = (getComponent().getNumOutputs() + 2) * GuiUtils.BLOCK_SIZE;
 		
-		if(!getComponent().getName().isEmpty()) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(),
-			                    x + (width - bounds.getWidth()) * 0.5,
-			                    y - 5);
+		int zeroXOffset = 0;
+		
+		switch(direction) {
+			case SOUTH:
+				graphics.translate(x, y);
+				graphics.rotate(270);
+				graphics.translate(-x - width, -y);
+			case WEST:
+				zeroXOffset = 2;
+				graphics.beginPath();
+				graphics.moveTo(x, y);
+				graphics.lineTo(x + width, y + Math.min(20, height * 0.2));
+				graphics.lineTo(x + width, y + height - Math.min(20, height * 0.2));
+				graphics.lineTo(x, y + height);
+				graphics.closePath();
+				break;
+			case NORTH:
+				graphics.translate(x, y);
+				graphics.rotate(270);
+				graphics.translate(-x - width, -y);
+			case EAST:
+				zeroXOffset = width - 10;
+				graphics.beginPath();
+				graphics.moveTo(x + width, y);
+				graphics.lineTo(x, y + Math.min(20, height * 0.2));
+				graphics.lineTo(x, y + height - Math.min(20, height * 0.2));
+				graphics.lineTo(x + width, y + height);
+				graphics.closePath();
+				break;
 		}
-		
-		graphics.beginPath();
-		graphics.moveTo(x + width, y);
-		graphics.lineTo(x, y + Math.min(2 * block, height * 0.2));
-		graphics.lineTo(x, y + height - Math.max(5, height * 0.1));
-		graphics.lineTo(x + width, y + height);
-		graphics.closePath();
 		
 		graphics.setFill(Color.WHITE);
 		graphics.fill();
@@ -78,6 +121,6 @@ public class DecoderPeer extends ComponentPeer<Decoder> {
 		graphics.stroke();
 		
 		graphics.setStroke(Color.DARKGRAY);
-		graphics.strokeText("0", x + width - 10, y + 13);
+		graphics.strokeText("0", x + zeroXOffset, y + 13);
 	}
 }

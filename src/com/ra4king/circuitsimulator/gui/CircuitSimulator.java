@@ -124,6 +124,7 @@ public class CircuitSimulator extends Application {
 	private ComponentLauncherInfo selectedComponent;
 	
 	private File saveFile, lastSaveFile;
+	private boolean loadingFile;
 	
 	private DataFormat copyDataFormat = new DataFormat("x-circuit-simulator");
 	
@@ -224,6 +225,8 @@ public class CircuitSimulator extends Application {
 	}
 	
 	public void deleteCircuit(CircuitManager manager, boolean removeTab) {
+		clearSelection();
+		
 		Tab tab = getTabForCircuit(manager.getCircuit());
 		if(tab == null) {
 			throw new IllegalStateException("Tab shouldn't be null.");
@@ -385,6 +388,8 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private void refreshCircuitsTab() {
+		if(loadingFile) return;
+		
 		ScrollPane pane = new ScrollPane(new GridPane());
 		pane.setFitToWidth(true);
 		
@@ -400,8 +405,32 @@ public class CircuitSimulator extends Application {
 		circuitManagers.keySet().stream().sorted().forEach((name) -> {
 			Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
 			
+			ComponentPeer<?> component = circuitPair.getKey().creator.createComponent(new Properties(), 0, 0);
+			Circuit circuit = new Circuit(new Simulator());
+			circuit.addComponent(component.getComponent());
+			
+			Canvas icon = new Canvas(component.getScreenWidth() + 10, component.getScreenHeight() + 10);
+			GraphicsContext graphics = icon.getGraphicsContext2D();
+			graphics.translate(5, 5);
+			component.paint(icon.getGraphicsContext2D(), circuit.getTopLevelState());
+			component.getConnections().forEach(
+					connection -> connection.paint(icon.getGraphicsContext2D(), circuit.getTopLevelState()));
+			
+			ToggleButton toggleButton = new ToggleButton(circuitPair.getKey().name.getValue(), icon);
+			toggleButton.setAlignment(Pos.CENTER_LEFT);
+			toggleButton.setToggleGroup(buttonsToggleGroup);
+			toggleButton.setMinHeight(30);
+			toggleButton.setMaxWidth(Double.MAX_VALUE);
+			toggleButton.setOnAction(e -> {
+				if(toggleButton.isSelected()) {
+					modifiedSelection(circuitPair.getKey());
+				} else {
+					modifiedSelection(null);
+				}
+			});
+			GridPane.setHgrow(toggleButton, Priority.ALWAYS);
+			
 			GridPane buttons = (GridPane)pane.getContent();
-			ToggleButton toggleButton = setupButton(buttonsToggleGroup, circuitPair.getKey());
 			buttons.addRow(buttons.getChildren().size(), toggleButton);
 		});
 	}
@@ -500,6 +529,8 @@ public class CircuitSimulator extends Application {
 		if(component != null && !(component instanceof Pin)) {
 			return;
 		}
+		
+		refreshCircuitsTab();
 		
 		circuitManagers.values().forEach(componentPair -> {
 			for(ComponentPeer<?> componentPeer :
@@ -638,6 +669,8 @@ public class CircuitSimulator extends Application {
 			lastSaveFile = saveFile = selectedFile;
 			
 			try {
+				loadingFile = true;
+				
 				long now = System.nanoTime();
 				List<CircuitInfo> circuits = FileFormat.load(selectedFile);
 				
@@ -699,7 +732,9 @@ public class CircuitSimulator extends Application {
 			} finally {
 				editHistory.clear();
 				savedEditStackSize = 0;
+				loadingFile = false;
 				updateTitle();
+				refreshCircuitsTab();
 			}
 		}
 	}

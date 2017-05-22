@@ -10,11 +10,13 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
+import com.ra4king.circuitsimulator.gui.peers.wiring.ClockPeer;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -30,7 +32,9 @@ public class LEDMatrix extends ComponentPeer<Component> {
 	}
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Input/Output", "LED Matrix"), null, new Properties());
+		manager.addComponent(new Pair<>("Input/Output", "LED Matrix"),
+		                     new Image(ClockPeer.class.getResourceAsStream("/resources/LEDMatrix.png")),
+		                     new Properties());
 	}
 	
 	public LEDMatrix(Properties props, int x, int y) {
@@ -38,6 +42,7 @@ public class LEDMatrix extends ComponentPeer<Component> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(COL_COUNT);
 		properties.ensureProperty(ROW_COUNT);
 		properties.mergeIfExists(props);
@@ -71,19 +76,15 @@ public class LEDMatrix extends ComponentPeer<Component> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
+		
 		for(int i = 0; i < getComponent().getNumPorts(); i++) {
 			WireValue value = circuitState.getLastReceived(getComponent().getPort(i));
-			if(value.isValidValue()) {
-				for(int b = value.getBitSize() - 1; b >= 0; b--) {
-					GuiUtils.setBitColor(graphics, value.getBit(b));
-					graphics.fillRect(getScreenX() + (value.getBitSize() - b - 1) * GuiUtils.BLOCK_SIZE,
-					                  getScreenY() + i * GuiUtils.BLOCK_SIZE,
-					                  GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
-				}
-			} else {
-				graphics.setFill(Color.RED);
-				graphics.fillRect(getScreenX(), getScreenY() + i * GuiUtils.BLOCK_SIZE,
-				                  getScreenWidth(), GuiUtils.BLOCK_SIZE);
+			for(int b = value.getBitSize() - 1; b >= 0; b--) {
+				GuiUtils.setBitColor(graphics, value.getBit(b));
+				graphics.fillRect(getScreenX() + (value.getBitSize() - b - 1) * GuiUtils.BLOCK_SIZE,
+				                  getScreenY() + i * GuiUtils.BLOCK_SIZE,
+				                  GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
 			}
 		}
 		

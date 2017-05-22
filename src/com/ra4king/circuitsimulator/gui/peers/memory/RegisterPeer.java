@@ -33,6 +33,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
@@ -51,13 +52,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		if(!getComponent().getName().isEmpty()) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(),
-			                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-			                    getScreenY() - 5);
-		}
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);

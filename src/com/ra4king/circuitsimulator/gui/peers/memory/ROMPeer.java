@@ -17,10 +17,12 @@ import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.memory.ROM;
 
 import javafx.application.Platform;
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.util.Pair;
 
 /**
@@ -40,6 +42,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.ADDRESS_BITS);
 		properties.mergeIfExists(props);
@@ -116,12 +119,19 @@ public class ROMPeer extends ComponentPeer<ROM> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
+		
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);
 		
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.strokeText("ROM", getScreenX() + getScreenWidth() / 2 - 15, getScreenY() + getScreenHeight() / 2 + 5);
+		String text = "ROM";
+		graphics.setFont(new Font("Monospace", 13));
+		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), text);
+		graphics.strokeText(text,
+		                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+		                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 	}
 }

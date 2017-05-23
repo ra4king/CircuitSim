@@ -733,24 +733,31 @@ public class CircuitBoard {
 	}
 	
 	public void paint(GraphicsContext graphics) {
-		components.forEach(component -> paintComponent(graphics, component));
+		CircuitState currentState = new CircuitState(this.currentState);
 		
-		links.forEach(linkWire -> linkWire.getWires().forEach(wire -> paintWire(graphics, wire)));
+		components.forEach(component -> paintComponent(graphics, currentState, component));
+		
+		for(LinkWires linkWires : links) {
+			for(Wire wire : linkWires.getWires()) {
+				paintWire(graphics, currentState, wire);
+			}
+		}
 		
 		if(badLinks != null) {
 			for(LinkWires badLink : badLinks) {
 				Stream.concat(badLink.getPorts().stream(),
 				              badLink.getInvalidPorts().stream()).forEach(port -> {
-					graphics.setStroke(Color.BLACK);
-					graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),
-					                    port.getScreenX() + 11,
-					                    port.getScreenY() + 21);
+					graphics.setFill(Color.BLACK);
+					graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
+					                  port.getScreenX() + 11,
+					                  port.getScreenY() + 21);
 					
 					graphics.setStroke(Color.ORANGE);
+					graphics.setFill(Color.ORANGE);
 					graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-					graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),
-					                    port.getScreenX() + 10,
-					                    port.getScreenY() + 20);
+					graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
+					                  port.getScreenX() + 10,
+					                  port.getScreenY() + 20);
 				});
 			}
 		}
@@ -761,9 +768,9 @@ public class CircuitBoard {
 			
 			for(GuiElement element : moveElements) {
 				if(element instanceof ComponentPeer<?>) {
-					paintComponent(graphics, (ComponentPeer<?>)element);
+					paintComponent(graphics, currentState, (ComponentPeer<?>)element);
 				} else if(element instanceof Wire) {
-					paintWire(graphics, (Wire)element);
+					paintWire(graphics, currentState, (Wire)element);
 				}
 			}
 			
@@ -771,35 +778,28 @@ public class CircuitBoard {
 		}
 	}
 	
-	private void paintComponent(GraphicsContext graphics, ComponentPeer<?> component) {
+	private void paintComponent(GraphicsContext graphics, CircuitState state, ComponentPeer<?> component) {
 		graphics.save();
-		component.paint(graphics, currentState);
+		component.paint(graphics, state);
 		graphics.restore();
 		
 		for(PortConnection connection : component.getConnections()) {
-			graphics.save();
-			connection.paint(graphics, currentState);
-			graphics.restore();
+			connection.paint(graphics, state);
 		}
 	}
 	
-	private void paintWire(GraphicsContext graphics, Wire wire) {
+	private void paintWire(GraphicsContext graphics, CircuitState state, Wire wire) {
 		graphics.save();
-		wire.paint(graphics, currentState);
+		wire.paint(graphics, state);
 		graphics.restore();
 		
 		Connection startConn = wire.getStartConnection();
 		if(getConnections(startConn.getX(), startConn.getY()).size() > 2) {
-			graphics.save();
-			startConn.paint(graphics, currentState);
-			graphics.restore();
+			startConn.paint(graphics, state);
 		}
-		
 		Connection endConn = wire.getStartConnection();
 		if(getConnections(endConn.getX(), endConn.getY()).size() > 2) {
-			graphics.save();
-			endConn.paint(graphics, currentState);
-			graphics.restore();
+			endConn.paint(graphics, state);
 		}
 	}
 	

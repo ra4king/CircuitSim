@@ -10,13 +10,13 @@ import java.util.Set;
  * @author Roi Atalla
  */
 public class Circuit {
-	private Simulator simulator;
+	private final Simulator simulator;
 	
-	private Set<Component> components;
-	private Set<CircuitState> states;
-	private CircuitState topLevelState;
+	private final Set<Component> components;
+	private final Set<CircuitState> states;
+	private final CircuitState topLevelState;
 	
-	private List<CircuitChangeListener> listeners = new ArrayList<>();
+	private final List<CircuitChangeListener> listeners = new ArrayList<>();
 	
 	public Circuit(Simulator simulator) {
 		this.simulator = simulator;
@@ -29,57 +29,67 @@ public class Circuit {
 	}
 	
 	public <T extends Component> T addComponent(T component) {
-		if(component.getCircuit() == this) {
+		synchronized(simulator) {
+			if(component.getCircuit() == this) {
+				return component;
+			}
+			
+			if(component.getCircuit() != null) {
+				throw new IllegalArgumentException("Component already belongs to a circuit.");
+			}
+			
+			component.setCircuit(this);
+			components.add(component);
+			states.forEach(state -> component.init(state, state.getComponentProperty(component)));
+			
+			listeners.forEach(listener -> listener.circuitChanged(this, component, true));
+			
 			return component;
 		}
-		
-		if(component.getCircuit() != null) {
-			throw new IllegalArgumentException("Component already belongs to a circuit.");
-		}
-		
-		component.setCircuit(this);
-		components.add(component);
-		states.forEach(state -> component.init(state, state.getComponentProperty(component)));
-		
-		listeners.forEach(listener -> listener.circuitChanged(this, component, true));
-		
-		return component;
 	}
 	
 	public <T extends Component> void updateComponent(T oldComponent, T newComponent, Runnable inBetween) {
-		states.forEach(state -> state.ensureUnlinked(oldComponent));
-		
-		components.remove(oldComponent);
-		states.forEach(oldComponent::uninit);
-		oldComponent.setCircuit(null);
-		
-		listeners.forEach(listener -> listener.circuitChanged(this, oldComponent, false));
-		
-		inBetween.run();
-		
-		newComponent.setCircuit(this);
-		components.add(newComponent);
-		states.forEach(state -> newComponent.init(state, state.getComponentProperty(oldComponent)));
-		
-		listeners.forEach(listener -> listener.circuitChanged(this, newComponent, true));
+		synchronized(simulator) {
+			states.forEach(state -> state.ensureUnlinked(oldComponent));
+			
+			components.remove(oldComponent);
+			states.forEach(oldComponent::uninit);
+			oldComponent.setCircuit(null);
+			
+			listeners.forEach(listener -> listener.circuitChanged(this, oldComponent, false));
+			
+			inBetween.run();
+			
+			newComponent.setCircuit(this);
+			components.add(newComponent);
+			states.forEach(state -> newComponent.init(state, state.getComponentProperty(oldComponent)));
+			
+			listeners.forEach(listener -> listener.circuitChanged(this, newComponent, true));
+		}
 	}
 	
 	public void removeComponent(Component component) {
-		states.forEach(state -> state.ensureUnlinked(component));
-		
-		components.remove(component);
-		states.forEach(component::uninit);
-		component.setCircuit(null);
-		
-		listeners.forEach(listener -> listener.circuitChanged(this, component, false));
+		synchronized(simulator) {
+			states.forEach(state -> state.ensureUnlinked(component));
+			
+			components.remove(component);
+			states.forEach(component::uninit);
+			component.setCircuit(null);
+			
+			listeners.forEach(listener -> listener.circuitChanged(this, component, false));
+		}
 	}
 	
 	public Set<Component> getComponents() {
-		return Collections.unmodifiableSet(components);
+		synchronized(simulator) {
+			return Collections.unmodifiableSet(components);
+		}
 	}
 	
 	public void clearComponents() {
-		new HashSet<>(components).forEach(this::removeComponent);
+		synchronized(simulator) {
+			new HashSet<>(components).forEach(this::removeComponent);
+		}
 	}
 	
 	public Simulator getSimulator() {
@@ -95,7 +105,9 @@ public class Circuit {
 	}
 	
 	public void addListener(CircuitChangeListener listener) {
-		listeners.add(listener);
+		synchronized(simulator) {
+			listeners.add(listener);
+		}
 	}
 	
 	public List<CircuitChangeListener> getListeners() {
@@ -103,7 +115,9 @@ public class Circuit {
 	}
 	
 	public void removeListener(CircuitChangeListener listener) {
-		listeners.remove(listener);
+		synchronized(simulator) {
+			listeners.remove(listener);
+		}
 	}
 	
 	public interface CircuitChangeListener {

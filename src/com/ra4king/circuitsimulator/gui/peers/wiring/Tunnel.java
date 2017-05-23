@@ -218,25 +218,26 @@ public class Tunnel extends ComponentPeer<Component> {
 		
 		if(!getComponent().getName().isEmpty()) {
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(getComponent().getName(),
-			                    x + xOff + ((width - xOff) - bounds.getWidth()) * 0.5,
-			                    y + yOff + ((height - yOff) + bounds.getHeight()) * 0.4);
+			graphics.setFill(Color.BLACK);
+			graphics.fillText(getComponent().getName(),
+			                  x + xOff + ((width - xOff) - bounds.getWidth()) * 0.5,
+			                  y + yOff + ((height - yOff) + bounds.getHeight()) * 0.4);
 		}
 		
 		if(isIncompatible) {
 			PortConnection port = getConnections().get(0);
 			
-			graphics.setStroke(Color.BLACK);
-			graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),
-			                    port.getScreenX() + 11,
-			                    port.getScreenY() + 21);
+			graphics.setFill(Color.BLACK);
+			graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
+			                  port.getScreenX() + 11,
+			                  port.getScreenY() + 21);
 			
 			graphics.setStroke(Color.ORANGE);
+			graphics.setFill(Color.ORANGE);
 			graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-			graphics.strokeText(String.valueOf(port.getPort().getLink().getBitSize()),
-			                    port.getScreenX() + 10,
-			                    port.getScreenY() + 20);
+			graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
+			                  port.getScreenX() + 10,
+			                  port.getScreenY() + 20);
 		}
 	}
 }

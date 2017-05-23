@@ -24,6 +24,15 @@ public class CircuitState {
 		circuit.getCircuitStates().add(this);
 	}
 	
+	public CircuitState(CircuitState state) {
+		synchronized(state.circuit.getSimulator()) {
+			this.circuit = state.circuit;
+			this.componentProperties = new HashMap<>(state.componentProperties);
+			this.linkStates = new HashMap<>();
+			state.linkStates.forEach((link, linkState) -> this.linkStates.put(link, new LinkState(linkState)));
+		}
+	}
+	
 	public Circuit getCircuit() {
 		return circuit;
 	}
@@ -45,27 +54,19 @@ public class CircuitState {
 	}
 	
 	public WireValue getMergedValue(Link link) {
-		synchronized(circuit.getSimulator()) {
-			return get(link).getMergedValue();
-		}
+		return get(link).getMergedValue();
 	}
 	
 	public WireValue getLastReceived(Port port) {
-		synchronized(circuit.getSimulator()) {
-			return new WireValue(get(port.getLink()).getLastReceived(port));
-		}
+		return new WireValue(get(port.getLink()).getLastReceived(port));
 	}
 	
 	public WireValue getLastPushedValue(Port port) {
-		synchronized(circuit.getSimulator()) {
-			return new WireValue(get(port.getLink()).getLastPushed(port));
-		}
+		return new WireValue(get(port.getLink()).getLastPushed(port));
 	}
 	
 	public boolean isShortCircuited(Link link) {
-		synchronized(circuit.getSimulator()) {
-			return get(link).isShortCircuit();
-		}
+		return get(link).isShortCircuit();
 	}
 	
 	private LinkState get(Link link) {
@@ -99,33 +100,28 @@ public class CircuitState {
 	}
 	
 	void propagateSignal(Link link) {
-		synchronized(circuit.getSimulator()) {
-			LinkState linkState = get(link);
+		LinkState linkState = get(link);
+		
+		linkState.participants.forEach((port, info) -> {
+			WireValue lastMerged = info.lastMerged;
+			WireValue lastPushed = info.lastPushed;
 			
-			linkState.participants.forEach((port, info) -> {
-				WireValue lastMerged = info.lastMerged;
-				WireValue lastPushed = info.lastPushed;
-				
-				if(!lastMerged.equals(lastPushed)) {
-					lastMerged.set(lastPushed);
-				}
-			});
-			
-			linkState.propagate();
-		}
+			if(!lastMerged.equals(lastPushed)) {
+				linkState.cachedMergedValue = null;
+				linkState.isShortCircuited = null;
+				lastMerged.set(lastPushed);
+			}
+		});
+		
+		linkState.propagate();
 	}
 	
 	public void pushValue(Port port, WireValue value) {
-		boolean changed;
-		synchronized(circuit.getSimulator()) {
-			LinkState linkState = get(port.getLink());
-			
-			Utils.ensureBitSize(this, value, linkState.link.getBitSize());
-			
-			WireValue lastPushed = linkState.getLastPushed(port);
-			changed = !value.equals(lastPushed);
-			lastPushed.set(value);
-		}
+		LinkState linkState = get(port.getLink());
+		
+		WireValue lastPushed = linkState.getLastPushed(port);
+		boolean changed = !value.equals(lastPushed);
+		lastPushed.set(value);
 		
 		if(changed) {
 			circuit.getSimulator().valueChanged(this, port);
@@ -145,6 +141,8 @@ public class CircuitState {
 	private class LinkState {
 		private final Link link;
 		private final HashMap<Port, PortStateInfo> participants;
+		private WireValue cachedMergedValue;
+		private Boolean isShortCircuited;
 		
 		private class PortStateInfo {
 			private WireValue lastPushed;
@@ -157,6 +155,12 @@ public class CircuitState {
 				     new WireValue(link.getBitSize()));
 			}
 			
+			PortStateInfo(PortStateInfo info) {
+				this(new WireValue(info.lastPushed),
+				     new WireValue(info.lastMerged),
+				     new WireValue(info.lastReceived));
+			}
+			
 			PortStateInfo(WireValue lastPushed, WireValue lastMerged, WireValue lastReceived) {
 				this.lastPushed = lastPushed;
 				this.lastMerged = lastMerged;
@@ -166,10 +170,14 @@ public class CircuitState {
 		
 		LinkState(Link link) {
 			this.link = link;
-			
 			participants = new HashMap<>();
-			
 			link.getParticipants().forEach(port -> participants.put(port, new PortStateInfo()));
+		}
+		
+		LinkState(LinkState linkState) {
+			this.link = linkState.link;
+			this.participants = new HashMap<>();
+			linkState.participants.forEach((port, info) -> this.participants.put(port, new PortStateInfo(info)));
 		}
 		
 		WireValue getLastPushed(Port port) {
@@ -186,33 +194,36 @@ public class CircuitState {
 		
 		WireValue getIncomingValue(Port port) {
 			WireValue newValue = new WireValue(link.getBitSize());
-			participants.keySet().stream()
-			            .filter(p -> p != port)
-			            .map(participants::get)
-			            .forEach(info -> {
-				            Utils.ensureCompatible(link, newValue, info.lastMerged);
-				            newValue.merge(info.lastMerged);
-			            });
+			participants.forEach((p, info) -> {
+				if(p != port) {
+					newValue.merge(info.lastMerged);
+				}
+			});
 			return newValue;
 		}
 		
 		WireValue getMergedValue() {
+			if(cachedMergedValue != null) return cachedMergedValue;
+			
 			WireValue newValue = new WireValue(link.getBitSize());
-			participants.values().forEach(info -> {
-				Utils.ensureCompatible(link, newValue, info.lastMerged);
-				newValue.merge(info.lastMerged);
-			});
+			participants.values().forEach(info -> newValue.merge(info.lastMerged));
+			
+			cachedMergedValue = new WireValue(newValue);
+			isShortCircuited = null;
+			
 			return newValue;
 		}
 		
 		boolean isShortCircuit() {
 			try {
+				if(isShortCircuited != null) return isShortCircuited;
+				
 				getMergedValue();
-				return false;
+				return isShortCircuited = false;
 			} catch(ShortCircuitException exc) {
-				return true;
+				return isShortCircuited = true;
 			} catch(Throwable t) {
-				return false;
+				return isShortCircuited = false;
 			}
 		}
 		
@@ -242,6 +253,8 @@ public class CircuitState {
 			
 			participants.putAll(other.participants);
 			
+			cachedMergedValue = null;
+			isShortCircuited = null;
 			participants.forEach((port, info) -> info.lastMerged.setAllBits(State.X));
 			
 			linkStates.remove(other.link);
@@ -251,6 +264,9 @@ public class CircuitState {
 		
 		void unlink(Port port) {
 			if(!participants.containsKey(port)) return;
+			
+			cachedMergedValue = null;
+			isShortCircuited = null;
 			
 			PortStateInfo info = participants.remove(port);
 			get(port.getLink()).participants.put(port, new PortStateInfo(info.lastPushed,

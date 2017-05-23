@@ -83,7 +83,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 10, 10);
 		
 		if(value.getBitSize() > 1) {
-			graphics.setStroke(Color.BLACK);
+			graphics.setFill(Color.BLACK);
 		} else {
 			GuiUtils.setBitColor(graphics, value.getBit(0));
 		}

@@ -143,8 +143,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 			graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 20, 20);
 		}
 		
-		graphics.setStroke(port.getLink().getBitSize() > 1 ? Color.BLACK : Color.WHITE);
-		
+		graphics.setFill(port.getLink().getBitSize() > 1 ? Color.BLACK : Color.WHITE);
 		GuiUtils.drawValue(graphics, value.toString(), getScreenX(), getScreenY(), getScreenWidth());
 	}
 }

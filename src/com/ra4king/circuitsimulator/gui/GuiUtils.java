@@ -50,9 +50,6 @@ public class GuiUtils {
 	
 	public static void drawName(GraphicsContext graphics, ComponentPeer<?> component, Direction direction) {
 		if(!component.getComponent().getName().isEmpty()) {
-			graphics.save();
-			graphics.setStroke(Color.BLACK);
-			
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), component.getComponent().getName());
 			
 			double x, y;
@@ -77,42 +74,45 @@ public class GuiUtils {
 					throw new IllegalArgumentException("How can Direction be anything else??");
 			}
 			
-			graphics.strokeText(component.getComponent().getName(), x, y);
-			graphics.restore();
+			graphics.setFill(Color.BLACK);
+			graphics.fillText(component.getComponent().getName(), x, y);
 		}
 	}
 	
 	public static void drawValue(GraphicsContext graphics, String string, int x, int y, int width) {
 		if(string.length() == 1) {
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string);
-			graphics.strokeText(string, x + (width - bounds.getWidth()) * 0.5, y + 14);
+			graphics.fillText(string, x + (width - bounds.getWidth()) * 0.5, y + 14);
 		} else {
 			for(int i = 0, row = 1; i < string.length(); row++) {
 				String sub = string.substring(i, i + Math.min(8, string.length() - i));
 				i += sub.length();
-				graphics.strokeText(sub, x + 1, y + 14 * row);
+				graphics.fillText(sub, x + 1, y + 14 * row);
 			}
 		}
 	}
 	
 	public static void setBitColor(GraphicsContext graphics, CircuitState circuitState, LinkWires linkWires) {
-		synchronized(circuitState.getCircuit().getSimulator()) {
-			if(linkWires.isLinkValid()) {
-				Link link = linkWires.getLink();
-				if(link != null) {
-					if(circuitState.isShortCircuited(link)) {
+		if(linkWires.isLinkValid()) {
+			Link link = linkWires.getLink();
+			if(link != null && circuitState != null) {
+				if(circuitState.isShortCircuited(link)) {
+					graphics.setStroke(Color.RED);
+					graphics.setFill(Color.RED);
+				} else {
+					try {
+						setBitColor(graphics, circuitState.getMergedValue(link));
+					} catch(Exception exc) {
 						graphics.setStroke(Color.RED);
 						graphics.setFill(Color.RED);
-					} else {
-						setBitColor(graphics, circuitState.getMergedValue(link));
 					}
-				} else {
-					setBitColor(graphics, new WireValue(1));
 				}
 			} else {
-				graphics.setStroke(Color.ORANGE);
-				graphics.setFill(Color.ORANGE);
+				setBitColor(graphics, new WireValue(1));
 			}
+		} else {
+			graphics.setStroke(Color.ORANGE);
+			graphics.setFill(Color.ORANGE);
 		}
 	}
 	
@@ -129,19 +129,23 @@ public class GuiUtils {
 		}
 	}
 	
+	private static final Color ONE_COLOR = Color.GREEN.brighter();
+	private static final Color ZERO_COLOR = Color.GREEN.darker();
+	private static final Color X_COLOR = Color.BLUE.brighter();
+	
 	public static void setBitColor(GraphicsContext graphics, State bitState) {
 		switch(bitState) {
 			case ONE:
-				graphics.setStroke(Color.GREEN.brighter());
-				graphics.setFill(Color.GREEN.brighter());
+				graphics.setStroke(ONE_COLOR);
+				graphics.setFill(ONE_COLOR);
 				break;
 			case ZERO:
-				graphics.setStroke(Color.GREEN.darker());
-				graphics.setFill(Color.GREEN.darker());
+				graphics.setStroke(ZERO_COLOR);
+				graphics.setFill(ZERO_COLOR);
 				break;
 			case X:
-				graphics.setStroke(Color.BLUE.brighter());
-				graphics.setFill(Color.BLUE.brighter());
+				graphics.setStroke(X_COLOR);
+				graphics.setFill(X_COLOR);
 				break;
 		}
 	}

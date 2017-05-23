@@ -120,7 +120,7 @@ public class DecoderPeer extends ComponentPeer<Decoder> {
 		graphics.setStroke(Color.BLACK);
 		graphics.stroke();
 		
-		graphics.setStroke(Color.DARKGRAY);
-		graphics.strokeText("0", x + zeroXOffset, y + 13);
+		graphics.setFill(Color.DARKGRAY);
+		graphics.fillText("0", x + zeroXOffset, y + 13);
 	}
 }

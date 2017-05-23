@@ -38,7 +38,6 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -86,6 +85,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontSmoothingType;
+import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -406,15 +407,13 @@ public class CircuitSimulator extends Application {
 			Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
 			
 			ComponentPeer<?> component = circuitPair.getKey().creator.createComponent(new Properties(), 0, 0);
-			Circuit circuit = new Circuit(new Simulator());
-			circuit.addComponent(component.getComponent());
 			
 			Canvas icon = new Canvas(component.getScreenWidth() + 10, component.getScreenHeight() + 10);
 			GraphicsContext graphics = icon.getGraphicsContext2D();
 			graphics.translate(5, 5);
-			component.paint(icon.getGraphicsContext2D(), circuit.getTopLevelState());
+			component.paint(icon.getGraphicsContext2D(), null);
 			component.getConnections().forEach(
-					connection -> connection.paint(icon.getGraphicsContext2D(), circuit.getTopLevelState()));
+					connection -> connection.paint(icon.getGraphicsContext2D(), null));
 			
 			ToggleButton toggleButton = new ToggleButton(circuitPair.getKey().name.getValue(), icon);
 			toggleButton.setAlignment(Pos.CENTER_LEFT);
@@ -1325,46 +1324,48 @@ public class CircuitSimulator extends Application {
 			
 			@Override
 			public void handle(long now) {
-				Platform.runLater(() -> {
-					if(now - lastRepaint >= 1e9) {
-						lastFrameCount = frameCount;
-						frameCount = 0;
-						lastRepaint = now;
+				if(now - lastRepaint >= 1e9) {
+					lastFrameCount = frameCount;
+					frameCount = 0;
+					lastRepaint = now;
+				}
+				
+				frameCount++;
+				
+				CircuitManager manager = getCurrentCircuit();
+				if(manager != null && (needsRepaint || manager.needsRepaint())) {
+					manager.paint();
+					needsRepaint = false;
+				}
+				
+				GraphicsContext graphics = overlayCanvas.getGraphicsContext2D();
+				
+				graphics.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
+				
+				graphics.setFontSmoothingType(FontSmoothingType.LCD);
+				
+				graphics.setFont(Font.font("sans serif", FontWeight.BOLD, 11));
+				graphics.setFill(Color.BLACK);
+				graphics.fillText("FPS: " + lastFrameCount, 6, 50);
+				if(Clock.getLastTickCount() > 0) {
+					graphics.fillText("Clock: " + (Clock.getLastTickCount() >> 1) + " Hz", 6, 65);
+				}
+				
+				if(manager != null) {
+					String message = manager.getCurrentError();
+					
+					if(message != null && !message.isEmpty() && Clock.isRunning()) {
+						System.out.println("Message: " + message);
+						toggleClock.fire();
 					}
 					
-					frameCount++;
-					
-					CircuitManager manager = getCurrentCircuit();
-					if(manager != null && (needsRepaint || manager.needsRepaint())) {
-						manager.paint();
-						needsRepaint = false;
-					}
-					
-					GraphicsContext graphics = overlayCanvas.getGraphicsContext2D();
-					graphics.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
-					
-					graphics.save();
-					graphics.setFont(Font.font("monospace", 10));
-					graphics.setStroke(Color.BLACK);
-					graphics.strokeText("FPS: " + lastFrameCount, 5, 50);
-					
-					if(manager != null) {
-						String message = manager.getCurrentError();
-						
-						if(message != null && !message.isEmpty() && Clock.isRunning()) {
-							toggleClock.fire();
-						}
-						
-						Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
-						graphics.setFont(Font.font("monospace", 13));
-						graphics.setStroke(Color.BLACK);
-						graphics.strokeText(message,
-						                    (overlayCanvas.getWidth() - bounds.getWidth()) * 0.5,
-						                    overlayCanvas.getHeight() - 50);
-					}
-					
-					graphics.restore();
-				});
+					graphics.setFont(Font.font("sans serif", FontWeight.BOLD, 20));
+					graphics.setFill(Color.RED);
+					Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
+					graphics.fillText(message,
+					                  (overlayCanvas.getWidth() - bounds.getWidth()) * 0.5,
+					                  overlayCanvas.getHeight() - 50);
+				}
 			}
 		}.start();
 	}

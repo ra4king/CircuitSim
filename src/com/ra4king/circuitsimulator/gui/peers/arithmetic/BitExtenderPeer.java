@@ -65,17 +65,19 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.setFont(new Font("Monospace", 12));
-		graphics.strokeText(String.valueOf(getComponent().getInputBitSize()),
+		graphics.setFont(Font.font("monospace", 12));
+		graphics.setFill(Color.BLACK);
+		
+		graphics.fillText(String.valueOf(getComponent().getInputBitSize()),
 		                    getScreenX() + 3, getScreenY() + getScreenHeight() * 0.5 + 5);
 		
 		
 		String outputString = String.valueOf(getComponent().getOutputBitSize());
 		Bounds outputBounds = GuiUtils.getBounds(graphics.getFont(), outputString);
 		
-		graphics.strokeText(outputString,
-		                    getScreenX() + getScreenWidth() - outputBounds.getWidth() - 3,
-		                    getScreenY() + getScreenHeight() * 0.5 + 5);
+		graphics.fillText(outputString,
+		                  getScreenX() + getScreenWidth() - outputBounds.getWidth() - 3,
+		                  getScreenY() + getScreenHeight() * 0.5 + 5);
 		
 		String typeString = "";
 		switch(getComponent().getExtensionType()) {
@@ -91,14 +93,14 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		}
 		
 		Bounds typeBounds = GuiUtils.getBounds(graphics.getFont(), typeString);
-		graphics.strokeText(typeString,
-		                    getScreenX() + (getScreenWidth() - typeBounds.getWidth()) * 0.5,
-		                    getScreenY() + typeBounds.getHeight());
+		graphics.fillText(typeString,
+		                  getScreenX() + (getScreenWidth() - typeBounds.getWidth()) * 0.5,
+		                  getScreenY() + typeBounds.getHeight());
 		
 		String extendString = "extend";
 		Bounds extendBounds = GuiUtils.getBounds(graphics.getFont(), extendString);
-		graphics.strokeText(extendString,
-		                    getScreenX() + (getScreenWidth() - extendBounds.getWidth()) * 0.5,
-		                    getScreenY() + getScreenHeight() - 5);
+		graphics.fillText(extendString,
+		                  getScreenX() + (getScreenWidth() - extendBounds.getWidth()) * 0.5,
+		                  getScreenY() + getScreenHeight() - 5);
 	}
 }

@@ -36,6 +36,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
 
 /**
@@ -70,7 +71,7 @@ public class CircuitManager {
 	private Circuit dummyCircuit = new Circuit(new Simulator());
 	private ComponentPeer<?> potentialComponent;
 	private ComponentCreator componentCreator;
-	private Properties properties;
+	private Properties potentialComponentProperties;
 	
 	private Connection startConnection, endConnection;
 	
@@ -220,7 +221,7 @@ public class CircuitManager {
 	
 	public void modifiedSelection(ComponentCreator componentCreator, Properties properties) {
 		this.componentCreator = componentCreator;
-		this.properties = properties;
+		this.potentialComponentProperties = properties;
 		
 		needsRepaint = true;
 		
@@ -286,9 +287,8 @@ public class CircuitManager {
 		
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		
-		graphics.save();
-		
 		graphics.setFont(Font.font("monospace", 13));
+		graphics.setFontSmoothingType(FontSmoothingType.LCD);
 		
 		graphics.save();
 		graphics.setFill(Color.LIGHTGRAY);
@@ -348,7 +348,8 @@ public class CircuitManager {
 							graphics.fillRect(x, y, width, height);
 							graphics.strokeRect(x, y, width, height);
 							
-							graphics.strokeText(name, x + 3, y + height - 5);
+							graphics.setFill(Color.BLACK);
+							graphics.fillText(name, x + 3, y + height - 5);
 						}
 					}
 					
@@ -411,8 +412,6 @@ public class CircuitManager {
 				break;
 			}
 		}
-		
-		graphics.restore();
 	}
 	
 	interface ThrowableRunnable {
@@ -440,28 +439,32 @@ public class CircuitManager {
 		switch(e.getCode()) {
 			case RIGHT: {
 				e.consume();
-				Properties props = getCommonSelectedProperties();
+				Properties props = currentState == SelectingState.PLACING_COMPONENT ?
+				                   this.potentialComponentProperties : getCommonSelectedProperties();
 				props.setValue(Properties.DIRECTION, Direction.EAST);
 				modifiedSelection(componentCreator, props);
 				break;
 			}
 			case LEFT: {
 				e.consume();
-				Properties props = getCommonSelectedProperties();
+				Properties props = currentState == SelectingState.PLACING_COMPONENT ?
+				                   this.potentialComponentProperties : getCommonSelectedProperties();
 				props.setValue(Properties.DIRECTION, Direction.WEST);
 				modifiedSelection(componentCreator, props);
 				break;
 			}
 			case UP: {
 				e.consume();
-				Properties props = getCommonSelectedProperties();
+				Properties props = currentState == SelectingState.PLACING_COMPONENT ?
+				                   this.potentialComponentProperties : getCommonSelectedProperties();
 				props.setValue(Properties.DIRECTION, Direction.NORTH);
 				modifiedSelection(componentCreator, props);
 				break;
 			}
 			case DOWN: {
 				e.consume();
-				Properties props = getCommonSelectedProperties();
+				Properties props = currentState == SelectingState.PLACING_COMPONENT ?
+				                   this.potentialComponentProperties : getCommonSelectedProperties();
 				props.setValue(Properties.DIRECTION, Direction.SOUTH);
 				modifiedSelection(componentCreator, props);
 				break;
@@ -680,7 +683,7 @@ public class CircuitManager {
 				break;
 			
 			case PLACING_COMPONENT:
-				ComponentPeer<?> newComponent = componentCreator.createComponent(properties,
+				ComponentPeer<?> newComponent = componentCreator.createComponent(potentialComponentProperties,
 				                                                                 potentialComponent.getX(),
 				                                                                 potentialComponent.getY());
 				

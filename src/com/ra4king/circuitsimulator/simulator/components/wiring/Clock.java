@@ -1,9 +1,7 @@
 package com.ra4king.circuitsimulator.simulator.components.wiring;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
@@ -17,9 +15,9 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
 public class Clock extends Component {
 	private static Thread currentClock;
 	private static boolean clock;
-	private static Set<Clock> clocks = new HashSet<>();
+	private static final Map<Clock, Object> clocks = new ConcurrentHashMap<>();
 	
-	private static List<ClockChangeListener> clockChangeListeners = new ArrayList<>();
+	private static Map<ClockChangeListener, Object> clockChangeListeners = new ConcurrentHashMap<>();
 	
 	public static final int PORT = 0;
 	
@@ -34,32 +32,38 @@ public class Clock extends Component {
 		if(circuit == null) {
 			clocks.remove(this);
 		} else {
-			clocks.add(this);
+			clocks.put(this, this);
 		}
 	}
 	
 	private static long lastTickTime;
 	private static long lastPrintTime;
 	private static int tickCount;
+	private static int lastTickCount;
 	
 	public static boolean getTickState() {
 		return clock;
 	}
 	
+	public static int getLastTickCount() {
+		return lastTickCount;
+	} 
+	
 	public static void tick() {
 		clock = !clock;
 		WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
-		clocks.forEach(clock ->
-				               clock.getCircuit().getCircuitStates()
-				                    .forEach(state -> state.pushValue(clock.getPort(PORT), clockValue)));
-		for(ClockChangeListener listener : clockChangeListeners) {
-			listener.valueChanged(clockValue);
-		}
+		clocks.forEach((clock, o) -> {
+			if(clock.getCircuit() != null) {
+				clock.getCircuit().getCircuitStates()
+				     .forEach(state -> state.pushValue(clock.getPort(PORT), clockValue));
+			}
+		});
+		clockChangeListeners.forEach((listener, o) -> listener.valueChanged(clockValue));
 	}
 	
 	public static void startClock(int hertz) {
 		lastTickTime = lastPrintTime = System.nanoTime();
-		tickCount = 0;
+		lastTickCount = tickCount = 0;
 		
 		long nanosPerTick = (long)(1e9 / (2 * hertz));
 		System.out.println("Starting clock: " + hertz + " Hz = " + nanosPerTick + " nanos per tick");
@@ -71,9 +75,7 @@ public class Clock extends Component {
 			while(thread != null && !thread.isInterrupted()) {
 				long now = System.nanoTime();
 				if(now - lastPrintTime >= 1e9) {
-					if(lastPrintTime > 0) {
-						System.out.println((tickCount >> 1) + " Hz");
-					}
+					lastTickCount = tickCount;
 					tickCount = 0;
 					lastPrintTime = now;
 				}
@@ -106,6 +108,7 @@ public class Clock extends Component {
 			System.out.println("Stopping clock");
 			currentClock.interrupt();
 			currentClock = null;
+			lastTickCount = 0;
 		}
 	}
 	
@@ -118,7 +121,7 @@ public class Clock extends Component {
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
 	
 	public static void addChangeListener(ClockChangeListener listener) {
-		clockChangeListeners.add(listener);
+		clockChangeListeners.put(listener, listener);
 	}
 	
 	public static void removeChangeListener(ClockChangeListener listener) {

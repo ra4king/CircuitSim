@@ -22,7 +22,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.util.Pair;
 
 /**
@@ -128,9 +127,9 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
 		String text = "ROM";
-		graphics.setFont(new Font("Monospace", 13));
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), text);
-		graphics.strokeText(text,
+		graphics.setFill(Color.BLACK);
+		graphics.fillText(text,
 		                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
 		                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 	}

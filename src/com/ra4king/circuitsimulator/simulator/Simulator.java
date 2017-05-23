@@ -1,10 +1,11 @@
 package com.ra4king.circuitsimulator.simulator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 
@@ -15,14 +16,14 @@ import javafx.util.Pair;
  */
 public class Simulator {
 	private Set<Circuit> circuits;
-	private List<Pair<CircuitState, Link>> linksToUpdate, temp, shortCircuited;
+	private Collection<Pair<CircuitState, Link>> linksToUpdate, temp, shortCircuited;
 	private ShortCircuitException lastShortCircuit;
-	private final Set<List<Pair<CircuitState, Link>>> history;
+	private final Set<Collection<Pair<CircuitState, Link>>> history;
 	
 	public Simulator() {
 		circuits = new HashSet<>();
-		linksToUpdate = new ArrayList<>();
-		temp = new ArrayList<>();
+		linksToUpdate = new ConcurrentLinkedQueue<>();
+		temp = new ConcurrentLinkedQueue<>();
 		shortCircuited = new ArrayList<>();
 		history = new HashSet<>();
 	}
@@ -39,16 +40,16 @@ public class Simulator {
 		circuits.remove(circuit);
 	}
 	
-	public synchronized void valueChanged(CircuitState state, Port port) {
+	public void valueChanged(CircuitState state, Port port) {
 		valueChanged(state, port.getLink());
 	}
 	
-	public synchronized void valueChanged(CircuitState state, Link link) {
+	public void valueChanged(CircuitState state, Link link) {
 		linksToUpdate.add(new Pair<>(state, link));
 	}
 	
 	public synchronized void step() {
-		List<Pair<CircuitState, Link>> tmp = linksToUpdate;
+		Collection<Pair<CircuitState, Link>> tmp = linksToUpdate;
 		linksToUpdate = temp;
 		temp = tmp;
 		

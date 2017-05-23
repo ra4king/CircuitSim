@@ -74,14 +74,15 @@ public class RegisterPeer extends ComponentPeer<Register> {
 			}
 		}
 		
-		graphics.setStroke(Color.BLACK);
+		graphics.setFill(Color.BLACK);
 		for(int i = 0; i * 4 < value.length(); i++) {
 			int endIndex = i * 4 + 4 > value.length() ? value.length() : 4 * i + 4;
 			String toPrint = value.substring(4 * i, endIndex);
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), toPrint);
-			graphics.strokeText(toPrint, getScreenX() + getScreenWidth() * 0.5 - bounds.getWidth() * 0.5,
-			                    getScreenY() + 15 + 10 * i);
+			graphics.fillText(toPrint, getScreenX() + getScreenWidth() * 0.5 - bounds.getWidth() * 0.5,
+			                  getScreenY() + 15 + 10 * i);
 		}
+		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 	}
 }

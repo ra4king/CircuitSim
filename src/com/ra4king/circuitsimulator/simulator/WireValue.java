@@ -37,19 +37,18 @@ public class WireValue {
 	}
 	
 	public WireValue merge(WireValue value) {
-		if(getBitSize() != value.getBitSize()) {
-			throw new IllegalArgumentException("Cannot merge different bit-sized wires");
-		}
-		
-		if(!isCompatible(value)) {
-			throw new IllegalArgumentException("Cannot merge incompatible wires");
+		if(value.getBitSize() != this.getBitSize()) {
+			throw new IllegalStateException("Different size wires detected: wanted "
+					                                + this.getBitSize() + ", found " + value.getBitSize());
 		}
 		
 		for(int i = 0; i < getBitSize(); i++) {
 			if(getBit(i) == State.X) {
 				setBit(i, value.getBit(i));
-			} else {
+			} else if(value.getBit(i) == State.X) {
 				setBit(i, getBit(i));
+			} else if(value.getBit(i) != getBit(i)) {
+				throw new ShortCircuitException("Short circuit detected! value1 = " + this + ", value2 = " + value);
 			}
 		}
 		
@@ -96,7 +95,8 @@ public class WireValue {
 	
 	public WireValue set(WireValue other) {
 		if(other.getBitSize() != getBitSize()) {
-			throw new IllegalArgumentException("Cannot set wire of different size bits. Wanted: " + bits.length + ", Found: " + other.bits.length);
+			throw new IllegalArgumentException("Cannot set wire of different size bits. Wanted: " + bits.length +
+					                                   ", Found: " + other.bits.length);
 		}
 		
 		System.arraycopy(other.bits, 0, bits, 0, bits.length);
@@ -104,7 +104,7 @@ public class WireValue {
 	}
 	
 	public WireValue slice(int offset, int length) {
-		if(offset <= 0 || offset+length > bits.length) {
+		if(offset <= 0 || offset + length > bits.length) {
 			throw new IllegalArgumentException("Incorrect offset and length: " + offset + ", " + length);
 		}
 		
@@ -117,12 +117,14 @@ public class WireValue {
 	}
 	
 	public boolean isValidValue() {
-		if(bits.length == 0)
+		if(bits.length == 0) {
 			return false;
+		}
 		
 		for(State bit : bits) {
-			if(bit == State.X)
+			if(bit == State.X) {
 				return false;
+			}
 		}
 		
 		return true;
@@ -138,27 +140,13 @@ public class WireValue {
 		return value;
 	}
 	
-	public boolean isCompatible(WireValue value) {
-		if(value.getBitSize() != this.getBitSize())
-			return false;
-		
-		for(int i = 0; i < this.getBitSize(); i++) {
-			State thisBit = this.getBit(i);
-			State thatBit = value.getBit(i);
-			if(thisBit != State.X && thatBit != State.X && thisBit != thatBit) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-	
 	@Override
 	public boolean equals(Object other) {
 		if(other instanceof WireValue) {
 			WireValue value = (WireValue)other;
-			if(value.getBitSize() != this.getBitSize())
+			if(value.getBitSize() != this.getBitSize()) {
 				return false;
+			}
 			
 			for(int i = 0; i < this.getBitSize(); i++) {
 				if(this.getBit(i) != value.getBit(i)) {

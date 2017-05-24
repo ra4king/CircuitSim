@@ -106,6 +106,7 @@ public class CircuitSimulator extends Application {
 	private Simulator simulator;
 	
 	private MenuItem toggleClock;
+	private MenuItem undo, redo;
 	
 	private ComponentManager componentManager;
 	
@@ -680,6 +681,9 @@ public class CircuitSimulator extends Application {
 				circuitManagers.clear();
 				canvasTabPane.getTabs().clear();
 				
+				editHistory.clear();
+				editHistory.disable();
+				
 				for(CircuitInfo circuit : circuitFile.circuits) {
 					createCircuit(circuit.name);
 				}
@@ -733,7 +737,9 @@ public class CircuitSimulator extends Application {
 					createCircuit("New circuit");
 				}
 				
-				editHistory.clear();
+				editHistory.enable();
+				undo.setDisable(true);
+				redo.setDisable(true);
 				savedEditStackSize = 0;
 				loadingFile = false;
 				updateTitle();
@@ -1037,7 +1043,7 @@ public class CircuitSimulator extends Application {
 		fileMenu.getItems().addAll(load, save, saveAs);
 		
 		Menu editMenu = new Menu("Edit");
-		MenuItem undo = new MenuItem("Undo");
+		undo = new MenuItem("Undo");
 		undo.setDisable(true);
 		undo.setAccelerator(new KeyCharacterCombination("Z", KeyCombination.CONTROL_DOWN));
 		undo.setOnAction(event -> {
@@ -1055,7 +1061,7 @@ public class CircuitSimulator extends Application {
 		
 		editHistory.addListener((action, manager, params) -> undo.setDisable(editHistory.editStackSize() == 0));
 		
-		MenuItem redo = new MenuItem("Redo");
+		redo = new MenuItem("Redo");
 		redo.setDisable(true);
 		redo.setAccelerator(new KeyCharacterCombination("Y", KeyCombination.CONTROL_DOWN));
 		redo.setOnAction(event -> {

@@ -91,7 +91,8 @@ public class PinPeer extends ComponentPeer<Pin> {
 		return getComponent().isInput();
 	}
 	
-	public void clicked(CircuitState state, int x, int y) {
+	@Override
+	public void clicked(CircuitState state, double x, double y) {
 		if(!isInput()) {
 			return;
 		}
@@ -103,14 +104,11 @@ public class PinPeer extends ComponentPeer<Pin> {
 			pin.setValue(state,
 			             new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
 		} else {
-			int xOff = x - getScreenX();
-			int yOff = y - getScreenY();
-			
 			double bitWidth = getScreenWidth() / Math.min(8.0, pin.getBitSize());
 			double bitHeight = getScreenHeight() / ((pin.getBitSize() - 1) / 8 + 1.0);
 			
-			int bitCol = (int)(xOff / bitWidth);
-			int bitRow = (int)(yOff / bitHeight);
+			int bitCol = (int)(x / bitWidth);
+			int bitRow = (int)(y / bitHeight);
 			
 			int bit = pin.getBitSize() - 1 - (bitCol + bitRow * 8);
 			if(bit >= 0 && bit < pin.getBitSize()) {

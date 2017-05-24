@@ -1233,7 +1233,14 @@ public class CircuitSimulator extends Application {
 		newCircuit.setOnAction(event -> createCircuit("New circuit"));
 		circuitsMenu.getItems().add(newCircuit);
 		
-		Menu clockMenu = new Menu("Clock");
+		Menu simulationMenu = new Menu("Simulation");
+		
+		MenuItem reset = new MenuItem("Reset simulation");
+		reset.setOnAction(event -> {
+			simulator.reset();
+			needsRepaint = true;
+		});
+		
 		toggleClock = new MenuItem("Start clock");
 		toggleClock.setAccelerator(new KeyCharacterCombination("K", KeyCombination.CONTROL_DOWN));
 		toggleClock.setOnAction(event -> {
@@ -1266,7 +1273,7 @@ public class CircuitSimulator extends Application {
 			frequenciesMenu.getItems().add(freq);
 		}
 		
-		clockMenu.getItems().addAll(toggleClock, tickClock, frequenciesMenu);
+		simulationMenu.getItems().addAll(reset, toggleClock, tickClock, frequenciesMenu);
 		
 		Menu helpMenu = new Menu("Help");
 		MenuItem about = new MenuItem("About");
@@ -1279,7 +1286,7 @@ public class CircuitSimulator extends Application {
 		});
 		helpMenu.getItems().addAll(about);
 		
-		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, clockMenu, helpMenu);
+		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, simulationMenu, helpMenu);
 		
 		componentLabel.setFont(Font.font(16));
 		

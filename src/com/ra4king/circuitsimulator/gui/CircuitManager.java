@@ -14,14 +14,12 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
-import com.ra4king.circuitsimulator.gui.peers.wiring.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.ShortCircuitException;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
-import com.ra4king.circuitsimulator.simulator.components.wiring.Clock;
 import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
 import javafx.geometry.Bounds;
@@ -620,8 +618,6 @@ public class CircuitManager {
 		lastMousePosition = new Point2D(e.getX(), e.getY());
 		lastMousePressed = new Point2D(e.getX(), e.getY());
 		
-		// System.out.println("Mouse Pressed before: " + currentState);
-		
 		switch(currentState) {
 			case ELEMENT_DRAGGED:
 			case CONNECTION_SELECTED:
@@ -698,8 +694,6 @@ public class CircuitManager {
 				break;
 		}
 		
-		// System.out.println("Mouse Pressed after: " + currentState);
-		
 		needsRepaint = true;
 	}
 	
@@ -709,8 +703,6 @@ public class CircuitManager {
 		}
 		
 		lastMousePosition = new Point2D(e.getX(), e.getY());
-		
-		// System.out.println("Mouse Released before: " + currentState);
 		
 		switch(currentState) {
 			case IDLE:
@@ -726,14 +718,13 @@ public class CircuitManager {
 				if(clickedComponent.isPresent()) {
 					GuiElement selectedElement = clickedComponent.get();
 					
-					if(circuitBoard.getCurrentState() == getCircuit().getTopLevelState() &&
-							   selectedElement instanceof PinPeer && ((PinPeer)selectedElement).isInput()) {
-						((PinPeer)selectedElement).clicked(circuitBoard.getCurrentState(),
-						                                   (int)lastMousePosition.getX(),
-						                                   (int)lastMousePosition.getY());
+					if(circuitBoard.getCurrentState() == getCircuit().getTopLevelState()) {
+						((ComponentPeer<?>)selectedElement).clicked(circuitBoard.getCurrentState(),
+						                                            lastMousePosition.getX() - selectedElement
+								                                                                       .getScreenX(),
+						                                            lastMousePosition.getY() - selectedElement
+								                                                                       .getScreenY());
 						circuitBoard.runSim();
-					} else if(selectedElement instanceof ClockPeer) {
-						Clock.tick();
 					}
 				}
 			case ELEMENT_DRAGGED:
@@ -768,8 +759,6 @@ public class CircuitManager {
 				break;
 		}
 		
-		// System.out.println("Mouse Released after: " + currentState);
-		
 		checkStartConnection();
 		
 		needsRepaint = true;
@@ -782,8 +771,6 @@ public class CircuitManager {
 		
 		Point2D prevMousePosition = lastMousePosition;
 		lastMousePosition = new Point2D(e.getX(), e.getY());
-		
-		// System.out.println("Mouse Dragged before: " + currentState);
 		
 		switch(currentState) {
 			case IDLE:
@@ -833,8 +820,6 @@ public class CircuitManager {
 				checkEndConnection(prevMousePosition);
 				break;
 		}
-		
-		// System.out.println("Mouse Dragged after: " + currentState);
 		
 		checkStartConnection();
 		

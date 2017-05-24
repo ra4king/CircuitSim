@@ -28,6 +28,11 @@ public class Simulator {
 		history = new HashSet<>();
 	}
 	
+	public synchronized void reset() {
+		circuits.stream().flatMap(circuit -> circuit.getCircuitStates().stream()).forEach(CircuitState::reset);
+		stepAll();
+	}
+	
 	public Set<Circuit> getCircuits() {
 		return Collections.unmodifiableSet(circuits);
 	}

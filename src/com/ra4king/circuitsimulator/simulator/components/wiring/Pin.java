@@ -3,7 +3,6 @@ package com.ra4king.circuitsimulator.simulator.components.wiring;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.Utils;
@@ -49,10 +48,9 @@ public class Pin extends Component {
 	}
 	
 	@Override
-	public void setCircuit(Circuit circuit) {
-		super.setCircuit(circuit);
-		if(circuit != null && isInput) {
-			circuit.getTopLevelState().pushValue(getPort(Pin.PORT), WireValue.of(0, getBitSize()));
+	public void init(CircuitState state, Object lastProperty) {
+		if(getCircuit() != null && isInput && getCircuit().getTopLevelState() == state) {
+			state.pushValue(getPort(Pin.PORT), WireValue.of(0, getBitSize()));
 		}
 	}
 	

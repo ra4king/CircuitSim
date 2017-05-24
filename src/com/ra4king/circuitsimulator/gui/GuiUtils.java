@@ -161,9 +161,9 @@ public class GuiUtils {
 		                          y, width - x);
 	}
 	
-	public static List<PortConnection> rotatePorts(List<PortConnection> connections,
-	                                               Direction source,
-	                                               Direction destination) {
+	public static void rotatePorts(List<PortConnection> connections,
+	                               Direction source,
+	                               Direction destination) {
 		List<Direction> order = Arrays.asList(Direction.EAST, NORTH, Direction.WEST, Direction.SOUTH);
 		
 		Stream<PortConnection> stream = connections.stream();
@@ -176,7 +176,9 @@ public class GuiUtils {
 			useWidth = !useWidth;
 		}
 		
-		return stream.collect(Collectors.toList());
+		List<PortConnection> newConns = stream.collect(Collectors.toList());
+		connections.clear();
+		connections.addAll(newConns);
 	}
 	
 	public static void rotateElementSize(GuiElement element, Direction source, Direction destination) {

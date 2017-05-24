@@ -58,6 +58,11 @@ public class ClockPeer extends ComponentPeer<Clock> {
 	}
 	
 	@Override
+	public void clicked(CircuitState state, double x, double y) {
+		Clock.tick();
+	}
+	
+	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		

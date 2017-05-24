@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui;
 import java.util.List;
 
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
+import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 
 /**
@@ -39,6 +40,8 @@ public abstract class ComponentPeer<C extends Component> extends GuiElement {
 	public List<PortConnection> getConnections() {
 		return connections;
 	}
+	
+	public void clicked(CircuitState state, double x, double y) {}
 	
 	@Override
 	public String toString() {

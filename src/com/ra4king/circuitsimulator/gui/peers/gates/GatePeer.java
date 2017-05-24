@@ -43,7 +43,7 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 		
 		connections.add(new PortConnection(this, gate.getPort(gateNum), getWidth(), getHeight() / 2));
 		
-		connections = GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		
 		init(gate, properties, connections);

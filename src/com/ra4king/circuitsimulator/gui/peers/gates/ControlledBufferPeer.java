@@ -46,7 +46,7 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 		                                   getWidth() / 2, getHeight()));
 		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT), "Out",
 		                                   getWidth(), getHeight() / 2));
-		connections = GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		
 		init(buffer, properties, connections);
 	}

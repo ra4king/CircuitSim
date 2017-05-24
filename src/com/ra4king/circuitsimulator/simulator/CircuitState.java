@@ -2,15 +2,17 @@ package com.ra4king.circuitsimulator.simulator;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 
 public class CircuitState {
 	private final Circuit circuit;
-	private final HashMap<Component, Object> componentProperties;
-	private final HashMap<Link, LinkState> linkStates;
+	private Map<Component, Object> componentProperties;
+	private Map<Link, LinkState> linkStates;
 	
 	public CircuitState(Circuit circuit) {
 		if(circuit == null) {
@@ -37,7 +39,7 @@ public class CircuitState {
 		return circuit;
 	}
 	
-	public HashMap<Component, Object> getComponentProperties() {
+	public Map<Component, Object> getComponentProperties() {
 		return componentProperties;
 	}
 	
@@ -67,6 +69,15 @@ public class CircuitState {
 	
 	public boolean isShortCircuited(Link link) {
 		return get(link).isShortCircuit();
+	}
+	
+	public void reset() {
+		linkStates = linkStates.keySet().stream().collect(Collectors.toMap(link -> link, LinkState::new));
+		
+		circuit.getComponents().forEach(c -> {
+			c.uninit(this);
+			c.init(this, null);
+		});
 	}
 	
 	private LinkState get(Link link) {

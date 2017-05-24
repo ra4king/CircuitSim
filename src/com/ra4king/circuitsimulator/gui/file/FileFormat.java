@@ -111,11 +111,6 @@ public class FileFormat {
 		}
 	}
 	
-	/**
-	 * For static initializer
-	 */
-	public static void init() {}
-	
 	public static void save(File file, CircuitFile circuitFile) throws Exception {
 		writeFile(file, stringify(circuitFile));
 	}

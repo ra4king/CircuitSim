@@ -98,7 +98,6 @@ import javafx.util.Pair;
  */
 public class CircuitSimulator extends Application {
 	public static void main(String[] args) {
-		new Thread(FileFormat::init).start();
 		launch(args);
 	}
 	

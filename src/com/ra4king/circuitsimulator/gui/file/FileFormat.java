@@ -116,7 +116,7 @@ public class FileFormat {
 	}
 	
 	public static String stringify(CircuitFile circuitFile) throws Exception {
-		return GSON.toJson(circuitFile, CircuitFile.class);
+		return GSON.toJson(circuitFile);
 	}
 	
 	public static CircuitFile load(File file) throws Exception {

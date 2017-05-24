@@ -24,6 +24,7 @@ import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.gui.Properties.PropertyCircuitValidator;
 import com.ra4king.circuitsimulator.gui.file.FileFormat;
+import com.ra4king.circuitsimulator.gui.file.FileFormat.CircuitFile;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.CircuitInfo;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.ComponentInfo;
 import com.ra4king.circuitsimulator.gui.file.FileFormat.WireInfo;
@@ -38,6 +39,7 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -401,7 +403,8 @@ public class CircuitSimulator extends Application {
 			circuitButtonsTab.setContent(pane);
 		}
 		
-		circuitManagers.keySet().stream().sorted().forEach((name) -> {
+		canvasTabPane.getTabs().forEach(tab -> {
+			String name = tab.getText();
 			Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
 			
 			ComponentPeer<?> component = circuitPair.getKey().creator.createComponent(new Properties(), 0, 0);
@@ -669,7 +672,7 @@ public class CircuitSimulator extends Application {
 				loadingFile = true;
 				
 				long now = System.nanoTime();
-				List<CircuitInfo> circuits = FileFormat.load(selectedFile);
+				CircuitFile circuitFile = FileFormat.load(selectedFile);
 				
 				System.out.printf("Loaded file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 				
@@ -678,29 +681,33 @@ public class CircuitSimulator extends Application {
 				circuitManagers.clear();
 				canvasTabPane.getTabs().clear();
 				
-				for(CircuitInfo circuit : circuits) {
+				for(CircuitInfo circuit : circuitFile.circuits) {
 					createCircuit(circuit.name);
 				}
 				
-				for(CircuitInfo circuit : circuits) {
+				for(CircuitInfo circuit : circuitFile.circuits) {
 					CircuitManager manager = getCircuitManager(circuit.name);
 					
 					for(ComponentInfo component : circuit.components) {
 						@SuppressWarnings("unchecked")
 						Class<? extends ComponentPeer<?>> clazz =
-								(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
+								(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
+						
+						Properties properties = new Properties();
+						component.properties.forEach(
+								(key, value) -> properties.setProperty(new Property<>(key, null, value)));
 						
 						ComponentCreator<?> creator;
 						if(clazz == SubcircuitPeer.class) {
 							creator = getSubcircuitPeerCreator(
-									component.properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
+									properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
 						} else {
 							creator = ComponentManager.forClass(clazz);
 						}
 						
 						manager.mayThrow(
 								() -> manager.getCircuitBoard().addComponent(
-										creator.createComponent(component.properties, component.x, component.y)));
+										creator.createComponent(properties, component.x, component.y)));
 					}
 					
 					for(WireInfo wire : circuit.wires) {
@@ -708,10 +715,6 @@ public class CircuitSimulator extends Application {
 								() -> manager.getCircuitBoard()
 								             .addWire(wire.x, wire.y, wire.length, wire.isHorizontal));
 					}
-				}
-				
-				if(circuits.size() == 0) {
-					createCircuit("New circuit");
 				}
 			} catch(Exception exc) {
 				circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
@@ -727,6 +730,10 @@ public class CircuitSimulator extends Application {
 						                     + "\nPlease send the stack trace to a developer.");
 				alert.showAndWait();
 			} finally {
+				if(circuitManagers.size() == 0) {
+					createCircuit("New circuit");
+				}
+				
 				editHistory.clear();
 				savedEditStackSize = 0;
 				loadingFile = false;
@@ -776,7 +783,8 @@ public class CircuitSimulator extends Application {
 			});
 			
 			try {
-				FileFormat.save(saveFile, circuits);
+				FileFormat.save(saveFile, new CircuitFile(bitSizeSelect.getSelectionModel().getSelectedItem(),
+				                                          currentClockHz, circuits));
 				savedEditStackSize = editHistory.editStackSize();
 				updateTitle();
 			} catch(Exception exc) {
@@ -854,10 +862,39 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		MenuItem viewTopLevelState = new MenuItem("View top-level state");
-		viewTopLevelState.setOnAction(event ->
-				                              circuitManager.getCircuitBoard().setCurrentState(
-						                              circuitManager.getCircuit().getTopLevelState()));
-		canvasTab.setContextMenu(new ContextMenu(rename, viewTopLevelState));
+		viewTopLevelState.setOnAction(
+				event -> circuitManager.getCircuitBoard().setCurrentState(
+						circuitManager.getCircuit().getTopLevelState()));
+		
+		MenuItem moveLeft = new MenuItem("Move left");
+		moveLeft.setOnAction(event -> {
+			ObservableList<Tab> tabs = canvasTabPane.getTabs();
+			int idx = tabs.indexOf(canvasTab);
+			if(idx > 0) {
+				tabs.remove(idx);
+				tabs.add(idx - 1, canvasTab);
+				
+				editHistory.addAction(EditAction.MOVE_CIRCUIT, null, tabs, canvasTab, idx, idx - 1);
+				
+				refreshCircuitsTab();
+			}
+		});
+		
+		MenuItem moveRight = new MenuItem("Move right");
+		moveRight.setOnAction(event -> {
+			ObservableList<Tab> tabs = canvasTabPane.getTabs();
+			int idx = tabs.indexOf(canvasTab);
+			if(idx >= 0 && idx < tabs.size() - 1) {
+				tabs.remove(idx);
+				tabs.add(idx + 1, canvasTab);
+				
+				editHistory.addAction(EditAction.MOVE_CIRCUIT, null, tabs, canvasTab, idx, idx + 1);
+				
+				refreshCircuitsTab();
+			}
+		});
+		
+		canvasTab.setContextMenu(new ContextMenu(rename, viewTopLevelState, moveLeft, moveRight));
 		canvasTab.setOnCloseRequest(event -> {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Delete this circuit?");
@@ -1060,7 +1097,8 @@ public class CircuitSimulator extends Application {
 				
 				try {
 					String data = FileFormat.stringify(
-							Collections.singletonList(new CircuitInfo("Copy", components, wires)));
+							new CircuitFile(0, 0, Collections.singletonList(
+									new CircuitInfo("Copy", components, wires))));
 					
 					Clipboard clipboard = Clipboard.getSystemClipboard();
 					ClipboardContent content = new ClipboardContent();
@@ -1100,7 +1138,7 @@ public class CircuitSimulator extends Application {
 				try {
 					editHistory.beginGroup();
 					
-					List<CircuitInfo> parsed = FileFormat.parse(data);
+					CircuitFile parsed = FileFormat.parse(data);
 					
 					CircuitManager manager = getCurrentCircuit();
 					if(manager != null) {
@@ -1108,23 +1146,27 @@ public class CircuitSimulator extends Application {
 						for(int i = 3; ; i += 3) {
 							Set<GuiElement> elementsCreated = new HashSet<>();
 							
-							for(CircuitInfo circuit : parsed) {
+							for(CircuitInfo circuit : parsed.circuits) {
 								for(ComponentInfo component : circuit.components) {
 									try {
 										@SuppressWarnings("unchecked")
 										Class<? extends ComponentPeer<?>> clazz =
-												(Class<? extends ComponentPeer<?>>)Class.forName(component.className);
+												(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
+										
+										Properties properties = new Properties();
+										component.properties.forEach(
+												(key, value) -> properties.setProperty(
+														new Property<>(key, null, value)));
 										
 										ComponentCreator<?> creator;
 										if(clazz == SubcircuitPeer.class) {
 											creator = getSubcircuitPeerCreator(
-													component.properties
-															.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
+													properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
 										} else {
 											creator = ComponentManager.forClass(clazz);
 										}
 										
-										ComponentPeer<?> created = creator.createComponent(component.properties,
+										ComponentPeer<?> created = creator.createComponent(properties,
 										                                                   component.x + i,
 										                                                   component.y + i);
 										
@@ -1149,7 +1191,7 @@ public class CircuitSimulator extends Application {
 							manager.getCircuitBoard().removeElements(elementsCreated, false);
 							editHistory.enable();
 							
-							for(CircuitInfo circuit : parsed) {
+							for(CircuitInfo circuit : parsed.circuits) {
 								for(WireInfo wire : circuit.wires) {
 									elementsCreated.add(
 											new Wire(null, wire.x + i, wire.y + i, wire.length, wire.isHorizontal));

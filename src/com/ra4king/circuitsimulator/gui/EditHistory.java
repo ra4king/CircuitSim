@@ -34,6 +34,33 @@ public class EditHistory {
 				((CircuitSimulator)params[0]).renameCircuit((Tab)params[1], (String)params[2]);
 			}
 		},
+		MOVE_CIRCUIT {
+			protected void redo(CircuitManager manager, Object[] params) {
+				@SuppressWarnings("unchecked")
+				List<Tab> tabs = (List<Tab>)params[0];
+				Tab tab = (Tab)params[1];
+				int fromIdx = (int)params[2];
+				int toIdx = (int)params[3];
+				
+				if(tabs.indexOf(tab) != fromIdx) {
+					throw new IllegalStateException("Something bad happened!");
+				}
+				
+				tabs.remove(fromIdx);
+				tabs.add(toIdx, tab);
+			}
+			
+			protected void undo(CircuitManager manager, Object[] params) {
+				@SuppressWarnings("unchecked")
+				List<Tab> tabs = (List<Tab>)params[0];
+				Tab tab = (Tab)params[1];
+				int fromIdx = (int)params[2];
+				int toIdx = (int)params[3];
+				
+				// swap to/from idx
+				redo(manager, new Object[] { tabs, tab, toIdx, fromIdx });
+			}
+		},
 		DELETE_CIRCUIT {
 			protected void redo(CircuitManager manager, Object[] params) {
 				CREATE_CIRCUIT.undo(manager, params);

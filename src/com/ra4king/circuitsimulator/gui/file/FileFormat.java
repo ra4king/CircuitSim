@@ -4,37 +4,29 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import javax.script.Bindings;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.SimpleBindings;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.ra4king.circuitsimulator.gui.Properties;
 
 /**
  * @author Roi Atalla
  */
 public class FileFormat {
-	private static String saveScript;
-	private static String loadScript;
-	
-	private static ScriptEngine engine;
+	private static final Gson GSON;
 	
 	public static final double VERSION = 1.0;
 	
 	static {
-		engine = new ScriptEngineManager().getEngineByName("nashorn");
-		
-		saveScript = readFile("save.js");
-		loadScript = readFile("load.js");
+		GSON = new GsonBuilder().create();
 	}
 	
-	private static String readFile(Reader reader) {
+	public static String readFile(Reader reader) {
 		String string = "";
 		try(BufferedReader bufReader = new BufferedReader(reader)) {
 			String line;
@@ -49,7 +41,7 @@ public class FileFormat {
 		}
 	}
 	
-	private static String readFile(File file) {
+	public static String readFile(File file) {
 		try {
 			return readFile(new FileReader(file));
 		} catch(Exception exc) {
@@ -57,8 +49,25 @@ public class FileFormat {
 		}
 	}
 	
-	private static String readFile(String file) {
-		return readFile(new InputStreamReader(FileFormat.class.getResourceAsStream(file)));
+	public static void writeFile(File file, String contents) throws Exception {
+		try(FileWriter writer = new FileWriter(file)) {
+			writer.write(contents);
+			writer.write('\n');
+		}
+	}
+	
+	public static class CircuitFile {
+		private final double version = VERSION;
+		
+		public final int globalBitSize;
+		public final int clockSpeed;
+		public final List<CircuitInfo> circuits;
+		
+		public CircuitFile(int globalBitSize, int clockSpeed, List<CircuitInfo> circuits) {
+			this.globalBitSize = globalBitSize;
+			this.clockSpeed = clockSpeed;
+			this.circuits = circuits;
+		}
 	}
 	
 	public static class CircuitInfo {
@@ -74,16 +83,17 @@ public class FileFormat {
 	}
 	
 	public static class ComponentInfo {
-		public final String className;
+		public final String name;
 		public final int x;
 		public final int y;
-		public final Properties properties;
+		public final Map<String, String> properties;
 		
-		public ComponentInfo(String className, int x, int y, Properties properties) {
-			this.className = className;
+		public ComponentInfo(String name, int x, int y, Properties properties) {
+			this.name = name;
 			this.x = x;
 			this.y = y;
-			this.properties = properties;
+			this.properties = new HashMap<>();
+			properties.forEach(prop -> this.properties.put(prop.name, prop.getStringValue()));
 		}
 	}
 	
@@ -106,33 +116,19 @@ public class FileFormat {
 	 */
 	public static void init() {}
 	
-	public static void save(File file, List<CircuitInfo> circuits) throws Exception {
-		String json = stringify(circuits);
-		
-		try(FileWriter writer = new FileWriter(file)) {
-			writer.write(json + "\n");
-		}
+	public static void save(File file, CircuitFile circuitFile) throws Exception {
+		writeFile(file, stringify(circuitFile));
 	}
 	
-	public static String stringify(List<CircuitInfo> circuits) throws Exception {
-		Bindings bindings = new SimpleBindings();
-		bindings.put("version", VERSION);
-		bindings.put("circuits", circuits);
-		
-		return (String)engine.eval(saveScript, bindings);
+	public static String stringify(CircuitFile circuitFile) throws Exception {
+		return GSON.toJson(circuitFile, CircuitFile.class);
 	}
 	
-	public static List<CircuitInfo> load(File file) throws Exception {
+	public static CircuitFile load(File file) throws Exception {
 		return parse(readFile(file));
 	}
 	
-	public static List<CircuitInfo> parse(String contents) throws Exception {
-		Bindings bindings = new SimpleBindings();
-		bindings.put("version", VERSION);
-		bindings.put("file", contents);
-		
-		@SuppressWarnings("unchecked")
-		List<CircuitInfo> circuits = (List<CircuitInfo>)engine.eval(loadScript, bindings);
-		return circuits;
+	public static CircuitFile parse(String contents) throws Exception {
+		return GSON.fromJson(contents, CircuitFile.class);
 	}
 }

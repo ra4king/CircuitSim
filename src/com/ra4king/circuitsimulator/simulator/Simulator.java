@@ -30,7 +30,6 @@ public class Simulator {
 	
 	public synchronized void reset() {
 		circuits.stream().flatMap(circuit -> circuit.getCircuitStates().stream()).forEach(CircuitState::reset);
-		stepAll();
 	}
 	
 	public Set<Circuit> getCircuits() {

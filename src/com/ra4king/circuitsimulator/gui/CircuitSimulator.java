@@ -1238,6 +1238,12 @@ public class CircuitSimulator extends Application {
 		MenuItem reset = new MenuItem("Reset simulation");
 		reset.setOnAction(event -> {
 			simulator.reset();
+			
+			CircuitManager manager = getCurrentCircuit();
+			if(manager != null) {
+				manager.getCircuitBoard().runSim();
+			}
+			
 			needsRepaint = true;
 		});
 		

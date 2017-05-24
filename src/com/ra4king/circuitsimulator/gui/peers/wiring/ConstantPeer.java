@@ -17,6 +17,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.util.Pair;
 
 /**
@@ -75,7 +76,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
-		graphics.setFont(Font.font("monospace", 16));
+		graphics.setFont(Font.font("monospace", FontWeight.BOLD, 16));
 		graphics.setFill(Color.GRAY);
 		graphics.setStroke(Color.GRAY);
 		

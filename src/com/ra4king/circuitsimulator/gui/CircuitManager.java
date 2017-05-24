@@ -161,11 +161,12 @@ public class CircuitManager {
 			lastException = null;
 		}
 		
-		if(lastException == null && circuitBoard.getLastException() == null) {
+		Exception exc = lastException == null ? circuitBoard.getLastException() : lastException;
+		
+		if(exc == null) {
 			return "";
 		}
 		
-		Exception exc = lastException == null ? circuitBoard.getLastException() : lastException;
 		return exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
 	}
 	
@@ -287,7 +288,7 @@ public class CircuitManager {
 		
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		
-		graphics.setFont(Font.font("monospace", 13));
+		graphics.setFont(Font.font(13));
 		graphics.setFontSmoothingType(FontSmoothingType.LCD);
 		
 		graphics.save();

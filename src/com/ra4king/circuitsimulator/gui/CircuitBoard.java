@@ -253,6 +253,8 @@ public class CircuitBoard {
 			editHistory.beginGroup();
 		}
 		
+		boolean cannotMoveHere = false;
+		
 		for(GuiElement element : moveElements) {
 			if(element instanceof ComponentPeer<?> && !isValidLocation((ComponentPeer<?>)element)) {
 				for(GuiElement element1 : moveElements) {
@@ -260,6 +262,7 @@ public class CircuitBoard {
 					element1.setY(element1.getY() - moveDeltaY);
 				}
 				
+				cannotMoveHere = true;
 				break;
 			}
 		}
@@ -295,6 +298,10 @@ public class CircuitBoard {
 		moveDeltaY = 0;
 		
 		runSim();
+		
+		if(cannotMoveHere) {
+			throw new IllegalArgumentException("Cannot move components here.");
+		}
 		
 		if(toThrow != null) {
 			throw toThrow;

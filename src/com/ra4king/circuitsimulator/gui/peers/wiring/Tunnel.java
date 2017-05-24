@@ -49,7 +49,7 @@ public class Tunnel extends ComponentPeer<Component> {
 		String label = properties.getValue(Properties.LABEL);
 		int bitSize = properties.getValue(Properties.BITSIZE);
 		
-		Bounds bounds = GuiUtils.getBounds(Font.font("monospace", 13), label);
+		Bounds bounds = GuiUtils.getBounds(Font.font(13), label);
 		setWidth(Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1));
 		
 		Component tunnel = new Component(label, new int[] { bitSize }) {

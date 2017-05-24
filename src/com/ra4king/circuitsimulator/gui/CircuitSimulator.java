@@ -86,7 +86,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
-import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -219,6 +218,7 @@ public class CircuitSimulator extends Application {
 	public void readdCircuit(CircuitManager manager, Tab tab, int index) {
 		canvasTabPane.getTabs().add(Math.min(index, canvasTabPane.getTabs().size()), tab);
 		circuitManagers.put(tab.getText(), new Pair<>(createCircuitLauncherInfo(tab.getText()), manager));
+		manager.getCircuitBoard().setCurrentState(manager.getCircuit().getTopLevelState());
 		
 		canvasTabPane.getSelectionModel().select(tab);
 		
@@ -250,8 +250,6 @@ public class CircuitSimulator extends Application {
 		if(!removeTab && canvasTabPane.getTabs().size() == 1) {
 			createCircuit("New circuit");
 			canvasTabPane.getSelectionModel().select(0);
-		} else {
-			canvasTabPane.getSelectionModel().select(Math.max(0, idx - 1));
 		}
 		
 		editHistory.endGroup();
@@ -1004,6 +1002,7 @@ public class CircuitSimulator extends Application {
 		
 		Menu editMenu = new Menu("Edit");
 		MenuItem undo = new MenuItem("Undo");
+		undo.setDisable(true);
 		undo.setAccelerator(new KeyCharacterCombination("Z", KeyCombination.CONTROL_DOWN));
 		undo.setOnAction(event -> {
 			CircuitManager manager = getCurrentCircuit();
@@ -1018,7 +1017,10 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		
+		editHistory.addListener((action, manager, params) -> undo.setDisable(editHistory.editStackSize() == 0));
+		
 		MenuItem redo = new MenuItem("Redo");
+		redo.setDisable(true);
 		redo.setAccelerator(new KeyCharacterCombination("Y", KeyCombination.CONTROL_DOWN));
 		redo.setOnAction(event -> {
 			CircuitManager manager = editHistory.redo();
@@ -1027,6 +1029,8 @@ public class CircuitSimulator extends Application {
 				switchToCircuit(manager.getCircuit());
 			}
 		});
+		
+		editHistory.addListener((action, manager, params) -> redo.setDisable(editHistory.redoStackSize() == 0));
 		
 		MenuItem copy = new MenuItem("Copy");
 		copy.setAccelerator(new KeyCharacterCombination("C", KeyCombination.CONTROL_DOWN));
@@ -1236,7 +1240,7 @@ public class CircuitSimulator extends Application {
 		
 		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, clockMenu, helpMenu);
 		
-		componentLabel.setFont(Font.font("Sans serif", 16));
+		componentLabel.setFont(Font.font(16));
 		
 		ScrollPane propertiesScrollPane = new ScrollPane(propertiesTable);
 		propertiesScrollPane.setFitToWidth(true);
@@ -1344,7 +1348,7 @@ public class CircuitSimulator extends Application {
 				
 				graphics.setFontSmoothingType(FontSmoothingType.LCD);
 				
-				graphics.setFont(Font.font("sans serif", FontWeight.BOLD, 11));
+				graphics.setFont(Font.font(12));
 				graphics.setFill(Color.BLACK);
 				graphics.fillText("FPS: " + lastFrameCount, 6, 50);
 				if(Clock.getLastTickCount() > 0) {
@@ -1359,7 +1363,7 @@ public class CircuitSimulator extends Application {
 						toggleClock.fire();
 					}
 					
-					graphics.setFont(Font.font("sans serif", FontWeight.BOLD, 20));
+					graphics.setFont(Font.font(20));
 					graphics.setFill(Color.RED);
 					Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
 					graphics.fillText(message,

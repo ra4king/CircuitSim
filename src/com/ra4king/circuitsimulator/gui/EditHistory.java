@@ -235,6 +235,10 @@ public class EditHistory {
 		return editStack.size() + (currentGroup == null || currentGroup.isEmpty() ? 0 : 1);
 	}
 	
+	public int redoStackSize() {
+		return redoStack.size();
+	}
+	
 	public CircuitManager undo() {
 		if(editStack.isEmpty()) {
 			return null;

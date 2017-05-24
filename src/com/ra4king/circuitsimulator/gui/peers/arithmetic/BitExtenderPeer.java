@@ -65,7 +65,7 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.setFont(Font.font("monospace", 12));
+		graphics.setFont(Font.font(12));
 		graphics.setFill(Color.BLACK);
 		
 		graphics.fillText(String.valueOf(getComponent().getInputBitSize()),

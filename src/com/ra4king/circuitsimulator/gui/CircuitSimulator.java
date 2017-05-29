@@ -1243,6 +1243,8 @@ public class CircuitSimulator extends Application {
 		
 		MenuItem reset = new MenuItem("Reset simulation");
 		reset.setOnAction(event -> {
+			Clock.reset();
+			toggleClock.setText("Start clock");
 			simulator.reset();
 			
 			CircuitManager manager = getCurrentCircuit();

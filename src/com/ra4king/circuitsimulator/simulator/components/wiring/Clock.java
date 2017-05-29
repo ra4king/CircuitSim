@@ -47,7 +47,17 @@ public class Clock extends Component {
 	
 	public static int getLastTickCount() {
 		return lastTickCount;
-	} 
+	}
+	
+	public static void reset() {
+		Thread clockThread = currentClock;
+		stopClock();
+		while(clockThread != null && clockThread.isAlive()) ;
+		
+		if(clock) {
+			tick();
+		}
+	}
 	
 	public static void tick() {
 		clock = !clock;

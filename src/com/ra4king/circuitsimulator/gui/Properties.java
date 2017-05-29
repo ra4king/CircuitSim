@@ -264,7 +264,7 @@ public class Properties {
 		
 		LABEL_LOCATION = new Property<>("Label location",
 		                                new PropertyListValidator<>(Direction.values()),
-		                                Direction.WEST);
+		                                Direction.NORTH);
 		
 		List<Integer> numInputsValues = new ArrayList<>();
 		for(int i = 2; i <= 32; i++) {

@@ -60,6 +60,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -105,8 +106,9 @@ public class CircuitSimulator extends Application {
 	
 	private Simulator simulator;
 	
-	private MenuItem toggleClock;
 	private MenuItem undo, redo;
+	private MenuItem toggleClock;
+	private Menu frequenciesMenu;
 	
 	private ComponentManager componentManager;
 	
@@ -115,7 +117,7 @@ public class CircuitSimulator extends Application {
 	private TabPane buttonTabPane;
 	private ToggleGroup buttonsToggleGroup;
 	
-	private ComboBox<Integer> bitSizeSelect, secondaryOptionSelect;
+	private ComboBox<Integer> bitSizeSelect;
 	private GridPane propertiesTable;
 	private Label componentLabel;
 	
@@ -327,7 +329,6 @@ public class CircuitSimulator extends Application {
 	private Properties getDefaultProperties() {
 		Properties properties = new Properties();
 		properties.setValue(Properties.BITSIZE, bitSizeSelect.getSelectionModel().getSelectedItem());
-		properties.setValue(Properties.NUM_INPUTS, secondaryOptionSelect.getSelectionModel().getSelectedItem());
 		return properties;
 	}
 	
@@ -478,7 +479,6 @@ public class CircuitSimulator extends Application {
 					                                         throw new IllegalStateException("Name already exists");
 				                                         },
 				                                         LinkedHashMap::new));
-		refreshCircuitsTab();
 		
 		circuitManagers.values().forEach(componentPair -> {
 			for(ComponentPeer<?> componentPeer : componentPair.getValue().getCircuitBoard().getComponents()) {
@@ -493,6 +493,8 @@ public class CircuitSimulator extends Application {
 		tab.setText(newName);
 		
 		editHistory.addAction(EditAction.RENAME_CIRCUIT, null, this, tab, oldName, newName);
+		
+		refreshCircuitsTab();
 	}
 	
 	private void updateCanvasSize(CircuitManager circuitManager) {
@@ -674,7 +676,9 @@ public class CircuitSimulator extends Application {
 				long now = System.nanoTime();
 				CircuitFile circuitFile = FileFormat.load(selectedFile);
 				
-				System.out.printf("Loaded file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
+				System.out.printf("Parsed file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
+				
+				now = System.nanoTime();
 				
 				clearSelection();
 				circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
@@ -719,6 +723,17 @@ public class CircuitSimulator extends Application {
 								             .addWire(wire.x, wire.y, wire.length, wire.isHorizontal));
 					}
 				}
+				
+				for(MenuItem freq : frequenciesMenu.getItems()) {
+					if(freq.getText().startsWith(String.valueOf(circuitFile.clockSpeed))) {
+						((RadioMenuItem)freq).setSelected(true);
+						break;
+					}
+				}
+				
+				bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
+				
+				System.out.printf("Loaded circuit in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 			} catch(Exception exc) {
 				circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
 				circuitManagers.clear();
@@ -948,16 +963,6 @@ public class CircuitSimulator extends Application {
 		bitSizeSelect.getSelectionModel()
 		             .selectedItemProperty()
 		             .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
-		
-		secondaryOptionSelect = new ComboBox<>();
-		for(int i = 2; i <= 32; i++) {
-			secondaryOptionSelect.getItems().add(i);
-		}
-		secondaryOptionSelect.setMaxWidth(Double.MAX_VALUE);
-		secondaryOptionSelect.setValue(2);
-		secondaryOptionSelect.getSelectionModel()
-		                     .selectedItemProperty()
-		                     .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
 		
 		buttonTabPane = new TabPane();
 		buttonTabPane.setSide(Side.TOP);
@@ -1232,7 +1237,9 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		
-		editMenu.getItems().addAll(undo, redo, copy, cut, paste, selectAll);
+		editMenu.getItems().addAll(undo, redo, new SeparatorMenuItem(),
+		                           copy, cut, paste, new SeparatorMenuItem(),
+		                           selectAll);
 		
 		Menu circuitsMenu = new Menu("Circuits");
 		MenuItem newCircuit = new MenuItem("New circuit");
@@ -1271,7 +1278,7 @@ public class CircuitSimulator extends Application {
 		tickClock.setAccelerator(new KeyCharacterCombination("T", KeyCombination.CONTROL_DOWN));
 		tickClock.setOnAction(event -> Clock.tick());
 		
-		Menu frequenciesMenu = new Menu("Frequency");
+		frequenciesMenu = new Menu("Frequency");
 		ToggleGroup freqToggleGroup = new ToggleGroup();
 		for(int i = 0; i <= 14; i++) {
 			RadioMenuItem freq = new RadioMenuItem((1 << i) + " Hz");
@@ -1287,7 +1294,7 @@ public class CircuitSimulator extends Application {
 			frequenciesMenu.getItems().add(freq);
 		}
 		
-		simulationMenu.getItems().addAll(reset, toggleClock, tickClock, frequenciesMenu);
+		simulationMenu.getItems().addAll(reset, new SeparatorMenuItem(), toggleClock, tickClock, frequenciesMenu);
 		
 		Menu helpMenu = new Menu("Help");
 		MenuItem about = new MenuItem("About");
@@ -1364,8 +1371,7 @@ public class CircuitSimulator extends Application {
 		
 		toolBar.getItems().addAll(inputPinButton, outputPinButton, andButton,
 		                          orButton, notButton, xorButton, tunnelButton,
-		                          new Label("Global bit size:"), bitSizeSelect,
-		                          new Label("Global secondary:"), secondaryOptionSelect);
+		                          new Label("Global bit size:"), bitSizeSelect);
 		
 		VBox.setVgrow(canvasPropsSplit, Priority.ALWAYS);
 		Scene scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));

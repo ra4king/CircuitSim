@@ -308,11 +308,11 @@ public class CircuitBoard {
 		}
 	}
 	
-	public void removeElements(Set<GuiElement> elements) {
+	public void removeElements(Set<? extends GuiElement> elements) {
 		removeElements(elements, true);
 	}
 	
-	void removeElements(Set<GuiElement> elements, boolean removeFromCircuit) {
+	void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) {
 		try {
 			editHistory.beginGroup();
 			
@@ -353,16 +353,22 @@ public class CircuitBoard {
 									} else if(wire.isWithin(w)) {
 										LinkWires linkWires = w.getLinkWires();
 										removeWire(w);
-										spliceWire(w, wire).forEach(
-												w1 -> addWire(linkWires, w1));
+										
+										spliceWire(w, wire).forEach(w1 -> addWire(linkWires, w1));
+										Wire clone = new Wire(wire);
+										addWire(linkWires, clone);
+										toRemove.add(clone);
 										return true;
 									} else if(w.overlaps(wire)) {
 										LinkWires linkWires = w.getLinkWires();
 										removeWire(w);
 										
-										Pair<Wire, Wire> pair = spliceOverlappingWire(wire, w);
-										elementsToRemove.add(pair.getKey());
-										addWire(linkWires, pair.getValue());
+										Pair<Wire, Pair<Wire, Wire>> pairs = spliceOverlappingWire(wire, w);
+										elementsToRemove.add(pairs.getKey());
+										addWire(linkWires, pairs.getValue().getKey());
+										addWire(linkWires, pairs.getValue().getValue());
+										
+										toRemove.add(pairs.getValue().getKey());
 										
 										return true;
 									}
@@ -396,6 +402,83 @@ public class CircuitBoard {
 			runSim();
 		} finally {
 			editHistory.endGroup();
+		}
+	}
+	
+	private Set<Wire> spliceWire(Wire toSplice, Wire within) {
+		if(!within.isWithin(toSplice)) throw new IllegalArgumentException("toSplice must contain within");
+		
+		Set<Wire> wires = new HashSet<>();
+		
+		if(toSplice.isHorizontal()) {
+			if(toSplice.getX() < within.getX()) {
+				wires.add(new Wire(toSplice.getLinkWires(),
+				                   toSplice.getX(), toSplice.getY(), within.getX() - toSplice.getX(), true));
+			}
+			
+			int withinEnd = within.getX() + within.getLength();
+			int toSpliceEnd = toSplice.getX() + toSplice.getLength();
+			if(withinEnd < toSpliceEnd) {
+				wires.add(new Wire(toSplice.getLinkWires(),
+				                   withinEnd, toSplice.getY(), toSpliceEnd - withinEnd, true));
+			}
+		} else {
+			if(toSplice.getY() < within.getY()) {
+				wires.add(new Wire(toSplice.getLinkWires(),
+				                   toSplice.getX(), toSplice.getY(), within.getY() - toSplice.getY(), false));
+			}
+			
+			int withinEnd = within.getY() + within.getLength();
+			int toSpliceEnd = toSplice.getY() + toSplice.getLength();
+			if(withinEnd < toSpliceEnd) {
+				wires.add(new Wire(toSplice.getLinkWires(),
+				                   toSplice.getX(), withinEnd, toSpliceEnd - withinEnd, false));
+			}
+		}
+		
+		return wires;
+	}
+	
+	// returns (overlap leftover, (toSplice pieces))
+	private Pair<Wire, Pair<Wire, Wire>> spliceOverlappingWire(Wire toSplice, Wire overlap) {
+		if(!toSplice.overlaps(overlap)) throw new IllegalArgumentException("wires must overlap");
+		
+		if(toSplice.isHorizontal()) {
+			Wire left = toSplice.getX() < overlap.getX() ? toSplice : overlap;
+			Wire right = toSplice.getX() < overlap.getX() ? overlap : toSplice;
+			
+			Wire leftPiece = new Wire(left.getLinkWires(), left.getX(), left.getY(), right.getX() - left.getX(), true);
+			Wire midPiece = new Wire(right.getLinkWires(), right.getX(), right.getY(),
+			                         left.getX() + left.getLength() - right.getX(), true);
+			Wire rightPiece = new Wire(right.getLinkWires(),
+			                           left.getX() + left.getLength(),
+			                           left.getY(),
+			                           right.getX() + right.getLength() - left.getX() - left.getLength(),
+			                           true);
+			
+			if(left == toSplice) {
+				return new Pair<>(leftPiece, new Pair<>(midPiece, rightPiece));
+			} else {
+				return new Pair<>(rightPiece, new Pair<>(midPiece, leftPiece));
+			}
+		} else {
+			Wire top = toSplice.getY() < overlap.getY() ? toSplice : overlap;
+			Wire bottom = toSplice.getY() < overlap.getY() ? overlap : toSplice;
+			
+			Wire topPiece = new Wire(top.getLinkWires(), top.getX(), top.getY(), bottom.getY() - top.getY(), false);
+			Wire midPiece = new Wire(bottom.getLinkWires(), bottom.getX(), bottom.getY(),
+			                         top.getY() + top.getLength() - bottom.getY(), false);
+			Wire bottomPiece = new Wire(bottom.getLinkWires(),
+			                            top.getX(),
+			                            top.getY() + top.getLength(),
+			                            bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
+			                            false);
+			
+			if(top == toSplice) {
+				return new Pair<>(topPiece, new Pair<>(midPiece, bottomPiece));
+			} else {
+				return new Pair<>(bottomPiece, new Pair<>(midPiece, topPiece));
+			}
 		}
 	}
 	
@@ -514,79 +597,6 @@ public class CircuitBoard {
 		}
 		
 		return null;
-	}
-	
-	private Set<Wire> spliceWire(Wire toSplice, Wire within) {
-		if(!within.isWithin(toSplice)) throw new IllegalArgumentException("toSplice must contain within");
-		
-		Set<Wire> wires = new HashSet<>();
-		
-		if(toSplice.isHorizontal()) {
-			if(toSplice.getX() < within.getX()) {
-				wires.add(new Wire(toSplice.getLinkWires(),
-				                   toSplice.getX(), toSplice.getY(), within.getX() - toSplice.getX(), true));
-			}
-			
-			int withinEnd = within.getX() + within.getLength();
-			int toSpliceEnd = toSplice.getX() + toSplice.getLength();
-			if(withinEnd < toSpliceEnd) {
-				wires.add(new Wire(toSplice.getLinkWires(),
-				                   withinEnd, toSplice.getY(), toSpliceEnd - withinEnd, true));
-			}
-		} else {
-			if(toSplice.getY() < within.getY()) {
-				wires.add(new Wire(toSplice.getLinkWires(),
-				                   toSplice.getX(), toSplice.getY(), within.getY() - toSplice.getY(), false));
-			}
-			
-			int withinEnd = within.getY() + within.getLength();
-			int toSpliceEnd = toSplice.getY() + toSplice.getLength();
-			if(withinEnd < toSpliceEnd) {
-				wires.add(new Wire(toSplice.getLinkWires(),
-				                   toSplice.getX(), withinEnd, toSpliceEnd - withinEnd, false));
-			}
-		}
-		
-		return wires;
-	}
-	
-	// returns (wireToRemove, wireToAdd)
-	private Pair<Wire, Wire> spliceOverlappingWire(Wire toSplice, Wire overlap) {
-		if(!toSplice.overlaps(overlap)) throw new IllegalArgumentException("wires must overlap");
-		
-		if(toSplice.isHorizontal()) {
-			Wire left = toSplice.getX() < overlap.getX() ? toSplice : overlap;
-			Wire right = toSplice.getX() < overlap.getX() ? overlap : toSplice;
-			
-			Wire leftPiece = new Wire(left.getLinkWires(), left.getX(), left.getY(), right.getX() - left.getX(), true);
-			Wire rightPiece = new Wire(right.getLinkWires(),
-			                           left.getX() + left.getLength(),
-			                           left.getY(),
-			                           right.getX() + right.getLength() - left.getX() - left.getLength(),
-			                           true);
-			
-			if(left == toSplice) {
-				return new Pair<>(leftPiece, rightPiece);
-			} else {
-				return new Pair<>(rightPiece, leftPiece);
-			}
-		} else {
-			Wire top = toSplice.getY() < overlap.getY() ? toSplice : overlap;
-			Wire bottom = toSplice.getY() < overlap.getY() ? overlap : toSplice;
-			
-			Wire topPiece = new Wire(top.getLinkWires(), top.getX(), top.getY(), bottom.getY() - top.getY(), true);
-			Wire bottomPiece = new Wire(bottom.getLinkWires(),
-			                            top.getX(),
-			                            top.getY() + top.getLength(),
-			                            bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
-			                            true);
-			
-			if(top == toSplice) {
-				return new Pair<>(topPiece, bottomPiece);
-			} else {
-				return new Pair<>(bottomPiece, topPiece);
-			}
-		}
 	}
 	
 	private void splitWire(Wire wire, Connection connection) {

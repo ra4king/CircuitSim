@@ -241,6 +241,10 @@ public class LinkWires {
 		private boolean horizontal;
 		private List<Connection> connections = new ArrayList<>();
 		
+		public Wire(Wire wire) {
+			this(wire.linkWires, wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+		}
+		
 		public Wire(LinkWires linkWires, int startX, int startY, int length, boolean horizontal) {
 			super(startX, startY, horizontal ? Math.abs(length) : 0, horizontal ? 0 : Math.abs(length));
 			

@@ -137,8 +137,6 @@ public class CircuitSimulator extends Application {
 	
 	private volatile boolean needsRepaint = true;
 	
-	private int currentClockHz = 1;
-	
 	@Override
 	public void init() {
 		simulator = new Simulator();
@@ -150,6 +148,23 @@ public class CircuitSimulator extends Application {
 				manager.getCircuitBoard().runSim();
 			}
 		});
+	}
+	
+	private int getCurrentClockSpeed() {
+		for(MenuItem menuItem : frequenciesMenu.getItems()) {
+			RadioMenuItem clockItem = (RadioMenuItem)menuItem;
+			if(clockItem.isSelected()) {
+				String text = clockItem.getText();
+				int space = text.indexOf(' ');
+				if(space == -1) {
+					throw new IllegalStateException("What did you do...");
+				}
+				
+				return Integer.parseInt(text.substring(0, space));
+			}
+		}
+		
+		throw new IllegalStateException("This can't happen lol");
 	}
 	
 	public EditHistory getEditHistory() {
@@ -804,7 +819,7 @@ public class CircuitSimulator extends Application {
 			
 			try {
 				FileFormat.save(saveFile, new CircuitFile(bitSizeSelect.getSelectionModel().getSelectedItem(),
-				                                          currentClockHz, circuits));
+				                                          getCurrentClockSpeed(), circuits));
 				savedEditStackSize = editHistory.editStackSize();
 				updateTitle();
 			} catch(Exception exc) {
@@ -1269,7 +1284,7 @@ public class CircuitSimulator extends Application {
 		toggleClock.setAccelerator(new KeyCharacterCombination("K", KeyCombination.CONTROL_DOWN));
 		toggleClock.setOnAction(event -> {
 			if(toggleClock.getText().startsWith("Start")) {
-				Clock.startClock(currentClockHz);
+				Clock.startClock(getCurrentClockSpeed());
 				toggleClock.setText("Stop clock");
 			} else {
 				Clock.stopClock();
@@ -1289,9 +1304,8 @@ public class CircuitSimulator extends Application {
 			freq.setSelected(i == 0);
 			final int j = i;
 			freq.setOnAction(event -> {
-				currentClockHz = 1 << j;
 				if(Clock.isRunning()) {
-					Clock.startClock(currentClockHz);
+					Clock.startClock(1 << j);
 				}
 			});
 			frequenciesMenu.getItems().add(freq);

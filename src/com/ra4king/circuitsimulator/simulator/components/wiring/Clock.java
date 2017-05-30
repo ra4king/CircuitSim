@@ -105,6 +105,11 @@ public class Clock extends Component {
 				}
 			}
 		});
+		
+		clockThread.setName("Clock thread");
+		clockThread.setDaemon(true);
+		clockThread.setPriority(Thread.MAX_PRIORITY);
+		
 		currentClock = clockThread;
 		clockThread.start();
 	}

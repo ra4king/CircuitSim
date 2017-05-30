@@ -128,18 +128,14 @@ public class CircuitState {
 	}
 	
 	public void pushValue(Port port, WireValue value) {
-		boolean changed;
-		
 		synchronized(circuit.getSimulator()) {
 			LinkState linkState = get(port.getLink());
 			
 			WireValue lastPushed = linkState.getLastPushed(port);
-			changed = !value.equals(lastPushed);
-			lastPushed.set(value);
-		}
-		
-		if(changed) {
-			circuit.getSimulator().valueChanged(this, port);
+			if(!value.equals(lastPushed)) {
+				lastPushed.set(value);
+				circuit.getSimulator().valueChanged(this, port);
+			}
 		}
 	}
 	

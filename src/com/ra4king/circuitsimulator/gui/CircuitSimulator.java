@@ -1020,7 +1020,8 @@ public class CircuitSimulator extends Application {
 		editHistory.enable();
 		
 		MenuBar menuBar = new MenuBar();
-		Menu fileMenu = new Menu("File");
+		
+		// FILE Menu
 		MenuItem load = new MenuItem("Load");
 		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.CONTROL_DOWN));
 		load.setOnAction(event -> loadCircuits());
@@ -1045,9 +1046,10 @@ public class CircuitSimulator extends Application {
 			updateTitle();
 		});
 		
+		Menu fileMenu = new Menu("File");
 		fileMenu.getItems().addAll(load, save, saveAs);
 		
-		Menu editMenu = new Menu("Edit");
+		// EDIT Menu
 		undo = new MenuItem("Undo");
 		undo.setDisable(true);
 		undo.setAccelerator(new KeyCharacterCombination("Z", KeyCombination.CONTROL_DOWN));
@@ -1237,6 +1239,7 @@ public class CircuitSimulator extends Application {
 			}
 		});
 		
+		Menu editMenu = new Menu("Edit");
 		editMenu.getItems().addAll(undo, redo, new SeparatorMenuItem(),
 		                           copy, cut, paste, new SeparatorMenuItem(),
 		                           selectAll);
@@ -1246,8 +1249,7 @@ public class CircuitSimulator extends Application {
 		newCircuit.setOnAction(event -> createCircuit("New circuit"));
 		circuitsMenu.getItems().add(newCircuit);
 		
-		Menu simulationMenu = new Menu("Simulation");
-		
+		// SIMULATION Menu
 		MenuItem reset = new MenuItem("Reset simulation");
 		reset.setOnAction(event -> {
 			Clock.reset();
@@ -1294,8 +1296,10 @@ public class CircuitSimulator extends Application {
 			frequenciesMenu.getItems().add(freq);
 		}
 		
+		Menu simulationMenu = new Menu("Simulation");
 		simulationMenu.getItems().addAll(reset, new SeparatorMenuItem(), toggleClock, tickClock, frequenciesMenu);
 		
+		// HELP Menu
 		Menu helpMenu = new Menu("Help");
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(event -> {
@@ -1322,6 +1326,7 @@ public class CircuitSimulator extends Application {
 		leftPaneSplit.setOrientation(Orientation.VERTICAL);
 		leftPaneSplit.setDividerPositions(0.65);
 		leftPaneSplit.setPrefWidth(450);
+		leftPaneSplit.setMinWidth(150);
 		
 		SplitPane.setResizableWithParent(buttonTabPane, Boolean.FALSE);
 		

@@ -819,7 +819,7 @@ public class CircuitSimulator extends Application {
 		}
 	}
 	
-	private CircuitManager createCircuit(String name) {
+	private void createCircuit(String name) {
 		Canvas canvas = new Canvas(800, 600);
 		ScrollPane canvasScrollPane = new ScrollPane(canvas);
 		
@@ -832,7 +832,10 @@ public class CircuitSimulator extends Application {
 			circuitManager.mouseDragged(e);
 			updateCanvasSize(circuitManager);
 		});
-		canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, circuitManager::mousePressed);
+		canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, (e) -> {
+			circuitManager.mousePressed(e);
+			e.consume();
+		});
 		canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, circuitManager::mouseReleased);
 		canvas.addEventHandler(MouseEvent.MOUSE_ENTERED, circuitManager::mouseEntered);
 		canvas.addEventHandler(MouseEvent.MOUSE_EXITED, circuitManager::mouseExited);
@@ -938,8 +941,6 @@ public class CircuitSimulator extends Application {
 				                                                                            1);
 		
 		canvas.requestFocus();
-		
-		return circuitManager;
 	}
 	
 	@Override

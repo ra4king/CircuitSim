@@ -642,6 +642,8 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private boolean checkUnsavedChanges() {
+		clearSelection();
+		
 		if(editHistory.editStackSize() != savedEditStackSize) {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Unsaved changes");
@@ -667,6 +669,23 @@ public class CircuitSimulator extends Application {
 		return false;
 	}
 	
+	private void resetCircuits() {
+		circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
+		circuitManagers.clear();
+		canvasTabPane.getTabs().clear();
+		
+		editHistory.clear();
+		savedEditStackSize = 0;
+		
+		lastSaveFile = saveFile = null;
+		
+		undo.setDisable(true);
+		redo.setDisable(true);
+		
+		updateTitle();
+		refreshCircuitsTab();
+	}
+	
 	private void loadCircuits() {
 		if(checkUnsavedChanges()) {
 			return;
@@ -683,8 +702,6 @@ public class CircuitSimulator extends Application {
 		fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
 		File selectedFile = fileChooser.showOpenDialog(stage);
 		if(selectedFile != null) {
-			lastSaveFile = saveFile = selectedFile;
-			
 			try {
 				loadingFile = true;
 				
@@ -695,12 +712,8 @@ public class CircuitSimulator extends Application {
 				
 				now = System.nanoTime();
 				
-				clearSelection();
-				circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
-				circuitManagers.clear();
-				canvasTabPane.getTabs().clear();
+				resetCircuits();
 				
-				editHistory.clear();
 				editHistory.disable();
 				
 				for(CircuitInfo circuit : circuitFile.circuits) {
@@ -750,9 +763,7 @@ public class CircuitSimulator extends Application {
 				
 				System.out.printf("Loaded circuit in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 			} catch(Exception exc) {
-				circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
-				circuitManagers.clear();
-				canvasTabPane.getTabs().clear();
+				resetCircuits();
 				
 				exc.printStackTrace();
 				
@@ -768,9 +779,7 @@ public class CircuitSimulator extends Application {
 				}
 				
 				editHistory.enable();
-				undo.setDisable(true);
-				redo.setDisable(true);
-				savedEditStackSize = 0;
+				lastSaveFile = saveFile = selectedFile;
 				loadingFile = false;
 				updateTitle();
 				refreshCircuitsTab();
@@ -1037,6 +1046,14 @@ public class CircuitSimulator extends Application {
 		
 		MenuBar menuBar = new MenuBar();
 		
+		MenuItem clear = new MenuItem("Clear");
+		clear.setOnAction(event -> {
+			resetCircuits();
+			editHistory.disable();
+			createCircuit("New circuit");
+			editHistory.enable();
+		});
+		
 		// FILE Menu
 		MenuItem load = new MenuItem("Load");
 		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.CONTROL_DOWN));
@@ -1062,8 +1079,15 @@ public class CircuitSimulator extends Application {
 			updateTitle();
 		});
 		
+		MenuItem exit = new MenuItem("Exit");
+		exit.setOnAction(event -> {
+			if(!checkUnsavedChanges()) {
+				stage.close();
+			}
+		});
+		
 		Menu fileMenu = new Menu("File");
-		fileMenu.getItems().addAll(load, save, saveAs);
+		fileMenu.getItems().addAll(clear, new SeparatorMenuItem(), load, save, saveAs, new SeparatorMenuItem(), exit);
 		
 		// EDIT Menu
 		undo = new MenuItem("Undo");

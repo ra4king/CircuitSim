@@ -1,12 +1,10 @@
-package com.ra4king.circuitsimulator.simulator.tests;
-
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.OrGate;
-import com.ra4king.circuitsimulator.simulator.components.gates.XorGate;
 import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
+
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla
@@ -25,20 +23,23 @@ public class GateTest {
 		andGate.getPort(1).linkPort(in2.getPort(Pin.PORT));
 		andGate.getOutPort().linkPort(out.getPort(Pin.PORT));
 		
+		out.addChangeListener(new Pair<>(circuit.getTopLevelState(), (pin, state, value) -> {
+			System.out.println("Value changed: " + value);
+		}));
+		
+		System.out.println("Setting in1 to 0");
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		simulator.stepAll();
+		System.out.println("Setting in2 to 0");
 		in2.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		simulator.stepAll();
+		System.out.println("Setting in1 to 1");
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
 		simulator.stepAll();
+		System.out.println("Setting in2 to 1");
 		in2.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
 		simulator.stepAll();
 		
-		XorGate xorGate = circuit.addComponent(new XorGate("", 1, 2));
-		OrGate orGate = circuit.addComponent(new OrGate("", 1, 2));
-		xorGate.getPort(0).linkPort(in1.getPort(0));
-		xorGate.getPort(1).linkPort(orGate.getOutPort());
-		orGate.getPort(0).linkPort(xorGate.getOutPort());
-		simulator.stepAll();
+		System.out.println("Final value: " + circuit.getTopLevelState().getLastReceived(out.getPort(Pin.PORT)));
 	}
 }

@@ -422,6 +422,7 @@ public class CircuitSimulator extends Application {
 		canvasTabPane.getTabs().forEach(tab -> {
 			String name = tab.getText();
 			Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
+			if(circuitPair == null) return;
 			
 			ComponentPeer<?> component = circuitPair.getKey().creator.createComponent(new Properties(), 0, 0);
 			

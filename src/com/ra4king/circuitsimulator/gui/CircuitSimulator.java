@@ -1344,7 +1344,7 @@ public class CircuitSimulator extends Application {
 		about.setOnAction(event -> {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("About");
-			alert.setHeaderText("About");
+			alert.setHeaderText("Circuit Simulator v1.0");
 			alert.setContentText("Circuit Simulator created by Roi Atalla © 2017");
 			alert.showAndWait();
 		});

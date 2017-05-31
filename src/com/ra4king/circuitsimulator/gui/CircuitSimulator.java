@@ -419,10 +419,14 @@ public class CircuitSimulator extends Application {
 			circuitButtonsTab.setContent(pane);
 		}
 		
+		// when requesting a tab to be closed, it still exists and thus its button could be created twice.
+		Set<String> seen = new HashSet<>();
+		
 		canvasTabPane.getTabs().forEach(tab -> {
 			String name = tab.getText();
 			Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
-			if(circuitPair == null) return;
+			if(circuitPair == null || seen.contains(name)) return;
+			seen.add(name);
 			
 			ComponentPeer<?> component = circuitPair.getKey().creator.createComponent(new Properties(), 0, 0);
 			

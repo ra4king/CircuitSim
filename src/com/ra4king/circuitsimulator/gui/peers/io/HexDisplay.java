@@ -101,28 +101,28 @@ public class HexDisplay extends ComponentPeer<Component> {
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + width - margin - size, y + margin + size, size, (height - 3 * size) / 2 - margin);
+		graphics.fillRect(x + width - margin - size, y + margin + size / 2, size, (height - size) / 2 - margin);
 		
 		if(topLeft.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + margin, y + margin + size, size, (height - 3 * size) / 2 - margin);
+		graphics.fillRect(x + margin, y + margin + size / 2, size, (height - size) / 2 - margin);
 		
 		if(botRight.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + width - margin - size, y + (height + size) / 2, size, (height - 3 * size) / 2 - margin);
+		graphics.fillRect(x + width - margin - size, y + height / 2, size, (height - size) / 2 - margin);
 		
 		if(botLeft.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + margin, y + (height + size) / 2, size, (height - 3 * size) / 2 - margin);
+		graphics.fillRect(x + margin, y + height / 2, size, (height - size) / 2 - margin);
 	}
 	
 	private static final Set<Integer> top = new HashSet<>(Arrays.asList(0, 2, 3, 5, 6, 7, 8, 9, 10, 12, 14, 15));

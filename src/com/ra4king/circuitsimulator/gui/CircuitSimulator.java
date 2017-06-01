@@ -976,6 +976,8 @@ public class CircuitSimulator extends Application {
 	public void start(Stage stage) {
 		this.stage = stage;
 		
+		stage.getIcons().add(new Image(getClass().getResourceAsStream("/resources/Icon.png")));
+		
 		editHistory = new EditHistory();
 		editHistory.addListener((action, manager, params) -> {
 			updateTitle();

@@ -860,6 +860,5 @@ public class CircuitManager {
 	
 	public void mouseExited(MouseEvent e) {
 		isMouseInsideCanvas = false;
-		isCtrlDown = false;
 	}
 }

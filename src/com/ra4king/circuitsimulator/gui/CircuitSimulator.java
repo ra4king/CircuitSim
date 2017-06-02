@@ -148,6 +148,14 @@ public class CircuitSimulator extends Application {
 				manager.getCircuitBoard().runSim();
 			}
 		});
+		
+		editHistory = new EditHistory();
+		editHistory.addListener((action, manager, params) -> {
+			updateTitle();
+			circuitManagers.values().stream().map(Pair::getValue).forEach(this::updateCanvasSize);
+		});
+		
+		componentManager = new ComponentManager();
 	}
 	
 	private int getCurrentClockSpeed() {
@@ -966,8 +974,8 @@ public class CircuitSimulator extends Application {
 		
 		refreshCircuitsTab();
 		
-		editHistory.addAction(EditAction.CREATE_CIRCUIT, circuitManager, canvasTab, canvasTabPane.getTabs().size() -
-				                                                                            1);
+		editHistory.addAction(EditAction.CREATE_CIRCUIT, circuitManager, canvasTab,
+		                      canvasTabPane.getTabs().size() - 1);
 		
 		canvas.requestFocus();
 	}
@@ -977,14 +985,6 @@ public class CircuitSimulator extends Application {
 		this.stage = stage;
 		
 		stage.getIcons().add(new Image(getClass().getResourceAsStream("/resources/Icon.png")));
-		
-		editHistory = new EditHistory();
-		editHistory.addListener((action, manager, params) -> {
-			updateTitle();
-			circuitManagers.values().stream().map(Pair::getValue).forEach(this::updateCanvasSize);
-		});
-		
-		componentManager = new ComponentManager();
 		
 		bitSizeSelect = new ComboBox<>();
 		for(int i = 1; i <= 32; i++) {

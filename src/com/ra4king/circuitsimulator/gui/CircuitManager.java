@@ -81,7 +81,7 @@ public class CircuitManager {
 	
 	private boolean needsRepaint;
 	
-	public CircuitManager(CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
+	CircuitManager(CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
 		this.simulatorWindow = simulatorWindow;
 		this.canvasScrollPane = canvasScrollPane;
 		circuitBoard = new CircuitBoard(this, simulator, simulatorWindow.getEditHistory());

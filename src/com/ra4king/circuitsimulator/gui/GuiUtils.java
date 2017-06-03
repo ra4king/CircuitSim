@@ -26,6 +26,9 @@ import javafx.scene.text.Text;
  * @author Roi Atalla
  */
 public class GuiUtils {
+	// Can't instantiate this
+	private GuiUtils() {}
+	
 	public static final int BLOCK_SIZE = 10;
 	
 	private static class FontInfo {

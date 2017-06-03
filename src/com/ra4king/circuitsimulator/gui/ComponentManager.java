@@ -78,7 +78,7 @@ public class ComponentManager {
 		};
 	}
 	
-	public ComponentManager() {
+	ComponentManager() {
 		components = new ArrayList<>();
 		registerDefaultComponents();
 	}

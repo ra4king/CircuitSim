@@ -82,6 +82,10 @@ public class CircuitBoard {
 			throw new NullPointerException("CircuitState cannot be null");
 		}
 		
+		if(state.getCircuit() != this.circuit) {
+			throw new IllegalArgumentException("The state does not belong to this circuit.");
+		}
+		
 		currentState = state;
 	}
 	

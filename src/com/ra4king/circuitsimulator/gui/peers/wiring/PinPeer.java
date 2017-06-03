@@ -19,8 +19,6 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.util.Pair;
 
 /**
@@ -123,7 +121,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
-		graphics.setFont(Font.font("monospace", FontWeight.BOLD, 16)); 
+		graphics.setFont(GuiUtils.getFont(16, true)); 
 		Port port = getComponent().getPort(Pin.PORT);
 		WireValue value = isInput() ? circuitState.getLastPushedValue(port)
 		                            : circuitState.getLastReceived(port);

@@ -3,7 +3,9 @@ package com.ra4king.circuitsimulator.gui;
 import static com.ra4king.circuitsimulator.gui.Properties.Direction.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,6 +27,66 @@ import javafx.scene.text.Text;
  */
 public class GuiUtils {
 	public static final int BLOCK_SIZE = 10;
+	
+	private static class FontInfo {
+		int size;
+		boolean bold;
+		boolean oblique;
+		
+		FontInfo(int size, boolean bold, boolean oblique) {
+			this.size = size;
+			this.bold = bold;
+			this.oblique = oblique;
+		}
+		
+		@Override
+		public int hashCode() {
+			return size ^ (bold ? 0x1000 : 0) ^ (oblique ? 0x2000 : 0);
+		}
+		
+		@Override
+		public boolean equals(Object other) {
+			if(other == null || !(other instanceof FontInfo)) {
+				throw new IllegalArgumentException("Cannot be null or instance other than FontInfo");
+			}
+			
+			FontInfo info = (FontInfo)other;
+			return info.size == this.size && info.bold == this.bold && info.oblique == this.oblique;
+		}
+	}
+	
+	private static Map<FontInfo, Font> fonts = new HashMap<>();
+	
+	public static Font getFont(int size) {
+		return getFont(size, false, false);
+	}
+	
+	public static Font getFont(int size, boolean bold) {
+		return getFont(size, bold, false);
+	}
+	
+	public static Font getFont(int size, boolean bold, boolean oblique) {
+		FontInfo info = new FontInfo(size, bold, oblique);
+		
+		if(fonts.containsKey(info)) {
+			return fonts.get(info);
+		} else {
+			String fontFile;
+			if(bold && oblique) {
+				fontFile = "/resources/DejaVuSansMono-BoldOblique.ttf";
+			} else if(bold) {
+				fontFile = "/resources/DejaVuSansMono-Bold.ttf";
+			} else if(oblique) {
+				fontFile = "/resources/DejaVuSansMono-Oblique.ttf";
+			} else {
+				fontFile = "/resources/DejaVuSansMono.ttf";
+			}
+			
+			Font font = Font.loadFont(GuiUtils.class.getResourceAsStream(fontFile), size);
+			fonts.put(info, font);
+			return font;
+		}
+	}
 	
 	public static int getCircuitCoord(double a) {
 		return ((int)Math.round(a) + BLOCK_SIZE / 2) / BLOCK_SIZE;
@@ -80,14 +142,15 @@ public class GuiUtils {
 	}
 	
 	public static void drawValue(GraphicsContext graphics, String string, int x, int y, int width) {
+		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string);
+		
 		if(string.length() == 1) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string);
-			graphics.fillText(string, x + (width - bounds.getWidth()) * 0.5, y + 14);
+			graphics.fillText(string, x + (width - bounds.getWidth()) * 0.5, y + bounds.getHeight() * 0.75 + 1);
 		} else {
 			for(int i = 0, row = 1; i < string.length(); row++) {
 				String sub = string.substring(i, i + Math.min(8, string.length() - i));
 				i += sub.length();
-				graphics.fillText(sub, x + 1, y + 14 * row);
+				graphics.fillText(sub, x + 1, y + bounds.getHeight() * 0.75 * row + 1);
 			}
 		}
 	}

@@ -33,7 +33,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
 
@@ -289,7 +288,7 @@ public class CircuitManager {
 		
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		
-		graphics.setFont(Font.font(13));
+		graphics.setFont(GuiUtils.getFont(13));
 		graphics.setFontSmoothingType(FontSmoothingType.LCD);
 		
 		graphics.save();

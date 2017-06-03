@@ -18,7 +18,6 @@ import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.util.Pair;
 
 /**
@@ -65,7 +64,7 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.setFont(Font.font(12));
+		graphics.setFont(GuiUtils.getFont(12));
 		graphics.setFill(Color.BLACK);
 		
 		graphics.fillText(String.valueOf(getComponent().getInputBitSize()),

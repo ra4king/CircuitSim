@@ -14,7 +14,6 @@ import com.ra4king.circuitsimulator.simulator.components.arithmetic.Comparator;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.util.Pair;
 
 /**
@@ -58,7 +57,7 @@ public class ComparatorPeer extends ComponentPeer<Comparator> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.setFont(Font.font(12));
+		graphics.setFont(GuiUtils.getFont(12));
 		graphics.setFill(Color.BLACK);
 		graphics.fillText("<", getScreenX() + getScreenWidth() - 12, getScreenY() + 12);
 		graphics.fillText("=", getScreenX() + getScreenWidth() - 12, getScreenY() + 24);

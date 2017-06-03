@@ -90,7 +90,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontSmoothingType;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -109,7 +108,7 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private Stage stage;
-	private boolean openWindow;
+	private boolean openWindow = true;
 	
 	private Simulator simulator;
 	
@@ -1497,7 +1496,7 @@ public class CircuitSimulator extends Application {
 		
 		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, simulationMenu, helpMenu);
 		
-		componentLabel.setFont(Font.font(16));
+		componentLabel.setFont(GuiUtils.getFont(16));
 		
 		ScrollPane propertiesScrollPane = new ScrollPane(propertiesTable);
 		propertiesScrollPane.setFitToWidth(true);
@@ -1606,7 +1605,7 @@ public class CircuitSimulator extends Application {
 					
 					graphics.setFontSmoothingType(FontSmoothingType.LCD);
 					
-					graphics.setFont(Font.font(12));
+					graphics.setFont(GuiUtils.getFont(12));
 					graphics.setFill(Color.BLACK);
 					graphics.fillText("FPS: " + lastFrameCount, 6, 50);
 					if(Clock.getLastTickCount() > 0) {
@@ -1621,7 +1620,7 @@ public class CircuitSimulator extends Application {
 							toggleClock.fire();
 						}
 						
-						graphics.setFont(Font.font(20));
+						graphics.setFont(GuiUtils.getFont(20));
 						graphics.setFill(Color.RED);
 						Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
 						graphics.fillText(message,

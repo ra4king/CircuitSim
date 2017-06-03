@@ -33,6 +33,7 @@ import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
+import com.ra4king.circuitsimulator.simulator.ShortCircuitException;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
 import com.ra4king.circuitsimulator.simulator.components.wiring.Clock;
@@ -111,6 +112,7 @@ public class CircuitSimulator extends Application {
 	private boolean openWindow = true;
 	
 	private Simulator simulator;
+	private Exception lastException;
 	
 	private MenuItem undo, redo;
 	private MenuItem toggleClock;
@@ -204,13 +206,7 @@ public class CircuitSimulator extends Application {
 		
 		simulator = new Simulator();
 		circuitManagers = new LinkedHashMap<>();
-		Clock.addChangeListener(value -> {
-			CircuitManager manager = getCurrentCircuit();
-			needsRepaint = true;
-			if(manager != null) {
-				manager.getCircuitBoard().runSim();
-			}
-		});
+		Clock.addChangeListener(value -> runSim());
 		
 		editHistory = new EditHistory();
 		editHistory.addListener((action, manager, params) -> {
@@ -267,6 +263,26 @@ public class CircuitSimulator extends Application {
 	 */
 	public ComponentManager getComponentManager() {
 		return componentManager;
+	}
+	
+	public void runSim() {
+		try {
+			simulator.stepAll();
+			lastException = null;
+		} catch(Exception exc) {
+			lastException = exc;
+		} finally {
+			needsRepaint = true;
+		}
+	}
+	
+	private String getCurrentError() {
+		CircuitManager manager = getCurrentCircuit();
+		
+		Exception exc = lastException != null ? lastException
+		                                      : manager != null ? manager.getCurrentError() : null;
+		
+		return exc == null ? "" : exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
 	}
 	
 	private int getCurrentClockSpeed() {
@@ -1576,12 +1592,7 @@ public class CircuitSimulator extends Application {
 			toggleClock.setText("Start clock");
 			simulator.reset();
 			
-			CircuitManager manager = getCurrentCircuit();
-			if(manager != null) {
-				manager.getCircuitBoard().runSim();
-			}
-			
-			needsRepaint = true;
+			runSim();
 		});
 		
 		toggleClock = new MenuItem("Start clock");
@@ -1757,7 +1768,7 @@ public class CircuitSimulator extends Application {
 				}
 				
 				if(manager != null) {
-					String message = manager.getCurrentError();
+					String message = getCurrentError();
 					
 					if(message != null && !message.isEmpty() && Clock.isRunning()) {
 						System.out.println("Message: " + message);

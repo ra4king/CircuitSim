@@ -103,17 +103,12 @@ public class CircuitBoard {
 		return lastException;
 	}
 	
-	public void runSim() {
-		try {
-			if((badLinks = links.stream().filter(
-					link -> !link.isLinkValid()).collect(Collectors.toSet())).size() > 0) {
-				throw badLinks.iterator().next().getLastException();
-			}
-			
-			circuit.getSimulator().stepAll();
+	private void updateBadLinks() {
+		if((badLinks = links.stream().filter(
+				link -> !link.isLinkValid()).collect(Collectors.toSet())).size() > 0) {
+			lastException = badLinks.iterator().next().getLastException();
+		} else {
 			lastException = null;
-		} catch(Exception exc) {
-			lastException = exc;
 		}
 	}
 	
@@ -178,7 +173,8 @@ public class CircuitBoard {
 				rejoinWires();
 			}
 			
-			runSim();
+			updateBadLinks();
+			circuitManager.getSimulatorWindow().runSim();
 		} finally {
 			editHistory.endGroup();
 		}
@@ -301,7 +297,8 @@ public class CircuitBoard {
 		moveDeltaX = 0;
 		moveDeltaY = 0;
 		
-		runSim();
+		updateBadLinks();
+		circuitManager.getSimulatorWindow().runSim();
 		
 		if(cannotMoveHere) {
 			throw new IllegalArgumentException("Cannot move components here.");
@@ -341,19 +338,18 @@ public class CircuitBoard {
 					for(int i = 0; i < wire.getLength(); i++) {
 						int x = wire.isHorizontal() ? wire.getX() + i : wire.getX();
 						int y = wire.isHorizontal() ? wire.getY() : wire.getY() + i;
-						new HashSet<>(getConnections(x, y))
-								.stream()
-								.filter(conn -> conn.getParent() instanceof Wire)
-								.map(conn -> (Wire)conn.getParent())
-								.filter(w -> w.isHorizontal() == wire.isHorizontal())
-								.anyMatch(w -> {
+						for(Connection conn : new HashSet<>(getConnections(x, y))) {
+							if(conn.getParent() instanceof Wire) {
+								Wire w = (Wire)conn.getParent();
+								if(w.isHorizontal() == wire.isHorizontal()) {
 									if(w.equals(wire)) {
 										toRemove.add(w);
-										return true;
+										break;
 									} else if(w.isWithin(wire)) {
-										toRemove.add(w);
 										elementsToRemove.addAll(spliceWire(wire, w));
-										return true;
+										
+										toRemove.add(w);
+										break;
 									} else if(wire.isWithin(w)) {
 										LinkWires linkWires = w.getLinkWires();
 										removeWire(w);
@@ -361,8 +357,9 @@ public class CircuitBoard {
 										spliceWire(w, wire).forEach(w1 -> addWire(linkWires, w1));
 										Wire clone = new Wire(wire);
 										addWire(linkWires, clone);
+										
 										toRemove.add(clone);
-										return true;
+										break;
 									} else if(w.overlaps(wire)) {
 										LinkWires linkWires = w.getLinkWires();
 										removeWire(w);
@@ -373,12 +370,11 @@ public class CircuitBoard {
 										addWire(linkWires, pairs.getValue().getValue());
 										
 										toRemove.add(pairs.getValue().getKey());
-										
-										return true;
+										break;
 									}
-									
-									return false;
-								});
+								}
+							}
+						}
 					}
 					
 					toRemove.forEach(w -> {
@@ -403,7 +399,8 @@ public class CircuitBoard {
 			
 			rejoinWires();
 			
-			runSim();
+			updateBadLinks();
+			circuitManager.getSimulatorWindow().runSim();
 		} finally {
 			editHistory.endGroup();
 		}
@@ -577,7 +574,8 @@ public class CircuitBoard {
 			
 			rejoinWires();
 			
-			runSim();
+			updateBadLinks();
+			circuitManager.getSimulatorWindow().runSim();
 			
 			return wiresToAdd;
 		} finally {

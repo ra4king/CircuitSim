@@ -16,7 +16,6 @@ import com.ra4king.circuitsimulator.gui.Properties.PropertyMemoryValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.memory.ROM;
 
-import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuItem;
@@ -108,7 +107,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 							getComponent().valueChanged(state, null, 0);
 						}
 						
-						Platform.runLater(() -> circuit.getCircuitBoard().runSim());
+						circuit.getSimulatorWindow().runSim();
 					});
 			
 			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), lines);

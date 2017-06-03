@@ -15,7 +15,6 @@ import com.ra4king.circuitsimulator.gui.Properties.PropertyMemoryValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.memory.RAM;
 
-import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuItem;
@@ -70,7 +69,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 			List<MemoryLine> memory =
 					memoryValidator.parse(getComponent().getMemoryContents(currentState), (address, value) -> {
 						getComponent().store(currentState, address, value);
-						Platform.runLater(() -> circuit.getCircuitBoard().runSim());
+						circuit.getSimulatorWindow().runSim();
 					});
 			
 			getComponent().addMemoryListener((address, data) -> {

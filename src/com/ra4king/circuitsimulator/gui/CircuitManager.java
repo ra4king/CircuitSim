@@ -16,7 +16,6 @@ import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
 import com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
-import com.ra4king.circuitsimulator.simulator.ShortCircuitException;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
@@ -154,18 +153,12 @@ public class CircuitManager {
 		return circuitBoard;
 	}
 	
-	public String getCurrentError() {
+	Exception getCurrentError() {
 		if(lastException != null && SHOW_ERROR_DURATION < System.currentTimeMillis() - lastErrorTime) {
 			lastException = null;
 		}
 		
-		Exception exc = lastException == null ? circuitBoard.getLastException() : lastException;
-		
-		if(exc == null) {
-			return "";
-		}
-		
-		return exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
+		return lastException == null ? circuitBoard.getLastException() : lastException;
 	}
 	
 	public Point2D getLastMousePosition() {
@@ -499,7 +492,7 @@ public class CircuitManager {
 					}
 					currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
 					selectedPin.getComponent().setValue(circuitBoard.getCurrentState(), currentValue);
-					circuitBoard.runSim();
+					simulatorWindow.runSim();
 					needsRepaint = true;
 				}
 				break;
@@ -738,7 +731,8 @@ public class CircuitManager {
 								                                                                       .getScreenX(),
 						                                            lastMousePosition.getY() - selectedElement
 								                                                                       .getScreenY());
-						circuitBoard.runSim();
+						simulatorWindow.runSim();
+						needsRepaint = true;
 					}
 				}
 			case ELEMENT_DRAGGED:

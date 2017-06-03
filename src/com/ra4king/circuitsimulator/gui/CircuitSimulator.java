@@ -159,13 +159,13 @@ public class CircuitSimulator extends Application {
 	public CircuitSimulator(boolean openWindow) {
 		this.openWindow = openWindow;
 		
-		runLaterSync(() -> {
+		runFxSync(() -> {
 			init();
 			start(new Stage());
 		});
 	}
 	
-	private void runLaterSync(Runnable runnable) {
+	private void runFxSync(Runnable runnable) {
 		if(Platform.isFxApplicationThread()) {
 			runnable.run();
 		} else {
@@ -339,7 +339,7 @@ public class CircuitSimulator extends Application {
 	 * @param state The state to set as the current state. May be null (no change to the current state).
 	 */
 	public void switchToCircuit(Circuit circuit, CircuitState state) {
-		runLaterSync(() -> {
+		runFxSync(() -> {
 			if(state != null) {
 				CircuitManager manager = getCircuitManager(circuit);
 				if(manager != null) {
@@ -389,7 +389,7 @@ public class CircuitSimulator extends Application {
 	}
 	
 	void deleteCircuit(CircuitManager manager, boolean removeTab) {
-		runLaterSync(() -> {
+		runFxSync(() -> {
 			clearSelection();
 			
 			Tab tab = getTabForCircuit(manager.getCircuit());
@@ -640,7 +640,7 @@ public class CircuitSimulator extends Application {
 	}
 	
 	void renameCircuit(Tab tab, String newName) {
-		runLaterSync(() -> {
+		runFxSync(() -> {
 			String oldName = tab.getText();
 			
 			Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.get(oldName);
@@ -838,7 +838,7 @@ public class CircuitSimulator extends Application {
 	 * Clears and destroys all circuits. No tabs or circuits will exist after this.
 	 */
 	public void clearCircuits() {
-		runLaterSync(() -> {
+		runFxSync(() -> {
 			circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
 			circuitManagers.clear();
 			canvasTabPane.getTabs().clear();
@@ -865,7 +865,7 @@ public class CircuitSimulator extends Application {
 	 * @param file The File instance to load the circuits from.
 	 */
 	public void loadCircuits(File file) throws Exception {
-		runLaterSync(() -> {
+		runFxSync(() -> {
 			File f = file;
 			
 			if(f == null) {
@@ -999,7 +999,7 @@ public class CircuitSimulator extends Application {
 	 * @param file The File instance to save the circuits to.
 	 */
 	public void saveCircuits(File file) throws Exception {
-		runLaterSync(() -> {
+		runFxSync(() -> {
 			File f = file;
 			
 			if(f == null) {
@@ -1067,7 +1067,7 @@ public class CircuitSimulator extends Application {
 	 * @param name The name of the circuit and tab.
 	 */
 	public void createCircuit(String name) {
-		runLaterSync(() -> {
+		runFxSync(() -> {
 			String n = name;
 			
 			Canvas canvas = new Canvas(800, 600);

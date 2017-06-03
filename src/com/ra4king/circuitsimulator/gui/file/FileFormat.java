@@ -32,7 +32,7 @@ import javafx.util.Pair;
 public class FileFormat {
 	private static final Gson GSON;
 	
-	public static final double VERSION = 1.0;
+	public static final double VERSION = 1.1;
 	
 	static {
 		GSON = new GsonBuilder().create();

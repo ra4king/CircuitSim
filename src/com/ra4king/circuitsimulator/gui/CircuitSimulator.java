@@ -569,8 +569,6 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private void updateTitle() {
-		if(stage == null) return;
-		
 		String name = "";
 		if(saveFile != null) {
 			name = " - " + saveFile.getName();
@@ -578,7 +576,7 @@ public class CircuitSimulator extends Application {
 		if(editHistory.editStackSize() != savedEditStackSize) {
 			name += " *";
 		}
-		stage.setTitle("Circuit simulator" + name);
+		stage.setTitle("Circuit Simulator v" + FileFormat.VERSION + name);
 	}
 	
 	private ComponentCreator<?> getSubcircuitPeerCreator(String name) {
@@ -1518,7 +1516,7 @@ public class CircuitSimulator extends Application {
 		about.setOnAction(event -> {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.setTitle("About");
-			alert.setHeaderText("Circuit Simulator v1.0");
+			alert.setHeaderText("Circuit Simulator v" + FileFormat.VERSION);
 			alert.setContentText("Circuit Simulator created by Roi Atalla © 2017");
 			alert.showAndWait();
 		});
@@ -1595,8 +1593,9 @@ public class CircuitSimulator extends Application {
 		Scene scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));
 		
 		if(openWindow) {
+			updateTitle();
+			
 			stage.setScene(scene);
-			stage.setTitle("Circuit Simulator");
 			stage.sizeToScene();
 			stage.show();
 			stage.centerOnScreen();

@@ -334,6 +334,21 @@ public class CircuitSimulator extends Application {
 		refreshCircuitsTab();
 	}
 	
+	boolean confirmAndDeleteCircuit(CircuitManager circuitManager, boolean removeTab) {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Delete this circuit?");
+		alert.setHeaderText("Delete this circuit?");
+		alert.setContentText("Are you sure you want to delete this circuit?");
+		
+		Optional<ButtonType> result = alert.showAndWait();
+		if(!result.isPresent() || result.get() != ButtonType.OK) {
+			return false;
+		} else {
+			deleteCircuit(circuitManager, removeTab);
+			return true;
+		}
+	}
+	
 	public void deleteCircuit(String name) {
 		deleteCircuit(getCircuitManager(name), true);
 	}
@@ -350,8 +365,13 @@ public class CircuitSimulator extends Application {
 			int idx = canvasTabPane.getTabs().indexOf(tab);
 			if(idx == -1) throw new IllegalStateException("Tab should be in the tab pane.");
 			
+			boolean isEmpty;
+			
 			if(removeTab) {
 				canvasTabPane.getTabs().remove(tab);
+				isEmpty = canvasTabPane.getTabs().isEmpty();
+			} else {
+				isEmpty = canvasTabPane.getTabs().size() == 1;
 			}
 			
 			editHistory.beginGroup();
@@ -361,7 +381,7 @@ public class CircuitSimulator extends Application {
 			
 			editHistory.addAction(EditAction.DELETE_CIRCUIT, manager, tab, idx);
 			
-			if(!removeTab && canvasTabPane.getTabs().size() == 1) {
+			if(isEmpty) {
 				createCircuit("New circuit");
 				canvasTabPane.getSelectionModel().select(0);
 			}
@@ -1066,16 +1086,8 @@ public class CircuitSimulator extends Application {
 			
 			canvasTab.setContextMenu(new ContextMenu(rename, viewTopLevelState, moveLeft, moveRight));
 			canvasTab.setOnCloseRequest(event -> {
-				Alert alert = new Alert(AlertType.CONFIRMATION);
-				alert.setTitle("Delete this circuit?");
-				alert.setHeaderText("Delete this circuit?");
-				alert.setContentText("Are you sure you want to delete this circuit?");
-				
-				Optional<ButtonType> result = alert.showAndWait();
-				if(!result.isPresent() || result.get() != ButtonType.OK) {
+				if(!confirmAndDeleteCircuit(circuitManager, false)) {
 					event.consume();
-				} else {
-					deleteCircuit(circuitManager, false);
 				}
 			});
 			
@@ -1168,6 +1180,10 @@ public class CircuitSimulator extends Application {
 		
 		MenuBar menuBar = new MenuBar();
 		
+		MenuItem newInstance = new MenuItem("New");
+		newInstance.setAccelerator(new KeyCharacterCombination("N", KeyCombination.CONTROL_DOWN));
+		newInstance.setOnAction(event -> new CircuitSimulator(true));
+		
 		MenuItem clear = new MenuItem("Clear");
 		clear.setOnAction(event -> {
 			clearCircuits();
@@ -1231,7 +1247,9 @@ public class CircuitSimulator extends Application {
 		});
 		
 		Menu fileMenu = new Menu("File");
-		fileMenu.getItems().addAll(clear, new SeparatorMenuItem(), load, save, saveAs, new SeparatorMenuItem(), exit);
+		fileMenu.getItems().addAll(newInstance, clear, new SeparatorMenuItem(),
+		                           load, save, saveAs, new SeparatorMenuItem(),
+		                           exit);
 		
 		// EDIT Menu
 		undo = new MenuItem("Undo");
@@ -1428,10 +1446,22 @@ public class CircuitSimulator extends Application {
 		                           copy, cut, paste, new SeparatorMenuItem(),
 		                           selectAll);
 		
-		Menu circuitsMenu = new Menu("Circuits");
+		// CIRCUITS Menu
 		MenuItem newCircuit = new MenuItem("New circuit");
+		newCircuit.setAccelerator(new KeyCharacterCombination("T", KeyCombination.CONTROL_DOWN));
 		newCircuit.setOnAction(event -> createCircuit("New circuit"));
-		circuitsMenu.getItems().add(newCircuit);
+		
+		MenuItem deleteCircuit = new MenuItem("Delete circuit");
+		deleteCircuit.setAccelerator(new KeyCharacterCombination("W", KeyCombination.CONTROL_DOWN));
+		deleteCircuit.setOnAction(event -> {
+			CircuitManager currentCircuit = getCurrentCircuit();
+			if(currentCircuit != null) {
+				confirmAndDeleteCircuit(currentCircuit, true);
+			}
+		});
+		
+		Menu circuitsMenu = new Menu("Circuits");
+		circuitsMenu.getItems().addAll(newCircuit, deleteCircuit);
 		
 		// SIMULATION Menu
 		MenuItem reset = new MenuItem("Reset simulation");
@@ -1461,7 +1491,7 @@ public class CircuitSimulator extends Application {
 		});
 		
 		MenuItem tickClock = new MenuItem("Tick clock");
-		tickClock.setAccelerator(new KeyCharacterCombination("T", KeyCombination.CONTROL_DOWN));
+		tickClock.setAccelerator(new KeyCharacterCombination("J", KeyCombination.CONTROL_DOWN));
 		tickClock.setOnAction(event -> Clock.tick());
 		
 		frequenciesMenu = new Menu("Frequency");
@@ -1576,7 +1606,6 @@ public class CircuitSimulator extends Application {
 					event.consume();
 				}
 			});
-			stage.setOnHidden(event -> System.exit(0));
 			
 			new AnimationTimer() {
 				private long lastRepaint;

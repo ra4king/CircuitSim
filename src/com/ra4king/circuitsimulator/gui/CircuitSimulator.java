@@ -154,6 +154,7 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * Creates a new instance of a CircuitSimulator
+	 *
 	 * @param openWindow If a window should be opened
 	 */
 	public CircuitSimulator(boolean openWindow) {
@@ -221,7 +222,17 @@ public class CircuitSimulator extends Application {
 	}
 	
 	/**
+	 * Get the Simulator instance.
+	 *
+	 * @return The Simulator instance used by this Circuit Simulator.
+	 */
+	public Simulator getSimulator() {
+		return simulator;
+	}
+	
+	/**
 	 * Get the global EditHistory instance
+	 *
 	 * @return the EditHistory used in this Circuit Simulator instance
 	 */
 	public EditHistory getEditHistory() {
@@ -230,7 +241,8 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * The stage (window) of this Circuit Simulator instance
-	 * @return the Stage where 
+	 *
+	 * @return the Stage where
 	 */
 	public Stage getStage() {
 		return stage;
@@ -238,6 +250,7 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * Get all circuits.
+	 *
 	 * @return Map from their names to their wrapping CircuitBoard.
 	 */
 	public Map<String, CircuitBoard> getCircuitBoards() {
@@ -249,6 +262,7 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * Get the ComponentManager. New components may be registered to this instance.
+	 *
 	 * @return The ComponentManager of this Circuit Simulator instance.
 	 */
 	public ComponentManager getComponentManager() {
@@ -335,8 +349,9 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * Selects the tab of the specified circuit and changes its current state to the specified state.
+	 *
 	 * @param circuit The circuit whose tab will be selected
-	 * @param state The state to set as the current state. May be null (no change to the current state).
+	 * @param state   The state to set as the current state. May be null (no change to the current state).
 	 */
 	public void switchToCircuit(Circuit circuit, CircuitState state) {
 		runFxSync(() -> {
@@ -382,6 +397,7 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * Delete the specified circuit.
+	 *
 	 * @param name The name of the circuit to delete.
 	 */
 	public void deleteCircuit(String name) {
@@ -632,7 +648,8 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * Renames the circuit specified by name to the name specified by newName.
-	 * @param name The name of the existing circuit.
+	 *
+	 * @param name    The name of the existing circuit.
 	 * @param newName The new name to rename to.
 	 */
 	public void renameCircuit(String name, String newName) {
@@ -967,6 +984,7 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * Get the last saved file.
+	 *
 	 * @return The last saved file selected in loadCircuits or saveCircuits.
 	 */
 	public File getSaveFile() {
@@ -1042,7 +1060,7 @@ public class CircuitSimulator extends Application {
 				
 				try {
 					FileFormat.save(f, new CircuitFile(bitSizeSelect.getSelectionModel().getSelectedItem(),
-					                                          getCurrentClockSpeed(), circuits));
+					                                   getCurrentClockSpeed(), circuits));
 					savedEditStackSize = editHistory.editStackSize();
 					updateTitle();
 					
@@ -1188,6 +1206,7 @@ public class CircuitSimulator extends Application {
 	
 	/**
 	 * Do not call this directly, called automatically
+	 *
 	 * @param stage The Stage instance to create this Circuit Simulator in
 	 */
 	@Override

@@ -90,7 +90,7 @@ public class ComponentManager {
 			}
 		}
 		
-		return null;
+		throw new IllegalArgumentException("Component not registered: " + name);
 	}
 	
 	public ComponentLauncherInfo get(Class<? extends ComponentPeer> clazz) {
@@ -100,7 +100,7 @@ public class ComponentManager {
 			}
 		}
 		
-		return null;
+		throw new IllegalArgumentException("Component not registered: " + clazz);
 	}
 	
 	public void forEach(Consumer<ComponentLauncherInfo> consumer) {

@@ -252,8 +252,10 @@ public class CircuitManager {
 							.map(element -> (ComponentPeer<?>)element)
 							.collect(Collectors.toMap(
 									component -> component,
-									component -> (ComponentPeer<?>)ComponentManager
-											                               .forClass(component.getClass())
+									component -> (ComponentPeer<?>)simulatorWindow
+											                               .getComponentManager()
+											                               .get(component.getClass())
+											                               .creator
 											                               .createComponent(
 													                               component.getProperties()
 													                                        .mergeIfExists(properties),

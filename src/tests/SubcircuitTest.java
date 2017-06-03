@@ -1,4 +1,4 @@
-package com.ra4king.circuitsimulator.simulator.tests;
+package tests;
 
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;

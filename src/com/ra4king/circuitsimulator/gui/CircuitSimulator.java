@@ -1,8 +1,11 @@
 package com.ra4king.circuitsimulator.gui;
 
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -15,6 +18,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1274,27 +1279,37 @@ public class CircuitSimulator extends Application {
 		buttonsToggleGroup = new ToggleGroup();
 		Map<String, Tab> buttonTabs = new HashMap<>();
 		
-		componentManager.forEach(componentInfo -> {
-			Tab tab;
-			if(buttonTabs.containsKey(componentInfo.name.getKey())) {
-				tab = buttonTabs.get(componentInfo.name.getKey());
-			} else {
-				tab = new Tab(componentInfo.name.getKey());
-				tab.setClosable(false);
-				
-				ScrollPane pane = new ScrollPane(new GridPane());
-				pane.setFitToWidth(true);
-				
-				tab.setContent(pane);
-				buttonTabPane.getTabs().add(tab);
-				buttonTabs.put(componentInfo.name.getKey(), tab);
-			}
+		Runnable refreshComponentsTabs = () -> {
+			buttonTabPane.getTabs().clear();
+			buttonTabs.clear();
 			
-			GridPane buttons = (GridPane)((ScrollPane)tab.getContent()).getContent();
+			componentManager.forEach(componentInfo -> {
+				Tab tab;
+				if(buttonTabs.containsKey(componentInfo.name.getKey())) {
+					tab = buttonTabs.get(componentInfo.name.getKey());
+				} else {
+					tab = new Tab(componentInfo.name.getKey());
+					tab.setClosable(false);
+					
+					ScrollPane pane = new ScrollPane(new GridPane());
+					pane.setFitToWidth(true);
+					
+					tab.setContent(pane);
+					buttonTabPane.getTabs().add(tab);
+					buttonTabs.put(componentInfo.name.getKey(), tab);
+				}
+				
+				GridPane buttons = (GridPane)((ScrollPane)tab.getContent()).getContent();
+				
+				ToggleButton toggleButton = setupButton(buttonsToggleGroup, componentInfo);
+				buttons.addRow(buttons.getChildren().size(), toggleButton);
+			});
 			
-			ToggleButton toggleButton = setupButton(buttonsToggleGroup, componentInfo);
-			buttons.addRow(buttons.getChildren().size(), toggleButton);
-		});
+			circuitButtonsTab = null;
+			refreshCircuitsTab();
+		};
+		
+		refreshComponentsTabs.run();
 		
 		editHistory.disable();
 		createCircuit("New circuit");
@@ -1568,6 +1583,67 @@ public class CircuitSimulator extends Application {
 		                           copy, cut, paste, new SeparatorMenuItem(),
 		                           selectAll);
 		
+		// COMPONENTS Menu
+		MenuItem loadLibrary = new MenuItem("Load library");
+		loadLibrary.setOnAction(event -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Choose library file");
+			fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("Java Archive", "*.jar"));
+			File file = fileChooser.showOpenDialog(stage);
+			if(file != null) {
+				try(JarFile jarFile = new JarFile(file)) {
+					Enumeration<JarEntry> e = jarFile.entries();
+					
+					URLClassLoader cl = URLClassLoader.newInstance(new URL[] { file.toURI().toURL() });
+					
+					while(e.hasMoreElements()) {
+						JarEntry je = e.nextElement();
+						if(je.isDirectory() || !je.getName().endsWith(".class")) {
+							continue;
+						}
+						
+						try {
+							String className = je.getName().substring(0, je.getName().length() - 6);
+							className = className.replace('/', '.');
+							Class<?> c = cl.loadClass(className);
+							
+							if(ComponentPeer.class.isAssignableFrom(c)) {
+								@SuppressWarnings("unchecked")
+								Class<? extends ComponentPeer<?>> cc = (Class<? extends ComponentPeer<?>>)c;
+								componentManager.register(cc);
+							}
+						} catch(Exception exc) {
+							exc.printStackTrace();
+							
+							Alert alert = new Alert(AlertType.ERROR);
+							alert.setTitle("Error loading class");
+							alert.setHeaderText("Error loading class");
+							alert.setContentText("Error when loading class: " + exc.getMessage());
+							alert.getButtonTypes().add(ButtonType.CANCEL);
+							Optional<ButtonType> buttonType = alert.showAndWait();
+							if(buttonType.isPresent() && buttonType.get() == ButtonType.CANCEL) {
+								break;
+							}
+						}
+					}
+					
+					refreshComponentsTabs.run();
+				} catch(Exception exc) {
+					exc.printStackTrace();
+					
+					Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Error opening library");
+					alert.setHeaderText("Error opening library");
+					alert.setContentText("Error when opening library: " + exc.getMessage());
+					alert.showAndWait();
+				}
+			}
+		});
+		
+		Menu componentsMenu = new Menu("Components");
+		componentsMenu.getItems().addAll(loadLibrary);
+		
 		// CIRCUITS Menu
 		MenuItem newCircuit = new MenuItem("New circuit");
 		newCircuit.setAccelerator(new KeyCharacterCombination("T", KeyCombination.CONTROL_DOWN));
@@ -1641,7 +1717,7 @@ public class CircuitSimulator extends Application {
 		});
 		helpMenu.getItems().addAll(about);
 		
-		menuBar.getMenus().addAll(fileMenu, editMenu, circuitsMenu, simulationMenu, helpMenu);
+		menuBar.getMenus().addAll(fileMenu, editMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
 		
 		componentLabel.setFont(GuiUtils.getFont(16));
 		

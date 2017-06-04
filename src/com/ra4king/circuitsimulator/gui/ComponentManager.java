@@ -57,6 +57,16 @@ public class ComponentManager {
 			this.properties = properties;
 			this.creator = creator;
 		}
+		
+		@Override
+		public boolean equals(Object other) {
+			if(other == null || !(other instanceof ComponentLauncherInfo)) {
+				return false;
+			}
+			
+			ComponentLauncherInfo info = (ComponentLauncherInfo)other;
+			return info.clazz == this.clazz && info.name.equals(this.name);
+		}
 	}
 	
 	public interface ComponentManagerInterface {
@@ -113,15 +123,16 @@ public class ComponentManager {
 			
 			Method method = clazz.getMethod("installComponent", ComponentManagerInterface.class);
 			method.invoke(null,
-			              (ComponentManagerInterface)(name, image, defaultProperties) ->
-					                                         components.add(new ComponentLauncherInfo(clazz,
-					                                                                                  name,
-					                                                                                  image,
-					                                                                                  defaultProperties,
-					                                                                                  creator)));
+			              (ComponentManagerInterface)(name, image, defaultProperties) -> {
+				              ComponentLauncherInfo info = new ComponentLauncherInfo(clazz, name, image,
+				                                                                     defaultProperties, creator);
+				              if(!components.contains(info)) {
+					              components.add(info);
+				              }
+			              });
 		} catch(NoSuchMethodException exc) {
 			throw new RuntimeException("Must implement: public static void installComponent" +
-					                           "(ComponentManagerInterface)");
+					                           "(ComponentManagerInterface): " + clazz);
 		} catch(RuntimeException exc) {
 			throw exc;
 		} catch(Exception exc) {

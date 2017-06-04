@@ -63,10 +63,12 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
@@ -99,6 +101,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.FontSmoothingType;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
@@ -403,6 +406,8 @@ public class CircuitSimulator extends Application {
 	
 	boolean confirmAndDeleteCircuit(CircuitManager circuitManager, boolean removeTab) {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.initOwner(stage);
+		alert.initModality(Modality.WINDOW_MODAL);
 		alert.setTitle("Delete this circuit?");
 		alert.setHeaderText("Delete this circuit?");
 		alert.setContentText("Are you sure you want to delete this circuit?");
@@ -848,6 +853,8 @@ public class CircuitSimulator extends Application {
 		
 		if(editHistory.editStackSize() != savedEditStackSize) {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.initOwner(stage);
+			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("Unsaved changes");
 			alert.setHeaderText("Unsaved changes");
 			alert.setContentText("There are unsaved changes, do you want to save them?");
@@ -903,26 +910,27 @@ public class CircuitSimulator extends Application {
 	 * @param file The File instance to load the circuits from.
 	 */
 	public void loadCircuits(File file) throws Exception {
-		runFxSync(() -> {
-			File f = file;
+		ProgressBar bar = new ProgressBar();
+		
+		Dialog<ButtonType> dialog = new Dialog<>();
+		dialog.initOwner(stage);
+		dialog.initModality(Modality.WINDOW_MODAL);
+		dialog.setTitle("Loading...");
+		dialog.setHeaderText("Loading");
+		dialog.setGraphic(bar);
+		dialog.setContentText("Loading circuits...");
+		
+		Consumer<File> loadFile = f -> {
+			lastSaveFile = f;
 			
-			if(f == null) {
-				FileChooser fileChooser = new FileChooser();
-				fileChooser.setTitle("Choose sim file");
-				fileChooser.setInitialDirectory(lastSaveFile == null ? new File(System.getProperty("user.dir"))
-				                                                     : lastSaveFile.getParentFile());
-				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
-				f = fileChooser.showOpenDialog(stage);
-			}
-			
-			if(f != null) {
-				lastSaveFile = f;
-				
+			new Thread(() -> {
 				try {
 					loadingFile = true;
 					
 					long now = System.nanoTime();
-					CircuitFile circuitFile = FileFormat.load(f);
+					CircuitFile circuitFile = FileFormat.load(lastSaveFile);
+					
+					Platform.runLater(() -> bar.setProgress(0.25));
 					
 					System.out.printf("Parsed file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 					
@@ -932,9 +940,17 @@ public class CircuitSimulator extends Application {
 					
 					editHistory.disable();
 					
+					int totalComponents = 0;
+					
 					for(CircuitInfo circuit : circuitFile.circuits) {
 						createCircuit(circuit.name);
+						
+						totalComponents += circuit.components.size() + circuit.wires.size();
 					}
+					
+					final CountDownLatch latch = new CountDownLatch(totalComponents + 1);
+					
+					double increment = 0.75 / totalComponents;
 					
 					for(CircuitInfo circuit : circuitFile.circuits) {
 						CircuitManager manager = getCircuitManager(circuit.name);
@@ -956,28 +972,42 @@ public class CircuitSimulator extends Application {
 								creator = componentManager.get(clazz).creator;
 							}
 							
-							manager.mayThrow(
-									() -> manager.getCircuitBoard().addComponent(
-											creator.createComponent(properties, component.x, component.y)));
+							Platform.runLater(() -> {
+								manager.mayThrow(
+										() -> manager.getCircuitBoard().addComponent(
+												creator.createComponent(properties, component.x, component.y)));
+								bar.setProgress(bar.getProgress() + increment);
+								latch.countDown();
+							});
 						}
 						
 						for(WireInfo wire : circuit.wires) {
-							manager.mayThrow(
-									() -> manager.getCircuitBoard()
-									             .addWire(wire.x, wire.y, wire.length, wire.isHorizontal));
+							Platform.runLater(() -> {
+								manager.mayThrow(
+										() -> manager.getCircuitBoard()
+										             .addWire(wire.x, wire.y, wire.length, wire.isHorizontal));
+								bar.setProgress(bar.getProgress() + increment);
+								latch.countDown();
+							});
 						}
 					}
 					
-					for(MenuItem freq : frequenciesMenu.getItems()) {
-						if(freq.getText().startsWith(String.valueOf(circuitFile.clockSpeed))) {
-							((RadioMenuItem)freq).setSelected(true);
-							break;
+					Platform.runLater(() -> {
+						for(MenuItem freq : frequenciesMenu.getItems()) {
+							if(freq.getText().startsWith(String.valueOf(circuitFile.clockSpeed))) {
+								((RadioMenuItem)freq).setSelected(true);
+								break;
+							}
 						}
-					}
+						
+						bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
+						
+						latch.countDown();
+					});
 					
-					bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
+					latch.await();
 					
-					saveFile = f;
+					saveFile = lastSaveFile;
 					
 					System.out.printf("Loaded circuit in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 				} catch(Exception exc) {
@@ -990,9 +1020,33 @@ public class CircuitSimulator extends Application {
 					
 					editHistory.enable();
 					loadingFile = false;
-					updateTitle();
-					refreshCircuitsTab();
+					runFxSync(() -> {
+						updateTitle();
+						refreshCircuitsTab();
+						
+						dialog.setResult(ButtonType.OK);
+						dialog.close();
+					});
 				}
+			}).start();
+			
+			dialog.showAndWait();
+		};
+		
+		runFxSync(() -> {
+			File f = file;
+			
+			if(f == null) {
+				FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Choose sim file");
+				fileChooser.setInitialDirectory(lastSaveFile == null ? new File(System.getProperty("user.dir"))
+				                                                     : lastSaveFile.getParentFile());
+				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
+				f = fileChooser.showOpenDialog(stage);
+			}
+			
+			if(f != null) {
+				loadFile.accept(f);
 			}
 		});
 		
@@ -1017,6 +1071,8 @@ public class CircuitSimulator extends Application {
 			saveCircuits();
 		} catch(Exception exc) {
 			Alert alert = new Alert(AlertType.ERROR);
+			alert.initOwner(stage);
+			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("Error saving circuit");
 			alert.setHeaderText("Error saving circuit.");
 			alert.setContentText("Error when saving the circuits: " + exc.getMessage());
@@ -1166,6 +1222,8 @@ public class CircuitSimulator extends Application {
 						exc.printStackTrace();
 						
 						Alert alert = new Alert(AlertType.ERROR);
+						alert.initOwner(stage);
+						alert.initModality(Modality.WINDOW_MODAL);
 						alert.setTitle("Duplicate name");
 						alert.setHeaderText("Duplicate name");
 						alert.setContentText("Name already exists, please choose a new name.");
@@ -1348,6 +1406,8 @@ public class CircuitSimulator extends Application {
 				exc.printStackTrace();
 				
 				Alert alert = new Alert(AlertType.ERROR);
+				alert.initOwner(stage);
+				alert.initModality(Modality.WINDOW_MODAL);
 				alert.setTitle("Error loading circuits");
 				alert.setHeaderText("Error loading circuits");
 				alert.setContentText("Error when loading circuits file: " + exc.getMessage()
@@ -1617,6 +1677,8 @@ public class CircuitSimulator extends Application {
 							exc.printStackTrace();
 							
 							Alert alert = new Alert(AlertType.ERROR);
+							alert.initOwner(stage);
+							alert.initModality(Modality.WINDOW_MODAL);
 							alert.setTitle("Error loading class");
 							alert.setHeaderText("Error loading class");
 							alert.setContentText("Error when loading class: " + exc.getMessage());
@@ -1633,6 +1695,8 @@ public class CircuitSimulator extends Application {
 					exc.printStackTrace();
 					
 					Alert alert = new Alert(AlertType.ERROR);
+					alert.initOwner(stage);
+					alert.initModality(Modality.WINDOW_MODAL);
 					alert.setTitle("Error opening library");
 					alert.setHeaderText("Error opening library");
 					alert.setContentText("Error when opening library: " + exc.getMessage());
@@ -1710,6 +1774,8 @@ public class CircuitSimulator extends Application {
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(event -> {
 			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.initOwner(stage);
+			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("About");
 			alert.setHeaderText("Circuit Simulator v" + FileFormat.VERSION);
 			alert.setContentText("Circuit Simulator created by Roi Atalla © 2017");

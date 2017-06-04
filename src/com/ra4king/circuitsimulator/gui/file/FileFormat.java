@@ -32,10 +32,10 @@ import javafx.util.Pair;
 public class FileFormat {
 	private static final Gson GSON;
 	
-	public static final double VERSION = 1.1;
+	public static final double VERSION = 1.2;
 	
 	static {
-		GSON = new GsonBuilder().create();
+		GSON = new GsonBuilder().setPrettyPrinting().create();
 	}
 	
 	public static String readFile(Reader reader) {

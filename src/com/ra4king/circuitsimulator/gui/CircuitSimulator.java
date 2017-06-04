@@ -910,135 +910,6 @@ public class CircuitSimulator extends Application {
 	 * @param file The File instance to load the circuits from.
 	 */
 	public void loadCircuits(File file) throws Exception {
-		ProgressBar bar = new ProgressBar(0.1);
-		
-		Dialog<ButtonType> dialog = new Dialog<>();
-		dialog.initOwner(stage);
-		dialog.initModality(Modality.WINDOW_MODAL);
-		dialog.setTitle("Loading circuits...");
-		dialog.setHeaderText("Loading...");
-		dialog.setGraphic(bar);
-		
-		Consumer<File> loadFile = f -> {
-			lastSaveFile = f;
-			
-			new Thread(() -> {
-				try {
-					loadingFile = true;
-					
-					long now = System.nanoTime();
-					
-					Platform.runLater(() -> dialog.setContentText("Parsing file..."));
-					CircuitFile circuitFile = FileFormat.load(lastSaveFile);
-					
-					Platform.runLater(() -> {
-						bar.setProgress(0.25);
-						dialog.setContentText("Creating circuits...");
-					});
-					
-					System.out.printf("Parsed file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
-					
-					now = System.nanoTime();
-					
-					clearCircuits();
-					
-					editHistory.disable();
-					
-					int totalComponents = 0;
-					
-					for(CircuitInfo circuit : circuitFile.circuits) {
-						createCircuit(circuit.name);
-						
-						totalComponents += circuit.components.size() + circuit.wires.size();
-					}
-					
-					Platform.runLater(() -> dialog.setContentText("Creating components..."));
-					
-					final CountDownLatch latch = new CountDownLatch(totalComponents + 1);
-					
-					double increment = 0.75 / totalComponents;
-					
-					for(CircuitInfo circuit : circuitFile.circuits) {
-						CircuitManager manager = getCircuitManager(circuit.name);
-						
-						for(ComponentInfo component : circuit.components) {
-							@SuppressWarnings("unchecked")
-							Class<? extends ComponentPeer<?>> clazz =
-									(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
-							
-							Properties properties = new Properties();
-							component.properties.forEach(
-									(key, value) -> properties.setProperty(new Property<>(key, null, value)));
-							
-							ComponentCreator<?> creator;
-							if(clazz == SubcircuitPeer.class) {
-								creator = getSubcircuitPeerCreator(
-										properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
-							} else {
-								creator = componentManager.get(clazz).creator;
-							}
-							
-							Platform.runLater(() -> {
-								manager.mayThrow(
-										() -> manager.getCircuitBoard().addComponent(
-												creator.createComponent(properties, component.x, component.y)));
-								bar.setProgress(bar.getProgress() + increment);
-								latch.countDown();
-							});
-						}
-						
-						for(WireInfo wire : circuit.wires) {
-							Platform.runLater(() -> {
-								manager.mayThrow(
-										() -> manager.getCircuitBoard()
-										             .addWire(wire.x, wire.y, wire.length, wire.isHorizontal));
-								bar.setProgress(bar.getProgress() + increment);
-								latch.countDown();
-							});
-						}
-					}
-					
-					Platform.runLater(() -> {
-						for(MenuItem freq : frequenciesMenu.getItems()) {
-							if(freq.getText().startsWith(String.valueOf(circuitFile.clockSpeed))) {
-								((RadioMenuItem)freq).setSelected(true);
-								break;
-							}
-						}
-						
-						bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
-						
-						latch.countDown();
-					});
-					
-					latch.await();
-					
-					saveFile = lastSaveFile;
-					
-					System.out.printf("Loaded circuit in %.3f ms\n", (System.nanoTime() - now) / 1e6);
-				} catch(Exception exc) {
-					clearCircuits();
-					excThrown = exc;
-				} finally {
-					if(circuitManagers.size() == 0) {
-						createCircuit("New circuit");
-					}
-					
-					editHistory.enable();
-					loadingFile = false;
-					runFxSync(() -> {
-						updateTitle();
-						refreshCircuitsTab();
-						
-						dialog.setResult(ButtonType.OK);
-						dialog.close();
-					});
-				}
-			}).start();
-			
-			dialog.showAndWait();
-		};
-		
 		runFxSync(() -> {
 			File f = file;
 			
@@ -1052,7 +923,136 @@ public class CircuitSimulator extends Application {
 			}
 			
 			if(f != null) {
-				loadFile.accept(f);
+				ProgressBar bar = new ProgressBar();
+				
+				Dialog<ButtonType> dialog = new Dialog<>();
+				dialog.initOwner(stage);
+				dialog.initModality(Modality.WINDOW_MODAL);
+				dialog.setTitle("Loading circuits...");
+				dialog.setHeaderText("Loading...");
+				dialog.setGraphic(bar);
+				
+				lastSaveFile = f;
+				
+				new Thread(() -> {
+					try {
+						loadingFile = true;
+						
+						long now = System.nanoTime();
+						
+						Platform.runLater(() -> {
+							bar.setProgress(0.1);
+							dialog.setContentText("Parsing file...");
+						});
+						
+						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
+						
+						Platform.runLater(() -> {
+							bar.setProgress(0.25);
+							dialog.setContentText("Creating circuits...");
+						});
+						
+						System.out.printf("Parsed file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
+						
+						now = System.nanoTime();
+						
+						clearCircuits();
+						
+						editHistory.disable();
+						
+						int totalComponents = 0;
+						
+						for(CircuitInfo circuit : circuitFile.circuits) {
+							createCircuit(circuit.name);
+							
+							totalComponents += circuit.components.size() + circuit.wires.size();
+						}
+						
+						Platform.runLater(() -> dialog.setContentText("Creating components..."));
+						
+						final CountDownLatch latch = new CountDownLatch(totalComponents + 1);
+						
+						double increment = 0.75 / totalComponents;
+						
+						for(CircuitInfo circuit : circuitFile.circuits) {
+							CircuitManager manager = getCircuitManager(circuit.name);
+							
+							for(ComponentInfo component : circuit.components) {
+								@SuppressWarnings("unchecked")
+								Class<? extends ComponentPeer<?>> clazz =
+										(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
+								
+								Properties properties = new Properties();
+								component.properties.forEach(
+										(key, value) -> properties.setProperty(new Property<>(key, null, value)));
+								
+								ComponentCreator<?> creator;
+								if(clazz == SubcircuitPeer.class) {
+									creator = getSubcircuitPeerCreator(
+											properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
+								} else {
+									creator = componentManager.get(clazz).creator;
+								}
+								
+								Platform.runLater(() -> {
+									manager.mayThrow(
+											() -> manager.getCircuitBoard().addComponent(
+													creator.createComponent(properties, component.x, component.y)));
+									bar.setProgress(bar.getProgress() + increment);
+									latch.countDown();
+								});
+							}
+							
+							for(WireInfo wire : circuit.wires) {
+								Platform.runLater(() -> {
+									manager.mayThrow(
+											() -> manager.getCircuitBoard()
+											             .addWire(wire.x, wire.y, wire.length, wire.isHorizontal));
+									bar.setProgress(bar.getProgress() + increment);
+									latch.countDown();
+								});
+							}
+						}
+						
+						Platform.runLater(() -> {
+							for(MenuItem freq : frequenciesMenu.getItems()) {
+								if(freq.getText().startsWith(String.valueOf(circuitFile.clockSpeed))) {
+									((RadioMenuItem)freq).setSelected(true);
+									break;
+								}
+							}
+							
+							bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
+							
+							latch.countDown();
+						});
+						
+						latch.await();
+						
+						saveFile = lastSaveFile;
+						
+						System.out.printf("Loaded circuit in %.3f ms\n", (System.nanoTime() - now) / 1e6);
+					} catch(Exception exc) {
+						clearCircuits();
+						excThrown = exc;
+					} finally {
+						if(circuitManagers.size() == 0) {
+							createCircuit("New circuit");
+						}
+						
+						editHistory.enable();
+						loadingFile = false;
+						runFxSync(() -> {
+							updateTitle();
+							refreshCircuitsTab();
+							
+							dialog.setResult(ButtonType.OK);
+							dialog.close();
+						});
+					}
+				}).start();
+				
+				dialog.showAndWait();
 			}
 		});
 		

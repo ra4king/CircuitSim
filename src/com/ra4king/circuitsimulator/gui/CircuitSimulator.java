@@ -910,15 +910,14 @@ public class CircuitSimulator extends Application {
 	 * @param file The File instance to load the circuits from.
 	 */
 	public void loadCircuits(File file) throws Exception {
-		ProgressBar bar = new ProgressBar();
+		ProgressBar bar = new ProgressBar(0.1);
 		
 		Dialog<ButtonType> dialog = new Dialog<>();
 		dialog.initOwner(stage);
 		dialog.initModality(Modality.WINDOW_MODAL);
-		dialog.setTitle("Loading...");
-		dialog.setHeaderText("Loading");
+		dialog.setTitle("Loading circuits...");
+		dialog.setHeaderText("Loading...");
 		dialog.setGraphic(bar);
-		dialog.setContentText("Loading circuits...");
 		
 		Consumer<File> loadFile = f -> {
 			lastSaveFile = f;
@@ -928,9 +927,14 @@ public class CircuitSimulator extends Application {
 					loadingFile = true;
 					
 					long now = System.nanoTime();
+					
+					Platform.runLater(() -> dialog.setContentText("Parsing file..."));
 					CircuitFile circuitFile = FileFormat.load(lastSaveFile);
 					
-					Platform.runLater(() -> bar.setProgress(0.25));
+					Platform.runLater(() -> {
+						bar.setProgress(0.25);
+						dialog.setContentText("Creating circuits...");
+					});
 					
 					System.out.printf("Parsed file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 					
@@ -947,6 +951,8 @@ public class CircuitSimulator extends Application {
 						
 						totalComponents += circuit.components.size() + circuit.wires.size();
 					}
+					
+					Platform.runLater(() -> dialog.setContentText("Creating components..."));
 					
 					final CountDownLatch latch = new CountDownLatch(totalComponents + 1);
 					

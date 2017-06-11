@@ -61,6 +61,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
@@ -121,9 +122,10 @@ public class CircuitSimulator extends Application {
 	
 	private Simulator simulator;
 	private Exception lastException;
+	private CheckMenuItem simulationEnabled;
 	
 	private MenuItem undo, redo;
-	private MenuItem toggleClock;
+	private CheckMenuItem clockEnabled;
 	private Menu frequenciesMenu;
 	
 	private ComponentManager componentManager;
@@ -273,10 +275,16 @@ public class CircuitSimulator extends Application {
 		return componentManager;
 	}
 	
+	public boolean isSimulationEnabled() {
+		return simulationEnabled.isSelected();
+	}
+	
 	public void runSim() {
 		try {
-			simulator.stepAll();
-			lastException = null;
+			if(isSimulationEnabled()) {
+				simulator.stepAll();
+				lastException = null;
+			}
 		} catch(Exception exc) {
 			lastException = exc;
 		} finally {
@@ -1404,7 +1412,7 @@ public class CircuitSimulator extends Application {
 			}
 			
 			if(Clock.isRunning(simulator)) {
-				toggleClock.fire();
+				clockEnabled.setSelected(false);
 				Clock.reset(simulator);
 			}
 			
@@ -1734,30 +1742,55 @@ public class CircuitSimulator extends Application {
 		circuitsMenu.getItems().addAll(newCircuit, deleteCircuit);
 		
 		// SIMULATION Menu
+		MenuItem stepSimulation = new MenuItem("Step Simulation");
+		stepSimulation.setDisable(true);
+		stepSimulation.setAccelerator(new KeyCharacterCombination("I", KeyCombination.CONTROL_DOWN));
+		stepSimulation.setOnAction(event -> {
+			try {
+				simulator.step();
+				lastException = null;
+			} catch(Exception exc) {
+				lastException = exc;
+			} finally {
+				needsRepaint = true;
+			}
+		});
+		
+		simulationEnabled = new CheckMenuItem("Simulation Enabled");
+		simulationEnabled.setSelected(true);
+		simulationEnabled.setAccelerator(new KeyCharacterCombination("E", KeyCombination.CONTROL_DOWN));
+		simulationEnabled.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			runSim();
+			
+			stepSimulation.setDisable(newValue);
+			clockEnabled.setDisable(!newValue);
+			clockEnabled.setSelected(false);
+		});
+		
 		MenuItem reset = new MenuItem("Reset simulation");
 		reset.setOnAction(event -> {
 			Clock.reset(simulator);
-			toggleClock.setText("Start clock");
+			clockEnabled.setSelected(false);
 			simulator.reset();
 			
 			runSim();
 		});
 		
-		toggleClock = new MenuItem("Start clock");
-		toggleClock.setAccelerator(new KeyCharacterCombination("K", KeyCombination.CONTROL_DOWN));
-		toggleClock.setOnAction(event -> {
-			if(toggleClock.getText().startsWith("Start")) {
-				Clock.startClock(simulator, getCurrentClockSpeed());
-				toggleClock.setText("Stop clock");
-			} else {
-				Clock.stopClock(simulator);
-				toggleClock.setText("Start clock");
-			}
-		});
-		
 		MenuItem tickClock = new MenuItem("Tick clock");
 		tickClock.setAccelerator(new KeyCharacterCombination("J", KeyCombination.CONTROL_DOWN));
 		tickClock.setOnAction(event -> Clock.tick(simulator));
+		
+		clockEnabled = new CheckMenuItem("Clock Enabled");
+		clockEnabled.setAccelerator(new KeyCharacterCombination("K", KeyCombination.CONTROL_DOWN));
+		clockEnabled.selectedProperty().addListener((observable, oldValue, newValue) -> {
+			tickClock.setDisable(newValue);
+			
+			if(newValue) {
+				Clock.startClock(simulator, getCurrentClockSpeed());
+			} else {
+				Clock.stopClock(simulator);
+			}
+		});
 		
 		frequenciesMenu = new Menu("Frequency");
 		ToggleGroup freqToggleGroup = new ToggleGroup();
@@ -1775,7 +1808,8 @@ public class CircuitSimulator extends Application {
 		}
 		
 		Menu simulationMenu = new Menu("Simulation");
-		simulationMenu.getItems().addAll(reset, new SeparatorMenuItem(), toggleClock, tickClock, frequenciesMenu);
+		simulationMenu.getItems().addAll(simulationEnabled, stepSimulation, reset, new SeparatorMenuItem(),
+		                                 clockEnabled, tickClock, frequenciesMenu);
 		
 		// HELP Menu
 		Menu helpMenu = new Menu("Help");
@@ -1923,7 +1957,7 @@ public class CircuitSimulator extends Application {
 						
 						if(message != null && !message.isEmpty() && Clock.isRunning(simulator)) {
 							System.out.println("Message: " + message);
-							toggleClock.fire();
+							clockEnabled.setSelected(false);
 						}
 						
 						graphics.setFont(GuiUtils.getFont(20));

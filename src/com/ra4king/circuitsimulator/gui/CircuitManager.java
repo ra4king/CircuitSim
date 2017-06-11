@@ -16,6 +16,9 @@ import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
 import com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
+import com.ra4king.circuitsimulator.simulator.CircuitState;
+import com.ra4king.circuitsimulator.simulator.Port;
+import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
@@ -34,6 +37,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
+import javafx.util.Pair;
 
 /**
  * @author Roi Atalla
@@ -307,6 +311,26 @@ public class CircuitManager {
 			} else {
 				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
 			}
+		}
+		
+		if(!simulatorWindow.isSimulationEnabled()) {
+			graphics.save();
+			graphics.setStroke(Color.RED);
+			
+			for(Pair<CircuitState, Link> linkToUpdate : simulatorWindow.getSimulator().getLinksToUpdate()) {
+				for(Port port : linkToUpdate.getValue().getParticipants()) {
+					Optional<PortConnection> connection =
+							circuitBoard.getComponents().stream()
+							            .flatMap(c -> c.getConnections().stream())
+							            .filter(p -> p.getPort() == port).findFirst();
+					if(connection.isPresent()) {
+						PortConnection portConn = connection.get();
+						graphics.strokeOval(portConn.getScreenX() - 2, portConn.getScreenY() - 2, 10, 10);
+					}
+				}
+			}
+			
+			graphics.restore();
 		}
 		
 		switch(currentState) {

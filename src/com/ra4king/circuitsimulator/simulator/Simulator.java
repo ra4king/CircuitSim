@@ -2,10 +2,10 @@ package com.ra4king.circuitsimulator.simulator;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.ra4king.circuitsimulator.simulator.Port.Link;
@@ -26,8 +26,8 @@ public class Simulator {
 	
 	public Simulator() {
 		circuits = new HashSet<>();
-		linksToUpdate = new ConcurrentLinkedQueue<>();
-		temp = new ConcurrentLinkedQueue<>();
+		linksToUpdate = new LinkedHashSet<>();
+		temp = new LinkedHashSet<>();
 		shortCircuited = new ArrayList<>();
 		history = new HashSet<>();
 	}
@@ -37,7 +37,7 @@ public class Simulator {
 	 *
 	 * @return The ReentrantLock instance used for synchronization
 	 */
-	public ReentrantLock getLock() {
+	public Lock getLock() {
 		return lock;
 	}
 	
@@ -61,6 +61,10 @@ public class Simulator {
 		}
 	}
 	
+	public Collection<Pair<CircuitState, Link>> getLinksToUpdate() {
+		return linksToUpdate;
+	}
+	
 	/**
 	 * Resets all CircuitStates of all attached Circuits.
 	 */
@@ -70,7 +74,7 @@ public class Simulator {
 	}
 	
 	public Set<Circuit> getCircuits() {
-		return Collections.unmodifiableSet(circuits);
+		return circuits;
 	}
 	
 	/**
@@ -79,7 +83,7 @@ public class Simulator {
 	 * @param circuit The Circuit to be added.
 	 */
 	public void addCircuit(Circuit circuit) {
-		circuits.add(circuit);
+		runSync(() -> circuits.add(circuit));
 	}
 	
 	/**
@@ -106,7 +110,7 @@ public class Simulator {
 	 * @param link The Link that has received new values.
 	 */
 	public void valueChanged(CircuitState state, Link link) {
-		linksToUpdate.add(new Pair<>(state, link));
+		runSync(() -> linksToUpdate.add(new Pair<>(state, link)));
 	}
 	
 	/**
@@ -120,6 +124,7 @@ public class Simulator {
 			
 			linksToUpdate.clear();
 			shortCircuited.clear();
+			lastShortCircuit = null;
 			
 			temp.forEach(pair -> {
 				try {
@@ -130,7 +135,7 @@ public class Simulator {
 				}
 			});
 			
-			if(shortCircuited.size() > 0 && linksToUpdate.size() == 0) {
+			if(lastShortCircuit != null && linksToUpdate.size() == 0) {
 				throw lastShortCircuit;
 			}
 			

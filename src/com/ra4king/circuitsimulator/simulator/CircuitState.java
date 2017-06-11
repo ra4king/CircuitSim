@@ -117,8 +117,6 @@ public class CircuitState {
 			c.uninit(this);
 			c.init(this, null);
 		});
-		
-		componentProperties.clear();
 	}
 	
 	private LinkState get(Link link) {

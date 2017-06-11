@@ -31,15 +31,14 @@ public class Adder extends Component {
 		if(portIndex == PORT_OUT || portIndex == PORT_CARRY_OUT) return;
 		
 		if(state.getLastReceived(getPort(PORT_A)).isValidValue() &&
-				   state.getLastReceived(getPort(PORT_B)).isValidValue() &&
-				   state.getLastReceived(getPort(PORT_CARRY_IN)).isValidValue()) {
+				   state.getLastReceived(getPort(PORT_B)).isValidValue()) {
 			WireValue a = state.getLastReceived(getPort(PORT_A));
 			WireValue b = state.getLastReceived(getPort(PORT_B));
 			WireValue c = state.getLastReceived(getPort(PORT_CARRY_IN));
 			
 			WireValue sum = new WireValue(bitSize);
 			
-			State carry = c.getBit(0);
+			State carry = c.getBit(0) == State.ONE ? State.ONE : State.ZERO;
 			for(int i = 0; i < sum.getBitSize(); i++) {
 				State bitA = a.getBit(i);
 				State bitB = b.getBit(i);

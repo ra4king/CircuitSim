@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import com.sun.javafx.collections.ObservableListWrapper;
 import com.sun.javafx.scene.control.skin.TableHeaderRow;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
@@ -26,8 +27,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -694,17 +693,12 @@ public class Properties {
 				}
 			});
 			
-			ScrollPane tableScrollPane = new ScrollPane(tableView);
-			tableScrollPane.setFitToWidth(true);
-			tableScrollPane.setFitToHeight(true);
-			tableScrollPane.setHbarPolicy(ScrollBarPolicy.NEVER);
-			tableScrollPane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+			VBox.setVgrow(tableView, Priority.ALWAYS);
+			Platform.runLater(tableView::refresh);
 			
-			VBox.setVgrow(tableScrollPane, Priority.ALWAYS);
-			memoryStage.setScene(new Scene(new VBox(new HBox(loadButton, saveButton), tableScrollPane)));
+			memoryStage.setScene(new Scene(new VBox(new HBox(loadButton, saveButton), tableView)));
 			memoryStage.sizeToScene();
 			memoryStage.showAndWait();
-			memoryStage.centerOnScreen();
 		}
 	}
 	

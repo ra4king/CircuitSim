@@ -214,7 +214,7 @@ public class CircuitSimulator extends Application {
 		
 		simulator = new Simulator();
 		circuitManagers = new LinkedHashMap<>();
-		Clock.addChangeListener(value -> runSim());
+		Clock.addChangeListener(simulator, value -> runSim());
 		
 		editHistory = new EditHistory();
 		editHistory.addListener((action, manager, params) -> {
@@ -1015,6 +1015,8 @@ public class CircuitSimulator extends Application {
 						}
 						
 						Platform.runLater(() -> {
+							circuitManagers.values().stream().map(Pair::getValue).forEach(this::updateCanvasSize);
+							
 							for(MenuItem freq : frequenciesMenu.getItems()) {
 								if(freq.getText().startsWith(String.valueOf(circuitFile.clockSpeed))) {
 									((RadioMenuItem)freq).setSelected(true);
@@ -1401,9 +1403,9 @@ public class CircuitSimulator extends Application {
 				return;
 			}
 			
-			if(Clock.isRunning()) {
+			if(Clock.isRunning(simulator)) {
 				toggleClock.fire();
-				Clock.reset();
+				Clock.reset(simulator);
 			}
 			
 			try {
@@ -1445,7 +1447,7 @@ public class CircuitSimulator extends Application {
 		MenuItem exit = new MenuItem("Exit");
 		exit.setOnAction(event -> {
 			if(!checkUnsavedChanges()) {
-				stage.close();
+				closeWindow();
 			}
 		});
 		
@@ -1734,7 +1736,7 @@ public class CircuitSimulator extends Application {
 		// SIMULATION Menu
 		MenuItem reset = new MenuItem("Reset simulation");
 		reset.setOnAction(event -> {
-			Clock.reset();
+			Clock.reset(simulator);
 			toggleClock.setText("Start clock");
 			simulator.reset();
 			
@@ -1745,17 +1747,17 @@ public class CircuitSimulator extends Application {
 		toggleClock.setAccelerator(new KeyCharacterCombination("K", KeyCombination.CONTROL_DOWN));
 		toggleClock.setOnAction(event -> {
 			if(toggleClock.getText().startsWith("Start")) {
-				Clock.startClock(getCurrentClockSpeed());
+				Clock.startClock(simulator, getCurrentClockSpeed());
 				toggleClock.setText("Stop clock");
 			} else {
-				Clock.stopClock();
+				Clock.stopClock(simulator);
 				toggleClock.setText("Start clock");
 			}
 		});
 		
 		MenuItem tickClock = new MenuItem("Tick clock");
 		tickClock.setAccelerator(new KeyCharacterCombination("J", KeyCombination.CONTROL_DOWN));
-		tickClock.setOnAction(event -> Clock.tick());
+		tickClock.setOnAction(event -> Clock.tick(simulator));
 		
 		frequenciesMenu = new Menu("Frequency");
 		ToggleGroup freqToggleGroup = new ToggleGroup();
@@ -1765,8 +1767,8 @@ public class CircuitSimulator extends Application {
 			freq.setSelected(i == 0);
 			final int j = i;
 			freq.setOnAction(event -> {
-				if(Clock.isRunning()) {
-					Clock.startClock(1 << j);
+				if(Clock.isRunning(simulator)) {
+					Clock.startClock(simulator, 1 << j);
 				}
 			});
 			frequenciesMenu.getItems().add(freq);
@@ -1872,73 +1874,77 @@ public class CircuitSimulator extends Application {
 	private AnimationTimer currentTimer;
 	
 	public void showWindow() {
-		if(stage.isShowing()) return;
-		
-		stage.show();
-		stage.setOnCloseRequest(event -> {
-			if(checkUnsavedChanges()) {
-				event.consume();
-			}
-		});
-		
-		(currentTimer = new AnimationTimer() {
-			private long lastRepaint;
-			private int lastFrameCount;
-			private int frameCount;
+		runFxSync(() -> {
+			if(stage.isShowing()) return;
 			
-			@Override
-			public void handle(long now) {
-				if(now - lastRepaint >= 1e9) {
-					lastFrameCount = frameCount;
-					frameCount = 0;
-					lastRepaint = now;
+			stage.show();
+			stage.setOnCloseRequest(event -> {
+				if(checkUnsavedChanges()) {
+					event.consume();
 				}
+			});
+			
+			(currentTimer = new AnimationTimer() {
+				private long lastRepaint;
+				private int lastFrameCount;
+				private int frameCount;
 				
-				frameCount++;
-				
-				CircuitManager manager = getCurrentCircuit();
-				if(manager != null && (needsRepaint || manager.needsRepaint())) {
-					manager.paint();
-					needsRepaint = false;
-				}
-				
-				GraphicsContext graphics = overlayCanvas.getGraphicsContext2D();
-				
-				graphics.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
-				
-				graphics.setFontSmoothingType(FontSmoothingType.LCD);
-				
-				graphics.setFont(GuiUtils.getFont(12));
-				graphics.setFill(Color.BLACK);
-				graphics.fillText("FPS: " + lastFrameCount, 6, 50);
-				if(Clock.getLastTickCount() > 0) {
-					graphics.fillText("Clock: " + (Clock.getLastTickCount() >> 1) + " Hz", 6, 65);
-				}
-				
-				if(manager != null) {
-					String message = getCurrentError();
-					
-					if(message != null && !message.isEmpty() && Clock.isRunning()) {
-						System.out.println("Message: " + message);
-						toggleClock.fire();
+				@Override
+				public void handle(long now) {
+					if(now - lastRepaint >= 1e9) {
+						lastFrameCount = frameCount;
+						frameCount = 0;
+						lastRepaint = now;
 					}
 					
-					graphics.setFont(GuiUtils.getFont(20));
-					graphics.setFill(Color.RED);
-					Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
-					graphics.fillText(message,
-					                  (overlayCanvas.getWidth() - bounds.getWidth()) * 0.5,
-					                  overlayCanvas.getHeight() - 50);
+					frameCount++;
+					
+					CircuitManager manager = getCurrentCircuit();
+					if(!loadingFile && manager != null && (needsRepaint || manager.needsRepaint())) {
+						manager.paint();
+						needsRepaint = false;
+					}
+					
+					GraphicsContext graphics = overlayCanvas.getGraphicsContext2D();
+					
+					graphics.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
+					
+					graphics.setFontSmoothingType(FontSmoothingType.LCD);
+					
+					graphics.setFont(GuiUtils.getFont(12));
+					graphics.setFill(Color.BLACK);
+					graphics.fillText("FPS: " + lastFrameCount, 6, 50);
+					if(Clock.getLastTickCount(simulator) > 0) {
+						graphics.fillText("Clock: " + (Clock.getLastTickCount(simulator) >> 1) + " Hz", 6, 65);
+					}
+					
+					if(manager != null) {
+						String message = getCurrentError();
+						
+						if(message != null && !message.isEmpty() && Clock.isRunning(simulator)) {
+							System.out.println("Message: " + message);
+							toggleClock.fire();
+						}
+						
+						graphics.setFont(GuiUtils.getFont(20));
+						graphics.setFill(Color.RED);
+						Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
+						graphics.fillText(message,
+						                  (overlayCanvas.getWidth() - bounds.getWidth()) * 0.5,
+						                  overlayCanvas.getHeight() - 50);
+					}
 				}
-			}
-		}).start();
+			}).start();
+		});
 	}
 	
-	public void hideWindow() {
-		stage.hide();
-		if(currentTimer != null) {
-			currentTimer.stop();
-			currentTimer = null;
-		}
+	public void closeWindow() {
+		runFxSync(() -> {
+			stage.close();
+			if(currentTimer != null) {
+				currentTimer.stop();
+				currentTimer = null;
+			}
+		});
 	}
 }

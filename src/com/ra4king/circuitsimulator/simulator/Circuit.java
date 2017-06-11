@@ -1,10 +1,10 @@
 package com.ra4king.circuitsimulator.simulator;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author Roi Atalla
@@ -16,8 +16,13 @@ public class Circuit {
 	private final Set<CircuitState> states;
 	private final CircuitState topLevelState;
 	
-	private final List<CircuitChangeListener> listeners = new ArrayList<>();
+	private final Queue<CircuitChangeListener> listeners = new ConcurrentLinkedQueue<>();
 	
+	/**
+	 * Creates a new Circuit. It is added to the Simulator's list of circuits.
+	 *
+	 * @param simulator The Simulator instance this Circuit belongs to.
+	 */
 	public Circuit(Simulator simulator) {
 		this.simulator = simulator;
 		simulator.addCircuit(this);
@@ -28,10 +33,17 @@ public class Circuit {
 		topLevelState = new CircuitState(this);
 	}
 	
+	/**
+	 * Add the Component to this Circuit. Its {@code init} method is called for each state belonging to this Circuit.
+	 * All attached listeners are notified of the addition.
+	 *
+	 * @param component The Component to add.
+	 * @return The Component given.
+	 */
 	public <T extends Component> T addComponent(T component) {
-		synchronized(simulator) {
+		simulator.runSync(() -> {
 			if(component.getCircuit() == this) {
-				return component;
+				return;
 			}
 			
 			if(component.getCircuit() != null) {
@@ -43,13 +55,23 @@ public class Circuit {
 			states.forEach(state -> component.init(state, state.getComponentProperty(component)));
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, component, true));
-			
-			return component;
-		}
+		});
+		
+		return component;
 	}
 	
+	/**
+	 * Replaces the old Component with the new Component, preserving the component properties. The inBetween Runnable
+	 * is run in between the remove and the add operations.
+	 * <p>
+	 * All attached listeners are notified of the removal before the inBetween is run, then of the addition.
+	 *
+	 * @param oldComponent The old Component.
+	 * @param newComponent The new Component.
+	 * @param inBetween    Any code that needs to run in between the remove/add operations. May be null.
+	 */
 	public <T extends Component> void updateComponent(T oldComponent, T newComponent, Runnable inBetween) {
-		synchronized(simulator) {
+		simulator.runSync(() -> {
 			states.forEach(state -> state.ensureUnlinked(oldComponent));
 			
 			components.remove(oldComponent);
@@ -58,18 +80,26 @@ public class Circuit {
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, oldComponent, false));
 			
-			inBetween.run();
+			if(inBetween != null) {
+				inBetween.run();
+			}
 			
 			newComponent.setCircuit(this);
 			components.add(newComponent);
 			states.forEach(state -> newComponent.init(state, state.getComponentProperty(oldComponent)));
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, newComponent, true));
-		}
+		});
 	}
 	
+	/**
+	 * Removes the Component from this Circuit. Its {@code uninit} method is called for each belonging to this Circuit.
+	 * All attached listeners are notified of the addition.
+	 *
+	 * @param component The Component to remove.
+	 */
 	public void removeComponent(Component component) {
-		synchronized(simulator) {
+		simulator.runSync(() -> {
 			states.forEach(state -> state.ensureUnlinked(component));
 			
 			components.remove(component);
@@ -77,25 +107,29 @@ public class Circuit {
 			component.setCircuit(null);
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, component, false));
-		}
+		});
 	}
 	
 	public Set<Component> getComponents() {
-		synchronized(simulator) {
-			return Collections.unmodifiableSet(components);
-		}
+		return components;
 	}
 	
+	/**
+	 * Calls {@code this.removeComponent} on each Component in this Circuit.
+	 */
 	public void clearComponents() {
-		synchronized(simulator) {
-			new HashSet<>(components).forEach(this::removeComponent);
-		}
+		simulator.runSync(() -> new HashSet<>(components).forEach(this::removeComponent));
 	}
 	
 	public Simulator getSimulator() {
 		return simulator;
 	}
 	
+	/**
+	 * Returns the top-level state of this Circuit. Each Circuit has a top-level state.
+	 *
+	 * @return The top-level state.
+	 */
 	public CircuitState getTopLevelState() {
 		return topLevelState;
 	}
@@ -105,19 +139,15 @@ public class Circuit {
 	}
 	
 	public void addListener(CircuitChangeListener listener) {
-		synchronized(simulator) {
-			listeners.add(listener);
-		}
+		listeners.add(listener);
 	}
 	
-	public List<CircuitChangeListener> getListeners() {
+	public Collection<CircuitChangeListener> getListeners() {
 		return listeners;
 	}
 	
 	public void removeListener(CircuitChangeListener listener) {
-		synchronized(simulator) {
-			listeners.remove(listener);
-		}
+		listeners.remove(listener);
 	}
 	
 	public interface CircuitChangeListener {

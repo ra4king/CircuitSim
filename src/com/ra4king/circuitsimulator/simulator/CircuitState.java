@@ -10,29 +10,46 @@ import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 
 public class CircuitState {
-	private final Circuit circuit;
+	private Circuit circuit;
 	private Map<Component, Object> componentProperties;
 	private Map<Link, LinkState> linkStates;
 	
+	private final boolean readOnly;
+	
+	/**
+	 * Create a new CircuitState based on the given Circuit. It is added to the Circuit's list of states.
+	 *
+	 * @param circuit The Circuit which this CircuitState represents.
+	 */
 	public CircuitState(Circuit circuit) {
 		if(circuit == null) {
 			throw new NullPointerException("Circuit cannot be null.");
 		}
 		
-		this.circuit = circuit;
-		componentProperties = new HashMap<>();
-		linkStates = new HashMap<>();
+		this.readOnly = false;
 		
-		circuit.getCircuitStates().add(this);
+		circuit.getSimulator().runSync(() -> {
+			this.circuit = circuit;
+			this.componentProperties = new HashMap<>();
+			this.linkStates = new HashMap<>();
+			circuit.getCircuitStates().add(this);
+		});
 	}
 	
+	/**
+	 * Clones the CircuitState for read-only usage. It is NOT added to the Circuit's list of states.
+	 *
+	 * @param state The CircuitState to clone.
+	 */
 	public CircuitState(CircuitState state) {
-		synchronized(state.circuit.getSimulator()) {
+		this.readOnly = true;
+		
+		state.circuit.getSimulator().runSync(() -> {
 			this.circuit = state.circuit;
 			this.componentProperties = new HashMap<>(state.componentProperties);
 			this.linkStates = new HashMap<>();
 			state.linkStates.forEach((link, linkState) -> this.linkStates.put(link, new LinkState(linkState)));
-		}
+		});
 	}
 	
 	public Circuit getCircuit() {
@@ -55,14 +72,32 @@ public class CircuitState {
 		return componentProperties.remove(component);
 	}
 	
+	/**
+	 * Get the current true value on the Link, which is the merging of all pushed values.
+	 *
+	 * @param link The Link for which the value is returned.
+	 * @return The value of the Link.
+	 */
 	public WireValue getMergedValue(Link link) {
 		return get(link).getMergedValue();
 	}
 	
+	/**
+	 * Get the last value received by this Port.
+	 *
+	 * @param port The Port for which the last received value is returned.
+	 * @return The last received value of the Port.
+	 */
 	public WireValue getLastReceived(Port port) {
 		return new WireValue(get(port.getLink()).getLastReceived(port));
 	}
 	
+	/**
+	 * Get the last value pushed by this Port.
+	 *
+	 * @param port The Port for which the last pushed value is returned.
+	 * @return The last pushed value of the Port.
+	 */
 	public WireValue getLastPushedValue(Port port) {
 		return new WireValue(get(port.getLink()).getLastPushed(port));
 	}
@@ -71,13 +106,19 @@ public class CircuitState {
 		return get(link).isShortCircuit();
 	}
 	
+	/**
+	 * Resets this CircuitState, clearing all pushed and received values.
+	 * Each Component's {@code uninit(this)} then {@code init(this, null)} methods are called.
+	 */
 	public void reset() {
-		linkStates = linkStates.keySet().stream().collect(Collectors.toMap(link -> link, LinkState::new));
+		linkStates.putAll(linkStates.keySet().stream().collect(Collectors.toMap(link -> link, LinkState::new)));
 		
 		circuit.getComponents().forEach(c -> {
 			c.uninit(this);
 			c.init(this, null);
 		});
+		
+		componentProperties.clear();
 	}
 	
 	private LinkState get(Link link) {
@@ -99,15 +140,11 @@ public class CircuitState {
 	}
 	
 	void link(Link link1, Link link2) {
-		synchronized(circuit.getSimulator()) {
-			get(link1).link(get(link2));
-		}
+		circuit.getSimulator().runSync(() -> get(link1).link(get(link2)));
 	}
 	
 	void unlink(Link link, Port port) {
-		synchronized(circuit.getSimulator()) {
-			get(link).unlink(port);
-		}
+		circuit.getSimulator().runSync(() -> get(link).unlink(port));
 	}
 	
 	void propagateSignal(Link link) {
@@ -127,8 +164,19 @@ public class CircuitState {
 		linkState.propagate();
 	}
 	
+	/**
+	 * Push a new value from the specified Port. The Simulator instance attached to the Circuit is notified.
+	 * An IllegalStateException is thrown if this CircuitState is read-only.
+	 *
+	 * @param port  The Port pushing the value.
+	 * @param value The value being pushed.
+	 */
 	public void pushValue(Port port, WireValue value) {
-		synchronized(circuit.getSimulator()) {
+		if(readOnly) {
+			throw new IllegalStateException("This CircuitState is read-only");
+		}
+		
+		circuit.getSimulator().runSync(() -> {
 			LinkState linkState = get(port.getLink());
 			
 			WireValue lastPushed = linkState.getLastPushed(port);
@@ -136,10 +184,10 @@ public class CircuitState {
 				lastPushed.set(value);
 				circuit.getSimulator().valueChanged(this, port);
 			}
-		}
+		});
 	}
 	
-	public void ensureUnlinked(Component component) {
+	void ensureUnlinked(Component component) {
 		for(int i = 0; i < component.getNumPorts(); i++) {
 			Port port = component.getPort(i);
 			Link link = port.getLink();

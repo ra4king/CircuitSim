@@ -196,6 +196,11 @@ public class Properties {
 	}
 	
 	@Override
+	public int hashCode() {
+		return properties.hashCode();
+	}
+	
+	@Override
 	public boolean equals(Object other) {
 		if(other instanceof Properties) {
 			Properties props = (Properties)other;

@@ -59,7 +59,7 @@ public class ClockPeer extends ComponentPeer<Clock> {
 	
 	@Override
 	public void clicked(CircuitState state, double x, double y) {
-		Clock.tick();
+		Clock.tick(getComponent().getCircuit().getSimulator());
 	}
 	
 	@Override
@@ -78,8 +78,8 @@ public class ClockPeer extends ComponentPeer<Clock> {
 		
 		graphics.setStroke(Color.WHITE);
 		graphics.setLineWidth(1.5);
-		double offset1 = Clock.getTickState() ? 0.3 : 0;
-		double offset2 = Clock.getTickState() ? 0.6 : 0;
+		double offset1 = Clock.getTickState(getComponent().getCircuit().getSimulator()) ? 0.3 : 0;
+		double offset2 = Clock.getTickState(getComponent().getCircuit().getSimulator()) ? 0.6 : 0;
 		
 		// lower line
 		graphics.strokeLine(getScreenX() + getScreenWidth() * (0.2 + offset1),

@@ -59,6 +59,12 @@ public class ComponentManager {
 		}
 		
 		@Override
+		public int hashCode() {
+			return clazz.hashCode() ^ name.hashCode() ^ (image == null ? 0 : image.hashCode())
+					       ^ properties.hashCode() ^ creator.hashCode();
+		}
+		
+		@Override
 		public boolean equals(Object other) {
 			if(other == null || !(other instanceof ComponentLauncherInfo)) {
 				return false;
@@ -124,6 +130,10 @@ public class ComponentManager {
 			Method method = clazz.getMethod("installComponent", ComponentManagerInterface.class);
 			method.invoke(null,
 			              (ComponentManagerInterface)(name, image, defaultProperties) -> {
+				              if(name == null || defaultProperties == null) {
+					              throw new NullPointerException("Name and Properties cannot be null.");
+				              }
+				
 				              ComponentLauncherInfo info = new ComponentLauncherInfo(clazz, name, image,
 				                                                                     defaultProperties, creator);
 				              if(!components.contains(info)) {

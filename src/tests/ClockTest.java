@@ -1,5 +1,3 @@
-package tests;
-
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -14,7 +12,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class ClockTest {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Simulator simulator = new Simulator();
 		Circuit circuit = new Circuit(simulator);
 		
@@ -31,16 +29,22 @@ public class ClockTest {
 		adder.getPort(Adder.PORT_B).linkPort(din.getPort(Pin.PORT));
 		adder.getPort(Adder.PORT_CARRY_IN).linkPort(cin.getPort(Pin.PORT));
 		
+		out.addChangeListener(
+				new Pair<>(circuit.getTopLevelState(), (pin, state, value) -> {
+					int v = value.getValue();
+					if(v % 100000 == 0) {
+						System.out.println(
+								value + " - " + value.getValue() + " - " + Clock.getLastTickCount(simulator) + " Hz");
+					}
+				}));
+		
 		din.setValue(circuit.getTopLevelState(), WireValue.of(1, 32));
 		cin.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
+		simulator.stepAll();
 		
-		Clock.startClock(4);
+		Clock.addChangeListener(simulator, value -> simulator.stepAll());
+		Clock.startClock(simulator, 1000000);
 		
-		out.addChangeListener(
-				new Pair<>(circuit.getTopLevelState(), (pin, state, value) -> System.out.println(value)));
-		
-		while(true) {
-			simulator.step();
-		}
+		Thread.sleep(100000);
 	}
 }

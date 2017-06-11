@@ -1,5 +1,3 @@
-package tests;
-
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 

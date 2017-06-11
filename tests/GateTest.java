@@ -1,5 +1,3 @@
-package tests;
-
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.Simulator;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -25,9 +23,9 @@ public class GateTest {
 		andGate.getPort(1).linkPort(in2.getPort(Pin.PORT));
 		andGate.getOutPort().linkPort(out.getPort(Pin.PORT));
 		
-		out.addChangeListener(new Pair<>(circuit.getTopLevelState(), (pin, state, value) -> {
-			System.out.println("Value changed: " + value);
-		}));
+		out.addChangeListener(
+				new Pair<>(circuit.getTopLevelState(),
+				           (pin, state, value) -> System.out.println("Value changed: " + value)));
 		
 		System.out.println("Setting in1 to 0");
 		in1.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));

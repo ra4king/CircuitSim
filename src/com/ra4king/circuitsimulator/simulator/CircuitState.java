@@ -234,9 +234,9 @@ public class CircuitState {
 		}
 		
 		LinkState(LinkState linkState) {
-			this.link = linkState.link;
-			this.participants = new HashMap<>();
-			linkState.participants.forEach((port, info) -> this.participants.put(port, new PortStateInfo(info)));
+			link = linkState.link;
+			participants = new HashMap<>();
+			linkState.participants.forEach((port, info) -> participants.put(port, new PortStateInfo(info)));
 		}
 		
 		WireValue getLastPushed(Port port) {

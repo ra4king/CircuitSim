@@ -899,7 +899,7 @@ public class CircuitSimulator extends Application {
 			editHistory.clear();
 			savedEditStackSize = 0;
 			
-			lastSaveFile = saveFile = null;
+			saveFile = null;
 			
 			undo.setDisable(true);
 			redo.setDisable(true);
@@ -1155,9 +1155,9 @@ public class CircuitSimulator extends Application {
 					FileFormat.save(f, new CircuitFile(bitSizeSelect.getSelectionModel().getSelectedItem(),
 					                                   getCurrentClockSpeed(), circuits));
 					savedEditStackSize = editHistory.editStackSize();
-					updateTitle();
-					
 					saveFile = f;
+					
+					updateTitle();
 				} catch(Exception exc) {
 					exc.printStackTrace();
 					excThrown = exc;

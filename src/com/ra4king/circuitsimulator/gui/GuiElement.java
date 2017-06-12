@@ -118,6 +118,10 @@ public abstract class GuiElement {
 				         getY() >= y + height);
 	}
 	
+	public void mousePressed(CircuitState state, double x, double y) {}
+	
+	public void mouseReleased(CircuitState state, double x, double y) {}
+	
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		return Collections.emptyList();
 	}

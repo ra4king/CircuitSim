@@ -53,6 +53,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -72,6 +73,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
@@ -118,6 +120,7 @@ public class CircuitSimulator extends Application {
 	}
 	
 	private Stage stage;
+	private Scene scene;
 	private boolean openWindow = true;
 	
 	private Simulator simulator;
@@ -127,6 +130,9 @@ public class CircuitSimulator extends Application {
 	private MenuItem undo, redo;
 	private CheckMenuItem clockEnabled;
 	private Menu frequenciesMenu;
+	
+	private ToggleButton clickMode;
+	private boolean clickedDirectly;
 	
 	private ComponentManager componentManager;
 	
@@ -252,6 +258,26 @@ public class CircuitSimulator extends Application {
 	 */
 	public Stage getStage() {
 		return stage;
+	}
+	
+	/**
+	 * Sets the global click mode.
+	 *
+	 * @param selected If true, mouse clicking goes through to components; else, it goes to the circuit editor.
+	 */
+	public void setClickMode(boolean selected) {
+		if(!clickedDirectly) {
+			clickMode.setSelected(selected);
+		}
+	}
+	
+	/**
+	 * Returns the current click mode.
+	 *
+	 * @return If true, mouse clicking goes through to components; else, it goes to the circuit editor.
+	 */
+	public boolean isClickMode() {
+		return clickMode.isSelected();
 	}
 	
 	/**
@@ -1813,6 +1839,24 @@ public class CircuitSimulator extends Application {
 		
 		// HELP Menu
 		Menu helpMenu = new Menu("Help");
+		MenuItem help = new MenuItem("Help");
+		help.setOnAction(event -> {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.initOwner(stage);
+			alert.initModality(Modality.WINDOW_MODAL);
+			alert.setTitle("Help");
+			alert.setHeaderText("Circuit Simulator v" + FileFormat.VERSION + ", created by Roi Atalla © 2017");
+			
+			String msg = "";
+			msg += "- Pressing Shift will enable Click Mode which will click through to components\n";
+			msg += "- Holding Shift while dragging a new wire will delete existing wires\n";
+			msg += "- Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on "
+					       + "click\n";
+			msg += "- Holding Ctrl while selecting components will include them in the selection group\n";
+			
+			alert.setContentText(msg);
+			alert.showAndWait();
+		});
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(event -> {
 			Alert alert = new Alert(AlertType.INFORMATION);
@@ -1823,7 +1867,7 @@ public class CircuitSimulator extends Application {
 			alert.setContentText("Circuit Simulator created by Roi Atalla © 2017");
 			alert.showAndWait();
 		});
-		helpMenu.getItems().addAll(about);
+		helpMenu.getItems().addAll(help, about);
 		
 		menuBar.getMenus().addAll(fileMenu, editMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
 		
@@ -1888,12 +1932,19 @@ public class CircuitSimulator extends Application {
 		ToggleButton xorButton = createToolbarButton.apply(new Pair<>("Gates", "XOR"));
 		ToggleButton tunnelButton = createToolbarButton.apply(new Pair<>("Wiring", "Tunnel"));
 		
-		toolBar.getItems().addAll(inputPinButton, outputPinButton, andButton,
+		clickMode = new ToggleButton("Click Mode (Shift)");
+		clickMode.setTooltip(new Tooltip("Clicking will sticky this mode"));
+		clickMode.setOnAction(event -> clickedDirectly = clickMode.isSelected());
+		clickMode.selectedProperty().addListener(
+				(observable, oldValue, newValue) -> scene.setCursor(newValue ? Cursor.HAND : Cursor.DEFAULT));
+		
+		toolBar.getItems().addAll(clickMode, new Separator(Orientation.VERTICAL),
+		                          inputPinButton, outputPinButton, andButton,
 		                          orButton, notButton, xorButton, tunnelButton,
 		                          new Label("Global bit size:"), bitSizeSelect);
 		
 		VBox.setVgrow(canvasPropsSplit, Priority.ALWAYS);
-		Scene scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));
+		scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));
 		
 		updateTitle();
 		stage.setScene(scene);

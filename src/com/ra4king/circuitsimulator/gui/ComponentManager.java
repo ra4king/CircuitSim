@@ -16,6 +16,7 @@ import com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XnorGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.XorGatePeer;
+import com.ra4king.circuitsimulator.gui.peers.io.Button;
 import com.ra4king.circuitsimulator.gui.peers.io.HexDisplay;
 import com.ra4king.circuitsimulator.gui.peers.io.LEDMatrix;
 import com.ra4king.circuitsimulator.gui.peers.memory.RAMPeer;
@@ -178,6 +179,7 @@ public class ComponentManager {
 		register(ComparatorPeer.class);
 		register(BitExtenderPeer.class);
 		
+		register(Button.class);
 		register(LEDMatrix.class);
 		register(HexDisplay.class);
 	}

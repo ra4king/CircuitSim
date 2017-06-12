@@ -63,6 +63,9 @@ public class CircuitManager {
 	
 	private Point2D lastMousePosition = new Point2D(0, 0);
 	private Point2D lastMousePressed = new Point2D(0, 0);
+	private GuiElement lastPressed;
+	
+	private LinkWires inspectLinkWires;
 	
 	private boolean isMouseInsideCanvas;
 	private boolean isDraggedHorizontally;
@@ -129,6 +132,7 @@ public class CircuitManager {
 		isDraggedHorizontally = false;
 		startConnection = null;
 		endConnection = null;
+		inspectLinkWires = null;
 		
 		needsRepaint = true;
 	}
@@ -333,6 +337,36 @@ public class CircuitManager {
 			graphics.restore();
 		}
 		
+		if(inspectLinkWires != null && inspectLinkWires.getLink() != null) {
+			String value;
+			try {
+				value = circuitBoard.getCurrentState().getMergedValue(inspectLinkWires.getLink()).toString();
+			} catch(Exception exc) {
+				value = "";
+				for(int i = 0; i < inspectLinkWires.getLink().getBitSize(); i++) {
+					value += "E";
+				}
+			}
+			
+			Text text = new Text(value);
+			text.setFont(graphics.getFont());
+			Bounds bounds = text.getLayoutBounds();
+			
+			double x = lastMousePressed.getX() - bounds.getWidth() / 2 - 3;
+			double y = lastMousePressed.getY() + 30;
+			double width = bounds.getWidth() + 6;
+			double height = bounds.getHeight() + 3;
+			
+			graphics.setLineWidth(1);
+			graphics.setStroke(Color.BLACK);
+			graphics.setFill(Color.ORANGE.brighter());
+			graphics.fillRect(x, y, width, height);
+			graphics.strokeRect(x, y, width, height);
+			
+			graphics.setFill(Color.BLACK);
+			graphics.fillText(value, x + 3, y + height - 5);
+		}
+		
 		switch(currentState) {
 			case IDLE:
 			case CONNECTION_SELECTED:
@@ -493,6 +527,10 @@ public class CircuitManager {
 				isCtrlDown = true;
 				break;
 			case SHIFT:
+				if(currentState != SelectingState.CONNECTION_SELECTED
+						   && currentState != SelectingState.CONNECTION_DRAGGED) {
+					simulatorWindow.setClickMode(true);
+				}
 				isShiftDown = true;
 				break;
 			case NUMPAD0:
@@ -541,6 +579,7 @@ public class CircuitManager {
 				isCtrlDown = false;
 				break;
 			case SHIFT:
+				simulatorWindow.setClickMode(false);
 				isShiftDown = false;
 				break;
 		}
@@ -666,10 +705,15 @@ public class CircuitManager {
 			case IDLE:
 			case ELEMENT_SELECTED:
 				if(startConnection != null) {
-					if(isCtrlDown) {
-						currentState = SelectingState.CONNECTION_DRAGGED;
+					if(simulatorWindow.isClickMode()) {
+						inspectLinkWires = startConnection.getLinkWires();
+						currentState = SelectingState.IDLE;
 					} else {
-						currentState = SelectingState.CONNECTION_SELECTED;
+						if(isCtrlDown) {
+							currentState = SelectingState.CONNECTION_DRAGGED;
+						} else {
+							currentState = SelectingState.CONNECTION_SELECTED;
+						}
 					}
 				} else {
 					Optional<GuiElement> clickedComponent =
@@ -679,7 +723,14 @@ public class CircuitManager {
 					if(clickedComponent.isPresent()) {
 						GuiElement selectedElement = clickedComponent.get();
 						
-						if(e.getClickCount() == 2 && selectedElement instanceof SubcircuitPeer) {
+						if(simulatorWindow.isClickMode()) {
+							lastPressed = selectedElement;
+							selectedElement.mousePressed(circuitBoard.getCurrentState(),
+							                             lastMousePosition.getX() - selectedElement.getScreenX(),
+							                             lastMousePosition.getY() - selectedElement.getScreenY());
+							simulatorWindow.runSim();
+							needsRepaint = true;
+						} else if(e.getClickCount() == 2 && selectedElement instanceof SubcircuitPeer) {
 							reset();
 							((SubcircuitPeer)selectedElement).switchToSubcircuit(this);
 						} else if(isCtrlDown) {
@@ -742,24 +793,16 @@ public class CircuitManager {
 		switch(currentState) {
 			case IDLE:
 			case ELEMENT_SELECTED:
-				Optional<GuiElement> clickedComponent =
-						Stream.concat(getSelectedElements().stream(), circuitBoard.getComponents().stream())
-						      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
-						      .findFirst();
-				if(clickedComponent.isPresent()) {
-					GuiElement selectedElement = clickedComponent.get();
-					
-					if(circuitBoard.getCurrentState() == getCircuit().getTopLevelState()) {
-						((ComponentPeer<?>)selectedElement).clicked(circuitBoard.getCurrentState(),
-						                                            lastMousePosition.getX() - selectedElement
-								                                                                       .getScreenX(),
-						                                            lastMousePosition.getY() - selectedElement
-								                                                                       .getScreenY());
-						simulatorWindow.runSim();
-						needsRepaint = true;
-					}
-				}
 			case ELEMENT_DRAGGED:
+				if(lastPressed != null) {
+					lastPressed.mouseReleased(circuitBoard.getCurrentState(),
+					                          lastMousePosition.getX() - lastPressed.getScreenX(),
+					                          lastMousePosition.getY() - lastPressed.getScreenY());
+					lastPressed = null;
+					simulatorWindow.runSim();
+					needsRepaint = true;
+				}
+				
 				mayThrow(circuitBoard::finalizeMove);
 				currentState = SelectingState.IDLE;
 				break;
@@ -879,5 +922,7 @@ public class CircuitManager {
 	
 	public void mouseExited(MouseEvent e) {
 		isMouseInsideCanvas = false;
+		isCtrlDown = false;
+		isShiftDown = false;
 	}
 }

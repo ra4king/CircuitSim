@@ -58,7 +58,7 @@ public class ClockPeer extends ComponentPeer<Clock> {
 	}
 	
 	@Override
-	public void clicked(CircuitState state, double x, double y) {
+	public void mousePressed(CircuitState state, double x, double y) {
 		Clock.tick(getComponent().getCircuit().getSimulator());
 	}
 	

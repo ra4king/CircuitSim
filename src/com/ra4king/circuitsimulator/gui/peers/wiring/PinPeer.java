@@ -90,7 +90,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 	}
 	
 	@Override
-	public void clicked(CircuitState state, double x, double y) {
+	public void mousePressed(CircuitState state, double x, double y) {
 		if(!isInput()) {
 			return;
 		}

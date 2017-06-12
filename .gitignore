@@ -2,3 +2,7 @@
 out/
 src/misc/
 *.iml
+.gradle/
+build/
+.project
+settings.json

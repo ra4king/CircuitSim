@@ -337,15 +337,12 @@ public class CircuitManager {
 			graphics.restore();
 		}
 		
-		if(inspectLinkWires != null && inspectLinkWires.getLink() != null) {
+		if(inspectLinkWires != null && inspectLinkWires.getLink() != null && inspectLinkWires.isLinkValid()) {
 			String value;
 			try {
 				value = circuitBoard.getCurrentState().getMergedValue(inspectLinkWires.getLink()).toString();
 			} catch(Exception exc) {
-				value = "";
-				for(int i = 0; i < inspectLinkWires.getLink().getBitSize(); i++) {
-					value += "E";
-				}
+				value = "Error";
 			}
 			
 			Text text = new Text(value);
@@ -716,6 +713,8 @@ public class CircuitManager {
 						}
 					}
 				} else {
+					inspectLinkWires = null;
+					
 					Optional<GuiElement> clickedComponent =
 							Stream.concat(getSelectedElements().stream(), circuitBoard.getComponents().stream())
 							      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))

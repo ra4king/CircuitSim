@@ -122,6 +122,8 @@ public class Simulator {
 			linksToUpdate = temp;
 			temp = tmp;
 			
+			temp.addAll(shortCircuited);
+			
 			linksToUpdate.clear();
 			shortCircuited.clear();
 			lastShortCircuit = null;

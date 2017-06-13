@@ -7,7 +7,6 @@ import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterfa
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.Properties;
-import com.ra4king.circuitsimulator.gui.peers.wiring.ClockPeer;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -24,7 +23,7 @@ import javafx.util.Pair;
 public class Button extends ComponentPeer<Component> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Input/Output", "Button"),
-		                     new Image(ClockPeer.class.getResourceAsStream("/resources/Button.png")),
+		                     new Image(Button.class.getResourceAsStream("/resources/Button.png")),
 		                     new Properties());
 	}
 	

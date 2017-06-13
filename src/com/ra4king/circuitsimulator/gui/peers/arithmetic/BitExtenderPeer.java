@@ -26,7 +26,7 @@ import javafx.util.Pair;
 public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Arithmetic", "Bit Extender"),
-		                     new Image(AdderPeer.class.getResourceAsStream("/resources/BitExtender.png")),
+		                     new Image(BitExtenderPeer.class.getResourceAsStream("/resources/BitExtender.png")),
 		                     new Properties());
 	}
 	

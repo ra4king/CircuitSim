@@ -23,7 +23,7 @@ import javafx.util.Pair;
 public class DecoderPeer extends ComponentPeer<Decoder> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Plexer", "Decoder"),
-		                     new Image(DemultiplexerPeer.class.getResourceAsStream("/resources/Decoder.png")),
+		                     new Image(DecoderPeer.class.getResourceAsStream("/resources/Decoder.png")),
 		                     new Properties());
 	}
 	

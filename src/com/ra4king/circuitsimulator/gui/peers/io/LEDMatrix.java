@@ -10,7 +10,6 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
-import com.ra4king.circuitsimulator.gui.peers.wiring.ClockPeer;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
@@ -33,7 +32,7 @@ public class LEDMatrix extends ComponentPeer<Component> {
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Input/Output", "LED Matrix"),
-		                     new Image(ClockPeer.class.getResourceAsStream("/resources/LEDMatrix.png")),
+		                     new Image(LEDMatrix.class.getResourceAsStream("/resources/LEDMatrix.png")),
 		                     new Properties());
 	}
 	

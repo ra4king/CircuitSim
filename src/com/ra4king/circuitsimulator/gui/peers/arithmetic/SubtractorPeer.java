@@ -9,8 +9,9 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.arithmetic.Comparator;
+import com.ra4king.circuitsimulator.simulator.components.arithmetic.Subtractor;
 
+import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -19,14 +20,14 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class ComparatorPeer extends ComponentPeer<Comparator> {
+public class SubtractorPeer extends ComponentPeer<Subtractor> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Arithmetic", "Comparator"),
-		                     new Image(ComparatorPeer.class.getResourceAsStream("/resources/Comparator.png")),
+		manager.addComponent(new Pair<>("Arithmetic", "Subtractor"),
+		                     new Image(SubtractorPeer.class.getResourceAsStream("/resources/Subtractor.png")),
 		                     new Properties());
 	}
 	
-	public ComparatorPeer(Properties props, int x, int y) {
+	public SubtractorPeer(Properties props, int x, int y) {
 		super(x, y, 4, 4);
 		
 		Properties properties = new Properties();
@@ -35,32 +36,34 @@ public class ComparatorPeer extends ComponentPeer<Comparator> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
-		Comparator comparator = new Comparator(properties.getValue(Properties.LABEL),
+		Subtractor subtractor = new Subtractor(properties.getValue(Properties.LABEL),
 		                                       properties.getValue(Properties.BITSIZE));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, comparator.getPort(Comparator.PORT_A), "A", 0, 1));
-		connections.add(new PortConnection(this, comparator.getPort(Comparator.PORT_B), "B", 0, 3));
-		connections.add(new PortConnection(this, comparator.getPort(Comparator.PORT_LT), "A < B", getWidth(), 1));
-		connections.add(new PortConnection(this, comparator.getPort(Comparator.PORT_EQ), "A = B", getWidth(), 2));
-		connections.add(new PortConnection(this, comparator.getPort(Comparator.PORT_GT), "A > B", getWidth(), 3));
+		connections.add(new PortConnection(this, subtractor.getPort(Subtractor.PORT_A), "A", 0, 1));
+		connections.add(new PortConnection(this, subtractor.getPort(Subtractor.PORT_B), "B", 0, 3));
+		connections.add(new PortConnection(this, subtractor.getPort(Subtractor.PORT_CARRY_IN), "Carry in", 2, 0));
+		connections.add(new PortConnection(this, subtractor.getPort(Subtractor.PORT_OUT), "Out", getWidth(), 2));
+		connections.add(
+				new PortConnection(this, subtractor.getPort(Subtractor.PORT_CARRY_OUT), "Carry out", 2, getHeight()));
 		
-		init(comparator, properties, connections);
+		init(subtractor, properties, connections);
 	}
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
-		graphics.setStroke(Color.BLACK);
 		graphics.setFill(Color.WHITE);
+		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.setFont(GuiUtils.getFont(12));
+		graphics.setFont(GuiUtils.getFont(16, true));
+		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "-");
 		graphics.setFill(Color.BLACK);
-		graphics.fillText("<", getScreenX() + getScreenWidth() - 12, getScreenY() + 12);
-		graphics.fillText("=", getScreenX() + getScreenWidth() - 12, getScreenY() + 24);
-		graphics.fillText(">", getScreenX() + getScreenWidth() - 12, getScreenY() + 35);
+		graphics.fillText("-",
+		                  getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
 	}
 }

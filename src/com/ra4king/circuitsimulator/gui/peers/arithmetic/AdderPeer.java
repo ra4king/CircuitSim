@@ -58,6 +58,7 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
+		graphics.setFont(GuiUtils.getFont(16, true));
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "+");
 		graphics.setFill(Color.BLACK);
 		graphics.fillText("+",

@@ -10,11 +10,13 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.WireValue;
+import com.ra4king.circuitsimulator.simulator.WireValue.State;
 import com.ra4king.circuitsimulator.simulator.components.memory.Register;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -51,6 +53,67 @@ public class RegisterPeer extends ComponentPeer<Register> {
 	}
 	
 	@Override
+	public void keyPressed(CircuitState state, KeyCode keyCode, String text) {
+		switch(keyCode) {
+			case DIGIT0:
+			case DIGIT1:
+			case DIGIT2:
+			case DIGIT3:
+			case DIGIT4:
+			case DIGIT5:
+			case DIGIT6:
+			case DIGIT7:
+			case DIGIT8:
+			case DIGIT9:
+			case NUMPAD0:
+			case NUMPAD1:
+			case NUMPAD2:
+			case NUMPAD3:
+			case NUMPAD4:
+			case NUMPAD5:
+			case NUMPAD6:
+			case NUMPAD7:
+			case NUMPAD8:
+			case NUMPAD9:
+			case A:
+			case B:
+			case C:
+			case D:
+			case E:
+			case F:
+				char c = text.charAt(0);
+				
+				int value;
+				if(c >= '0' && c <= '9') {
+					value = c - '0';
+				} else {
+					value = Character.toUpperCase(c) - 'A' + 10;
+				}
+				
+				WireValue currentValue = state.getLastPushedValue(getComponent().getPort(Register.PORT_OUT));
+				WireValue typedValue = WireValue.of(value, Math.min(4, currentValue.getBitSize()));
+				if(typedValue.getValue() != value) {
+					typedValue.setAllBits(State.ZERO); // to prevent typing '9' on a 3-bit value, producing 1
+				}
+				
+				if(currentValue.getBitSize() <= 4) {
+					currentValue.set(typedValue);
+				} else {
+					for(int i = currentValue.getBitSize() - 1; i >= 4; i--) {
+						currentValue.setBit(i, currentValue.getBit(i - 4));
+					}
+					
+					for(int i = 0; i < 4; i++) {
+						currentValue.setBit(i, typedValue.getBit(i));
+					}
+				}
+				
+				state.pushValue(getComponent().getPort(Register.PORT_OUT), currentValue);
+				break;
+		}
+	}
+	
+	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
@@ -59,18 +122,14 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		
 		WireValue lastPushedValue = circuitState.getLastPushedValue(getComponent().getPort(Register.PORT_OUT));
 		String value;
-		if(lastPushedValue.getBitSize() <= 8) {
-			value = lastPushedValue.toString();
+		int hexDigits = 1 + (getComponent().getBitSize() - 1) / 4;
+		if(lastPushedValue.isValidValue()) {
+			int num = lastPushedValue.getValue();
+			value = String.format("%0" + hexDigits + "x", num);
 		} else {
-			int hexDigits = 1 + (getComponent().getBitSize() - 1) / 4;
-			if(lastPushedValue.isValidValue()) {
-				int num = lastPushedValue.getValue();
-				value = String.format("%0" + hexDigits + "x", num);
-			} else {
-				value = "";
-				for(int i = 0; i < hexDigits; i++) {
-					value += "x";
-				}
+			value = "";
+			for(int i = 0; i < hexDigits; i++) {
+				value += "x";
 			}
 		}
 		

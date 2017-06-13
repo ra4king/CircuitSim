@@ -18,6 +18,7 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -118,10 +119,35 @@ public class PinPeer extends ComponentPeer<Pin> {
 	}
 	
 	@Override
+	public void keyPressed(CircuitState state, KeyCode keyCode, String text) {
+		if(!isInput()) {
+			return;
+		}
+		
+		switch(keyCode) {
+			case NUMPAD0:
+			case NUMPAD1:
+			case DIGIT0:
+			case DIGIT1:
+				int value = text.charAt(0) - '0';
+				
+				WireValue currentValue = new WireValue(state.getLastPushedValue(getComponent().getPort(Pin.PORT)));
+				
+				for(int i = currentValue.getBitSize() - 1; i > 0; i--) {
+					currentValue.setBit(i, currentValue.getBit(i - 1));
+				}
+				
+				currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
+				getComponent().setValue(state, currentValue);
+				break;
+		}
+	}
+	
+	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
-		graphics.setFont(GuiUtils.getFont(16, true)); 
+		graphics.setFont(GuiUtils.getFont(16, true));
 		Port port = getComponent().getPort(Pin.PORT);
 		WireValue value = isInput() ? circuitState.getLastPushedValue(port)
 		                            : circuitState.getLastReceived(port);

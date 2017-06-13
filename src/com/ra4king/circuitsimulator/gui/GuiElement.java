@@ -7,6 +7,7 @@ import com.ra4king.circuitsimulator.simulator.CircuitState;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
 
 /**
  * @author Roi Atalla
@@ -121,6 +122,12 @@ public abstract class GuiElement {
 	public void mousePressed(CircuitState state, double x, double y) {}
 	
 	public void mouseReleased(CircuitState state, double x, double y) {}
+	
+	public void keyPressed(CircuitState state, KeyCode keyCode, String text) {}
+	
+	public void keyTyped(CircuitState state, String character) {}
+	
+	public void keyReleased(CircuitState state, KeyCode keyCode, String text) {}
 	
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		return Collections.emptyList();

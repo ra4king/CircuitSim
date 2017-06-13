@@ -245,22 +245,7 @@ public class Properties {
 	public static final Property<Boolean> SELECTOR_LOCATION;
 	
 	public enum Direction {
-		NORTH, SOUTH, EAST, WEST;
-		
-		public static Direction opposite(Direction dir) {
-			switch(dir) {
-				case NORTH:
-					return SOUTH;
-				case SOUTH:
-					return NORTH;
-				case EAST:
-					return WEST;
-				case WEST:
-					return EAST;
-				default:
-					throw new IllegalArgumentException("Uhh... how??");
-			}
-		}
+		NORTH, SOUTH, EAST, WEST
 	}
 	
 	static {

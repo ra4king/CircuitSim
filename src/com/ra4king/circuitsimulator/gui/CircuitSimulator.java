@@ -1227,6 +1227,7 @@ public class CircuitSimulator extends Application {
 			canvas.addEventHandler(MouseEvent.MOUSE_ENTERED, circuitManager::mouseEntered);
 			canvas.addEventHandler(MouseEvent.MOUSE_EXITED, circuitManager::mouseExited);
 			canvas.addEventHandler(KeyEvent.KEY_PRESSED, circuitManager::keyPressed);
+			canvas.addEventHandler(KeyEvent.KEY_TYPED, circuitManager::keyTyped);
 			canvas.addEventHandler(KeyEvent.KEY_RELEASED, circuitManager::keyReleased);
 			
 			canvasScrollPane.widthProperty().addListener(

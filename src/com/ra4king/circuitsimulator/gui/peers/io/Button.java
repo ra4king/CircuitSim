@@ -14,6 +14,7 @@ import com.ra4king.circuitsimulator.simulator.WireValue;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -63,6 +64,20 @@ public class Button extends ComponentPeer<Component> {
 	public void mouseReleased(CircuitState state, double x, double y) {
 		isPressed = false;
 		state.pushValue(getComponent().getPort(0), WireValue.of(0, 1));
+	}
+	
+	@Override
+	public void keyPressed(CircuitState state, KeyCode keyCode, String text) {
+		if(keyCode == KeyCode.SPACE) {
+			mousePressed(state, 0, 0);
+		}
+	}
+	
+	@Override
+	public void keyReleased(CircuitState state, KeyCode keyCode, String text) {
+		if(keyCode == KeyCode.SPACE) {
+			mouseReleased(state, 0, 0);
+		}
 	}
 	
 	@Override

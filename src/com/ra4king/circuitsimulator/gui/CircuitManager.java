@@ -14,15 +14,11 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
-import com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Port;
 import com.ra4king.circuitsimulator.simulator.Port.Link;
 import com.ra4king.circuitsimulator.simulator.Simulator;
-import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.WireValue.State;
-import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -31,6 +27,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -63,7 +60,9 @@ public class CircuitManager {
 	
 	private Point2D lastMousePosition = new Point2D(0, 0);
 	private Point2D lastMousePressed = new Point2D(0, 0);
+	
 	private GuiElement lastPressed;
+	private KeyCode lastPressedKeyCode;
 	
 	private LinkWires inspectLinkWires;
 	
@@ -530,32 +529,6 @@ public class CircuitManager {
 				}
 				isShiftDown = true;
 				break;
-			case NUMPAD0:
-			case NUMPAD1:
-			case DIGIT0:
-			case DIGIT1:
-				int value = e.getText().charAt(0) - '0';
-				
-				GuiElement selectedElem;
-				if(selectedElementsMap.size() == 1
-						   && (selectedElem = selectedElementsMap.keySet().iterator().next()) instanceof PinPeer
-						   && ((PinPeer)selectedElem).isInput()) {
-					PinPeer selectedPin = (PinPeer)selectedElem;
-					WireValue currentValue =
-							new WireValue(circuitBoard.getCurrentState()
-							                          .getLastPushedValue(
-									                          selectedPin.getComponent().getPort(Pin.PORT)));
-					
-					for(int i = currentValue.getBitSize() - 1; i > 0; i--) {
-						currentValue.setBit(i, currentValue.getBit(i - 1));
-					}
-					currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
-					selectedPin.getComponent().setValue(circuitBoard.getCurrentState(), currentValue);
-					simulatorWindow.runSim();
-					needsRepaint = true;
-				}
-				break;
-			case BACK_SPACE:
 			case DELETE:
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 			case ESCAPE:
@@ -565,6 +538,23 @@ public class CircuitManager {
 				
 				reset();
 				break;
+			default:
+				if(lastPressed == null && selectedElementsMap.size() == 1) {
+					lastPressed = selectedElementsMap.keySet().iterator().next();
+					lastPressed.keyPressed(circuitBoard.getCurrentState(), e.getCode(), e.getText());
+					lastPressedKeyCode = e.getCode();
+					simulatorWindow.runSim();
+				}
+				break;
+		}
+	}
+	
+	public void keyTyped(KeyEvent e) {
+		if(selectedElementsMap.size() == 1) {
+			GuiElement element = selectedElementsMap.keySet().iterator().next();
+			element.keyTyped(circuitBoard.getCurrentState(), e.getCharacter());
+			simulatorWindow.runSim();
+			needsRepaint = true;
 		}
 	}
 	
@@ -579,6 +569,13 @@ public class CircuitManager {
 				simulatorWindow.setClickMode(false);
 				isShiftDown = false;
 				break;
+		}
+		
+		if(lastPressed != null && lastPressedKeyCode == e.getCode()) {
+			lastPressed.keyReleased(circuitBoard.getCurrentState(), e.getCode(), e.getText());
+			lastPressed = null;
+			lastPressedKeyCode = null;
+			simulatorWindow.runSim();
 		}
 	}
 	
@@ -701,6 +698,8 @@ public class CircuitManager {
 			
 			case IDLE:
 			case ELEMENT_SELECTED:
+				inspectLinkWires = null;
+				
 				if(startConnection != null) {
 					if(simulatorWindow.isClickMode()) {
 						inspectLinkWires = startConnection.getLinkWires();
@@ -713,8 +712,6 @@ public class CircuitManager {
 						}
 					}
 				} else {
-					inspectLinkWires = null;
-					
 					Optional<GuiElement> clickedComponent =
 							Stream.concat(getSelectedElements().stream(), circuitBoard.getComponents().stream())
 							      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
@@ -723,12 +720,14 @@ public class CircuitManager {
 						GuiElement selectedElement = clickedComponent.get();
 						
 						if(simulatorWindow.isClickMode()) {
-							lastPressed = selectedElement;
-							selectedElement.mousePressed(circuitBoard.getCurrentState(),
-							                             lastMousePosition.getX() - selectedElement.getScreenX(),
-							                             lastMousePosition.getY() - selectedElement.getScreenY());
-							simulatorWindow.runSim();
-							needsRepaint = true;
+							if(lastPressed == null) {
+								lastPressed = selectedElement;
+								selectedElement.mousePressed(circuitBoard.getCurrentState(),
+								                             lastMousePosition.getX() - selectedElement.getScreenX(),
+								                             lastMousePosition.getY() - selectedElement.getScreenY());
+								simulatorWindow.runSim();
+								needsRepaint = true;
+							}
 						} else if(e.getClickCount() == 2 && selectedElement instanceof SubcircuitPeer) {
 							reset();
 							((SubcircuitPeer)selectedElement).switchToSubcircuit(this);
@@ -793,7 +792,7 @@ public class CircuitManager {
 			case IDLE:
 			case ELEMENT_SELECTED:
 			case ELEMENT_DRAGGED:
-				if(lastPressed != null) {
+				if(lastPressed != null && lastPressedKeyCode == null) {
 					lastPressed.mouseReleased(circuitBoard.getCurrentState(),
 					                          lastMousePosition.getX() - lastPressed.getScreenX(),
 					                          lastMousePosition.getY() - lastPressed.getScreenY());
@@ -917,11 +916,13 @@ public class CircuitManager {
 	
 	public void mouseEntered(MouseEvent e) {
 		isMouseInsideCanvas = true;
+		needsRepaint = true;
 	}
 	
 	public void mouseExited(MouseEvent e) {
 		isMouseInsideCanvas = false;
 		isCtrlDown = false;
 		isShiftDown = false;
+		needsRepaint = true;
 	}
 }

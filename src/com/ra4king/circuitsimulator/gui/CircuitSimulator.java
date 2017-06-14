@@ -918,9 +918,13 @@ public class CircuitSimulator extends Application {
 	 */
 	public void clearCircuits() {
 		runFxSync(() -> {
+			editHistory.disable();
 			circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
+			editHistory.enable();
+			
 			circuitManagers.clear();
 			canvasTabPane.getTabs().clear();
+			simulator.clear();
 			
 			editHistory.clear();
 			savedEditStackSize = 0;
@@ -1425,6 +1429,7 @@ public class CircuitSimulator extends Application {
 		MenuItem clear = new MenuItem("Clear");
 		clear.setOnAction(event -> {
 			clearCircuits();
+			
 			editHistory.disable();
 			createCircuit("New circuit");
 			editHistory.enable();
@@ -1795,6 +1800,7 @@ public class CircuitSimulator extends Application {
 		});
 		
 		MenuItem reset = new MenuItem("Reset simulation");
+		reset.setAccelerator(new KeyCharacterCombination("R", KeyCombination.CONTROL_DOWN));
 		reset.setOnAction(event -> {
 			Clock.reset(simulator);
 			clockEnabled.setSelected(false);
@@ -1844,19 +1850,19 @@ public class CircuitSimulator extends Application {
 		help.setOnAction(event -> {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.initOwner(stage);
-			alert.initModality(Modality.WINDOW_MODAL);
+			alert.initModality(Modality.NONE);
 			alert.setTitle("Help");
 			alert.setHeaderText("Circuit Simulator v" + FileFormat.VERSION + ", created by Roi Atalla © 2017");
 			
 			String msg = "";
-			msg += "- Pressing Shift will enable Click Mode which will click through to components\n";
+			msg += "- Holding Shift will enable Click Mode which will click through to components\n";
 			msg += "- Holding Shift while dragging a new wire will delete existing wires\n";
 			msg += "- Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on "
 					       + "click\n";
 			msg += "- Holding Ctrl while selecting components will include them in the selection group\n";
 			
 			alert.setContentText(msg);
-			alert.showAndWait();
+			alert.show();
 		});
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(event -> {
@@ -1866,7 +1872,7 @@ public class CircuitSimulator extends Application {
 			alert.setTitle("About");
 			alert.setHeaderText("Circuit Simulator v" + FileFormat.VERSION);
 			alert.setContentText("Circuit Simulator created by Roi Atalla © 2017");
-			alert.showAndWait();
+			alert.show();
 		});
 		helpMenu.getItems().addAll(help, about);
 		

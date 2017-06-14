@@ -66,6 +66,17 @@ public class Simulator {
 	}
 	
 	/**
+	 * Clears all circuits and queue of un-propagated links.
+	 */
+	public void clear() {
+		circuits.clear();
+		linksToUpdate.clear();
+		temp.clear();
+		shortCircuited.clear();
+		history.clear();
+	}
+	
+	/**
 	 * Resets all CircuitStates of all attached Circuits.
 	 */
 	public void reset() {

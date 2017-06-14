@@ -64,7 +64,7 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.setFont(GuiUtils.getFont(12));
+		graphics.setFont(GuiUtils.getFont(12, true));
 		graphics.setFill(Color.BLACK);
 		
 		graphics.fillText(String.valueOf(getComponent().getInputBitSize()),
@@ -96,7 +96,7 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		                  getScreenX() + (getScreenWidth() - typeBounds.getWidth()) * 0.5,
 		                  getScreenY() + typeBounds.getHeight());
 		
-		graphics.setFont(GuiUtils.getFont(10));
+		graphics.setFont(GuiUtils.getFont(10, true));
 		String extendString = "extend";
 		Bounds extendBounds = GuiUtils.getBounds(graphics.getFont(), extendString);
 		graphics.fillText(extendString,

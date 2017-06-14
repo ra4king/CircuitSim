@@ -57,7 +57,7 @@ public class ComparatorPeer extends ComponentPeer<Comparator> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
-		graphics.setFont(GuiUtils.getFont(12));
+		graphics.setFont(GuiUtils.getFont(12, true));
 		graphics.setFill(Color.BLACK);
 		graphics.fillText("<", getScreenX() + getScreenWidth() - 12, getScreenY() + 12);
 		graphics.fillText("=", getScreenX() + getScreenWidth() - 12, getScreenY() + 24);

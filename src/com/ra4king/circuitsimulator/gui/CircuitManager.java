@@ -871,6 +871,8 @@ public class CircuitManager {
 				break;
 			
 			case ELEMENT_SELECTED:
+				if(simulatorWindow.isClickMode()) break;
+				
 			case ELEMENT_DRAGGED:
 			case PLACING_COMPONENT:
 				int dx = GuiUtils.getCircuitCoord(lastMousePosition.getX() - lastMousePressed.getX());

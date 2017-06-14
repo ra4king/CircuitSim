@@ -58,10 +58,7 @@ public class CircuitBoard {
 	
 	public void destroy() {
 		try {
-			removeElements(
-					Stream.concat(components.stream(),
-					              links.stream()
-					                   .flatMap(links -> links.getWires().stream())).collect(Collectors.toSet()));
+			removeElements(components);
 		} catch(Exception exc) {
 			// exc.printStackTrace();
 		}

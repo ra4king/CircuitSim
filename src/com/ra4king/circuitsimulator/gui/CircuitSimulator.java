@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
@@ -1008,6 +1010,8 @@ public class CircuitSimulator extends Application {
 						
 						Platform.runLater(() -> dialog.setContentText("Creating components..."));
 						
+						Queue<Runnable> runnables = new ArrayDeque<>();
+						
 						final CountDownLatch latch = new CountDownLatch(totalComponents + 1);
 						
 						double increment = 0.75 / totalComponents;
@@ -1032,7 +1036,7 @@ public class CircuitSimulator extends Application {
 									creator = componentManager.get(clazz).creator;
 								}
 								
-								Platform.runLater(() -> {
+								runnables.add(() -> {
 									manager.mayThrow(
 											() -> manager.getCircuitBoard().addComponent(
 													creator.createComponent(properties, component.x, component.y)));
@@ -1042,7 +1046,7 @@ public class CircuitSimulator extends Application {
 							}
 							
 							for(WireInfo wire : circuit.wires) {
-								Platform.runLater(() -> {
+								runnables.add(() -> {
 									manager.mayThrow(
 											() -> manager.getCircuitBoard()
 											             .addWire(wire.x, wire.y, wire.length, wire.isHorizontal));
@@ -1052,20 +1056,45 @@ public class CircuitSimulator extends Application {
 							}
 						}
 						
-						Platform.runLater(() -> {
-							circuitManagers.values().stream().map(Pair::getValue).forEach(this::updateCanvasSize);
+						int comps = totalComponents;
+						new Thread(() -> {
+							final int maxRunLater = comps / 50;
 							
-							for(MenuItem freq : frequenciesMenu.getItems()) {
-								if(freq.getText().startsWith(String.valueOf(circuitFile.clockSpeed))) {
-									((RadioMenuItem)freq).setSelected(true);
-									break;
+							while(!runnables.isEmpty()) {
+								int left = Math.min(runnables.size(), maxRunLater);
+								
+								CountDownLatch l = new CountDownLatch(left);
+								
+								for(int i = 0; i < left; i++) {
+									Runnable r = runnables.poll();
+									Platform.runLater(() -> {
+										r.run();
+										l.countDown();
+									});
+								}
+								
+								try {
+									l.await();
+								} catch(Exception exc) {
+									// ignore
 								}
 							}
 							
-							bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
-							
-							latch.countDown();
-						});
+							Platform.runLater(() -> {
+								circuitManagers.values().stream().map(Pair::getValue).forEach(this::updateCanvasSize);
+								
+								for(MenuItem freq : frequenciesMenu.getItems()) {
+									if(freq.getText().startsWith(String.valueOf(circuitFile.clockSpeed))) {
+										((RadioMenuItem)freq).setSelected(true);
+										break;
+									}
+								}
+								
+								bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
+								
+								latch.countDown();
+							});
+						}).start();
 						
 						latch.await();
 						
@@ -1992,7 +2021,7 @@ public class CircuitSimulator extends Application {
 					frameCount++;
 					
 					CircuitManager manager = getCurrentCircuit();
-					if(!loadingFile && manager != null && (needsRepaint || manager.needsRepaint())) {
+					if(manager != null && (needsRepaint || manager.needsRepaint())) {
 						manager.paint();
 						needsRepaint = false;
 					}
@@ -2010,7 +2039,7 @@ public class CircuitSimulator extends Application {
 						graphics.fillText("Clock: " + (Clock.getLastTickCount(simulator) >> 1) + " Hz", 6, 65);
 					}
 					
-					if(manager != null) {
+					if(manager != null && !loadingFile) {
 						String message = getCurrentError();
 						
 						if(message != null && !message.isEmpty() && Clock.isRunning(simulator)) {

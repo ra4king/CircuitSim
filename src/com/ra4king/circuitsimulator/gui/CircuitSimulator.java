@@ -1058,7 +1058,7 @@ public class CircuitSimulator extends Application {
 						
 						int comps = totalComponents;
 						new Thread(() -> {
-							final int maxRunLater = comps / 50;
+							final int maxRunLater = Math.max(comps / 20, 50);
 							
 							while(!runnables.isEmpty()) {
 								int left = Math.min(runnables.size(), maxRunLater);

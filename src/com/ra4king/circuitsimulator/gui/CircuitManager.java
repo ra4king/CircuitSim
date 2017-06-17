@@ -132,6 +132,7 @@ public class CircuitManager {
 		startConnection = null;
 		endConnection = null;
 		inspectLinkWires = null;
+		simulatorWindow.updateCanvasSize(this);
 		
 		needsRepaint = true;
 	}

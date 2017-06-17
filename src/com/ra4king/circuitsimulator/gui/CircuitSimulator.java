@@ -755,7 +755,7 @@ public class CircuitSimulator extends Application {
 		});
 	}
 	
-	private void updateCanvasSize(CircuitManager circuitManager) {
+	void updateCanvasSize(CircuitManager circuitManager) {
 		OptionalInt maxX = Stream.concat(circuitManager.getSelectedElements().stream(),
 		                                 Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
 		                                               circuitManager.getCircuitBoard().getLinks().stream().flatMap(
@@ -785,7 +785,7 @@ public class CircuitSimulator extends Application {
 		needsRepaint = true;
 	}
 	
-	private void circuitModified(Circuit circuit, Component component, boolean added) {
+	void circuitModified(Circuit circuit, Component component, boolean added) {
 		if(component != null && !(component instanceof Pin)) {
 			return;
 		}
@@ -1457,11 +1457,12 @@ public class CircuitSimulator extends Application {
 		
 		MenuItem clear = new MenuItem("Clear");
 		clear.setOnAction(event -> {
-			clearCircuits();
-			
-			editHistory.disable();
-			createCircuit("New circuit");
-			editHistory.enable();
+			if(!checkUnsavedChanges()) {
+				clearCircuits();
+				editHistory.disable();
+				createCircuit("New circuit");
+				editHistory.enable();
+			}
 		});
 		
 		// FILE Menu

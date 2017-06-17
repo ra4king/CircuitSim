@@ -17,7 +17,6 @@ import com.ra4king.circuitsimulator.gui.LinkWires.Wire;
 import com.ra4king.circuitsimulator.simulator.Circuit;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Simulator;
-import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -265,22 +264,19 @@ public class CircuitBoard {
 			}
 		}
 		
-		Pin pin = null;
-		
 		RuntimeException toThrow = null;
 		for(GuiElement element : moveElements) {
 			if(element instanceof ComponentPeer<?>) {
 				ComponentPeer<?> component = (ComponentPeer<?>)element;
-				
-				if(pin == null && component.getComponent() instanceof Pin) {
-					pin = (Pin)component.getComponent();
-				}
 				
 				try {
 					addComponent(component);
 				} catch(RuntimeException exc) {
 					toThrow = exc;
 				}
+				
+				// moving components doesn't actually modify the Circuit, so we must trigger the listener directly
+				circuitManager.getSimulatorWindow().circuitModified(circuit, component.getComponent(), true);
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
 				try {
@@ -304,10 +300,6 @@ public class CircuitBoard {
 		moveDeltaY = 0;
 		
 		updateBadLinks();
-		if(pin != null) {
-			// moving pins doesn't actually modify the Circuit, so we must trigger the listener directly
-			circuitManager.getSimulatorWindow().circuitModified(circuit, pin, true);
-		}
 		circuitManager.getSimulatorWindow().runSim();
 		
 		if(cannotMoveHere) {

@@ -25,6 +25,7 @@ import com.ra4king.circuitsimulator.gui.peers.io.LEDMatrix;
 import com.ra4king.circuitsimulator.gui.peers.memory.RAMPeer;
 import com.ra4king.circuitsimulator.gui.peers.memory.ROMPeer;
 import com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer;
+import com.ra4king.circuitsimulator.gui.peers.misc.Text;
 import com.ra4king.circuitsimulator.gui.peers.plexers.DecoderPeer;
 import com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer;
 import com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer;
@@ -188,6 +189,8 @@ public class ComponentManager {
 		register(Button.class);
 		register(LEDMatrix.class);
 		register(HexDisplay.class);
+		
+		register(Text.class);
 	}
 	
 	public interface ComponentCreator<T extends ComponentPeer<?>> {

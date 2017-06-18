@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers.memory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.ra4king.circuitsimulator.gui.CircuitManager;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
@@ -72,13 +73,16 @@ public class RAMPeer extends ComponentPeer<RAM> {
 						circuit.getSimulatorWindow().runSim();
 					});
 			
-			getComponent().addMemoryListener((address, data) -> {
+			BiConsumer<Integer, Integer> listener;
+			getComponent().addMemoryListener(listener = (address, data) -> {
 				int index = address / 16;
 				MemoryLine line = memory.get(index);
 				line.values.get(address - index * 16).setValue(memoryValidator.parseValue(data));
 			});
 			
 			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), memory);
+			
+			getComponent().removeMemoryListener(listener);
 		});
 		return Collections.singletonList(menuItem);
 	}

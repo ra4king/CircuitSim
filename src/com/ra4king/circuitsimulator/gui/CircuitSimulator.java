@@ -920,6 +920,9 @@ public class CircuitSimulator extends Application {
 	 */
 	public void clearCircuits() {
 		runFxSync(() -> {
+			Clock.reset(simulator);
+			clockEnabled.setSelected(false);
+			
 			editHistory.disable();
 			circuitManagers.forEach((name, pair) -> pair.getValue().destroy());
 			editHistory.enable();
@@ -988,7 +991,7 @@ public class CircuitSimulator extends Application {
 						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
 						
 						Platform.runLater(() -> {
-							bar.setProgress(0.25);
+							bar.setProgress(0.2);
 							dialog.setContentText("Creating circuits...");
 						});
 						
@@ -1014,7 +1017,7 @@ public class CircuitSimulator extends Application {
 						
 						final CountDownLatch latch = new CountDownLatch(totalComponents + 1);
 						
-						double increment = 0.75 / totalComponents;
+						double increment = (1.0 - bar.getProgress()) / totalComponents;
 						
 						for(CircuitInfo circuit : circuitFile.circuits) {
 							CircuitManager manager = getCircuitManager(circuit.name);
@@ -1473,11 +1476,6 @@ public class CircuitSimulator extends Application {
 				return;
 			}
 			
-			if(Clock.isRunning(simulator)) {
-				clockEnabled.setSelected(false);
-				Clock.reset(simulator);
-			}
-			
 			try {
 				loadCircuits(null);
 			} catch(Exception exc) {
@@ -1836,6 +1834,10 @@ public class CircuitSimulator extends Application {
 			clockEnabled.setSelected(false);
 			simulator.reset();
 			
+			for(Pair<ComponentLauncherInfo, CircuitManager> pair : circuitManagers.values()) {
+				pair.getValue().getCircuitBoard().setCurrentState(pair.getValue().getCircuit().getTopLevelState());
+			}
+			
 			runSim();
 		});
 		
@@ -2044,7 +2046,6 @@ public class CircuitSimulator extends Application {
 						String message = getCurrentError();
 						
 						if(message != null && !message.isEmpty() && Clock.isRunning(simulator)) {
-							System.out.println("Message: " + message);
 							clockEnabled.setSelected(false);
 						}
 						

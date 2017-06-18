@@ -108,8 +108,9 @@ public class Simulator {
 	
 	/**
 	 * Notify the Simulator the specified port has pushed a new value.
+	 *
 	 * @param state The CircuitState in which the Port has pushed the new value.
-	 * @param port The Port that pushed the new value.
+	 * @param port  The Port that pushed the new value.
 	 */
 	public void valueChanged(CircuitState state, Port port) {
 		valueChanged(state, port.getLink());
@@ -117,42 +118,55 @@ public class Simulator {
 	
 	/**
 	 * Notify the Simulator the specified Link has received new values.
-	 * @param state The CircuitState in which the Link has received new values. 
-	 * @param link The Link that has received new values.
+	 *
+	 * @param state The CircuitState in which the Link has received new values.
+	 * @param link  The Link that has received new values.
 	 */
 	public void valueChanged(CircuitState state, Link link) {
 		runSync(() -> linksToUpdate.add(new Pair<>(state, link)));
 	}
+	
+	private boolean stepping = false;
 	
 	/**
 	 * Perform only a single propagation step. This is thread-safe.
 	 */
 	public void step() {
 		runSync(() -> {
-			Collection<Pair<CircuitState, Link>> tmp = linksToUpdate;
-			linksToUpdate = temp;
-			temp = tmp;
-			
-			temp.addAll(shortCircuited);
-			
-			linksToUpdate.clear();
-			shortCircuited.clear();
-			lastShortCircuit = null;
-			
-			temp.forEach(pair -> {
-				try {
-					pair.getKey().propagateSignal(pair.getValue());
-				} catch(ShortCircuitException exc) {
-					shortCircuited.add(pair);
-					lastShortCircuit = exc;
-				}
-			});
-			
-			if(lastShortCircuit != null && linksToUpdate.size() == 0) {
-				throw lastShortCircuit;
+			if(stepping) {
+				return;
 			}
 			
-			linksToUpdate.addAll(shortCircuited);
+			try {
+				stepping = true;
+				
+				Collection<Pair<CircuitState, Link>> tmp = linksToUpdate;
+				linksToUpdate = temp;
+				temp = tmp;
+				
+				temp.addAll(shortCircuited);
+				
+				linksToUpdate.clear();
+				shortCircuited.clear();
+				lastShortCircuit = null;
+				
+				temp.forEach(pair -> {
+					try {
+						pair.getKey().propagateSignal(pair.getValue());
+					} catch(ShortCircuitException exc) {
+						shortCircuited.add(pair);
+						lastShortCircuit = exc;
+					}
+				});
+				
+				if(lastShortCircuit != null && linksToUpdate.size() == 0) {
+					throw lastShortCircuit;
+				}
+				
+				linksToUpdate.addAll(shortCircuited);
+			} finally {
+				stepping = false;
+			}
 		});
 	}
 	
@@ -161,6 +175,10 @@ public class Simulator {
 	 */
 	public void stepAll() {
 		runSync(() -> {
+			if(stepping) {
+				return;
+			}
+			
 			history.clear();
 			
 			do {
@@ -168,7 +186,7 @@ public class Simulator {
 					throw new IllegalStateException("Oscillation apparent.");
 				}
 				
-				history.add(new ArrayList<>(linksToUpdate));
+				history.add(new LinkedHashSet<>(linksToUpdate));
 				step();
 			} while(!linksToUpdate.isEmpty());
 		});

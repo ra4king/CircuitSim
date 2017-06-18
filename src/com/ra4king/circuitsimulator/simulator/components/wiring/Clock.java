@@ -27,12 +27,7 @@ public class Clock extends Component {
 		private int lastTickCount;
 		
 		void reset() {
-			Thread clockThread = currentClock;
 			stopClock();
-			while(clockThread != null && clockThread.isAlive()) {
-				Thread.yield();
-			}
-			
 			if(clock) {
 				tick();
 			}
@@ -67,6 +62,7 @@ public class Clock extends Component {
 						lastTickCount = tickCount;
 						tickCount = 0;
 						lastPrintTime = now;
+						lastTickTime = now;
 					}
 					
 					tick();
@@ -75,9 +71,9 @@ public class Clock extends Component {
 					lastTickTime += nanosPerTick;
 					
 					long diff = lastTickTime - System.nanoTime();
-					if(diff >= 1e6) {
+					if(diff >= 1e6 || (tickCount >> 1) >= hertz) {
 						try {
-							Thread.sleep((long)(diff / 1e6));
+							Thread.sleep(Math.max(1, (long)(diff / 1e6)));
 						} catch(InterruptedException exc) {
 							break;
 						}
@@ -94,10 +90,16 @@ public class Clock extends Component {
 		
 		void stopClock() {
 			if(currentClock != null) {
+				Thread clockThread = currentClock;
+				
 				System.out.println("Stopping clock");
 				currentClock.interrupt();
 				currentClock = null;
 				lastTickCount = 0;
+				
+				while(clockThread.isAlive()) {
+					Thread.yield();
+				}
 			}
 		}
 	}

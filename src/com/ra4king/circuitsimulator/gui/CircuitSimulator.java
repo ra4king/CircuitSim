@@ -98,6 +98,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -144,6 +145,7 @@ public class CircuitSimulator extends Application {
 	private ToggleGroup buttonsToggleGroup;
 	
 	private ComboBox<Integer> bitSizeSelect;
+	private ComboBox<Double> scaleFactorSelect;
 	private GridPane propertiesTable;
 	private Label componentLabel;
 	
@@ -280,6 +282,14 @@ public class CircuitSimulator extends Application {
 	 */
 	public boolean isClickMode() {
 		return clickMode.isSelected();
+	}
+	
+	public double getScaleFactor() {
+		return scaleFactorSelect.getSelectionModel().getSelectedItem();
+	}
+	
+	public double getScaleFactorInverted() {
+		return 1.0 / getScaleFactor();
 	}
 	
 	/**
@@ -763,11 +773,11 @@ public class CircuitSimulator extends Application {
 		                         .mapToInt(componentPeer -> componentPeer.getX() + componentPeer.getWidth())
 		                         .max();
 		
-		int maxWidth = ((maxX.isPresent() ? maxX.getAsInt() : 0) + 5) * GuiUtils.BLOCK_SIZE;
+		double maxWidth = Math.min(5000, getScaleFactor() * (maxX.orElse(0) + 5) * GuiUtils.BLOCK_SIZE);
 		circuitManager.getCanvas().setWidth(
-				maxWidth < circuitManager.getCanvasScrollPane().getWidth() ? circuitManager.getCanvasScrollPane()
-				                                                                           .getWidth()
-				                                                           : maxWidth);
+				maxWidth < circuitManager.getCanvasScrollPane().getWidth()
+				? circuitManager.getCanvasScrollPane().getWidth()
+				: maxWidth);
 		
 		OptionalInt maxY = Stream.concat(circuitManager.getSelectedElements().stream(),
 		                                 Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
@@ -776,11 +786,11 @@ public class CircuitSimulator extends Application {
 		                         .mapToInt(componentPeer -> componentPeer.getY() + componentPeer.getHeight())
 		                         .max();
 		
-		int maxHeight = ((maxY.isPresent() ? maxY.getAsInt() : 0) + 5) * GuiUtils.BLOCK_SIZE;
+		double maxHeight = Math.min(5000, getScaleFactor() * (maxY.orElse(0) + 5) * GuiUtils.BLOCK_SIZE);
 		circuitManager.getCanvas().setHeight(
-				maxHeight < circuitManager.getCanvasScrollPane().getHeight() ? circuitManager.getCanvasScrollPane()
-				                                                                             .getHeight()
-				                                                             : maxHeight);
+				maxHeight < circuitManager.getCanvasScrollPane().getHeight()
+				? circuitManager.getCanvasScrollPane().getHeight()
+				: maxHeight);
 		
 		needsRepaint = true;
 	}
@@ -971,8 +981,8 @@ public class CircuitSimulator extends Application {
 				Dialog<ButtonType> dialog = new Dialog<>();
 				dialog.initOwner(stage);
 				dialog.initModality(Modality.WINDOW_MODAL);
-				dialog.setTitle("Loading circuits...");
-				dialog.setHeaderText("Loading...");
+				dialog.setTitle("Loading " + f.getName() + "...");
+				dialog.setHeaderText("Loading " + f.getName() + "...");
 				dialog.setGraphic(bar);
 				
 				lastSaveFile = f;
@@ -1381,11 +1391,25 @@ public class CircuitSimulator extends Application {
 		for(int i = 1; i <= 32; i++) {
 			bitSizeSelect.getItems().add(i);
 		}
-		bitSizeSelect.setMaxWidth(Double.MAX_VALUE);
 		bitSizeSelect.setValue(1);
 		bitSizeSelect.getSelectionModel()
 		             .selectedItemProperty()
 		             .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
+		
+		scaleFactorSelect = new ComboBox<>();
+		for(int i = 1; i <= 12; i++) {
+			scaleFactorSelect.getItems().add(i * 0.25);
+		}
+		scaleFactorSelect.setValue(1.0);
+		scaleFactorSelect.getSelectionModel()
+		                 .selectedItemProperty()
+		                 .addListener((observable, oldValue, newValue) -> {
+			                 needsRepaint = true;
+			                 for(Pair<ComponentLauncherInfo, CircuitManager> pair :
+					                 circuitManagers.values()) {
+				                 updateCanvasSize(pair.getValue());
+			                 }
+		                 });
 		
 		buttonTabPane = new TabPane();
 		buttonTabPane.setSide(Side.TOP);
@@ -1970,6 +1994,7 @@ public class CircuitSimulator extends Application {
 		ToggleButton notButton = createToolbarButton.apply(new Pair<>("Gates", "NOT"));
 		ToggleButton xorButton = createToolbarButton.apply(new Pair<>("Gates", "XOR"));
 		ToggleButton tunnelButton = createToolbarButton.apply(new Pair<>("Wiring", "Tunnel"));
+		ToggleButton textButton = createToolbarButton.apply(new Pair<>("Misc", "Text"));
 		
 		clickMode = new ToggleButton("Click Mode (Shift)");
 		clickMode.setTooltip(new Tooltip("Clicking will sticky this mode"));
@@ -1977,10 +2002,16 @@ public class CircuitSimulator extends Application {
 		clickMode.selectedProperty().addListener(
 				(observable, oldValue, newValue) -> scene.setCursor(newValue ? Cursor.HAND : Cursor.DEFAULT));
 		
+		Pane blank = new Pane();
+		HBox.setHgrow(blank, Priority.ALWAYS);
+		
 		toolBar.getItems().addAll(clickMode, new Separator(Orientation.VERTICAL),
 		                          inputPinButton, outputPinButton, andButton,
-		                          orButton, notButton, xorButton, tunnelButton,
-		                          new Label("Global bit size:"), bitSizeSelect);
+		                          orButton, notButton, xorButton, tunnelButton, textButton,
+		                          new Separator(Orientation.VERTICAL),
+		                          new Label("Global bit size:"), bitSizeSelect,
+		                          blank,
+		                          new Label("Scale:"), scaleFactorSelect);
 		
 		VBox.setVgrow(canvasPropsSplit, Priority.ALWAYS);
 		scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));

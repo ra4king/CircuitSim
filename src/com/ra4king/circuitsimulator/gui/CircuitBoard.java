@@ -110,10 +110,15 @@ public class CircuitBoard {
 	}
 	
 	public boolean isValidLocation(ComponentPeer<?> component) {
-		return Stream.concat(components.stream(),
-		                     moveElements != null ? moveElements.stream().filter(e -> e instanceof ComponentPeer<?>)
-		                                          : Stream.empty())
-		             .noneMatch(c -> c != component && c.getX() == component.getX() && c.getY() == component.getY());
+		return component.getX() >= 0 && component.getY() >= 0 &&
+				       Stream.concat(components.stream(),
+				                     moveElements != null ? moveElements.stream()
+				                                                        .filter(e -> e instanceof ComponentPeer<?>)
+				                                          : Stream.empty())
+				             .noneMatch(
+						             c -> c != component &&
+								                  c.getX() == component.getX() &&
+								                  c.getY() == component.getY());
 	}
 	
 	public void addComponent(ComponentPeer<?> component) {
@@ -274,9 +279,6 @@ public class CircuitBoard {
 				} catch(RuntimeException exc) {
 					toThrow = exc;
 				}
-				
-				// moving components doesn't actually modify the Circuit, so we must trigger the listener directly
-				circuitManager.getSimulatorWindow().circuitModified(circuit, component.getComponent(), true);
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
 				try {
@@ -284,6 +286,14 @@ public class CircuitBoard {
 				} catch(RuntimeException exc) {
 					toThrow = exc;
 				}
+			}
+		}
+		
+		for(GuiElement element : moveElements) {
+			if(element instanceof ComponentPeer<?>) {
+				ComponentPeer<?> component = (ComponentPeer<?>)element;
+				// moving components doesn't actually modify the Circuit, so we must trigger the listener directly
+				circuitManager.getSimulatorWindow().circuitModified(circuit, component.getComponent(), true);
 			}
 		}
 		
@@ -486,6 +496,10 @@ public class CircuitBoard {
 	}
 	
 	public Set<Wire> addWire(int x, int y, int length, boolean horizontal) {
+		if(x < 0 || y < 0 || (horizontal && x + length < 0) || (!horizontal && y + length < 0)) {
+			throw new IllegalArgumentException("Wire cannot go into negative space.");
+		}
+		
 		try {
 			editHistory.beginGroup();
 			

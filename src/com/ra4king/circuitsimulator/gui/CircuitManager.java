@@ -289,23 +289,29 @@ public class CircuitManager {
 		
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		
+		graphics.save();
+		
 		graphics.setFont(GuiUtils.getFont(13));
 		graphics.setFontSmoothingType(FontSmoothingType.LCD);
 		
-		graphics.save();
 		graphics.setFill(Color.LIGHTGRAY);
 		graphics.fillRect(0, 0, getCanvas().getWidth(), getCanvas().getHeight());
 		
+		graphics.scale(simulatorWindow.getScaleFactor(), simulatorWindow.getScaleFactor());
+		
 		graphics.setFill(Color.BLACK);
-		for(int i = 0; i < getCanvas().getWidth(); i += GuiUtils.BLOCK_SIZE) {
-			for(int j = 0; j < getCanvas().getHeight(); j += GuiUtils.BLOCK_SIZE) {
-				graphics.getPixelWriter().setColor(i, j, Color.BLACK);
+		double scaleInverted = simulatorWindow.getScaleFactorInverted();
+		for(int i = 0; i < getCanvas().getWidth() * scaleInverted; i += GuiUtils.BLOCK_SIZE) {
+			for(int j = 0; j < getCanvas().getHeight() * scaleInverted; j += GuiUtils.BLOCK_SIZE) {
+				graphics.fillRect(i, j, 1, 1);
 			}
 		}
 		
-		graphics.restore();
-		
-		circuitBoard.paint(graphics);
+		try {
+			circuitBoard.paint(graphics);
+		} catch(Exception exc) {
+			exc.printStackTrace();
+		}
 		
 		for(GuiElement selectedElement : selectedElementsMap.keySet()) {
 			graphics.setStroke(Color.RED);
@@ -372,10 +378,12 @@ public class CircuitManager {
 					
 					graphics.setLineWidth(2);
 					graphics.setStroke(Color.GREEN);
-					graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10, 10);
+					graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10,
+					                    10);
 					
 					if(endConnection != null) {
-						graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10, 10);
+						graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10,
+						                    10);
 					}
 					
 					if(startConnection instanceof PortConnection) {
@@ -461,6 +469,8 @@ public class CircuitManager {
 				break;
 			}
 		}
+		
+		graphics.restore();
 	}
 	
 	interface ThrowableRunnable {
@@ -688,8 +698,10 @@ public class CircuitManager {
 			return;
 		}
 		
-		lastMousePosition = new Point2D(e.getX(), e.getY());
-		lastMousePressed = new Point2D(e.getX(), e.getY());
+		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+		                                e.getY() * simulatorWindow.getScaleFactorInverted());
+		lastMousePressed = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+		                               e.getY() * simulatorWindow.getScaleFactorInverted());
 		
 		switch(currentState) {
 			case ELEMENT_DRAGGED:
@@ -715,7 +727,8 @@ public class CircuitManager {
 				} else {
 					Optional<GuiElement> clickedComponent =
 							Stream.concat(getSelectedElements().stream(), circuitBoard.getComponents().stream())
-							      .filter(peer -> peer.containsScreenCoord((int)e.getX(), (int)e.getY()))
+							      .filter(peer -> peer.containsScreenCoord((int)lastMousePressed.getX(),
+							                                               (int)lastMousePressed.getY()))
 							      .findFirst();
 					if(clickedComponent.isPresent()) {
 						GuiElement selectedElement = clickedComponent.get();
@@ -752,8 +765,10 @@ public class CircuitManager {
 			case CONNECTION_DRAGGED:
 				addCurrentWire();
 				if(isCtrlDown) {
-					Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(e.getX()),
-					                                                            GuiUtils.getCircuitCoord(e.getY()));
+					Set<Connection> selectedConns =
+							circuitBoard.getConnections(
+									GuiUtils.getCircuitCoord(lastMousePressed.getX()),
+									GuiUtils.getCircuitCoord(lastMousePressed.getY()));
 					if(!selectedConns.isEmpty()) {
 						startConnection = selectedConns.iterator().next();
 					}
@@ -787,7 +802,8 @@ public class CircuitManager {
 			return;
 		}
 		
-		lastMousePosition = new Point2D(e.getX(), e.getY());
+		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+		                                e.getY() * simulatorWindow.getScaleFactorInverted());
 		
 		switch(currentState) {
 			case IDLE:
@@ -844,7 +860,8 @@ public class CircuitManager {
 		}
 		
 		Point2D prevMousePosition = lastMousePosition;
-		lastMousePosition = new Point2D(e.getX(), e.getY());
+		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+		                                e.getY() * simulatorWindow.getScaleFactorInverted());
 		
 		switch(currentState) {
 			case IDLE:
@@ -873,7 +890,7 @@ public class CircuitManager {
 			
 			case ELEMENT_SELECTED:
 				if(simulatorWindow.isClickMode()) break;
-				
+			
 			case ELEMENT_DRAGGED:
 			case PLACING_COMPONENT:
 				int dx = GuiUtils.getCircuitCoord(lastMousePosition.getX() - lastMousePressed.getX());
@@ -904,11 +921,14 @@ public class CircuitManager {
 	
 	public void mouseMoved(MouseEvent e) {
 		Point2D prevMousePosition = lastMousePosition;
-		lastMousePosition = new Point2D(e.getX(), e.getY());
+		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+		                                e.getY() * simulatorWindow.getScaleFactorInverted());
 		
 		if(potentialComponent != null) {
-			potentialComponent.setX(GuiUtils.getCircuitCoord(e.getX()) - potentialComponent.getWidth() / 2);
-			potentialComponent.setY(GuiUtils.getCircuitCoord(e.getY()) - potentialComponent.getHeight() / 2);
+			potentialComponent.setX(GuiUtils.getCircuitCoord(
+					lastMousePosition.getX()) - potentialComponent.getWidth() / 2);
+			potentialComponent.setY(GuiUtils.getCircuitCoord(
+					lastMousePosition.getY()) - potentialComponent.getHeight() / 2);
 		}
 		
 		checkStartConnection();

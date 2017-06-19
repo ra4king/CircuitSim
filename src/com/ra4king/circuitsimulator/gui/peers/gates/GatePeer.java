@@ -8,15 +8,19 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
+import com.ra4king.circuitsimulator.gui.Properties.Property;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 /**
  * @author Roi Atalla
  */
-public abstract class GatePeer extends ComponentPeer<Gate> {
+public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
+	private boolean hasNegatedInput = false;
+	
 	public GatePeer(Properties props, int x, int y) {
 		this(props, x, y, 4, 4);
 	}
@@ -31,31 +35,138 @@ public abstract class GatePeer extends ComponentPeer<Gate> {
 		ensureProperties(properties);
 		properties.mergeIfExists(props);
 		
-		Gate gate = buildGate(properties);
-		
-		List<PortConnection> connections = new ArrayList<>();
-		int gateNum = gate.getNumPorts() - 1;
-		for(int i = 0; i < gateNum; i++) {
-			int add = (gateNum % 2 == 0 && i >= gateNum / 2) ? 3 : 2;
-			connections.add(
-					new PortConnection(this, gate.getPort(i), 0, i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0)));
+		int limit = -1;
+		for(int i = 0; ; i++) {
+			String propName = "Negate " + i;
+			
+			if(!props.containsProperty(propName)) {
+				if(limit == -1) {
+					limit = i;
+					i--;
+					continue;
+				}
+				
+				break;
+			}
+			
+			Object value = props.getValue(propName);
+			boolean negate;
+			if(value instanceof Boolean) {
+				negate = (Boolean)value;
+			} else {
+				negate = value.equals("Yes");
+			}
+			
+			properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, negate));
+			
+			if(negate) {
+				hasNegatedInput = true;
+				setWidth(width + 1);
+			}
 		}
 		
-		connections.add(new PortConnection(this, gate.getPort(gateNum), getWidth(), getHeight() / 2));
+		T gate = buildGate(properties);
+		int gateNum = gate.getNumInputs();
 		
-		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		for(int i = 0; i < gateNum; i++) {
+			String propName = "Negate " + i;
+			
+			if(!properties.containsProperty(propName)) {
+				properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, false));
+			}
+			
+			if(i == 0) {
+				properties.getProperty(propName).display += " Top/Left";
+			} else if(i == gateNum - 1) {
+				properties.getProperty(propName).display += " Bottom/Right";
+			}
+		}
+		
 		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		
+		List<PortConnection> connections = new ArrayList<>();
+		
+		int inputOffset = 0;
+		switch(properties.getValue(Properties.DIRECTION)) {
+			case WEST:
+				inputOffset = getWidth();
+			case EAST:
+				for(int i = 0; i < gateNum; i++) {
+					int add = (gateNum % 2 == 0 && i >= gateNum / 2) ? 3 : 2;
+					connections.add(
+							new PortConnection(this, gate.getPort(i),
+							                   inputOffset, i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0)));
+				}
+				
+				connections.add(new PortConnection(this, gate.getPort(gateNum),
+				                                   getWidth() - inputOffset, getHeight() / 2));
+				break;
+			case NORTH:
+				inputOffset = getHeight();
+			case SOUTH:
+				for(int i = 0; i < gateNum; i++) {
+					int add = (gateNum % 2 == 0 && i >= gateNum / 2) ? 3 : 2;
+					connections.add(
+							new PortConnection(this, gate.getPort(i),
+							                   i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0), inputOffset));
+				}
+				
+				connections.add(new PortConnection(this, gate.getPort(gateNum),
+				                                   getWidth() / 2, getHeight() - inputOffset));
+				break;
+		}
 		
 		init(gate, properties, connections);
 	}
 	
+	protected static boolean[] parseNegatedInputs(int inputs, Properties properties) {
+		boolean[] negated = new boolean[inputs];
+		
+		for(int i = 0; i < negated.length; i++) {
+			negated[i] = properties.getValueOrDefault("Negate " + i, false);
+		}
+		
+		return negated;
+	}
+	
 	protected abstract void ensureProperties(Properties properties);
 	
-	public abstract Gate buildGate(Properties properties);
+	public abstract T buildGate(Properties properties);
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+		graphics.setFill(Color.WHITE);
+		graphics.setStroke(Color.BLACK);
+		
+		for(int i = 0; i < getConnections().size() - 1; i++) {
+			if(getComponent().getNegateInputs()[i]) {
+				PortConnection c = getConnections().get(i);
+				int x = c.getX() * GuiUtils.BLOCK_SIZE;
+				int y = c.getY() * GuiUtils.BLOCK_SIZE;
+				
+				switch(getProperties().getValue(Properties.DIRECTION)) {
+					case WEST:
+						x -= GuiUtils.BLOCK_SIZE;
+					case EAST:
+						y -= GuiUtils.BLOCK_SIZE * 0.5;
+						break;
+					case NORTH:
+						y -= GuiUtils.BLOCK_SIZE;
+					case SOUTH:
+						x -= GuiUtils.BLOCK_SIZE * 0.5;
+						break;
+				}
+				
+				graphics.fillOval(x, y, GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
+				graphics.strokeOval(x, y, GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
+			}
+		}
+		
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));
+		
+		if(hasNegatedInput) {
+			graphics.translate(GuiUtils.BLOCK_SIZE, 0);
+		}
 	}
 }

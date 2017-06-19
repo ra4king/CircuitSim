@@ -286,6 +286,7 @@ public class Properties {
 	
 	public static class Property<T> {
 		public final String name;
+		public String display;
 		public final PropertyValidator<T> validator;
 		public final T value;
 		
@@ -298,7 +299,12 @@ public class Properties {
 		}
 		
 		public Property(String name, PropertyValidator<T> validator, T value) {
+			this(name, name, validator, value);
+		}
+		
+		public Property(String name, String displayName, PropertyValidator<T> validator, T value) {
 			this.name = name;
+			this.display = name;
 			this.validator = validator;
 			this.value = value;
 		}

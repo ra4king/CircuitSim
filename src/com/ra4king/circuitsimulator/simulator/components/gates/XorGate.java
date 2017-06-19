@@ -10,8 +10,16 @@ public class XorGate extends Gate {
 		super(name, bitSize, numInputs, false);
 	}
 	
+	public XorGate(String name, int bitSize, int numInputs, boolean[] negateInputs) {
+		super(name, bitSize, numInputs, negateInputs, false);
+	}
+	
 	protected XorGate(String name, int bitSize, int numInputs, boolean negateOutput) {
 		super(name, bitSize, numInputs, negateOutput);
+	}
+	
+	protected XorGate(String name, int bitSize, int numInputs, boolean[] negateInputs, boolean negateOutput) {
+		super(name, bitSize, numInputs, negateInputs, negateOutput);
 	}
 	
 	@Override

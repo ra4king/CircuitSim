@@ -546,7 +546,7 @@ public class CircuitSimulator extends Application {
 				private <T> void acceptProperty(Property<T> property) {
 					int size = propertiesTable.getChildren().size();
 					
-					Label name = new Label(property.name);
+					Label name = new Label(property.display);
 					GridPane.setHgrow(name, Priority.ALWAYS);
 					name.setMaxWidth(Double.MAX_VALUE);
 					name.setMinHeight(30);

@@ -12,6 +12,10 @@ public class WireValue {
 		State(char c) {
 			repr = c;
 		}
+		
+		public State negate() {
+			return this == X ? X : this == ONE ? ZERO : ONE;
+		}
 	}
 	
 	private State[] bits;

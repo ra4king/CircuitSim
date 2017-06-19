@@ -5,6 +5,6 @@ package com.ra4king.circuitsimulator.simulator.components.gates;
  */
 public class NotGate extends Gate {
 	public NotGate(String name, int bitSize) {
-		super(name, bitSize, 1, true);
+		super(name, bitSize, 1, new boolean[1], true);
 	}
 }

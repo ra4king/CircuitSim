@@ -1,6 +1,7 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
+import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
@@ -33,23 +34,27 @@ public class NorGatePeer extends GatePeer {
 	
 	@Override
 	public Gate buildGate(Properties properties) {
+		int numInputs;
 		return new NorGate(properties.getValue(Properties.LABEL),
 		                   properties.getValue(Properties.BITSIZE),
-		                   properties.getValue(Properties.NUM_INPUTS));
+		                   numInputs = properties.getValue(Properties.NUM_INPUTS),
+		                   parseNegatedInputs(numInputs, properties));
 	}
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		super.paint(graphics, circuitState);
 		
+		int x = getScreenX();
+		int y = getScreenY();
+		int width = 4 * GuiUtils.BLOCK_SIZE;
+		int height = 4 * GuiUtils.BLOCK_SIZE;
+		
 		graphics.beginPath();
-		graphics.moveTo(getScreenX(), getScreenY() + getScreenHeight());
-		graphics.arc(getScreenX(), getScreenY() + getScreenHeight() * 0.5, getScreenWidth() * 0.25,
-		             getScreenHeight() * 0.5, 270, 180);
-		graphics.arcTo(getScreenX() + getScreenWidth() * 0.66, getScreenY(), getScreenX() + getScreenWidth(),
-		               getScreenY() + getScreenHeight() * 1.3, getScreenWidth() * 0.7);
-		graphics.arcTo(getScreenX() + getScreenWidth() * 0.66, getScreenY() + getScreenHeight(), getScreenX(),
-		               getScreenY() + getScreenHeight(), getScreenWidth() * 0.7);
+		graphics.moveTo(x, y + height);
+		graphics.arc(x, y + height * 0.5, width * 0.25, height * 0.5, 270, 180);
+		graphics.arcTo(x + width * 0.66, y, x + width, y + height * 1.3, width * 0.7);
+		graphics.arcTo(x + width * 0.66, y + height, x, y + height, width * 0.7);
 		graphics.closePath();
 		
 		graphics.setFill(Color.WHITE);
@@ -57,12 +62,7 @@ public class NorGatePeer extends GatePeer {
 		graphics.fill();
 		graphics.stroke();
 		
-		graphics.fillOval(getScreenX() + getScreenWidth() * 0.8,
-		                  getScreenY() + getScreenHeight() * 0.5 - getScreenWidth() * 0.1, getScreenWidth() * 0.2,
-		                  getScreenWidth() * 0.2);
-		graphics.strokeOval(getScreenX() + getScreenWidth() * 0.8,
-		                    getScreenY() + getScreenHeight() * 0.5 - getScreenWidth() * 0.1, getScreenWidth() *
-				                                                                                     0.2,
-		                    getScreenWidth() * 0.2);
+		graphics.fillOval(x + width * 0.8, y + height * 0.5 - width * 0.1, width * 0.2, width * 0.2);
+		graphics.strokeOval(x + width * 0.8, y + height * 0.5 - width * 0.1, width * 0.2, width * 0.2);
 	}
 }

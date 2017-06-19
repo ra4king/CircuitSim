@@ -1,6 +1,7 @@
 package com.ra4king.circuitsimulator.gui.peers.gates;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
+import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.components.gates.Gate;
@@ -42,8 +43,8 @@ public class NotGatePeer extends GatePeer {
 		
 		int x = getScreenX();
 		int y = getScreenY();
-		int width = getScreenWidth();
-		int height = getScreenHeight();
+		int width = 3 * GuiUtils.BLOCK_SIZE;
+		int height = 2 * GuiUtils.BLOCK_SIZE;
 		
 		graphics.beginPath();
 		graphics.moveTo(x, y);

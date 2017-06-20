@@ -262,11 +262,11 @@ public class GuiUtils {
 	/**
 	 * Source orientation is assumed EAST
 	 */
-	public static void rotateGraphics(ComponentPeer<?> component, GraphicsContext graphics, Direction direction) {
-		int x = component.getScreenX();
-		int y = component.getScreenY();
-		int width = component.getScreenWidth();
-		int height = component.getScreenHeight();
+	public static void rotateGraphics(GuiElement element, GraphicsContext graphics, Direction direction) {
+		int x = element.getScreenX();
+		int y = element.getScreenY();
+		int width = element.getScreenWidth();
+		int height = element.getScreenHeight();
 		
 		graphics.translate(x + width * 0.5, y + height * 0.5);
 		switch(direction) {

@@ -33,6 +33,7 @@ import com.ra4king.circuitsimulator.gui.peers.wiring.ClockPeer;
 import com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer;
 import com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer;
+import com.ra4king.circuitsimulator.gui.peers.wiring.TransistorPeer;
 import com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel;
 
 import javafx.scene.image.Image;
@@ -161,6 +162,7 @@ public class ComponentManager {
 		register(ClockPeer.class);
 		register(SplitterPeer.class);
 		register(Tunnel.class);
+		register(TransistorPeer.class);
 		
 		register(AndGatePeer.class);
 		register(NandGatePeer.class);

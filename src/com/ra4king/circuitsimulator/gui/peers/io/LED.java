@@ -2,7 +2,6 @@ package com.ra4king.circuitsimulator.gui.peers.io;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
@@ -11,18 +10,14 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.gui.Properties.Direction;
 import com.ra4king.circuitsimulator.gui.Properties.Property;
-import com.ra4king.circuitsimulator.gui.Properties.PropertyValidator;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
 
-import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ColorPicker;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.util.Pair;
 
 /**
@@ -39,22 +34,8 @@ public class LED extends ComponentPeer<Component> {
 	private static final Property<Color> OFF_COLOR_PROPERTY;
 	
 	static {
-		PropertyValidator<Color> colorValidator = new PropertyValidator<Color>() {
-			@Override
-			public Color parse(String value) {
-				return Color.valueOf(value);
-			}
-			
-			@Override
-			public Node createGui(Stage stage, Color value, Consumer<Color> onAction) {
-				ColorPicker picker = new ColorPicker(value);
-				picker.setOnAction(event -> onAction.accept(picker.getValue()));
-				return picker;
-			}
-		};
-		
-		OFF_COLOR_PROPERTY = new Property<>("Off Color", colorValidator, Color.DARKGRAY);
-		ON_COLOR_PROPERTY = new Property<>("On Color", colorValidator, Color.RED);
+		OFF_COLOR_PROPERTY = new Property<>("Off Color", Properties.COLOR_VALIDATOR, Color.DARKGRAY);
+		ON_COLOR_PROPERTY = new Property<>("On Color", Properties.COLOR_VALIDATOR, Color.RED);
 	}
 	
 	private final Color offColor;

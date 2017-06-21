@@ -26,6 +26,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
@@ -35,6 +36,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -234,6 +236,19 @@ public class Properties {
 	};
 	public static final PropertyListValidator<Boolean> LOCATION_VALIDATOR =
 			new PropertyListValidator<>(Arrays.asList(true, false), bool -> bool ? "Left/Top" : "Right/Down");
+	public static final PropertyValidator<Color> COLOR_VALIDATOR = new PropertyValidator<Color>() {
+		@Override
+		public Color parse(String value) {
+			return Color.valueOf(value);
+		}
+		
+		@Override
+		public Node createGui(Stage stage, Color value, Consumer<Color> onAction) {
+			ColorPicker picker = new ColorPicker(value);
+			picker.setOnAction(event -> onAction.accept(picker.getValue()));
+			return picker;
+		}
+	};
 	
 	public static final Property<String> LABEL;
 	public static final Property<Direction> LABEL_LOCATION;

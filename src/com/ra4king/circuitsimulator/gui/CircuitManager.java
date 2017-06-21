@@ -541,7 +541,6 @@ public class CircuitManager {
 				isShiftDown = true;
 				break;
 			case DELETE:
-				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 			case BACK_SPACE:
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 			case ESCAPE:

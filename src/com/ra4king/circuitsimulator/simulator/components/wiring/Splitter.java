@@ -78,7 +78,7 @@ public class Splitter extends Component {
 				state.pushValue(getPort(i), result);
 			}
 		} else {
-			WireValue result = new WireValue(state.getLastPushedValue(getPort(PORT_JOINED)));
+			WireValue result = new WireValue(state.getLastPushed(getPort(PORT_JOINED)));
 			int currBit = 0;
 			for(int i = 0; i < bitFanIndices.length; i++) {
 				if(bitFanIndices[i] == portIndex) {

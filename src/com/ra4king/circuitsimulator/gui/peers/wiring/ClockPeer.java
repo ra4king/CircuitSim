@@ -70,7 +70,7 @@ public class ClockPeer extends ComponentPeer<Clock> {
 		if(circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {
-			GuiUtils.setBitColor(graphics, circuitState.getLastPushedValue(port), Color.WHITE);
+			GuiUtils.setBitColor(graphics, circuitState.getLastPushed(port), Color.WHITE);
 		}
 		GuiUtils.drawShape(graphics::fillRect, this);
 		graphics.setStroke(Color.BLACK);

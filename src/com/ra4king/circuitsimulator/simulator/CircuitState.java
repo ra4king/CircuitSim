@@ -98,7 +98,7 @@ public class CircuitState {
 	 * @param port The Port for which the last pushed value is returned.
 	 * @return The last pushed value of the Port.
 	 */
-	public WireValue getLastPushedValue(Port port) {
+	public WireValue getLastPushed(Port port) {
 		return new WireValue(get(port.getLink()).getLastPushed(port));
 	}
 	

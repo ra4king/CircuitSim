@@ -25,6 +25,7 @@ import com.ra4king.circuitsimulator.gui.peers.io.LEDMatrix;
 import com.ra4king.circuitsimulator.gui.peers.memory.RAMPeer;
 import com.ra4king.circuitsimulator.gui.peers.memory.ROMPeer;
 import com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer;
+import com.ra4king.circuitsimulator.gui.peers.memory.SRFlipFlopPeer;
 import com.ra4king.circuitsimulator.gui.peers.misc.Text;
 import com.ra4king.circuitsimulator.gui.peers.plexers.DecoderPeer;
 import com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer;
@@ -178,6 +179,7 @@ public class ComponentManager {
 		register(DecoderPeer.class);
 		
 		register(RegisterPeer.class);
+		register(SRFlipFlopPeer.class);
 		register(RAMPeer.class);
 		register(ROMPeer.class);
 		

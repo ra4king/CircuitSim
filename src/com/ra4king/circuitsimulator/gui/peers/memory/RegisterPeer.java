@@ -90,7 +90,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 					value = Character.toUpperCase(c) - 'A' + 10;
 				}
 				
-				WireValue currentValue = state.getLastPushedValue(getComponent().getPort(Register.PORT_OUT));
+				WireValue currentValue = state.getLastPushed(getComponent().getPort(Register.PORT_OUT));
 				WireValue typedValue = WireValue.of(value, Math.min(4, currentValue.getBitSize()));
 				if(typedValue.getValue() != value) {
 					typedValue.setAllBits(State.ZERO); // to prevent typing '9' on a 3-bit value, producing 1
@@ -120,7 +120,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);
 		
-		WireValue lastPushedValue = circuitState.getLastPushedValue(getComponent().getPort(Register.PORT_OUT));
+		WireValue lastPushedValue = circuitState.getLastPushed(getComponent().getPort(Register.PORT_OUT));
 		String value;
 		int hexDigits = 1 + (getComponent().getBitSize() - 1) / 4;
 		if(lastPushedValue.isValidValue()) {
@@ -133,15 +133,31 @@ public class RegisterPeer extends ComponentPeer<Register> {
 			}
 		}
 		
+		int x = getScreenX();
+		int y = getScreenY();
+		int width = getScreenWidth();
+		int height = getScreenHeight();
+		
 		graphics.setFill(Color.BLACK);
+		graphics.setFont(GuiUtils.getFont(13));
 		for(int i = 0; i * 4 < value.length(); i++) {
 			int endIndex = i * 4 + 4 > value.length() ? value.length() : 4 * i + 4;
 			String toPrint = value.substring(4 * i, endIndex);
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), toPrint);
-			graphics.fillText(toPrint, getScreenX() + getScreenWidth() * 0.5 - bounds.getWidth() * 0.5,
-			                  getScreenY() + 15 + 10 * i);
+			graphics.fillText(toPrint, x + width * 0.5 - bounds.getWidth() * 0.5, y + 11 + 10 * i);
 		}
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
+		
+		graphics.setFill(Color.GRAY);
+		graphics.setFont(GuiUtils.getFont(10));
+		graphics.fillText("D", x + 3, y + height * 0.5 + 6);
+		graphics.fillText("Q", x + width - 10, y + height * 0.5 + 6);
+		graphics.fillText("en", x + 3, y + height - 7);
+		graphics.fillText("0", x + width - 13, y + height - 4);
+		
+		graphics.setStroke(Color.BLACK);
+		graphics.strokeLine(x + 7, y + height, x + 10, y + height - 6);
+		graphics.strokeLine(x + 10, y + height - 6, x + 13, y + height);
 	}
 }

@@ -157,7 +157,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		graphics.fillText("0", x + width - 13, y + height - 4);
 		
 		graphics.setStroke(Color.BLACK);
-		graphics.strokeLine(x + 7, y + height, x + 10, y + height - 6);
-		graphics.strokeLine(x + 10, y + height - 6, x + 13, y + height);
+		graphics.strokeLine(x + width * 0.25 - 5, y + height, x + width * 0.25, y + height - 6);
+		graphics.strokeLine(x + width * 0.25, y + height - 6, x + width * 0.25 + 5, y + height);
 	}
 }

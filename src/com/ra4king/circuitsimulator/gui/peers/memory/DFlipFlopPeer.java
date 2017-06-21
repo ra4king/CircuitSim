@@ -10,7 +10,7 @@ import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
 import com.ra4king.circuitsimulator.simulator.WireValue.State;
-import com.ra4king.circuitsimulator.simulator.components.memory.SRFlipFlop;
+import com.ra4king.circuitsimulator.simulator.components.memory.DFlipFlop;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -20,14 +20,14 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class SRFlipFlopPeer extends ComponentPeer<SRFlipFlop> {
+public class DFlipFlopPeer extends ComponentPeer<DFlipFlop> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Memory", "SR Flip-Flop"),
-		                     new Image(SRFlipFlopPeer.class.getResourceAsStream("/resources/SRFlipFlop.png")),
+		manager.addComponent(new Pair<>("Memory", "D Flip-Flop"),
+		                     new Image(DFlipFlopPeer.class.getResourceAsStream("/resources/DFlipFlop.png")),
 		                     new Properties());
 	}
 	
-	public SRFlipFlopPeer(Properties props, int x, int y) {
+	public DFlipFlopPeer(Properties props, int x, int y) {
 		super(x, y, 4, 4);
 		
 		Properties properties = new Properties();
@@ -35,17 +35,16 @@ public class SRFlipFlopPeer extends ComponentPeer<SRFlipFlop> {
 		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.mergeIfExists(props);
 		
-		SRFlipFlop flipFlop = new SRFlipFlop(properties.getValue(Properties.LABEL));
+		DFlipFlop flipFlop = new DFlipFlop(properties.getValue(Properties.LABEL));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, flipFlop.getPort(SRFlipFlop.S_PORT), "Set", 0, 1));
-		connections.add(new PortConnection(this, flipFlop.getPort(SRFlipFlop.CLOCK_PORT), "Clock", 0, 2));
-		connections.add(new PortConnection(this, flipFlop.getPort(SRFlipFlop.R_PORT), "Reset", 0, 3));
-		connections.add(new PortConnection(this, flipFlop.getPort(SRFlipFlop.PRESET_PORT), "Preset", 1, 4));
-		connections.add(new PortConnection(this, flipFlop.getPort(SRFlipFlop.ENABLE_PORT), "Enable", 2, 4));
-		connections.add(new PortConnection(this, flipFlop.getPort(SRFlipFlop.CLEAR_PORT), "Clear", 3, 4));
-		connections.add(new PortConnection(this, flipFlop.getPort(SRFlipFlop.Q_PORT), "Current state", 4, 1));
-		connections.add(new PortConnection(this, flipFlop.getPort(SRFlipFlop.QN_PORT), "NOT of current state", 4, 3));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.CLOCK_PORT), "Clock", 0, 1));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.D_PORT), "Data input", 0, 3));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PRESET_PORT), "Preset", 1, 4));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.ENABLE_PORT), "Enable", 2, 4));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.CLEAR_PORT), "Clear", 3, 4));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.Q_PORT), "Current state", 4, 1));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.QN_PORT), "NOT of current state", 4, 3));
 		
 		init(flipFlop, properties, connections);
 	}
@@ -64,7 +63,7 @@ public class SRFlipFlopPeer extends ComponentPeer<SRFlipFlop> {
 		int width = getScreenWidth();
 		int height = getScreenHeight();
 		
-		State bit = state.getLastPushed(getComponent().getPort(SRFlipFlop.Q_PORT)).getBit(0);
+		State bit = state.getLastPushed(getComponent().getPort(DFlipFlop.Q_PORT)).getBit(0);
 		GuiUtils.setBitColor(graphics, bit);
 		graphics.fillOval(x + width * 0.5 - 10, y + height * 0.5 - 10, 20, 20);
 		
@@ -74,15 +73,14 @@ public class SRFlipFlopPeer extends ComponentPeer<SRFlipFlop> {
 		
 		graphics.setFill(Color.GRAY);
 		graphics.setFont(GuiUtils.getFont(10));
+		graphics.fillText("D", x + 3, y + height - 7);
 		graphics.fillText("Q", x + width - 10, y + 13);
 		graphics.fillText("1", x + 7, y + height - 4);
 		graphics.fillText("en", x + width * 0.5 - 6, y + height - 4);
 		graphics.fillText("0", x + width - 13, y + height - 4);
-		graphics.fillText("S", x + 3, y + 13);
-		graphics.fillText("R", x + 3, y + height - 7);
 		
 		graphics.setStroke(Color.BLACK);
-		graphics.strokeLine(x, y + height * 0.5 - 5, x + 6, y + height * 0.5);
-		graphics.strokeLine(x + 6, y + height * 0.5, x, y + height * 0.5 + 5);
+		graphics.strokeLine(x, y + height * 0.25 - 5, x + 6, y + height * 0.25);
+		graphics.strokeLine(x + 6, y + height * 0.25, x, y + height * 0.25 + 5);
 	}
 }

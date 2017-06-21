@@ -22,6 +22,7 @@ import com.ra4king.circuitsimulator.gui.peers.gates.XorGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.io.Button;
 import com.ra4king.circuitsimulator.gui.peers.io.HexDisplay;
 import com.ra4king.circuitsimulator.gui.peers.io.LEDMatrix;
+import com.ra4king.circuitsimulator.gui.peers.memory.DFlipFlopPeer;
 import com.ra4king.circuitsimulator.gui.peers.memory.RAMPeer;
 import com.ra4king.circuitsimulator.gui.peers.memory.ROMPeer;
 import com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer;
@@ -180,6 +181,7 @@ public class ComponentManager {
 		
 		register(RegisterPeer.class);
 		register(SRFlipFlopPeer.class);
+		register(DFlipFlopPeer.class);
 		register(RAMPeer.class);
 		register(ROMPeer.class);
 		

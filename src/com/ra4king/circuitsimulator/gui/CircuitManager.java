@@ -541,6 +541,7 @@ public class CircuitManager {
 				isShiftDown = true;
 				break;
 			case DELETE:
+			case BACK_SPACE:
 				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
 			case ESCAPE:
 				if(currentState == SelectingState.ELEMENT_DRAGGED) {

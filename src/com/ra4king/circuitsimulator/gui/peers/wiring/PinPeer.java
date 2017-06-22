@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers.wiring;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.CircuitManager;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -91,7 +92,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 	}
 	
 	@Override
-	public void mousePressed(CircuitState state, double x, double y) {
+	public void mousePressed(CircuitManager manager, CircuitState state, double x, double y) {
 		if(!isInput()) {
 			return;
 		}
@@ -119,7 +120,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 	}
 	
 	@Override
-	public void keyPressed(CircuitState state, KeyCode keyCode, String text) {
+	public void keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
 		if(!isInput()) {
 			return;
 		}

@@ -552,7 +552,7 @@ public class CircuitManager {
 			default:
 				if(lastPressed == null && selectedElementsMap.size() == 1) {
 					lastPressed = selectedElementsMap.keySet().iterator().next();
-					lastPressed.keyPressed(circuitBoard.getCurrentState(), e.getCode(), e.getText());
+					lastPressed.keyPressed(this, circuitBoard.getCurrentState(), e.getCode(), e.getText());
 					lastPressedKeyCode = e.getCode();
 					simulatorWindow.runSim();
 				}
@@ -563,7 +563,7 @@ public class CircuitManager {
 	public void keyTyped(KeyEvent e) {
 		if(selectedElementsMap.size() == 1) {
 			GuiElement element = selectedElementsMap.keySet().iterator().next();
-			element.keyTyped(circuitBoard.getCurrentState(), e.getCharacter());
+			element.keyTyped(this, circuitBoard.getCurrentState(), e.getCharacter());
 			simulatorWindow.runSim();
 			needsRepaint = true;
 		}
@@ -583,7 +583,7 @@ public class CircuitManager {
 		}
 		
 		if(lastPressed != null && lastPressedKeyCode == e.getCode()) {
-			lastPressed.keyReleased(circuitBoard.getCurrentState(), e.getCode(), e.getText());
+			lastPressed.keyReleased(this, circuitBoard.getCurrentState(), e.getCode(), e.getText());
 			lastPressed = null;
 			lastPressedKeyCode = null;
 			simulatorWindow.runSim();
@@ -736,7 +736,7 @@ public class CircuitManager {
 						if(simulatorWindow.isClickMode()) {
 							if(lastPressed == null) {
 								lastPressed = selectedElement;
-								selectedElement.mousePressed(circuitBoard.getCurrentState(),
+								selectedElement.mousePressed(this, circuitBoard.getCurrentState(),
 								                             lastMousePosition.getX() - selectedElement.getScreenX(),
 								                             lastMousePosition.getY() - selectedElement.getScreenY());
 								simulatorWindow.runSim();
@@ -810,7 +810,7 @@ public class CircuitManager {
 			case ELEMENT_SELECTED:
 			case ELEMENT_DRAGGED:
 				if(lastPressed != null && lastPressedKeyCode == null) {
-					lastPressed.mouseReleased(circuitBoard.getCurrentState(),
+					lastPressed.mouseReleased(this, circuitBoard.getCurrentState(),
 					                          lastMousePosition.getX() - lastPressed.getScreenX(),
 					                          lastMousePosition.getY() - lastPressed.getScreenY());
 					lastPressed = null;
@@ -919,6 +919,8 @@ public class CircuitManager {
 		needsRepaint = true;
 	}
 	
+	private GuiElement lastEntered;
+	
 	public void mouseMoved(MouseEvent e) {
 		Point2D prevMousePosition = lastMousePosition;
 		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
@@ -933,6 +935,31 @@ public class CircuitManager {
 		
 		checkStartConnection();
 		checkEndConnection(prevMousePosition);
+		
+		if(startConnection == null &&
+				   (currentState == SelectingState.IDLE || currentState == SelectingState.ELEMENT_SELECTED)) {
+			Optional<ComponentPeer<?>> component = circuitBoard.getComponents().stream()
+			                                                   .filter(c -> c.containsScreenCoord(
+					                                                   (int)lastMousePosition.getX(),
+					                                                   (int)lastMousePosition.getY()))
+			                                                   .findFirst();
+			if(component.isPresent()) {
+				ComponentPeer<?> peer = component.get();
+				if(peer != lastEntered) {
+					if(lastEntered != null) {
+						lastEntered.mouseExited(this, circuitBoard.getCurrentState());
+					}
+					
+					(lastEntered = peer).mouseEntered(this, circuitBoard.getCurrentState());
+				}
+			} else if(lastEntered != null) {
+				lastEntered.mouseExited(this, circuitBoard.getCurrentState());
+				lastEntered = null;
+			}
+		} else if(lastEntered != null) {
+			lastEntered.mouseExited(this, circuitBoard.getCurrentState());
+			lastEntered = null;
+		}
 		
 		needsRepaint = true;
 	}

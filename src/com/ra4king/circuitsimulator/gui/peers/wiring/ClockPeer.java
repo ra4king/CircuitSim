@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers.wiring;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.CircuitManager;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -58,7 +59,7 @@ public class ClockPeer extends ComponentPeer<Clock> {
 	}
 	
 	@Override
-	public void mousePressed(CircuitState state, double x, double y) {
+	public void mousePressed(CircuitManager manager, CircuitState state, double x, double y) {
 		Clock.tick(getComponent().getCircuit().getSimulator());
 	}
 	

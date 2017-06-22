@@ -72,8 +72,8 @@ public abstract class GuiElement {
 	}
 	
 	public boolean containsScreenCoord(int x, int y) {
-		return x >= getScreenX() && x < getScreenX() + getScreenWidth() && y >= getScreenY() && y < getScreenY() + 
-				                                                                                            getScreenHeight(); 
+		return x >= getScreenX() && x < getScreenX() + getScreenWidth() && y >= getScreenY() && y < getScreenY() +
+				                                                                                            getScreenHeight();
 	}
 	
 	public boolean contains(int x, int y) {
@@ -119,15 +119,19 @@ public abstract class GuiElement {
 				         getY() >= y + height);
 	}
 	
-	public void mousePressed(CircuitState state, double x, double y) {}
+	public void mousePressed(CircuitManager manager, CircuitState state, double x, double y) {}
 	
-	public void mouseReleased(CircuitState state, double x, double y) {}
+	public void mouseReleased(CircuitManager manager, CircuitState state, double x, double y) {}
 	
-	public void keyPressed(CircuitState state, KeyCode keyCode, String text) {}
+	public void mouseEntered(CircuitManager manager, CircuitState state) {}
 	
-	public void keyTyped(CircuitState state, String character) {}
+	public void mouseExited(CircuitManager manager, CircuitState state) {}
 	
-	public void keyReleased(CircuitState state, KeyCode keyCode, String text) {}
+	public void keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {}
+	
+	public void keyTyped(CircuitManager manager, CircuitState state, String character) {}
+	
+	public void keyReleased(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {}
 	
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		return Collections.emptyList();

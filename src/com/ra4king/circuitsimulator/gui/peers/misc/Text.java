@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.CircuitManager;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
@@ -14,6 +15,8 @@ import com.ra4king.circuitsimulator.simulator.Component;
 import com.ra4king.circuitsimulator.simulator.WireValue;
 
 import javafx.geometry.Bounds;
+import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -55,15 +58,34 @@ public class Text extends ComponentPeer<Component> {
 	
 	private void setText(String text) {
 		this.text = text;
-		this.lines = Arrays.asList(text.split("\n"));
+		this.lines = Arrays.asList(text.split("\n", -1));
 		
 		Bounds bounds = GuiUtils.getBounds(GuiUtils.getFont(13), text);
 		setWidth(Math.max(2, (int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE)));
 		setHeight(Math.max(2, (int)Math.ceil(bounds.getHeight() / GuiUtils.BLOCK_SIZE)));
 	}
 	
+	private Cursor prevCursor;
+	private boolean entered;
+	
 	@Override
-	public void keyTyped(CircuitState state, String character) {
+	public void mouseEntered(CircuitManager manager, CircuitState state) {
+		Scene scene = manager.getSimulatorWindow().getScene();
+		prevCursor = scene.getCursor();
+		scene.setCursor(Cursor.TEXT);
+		
+		entered = true;
+	}
+	
+	@Override
+	public void mouseExited(CircuitManager manager, CircuitState state) {
+		manager.getSimulatorWindow().getScene().setCursor(prevCursor);
+		
+		entered = false;
+	}
+	
+	@Override
+	public void keyTyped(CircuitManager manager, CircuitState state, String character) {
 		char c = character.charAt(0);
 		
 		if(c == 8) { // backspace
@@ -104,6 +126,12 @@ public class Text extends ComponentPeer<Component> {
 				graphics.fillText(line,
 				                  x + (width - bounds.getWidth()) * 0.5,
 				                  y + 15 * (i + 1));
+				
+				if(entered && i == lines.size() - 1) {
+					double lx = x + (width + bounds.getWidth()) * 0.5 + 3;
+					double ly = y + 15 * (i + 1);
+					graphics.strokeLine(lx, ly - 10, lx, ly);
+				}
 			}
 		}
 	}

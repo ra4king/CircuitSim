@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers.memory;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.CircuitManager;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -53,7 +54,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 	}
 	
 	@Override
-	public void keyPressed(CircuitState state, KeyCode keyCode, String text) {
+	public void keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
 		switch(keyCode) {
 			case DIGIT0:
 			case DIGIT1:

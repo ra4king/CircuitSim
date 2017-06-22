@@ -258,10 +258,19 @@ public class CircuitSimulator extends Application {
 	/**
 	 * The stage (window) of this Circuit Simulator instance
 	 *
-	 * @return the Stage where
+	 * @return the Stage
 	 */
 	public Stage getStage() {
 		return stage;
+	}
+	
+	/**
+	 * The scene of this Circuit Simulator instance.
+	 *
+	 * @return the Scene
+	 */
+	public Scene getScene() {
+		return scene;
 	}
 	
 	/**
@@ -1397,7 +1406,7 @@ public class CircuitSimulator extends Application {
 		             .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
 		
 		scaleFactorSelect = new ComboBox<>();
-		for(int i = 1; i <= 12; i++) {
+		for(int i = 1; i <= 20; i++) {
 			scaleFactorSelect.getItems().add(i * 0.25);
 		}
 		scaleFactorSelect.setValue(1.0);
@@ -2015,6 +2024,7 @@ public class CircuitSimulator extends Application {
 		
 		VBox.setVgrow(canvasPropsSplit, Priority.ALWAYS);
 		scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));
+		scene.setCursor(Cursor.DEFAULT);
 		
 		updateTitle();
 		stage.setScene(scene);

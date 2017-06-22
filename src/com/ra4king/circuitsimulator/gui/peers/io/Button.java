@@ -3,6 +3,7 @@ package com.ra4king.circuitsimulator.gui.peers.io;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsimulator.gui.CircuitManager;
 import com.ra4king.circuitsimulator.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsimulator.gui.ComponentPeer;
 import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
@@ -54,28 +55,28 @@ public class Button extends ComponentPeer<Component> {
 	}
 	
 	@Override
-	public void mousePressed(CircuitState state, double x, double y) {
+	public void mousePressed(CircuitManager manager, CircuitState state, double x, double y) {
 		isPressed = true;
 		state.pushValue(getComponent().getPort(0), WireValue.of(1, 1));
 	}
 	
 	@Override
-	public void mouseReleased(CircuitState state, double x, double y) {
+	public void mouseReleased(CircuitManager manager, CircuitState state, double x, double y) {
 		isPressed = false;
 		state.pushValue(getComponent().getPort(0), WireValue.of(0, 1));
 	}
 	
 	@Override
-	public void keyPressed(CircuitState state, KeyCode keyCode, String text) {
+	public void keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
 		if(keyCode == KeyCode.SPACE) {
-			mousePressed(state, 0, 0);
+			mousePressed(manager, state, 0, 0);
 		}
 	}
 	
 	@Override
-	public void keyReleased(CircuitState state, KeyCode keyCode, String text) {
+	public void keyReleased(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
 		if(keyCode == KeyCode.SPACE) {
-			mouseReleased(state, 0, 0);
+			mouseReleased(manager, state, 0, 0);
 		}
 	}
 	

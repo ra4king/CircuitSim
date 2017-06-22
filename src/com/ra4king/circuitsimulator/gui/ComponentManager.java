@@ -10,6 +10,7 @@ import com.ra4king.circuitsimulator.gui.peers.arithmetic.BitExtenderPeer;
 import com.ra4king.circuitsimulator.gui.peers.arithmetic.ComparatorPeer;
 import com.ra4king.circuitsimulator.gui.peers.arithmetic.DividerPeer;
 import com.ra4king.circuitsimulator.gui.peers.arithmetic.MultiplierPeer;
+import com.ra4king.circuitsimulator.gui.peers.arithmetic.NegatorPeer;
 import com.ra4king.circuitsimulator.gui.peers.arithmetic.SubtractorPeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer;
 import com.ra4king.circuitsimulator.gui.peers.gates.ControlledBufferPeer;
@@ -190,6 +191,7 @@ public class ComponentManager {
 		register(SubtractorPeer.class);
 		register(MultiplierPeer.class);
 		register(DividerPeer.class);
+		register(NegatorPeer.class);
 		register(ComparatorPeer.class);
 		register(BitExtenderPeer.class);
 		

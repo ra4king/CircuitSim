@@ -63,6 +63,6 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		graphics.setFill(Color.BLACK);
 		graphics.fillText("+",
 		                  getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
+		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 	}
 }

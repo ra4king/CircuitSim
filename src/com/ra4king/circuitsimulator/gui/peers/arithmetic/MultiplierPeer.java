@@ -60,10 +60,10 @@ public class MultiplierPeer extends ComponentPeer<Multiplier> {
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
 		graphics.setFont(GuiUtils.getFont(16, true));
-		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "x");
+		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "×");
 		graphics.setFill(Color.BLACK);
-		graphics.fillText("x",
+		graphics.fillText("×",
 		                  getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.4);
+		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 	}
 }

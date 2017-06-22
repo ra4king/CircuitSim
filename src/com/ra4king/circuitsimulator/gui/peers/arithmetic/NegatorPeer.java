@@ -9,7 +9,7 @@ import com.ra4king.circuitsimulator.gui.Connection.PortConnection;
 import com.ra4king.circuitsimulator.gui.GuiUtils;
 import com.ra4king.circuitsimulator.gui.Properties;
 import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.arithmetic.Subtractor;
+import com.ra4king.circuitsimulator.simulator.components.arithmetic.Negator;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
@@ -20,14 +20,14 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class SubtractorPeer extends ComponentPeer<Subtractor> {
+public class NegatorPeer extends ComponentPeer<Negator> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Arithmetic", "Subtractor"),
-		                     new Image(SubtractorPeer.class.getResourceAsStream("/resources/Subtractor.png")),
+		manager.addComponent(new Pair<>("Arithmetic", "Negator"),
+		                     new Image(NegatorPeer.class.getResourceAsStream("/resources/Negator.png")),
 		                     new Properties());
 	}
 	
-	public SubtractorPeer(Properties props, int x, int y) {
+	public NegatorPeer(Properties props, int x, int y) {
 		super(x, y, 4, 4);
 		
 		Properties properties = new Properties();
@@ -36,18 +36,14 @@ public class SubtractorPeer extends ComponentPeer<Subtractor> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
-		Subtractor subtractor = new Subtractor(properties.getValue(Properties.LABEL),
-		                                       properties.getValue(Properties.BITSIZE));
+		Negator negator = new Negator(properties.getValue(Properties.LABEL),
+		                              properties.getValue(Properties.BITSIZE));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, subtractor.getPort(Subtractor.PORT_A), "A", 0, 1));
-		connections.add(new PortConnection(this, subtractor.getPort(Subtractor.PORT_B), "B", 0, 3));
-		connections.add(new PortConnection(this, subtractor.getPort(Subtractor.PORT_CARRY_IN), "Carry in", 2, 0));
-		connections.add(new PortConnection(this, subtractor.getPort(Subtractor.PORT_OUT), "Out", getWidth(), 2));
-		connections.add(
-				new PortConnection(this, subtractor.getPort(Subtractor.PORT_CARRY_OUT), "Carry out", 2, getHeight()));
+		connections.add(new PortConnection(this, negator.getPort(Negator.IN_PORT), "In", 0, 2));
+		connections.add(new PortConnection(this, negator.getPort(Negator.OUT_PORT), "Out", 4, 2));
 		
-		init(subtractor, properties, connections);
+		init(negator, properties, connections);
 	}
 	
 	@Override
@@ -60,9 +56,9 @@ public class SubtractorPeer extends ComponentPeer<Subtractor> {
 		GuiUtils.drawShape(graphics::strokeRect, this);
 		
 		graphics.setFont(GuiUtils.getFont(16, true));
-		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "-");
+		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "-x");
 		graphics.setFill(Color.BLACK);
-		graphics.fillText("-",
+		graphics.fillText("-x",
 		                  getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
 		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 	}

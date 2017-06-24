@@ -7,7 +7,7 @@
       "name": "Clock divider",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
           "x": 11,
           "y": 23,
           "properties": {
@@ -17,7 +17,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.RegisterPeer",
           "x": 17,
           "y": 9,
           "properties": {
@@ -26,7 +26,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 6,
           "y": 25,
           "properties": {
@@ -36,7 +36,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.RegisterPeer",
           "x": 27,
           "y": 28,
           "properties": {
@@ -45,7 +45,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.XnorGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.XnorGatePeer",
           "x": 41,
           "y": 7,
           "properties": {
@@ -55,7 +55,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 56,
           "y": 12,
           "properties": {
@@ -65,7 +65,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 31,
           "y": 7,
           "properties": {
@@ -75,7 +75,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.ClockPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.ClockPeer",
           "x": 13,
           "y": 16,
           "properties": {
@@ -83,7 +83,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 34,
           "y": 24,
           "properties": {
@@ -93,7 +93,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.AdderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.AdderPeer",
           "x": 35,
           "y": 28,
           "properties": {
@@ -102,7 +102,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 25,
           "y": 7,
           "properties": {
@@ -112,7 +112,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.AdderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.AdderPeer",
           "x": 26,
           "y": 9,
           "properties": {
@@ -121,7 +121,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 15,
           "y": 5,
           "properties": {
@@ -131,7 +131,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SplitterPeer",
           "x": 48,
           "y": 9,
           "properties": {

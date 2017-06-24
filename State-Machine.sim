@@ -7,7 +7,7 @@
       "name": "State Machine",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 25,
           "y": 8,
           "properties": {
@@ -16,7 +16,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 31,
           "y": 21,
           "properties": {
@@ -26,7 +26,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
           "x": 13,
           "y": 27,
           "properties": {
@@ -36,7 +36,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 31,
           "y": 33,
           "properties": {
@@ -46,7 +46,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 31,
           "y": 27,
           "properties": {
@@ -56,7 +56,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 35,
           "y": 17,
           "properties": {
@@ -65,7 +65,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 9,
           "y": 8,
           "properties": {
@@ -75,7 +75,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SplitterPeer",
           "x": 14,
           "y": 15,
           "properties": {
@@ -85,7 +85,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
           "x": 12,
           "y": 22,
           "properties": {
@@ -95,7 +95,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 47,
           "y": 4,
           "properties": {
@@ -105,7 +105,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.RegisterPeer",
           "x": 20,
           "y": 13,
           "properties": {
@@ -114,7 +114,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 9,
           "y": 4,
           "properties": {
@@ -124,7 +124,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SplitterPeer",
           "x": 24,
           "y": 15,
           "properties": {
@@ -134,7 +134,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 9,
           "y": 12,
           "properties": {
@@ -144,7 +144,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 47,
           "y": 7,
           "properties": {
@@ -154,7 +154,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 31,
           "y": 39,
           "properties": {
@@ -164,7 +164,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
           "x": 31,
           "y": 16,
           "properties": {
@@ -174,7 +174,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 47,
           "y": 10,
           "properties": {
@@ -623,7 +623,7 @@
       "name": "Tester",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 32,
           "y": 12,
           "properties": {
@@ -633,7 +633,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 32,
           "y": 8,
           "properties": {
@@ -643,7 +643,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 9,
           "y": 10,
           "properties": {
@@ -653,7 +653,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 9,
           "y": 12,
           "properties": {
@@ -663,7 +663,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 19,
           "y": 9,
           "properties": {
@@ -672,7 +672,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.ClockPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.ClockPeer",
           "x": 9,
           "y": 8,
           "properties": {
@@ -680,7 +680,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.PinPeer",
           "x": 32,
           "y": 10,
           "properties": {

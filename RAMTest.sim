@@ -7,7 +7,7 @@
       "name": "New circuit",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.RAMPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.RAMPeer",
           "x": 4,
           "y": 3,
           "properties": {

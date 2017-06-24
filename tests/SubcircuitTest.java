@@ -11,7 +11,7 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 public class SubcircuitTest {
 	public static void main(String[] args) {
 		Simulator sim = new Simulator();
-		Circuit circuit = new Circuit(sim);
+		Circuit circuit = new Circuit("Subcircuit Test - Circuit 1", sim);
 		Adder adder = circuit.addComponent(new Adder("", 4));
 		Pin inA = circuit.addComponent(new Pin("A", 4, true));
 		Pin inB = circuit.addComponent(new Pin("B", 4, true));
@@ -27,7 +27,7 @@ public class SubcircuitTest {
 		inC.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
 		sim.stepAll();
 		
-		Circuit circuit2 = new Circuit(sim);
+		Circuit circuit2 = new Circuit("Subcircuit Test - Circuit 2", sim);
 		Subcircuit subcircuit = circuit2.addComponent(new Subcircuit("", circuit));
 		Pin in2A = circuit2.addComponent(new Pin("A2", 4, true));
 		Pin in2B = circuit2.addComponent(new Pin("B2", 4, true));

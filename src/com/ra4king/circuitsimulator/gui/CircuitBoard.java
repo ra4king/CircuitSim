@@ -42,10 +42,10 @@ public class CircuitBoard {
 	
 	private EditHistory editHistory;
 	
-	public CircuitBoard(CircuitManager circuitManager, Simulator simulator, EditHistory editHistory) {
+	public CircuitBoard(String name, CircuitManager circuitManager, Simulator simulator, EditHistory editHistory) {
 		this.circuitManager = circuitManager;
 		
-		circuit = new Circuit(simulator);
+		circuit = new Circuit(name, simulator);
 		currentState = circuit.getTopLevelState();
 		
 		this.editHistory = editHistory;
@@ -56,11 +56,27 @@ public class CircuitBoard {
 		connectionsMap = new HashMap<>();
 	}
 	
+	public String getName() {
+		return circuit.getName();
+	}
+	
+	public void setName(String name) {
+		circuit.setName(name);
+	}
+	
+	@Override
+	public String toString() {
+		return "CircuitBoard child of " + circuitManager;
+	}
+	
 	public void destroy() {
 		try {
 			removeElements(components);
+			removeElements(links.stream().flatMap(l -> l.getWires().stream()).collect(Collectors.toSet()));
+			badLinks.clear();
+			moveElements = null;
 		} catch(Exception exc) {
-			// exc.printStackTrace();
+			// Ignore
 		}
 		
 		circuit.getSimulator().removeCircuit(circuit);

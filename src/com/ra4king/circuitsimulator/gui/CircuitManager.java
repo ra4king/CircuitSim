@@ -71,7 +71,7 @@ public class CircuitManager {
 	private boolean isCtrlDown;
 	private boolean isShiftDown;
 	
-	private Circuit dummyCircuit = new Circuit(new Simulator());
+	private Circuit dummyCircuit = new Circuit("Dummy", new Simulator());
 	private ComponentPeer<?> potentialComponent;
 	private ComponentCreator componentCreator;
 	private Properties potentialComponentProperties;
@@ -86,10 +86,10 @@ public class CircuitManager {
 	
 	private boolean needsRepaint;
 	
-	CircuitManager(CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
+	CircuitManager(String name, CircuitSimulator simulatorWindow, ScrollPane canvasScrollPane, Simulator simulator) {
 		this.simulatorWindow = simulatorWindow;
 		this.canvasScrollPane = canvasScrollPane;
-		circuitBoard = new CircuitBoard(this, simulator, simulatorWindow.getEditHistory());
+		circuitBoard = new CircuitBoard(name, this, simulator, simulatorWindow.getEditHistory());
 		
 		getCanvas().setOnContextMenuRequested(event -> {
 			menu = new ContextMenu();
@@ -105,6 +105,7 @@ public class CircuitManager {
 				Optional<ComponentPeer<?>> any = circuitBoard.getComponents().stream().filter(
 						component -> component.containsScreenCoord((int)event.getX(), (int)event.getY())).findAny();
 				if(any.isPresent()) {
+					setSelectedElements(Collections.singleton(any.get()));
 					menu.getItems().add(delete);
 					menu.getItems().addAll(any.get().getContextMenuItems(this));
 				}
@@ -119,6 +120,19 @@ public class CircuitManager {
 				menu.show(getCanvas(), event.getScreenX(), event.getScreenY());
 			}
 		});
+	}
+	
+	public void setName(String name) {
+		circuitBoard.setName(name);
+	}
+	
+	public String getName() {
+		return circuitBoard.getName();
+	}
+	
+	@Override
+	public String toString() {
+		return "CircuitManager " + getName();
 	}
 	
 	private void reset() {

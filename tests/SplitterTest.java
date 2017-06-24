@@ -15,7 +15,7 @@ public class SplitterTest {
 		final int bits = 10;
 		final int inputs = 3;
 		
-		Circuit circuit = new Circuit(sim);
+		Circuit circuit = new Circuit("Splitter Test", sim);
 		AndGate[] ands = new AndGate[bits];
 		for(int i = 0; i < ands.length; i++) {
 			ands[i] = circuit.addComponent(new AndGate(String.valueOf(i), 1, inputs));

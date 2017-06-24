@@ -14,7 +14,7 @@ import javafx.util.Pair;
 public class ClockTest {
 	public static void main(String[] args) throws Exception {
 		Simulator simulator = new Simulator();
-		Circuit circuit = new Circuit(simulator);
+		Circuit circuit = new Circuit("Clock Test", simulator);
 		
 		Clock clock = circuit.addComponent(new Clock("Clock"));
 		Register register = circuit.addComponent(new Register("Register", 32));

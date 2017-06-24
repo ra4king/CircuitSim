@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author Roi Atalla
  */
 public class Circuit {
+	private String name;
 	private final Simulator simulator;
 	
 	private final Set<Component> components;
@@ -23,7 +24,9 @@ public class Circuit {
 	 *
 	 * @param simulator The Simulator instance this Circuit belongs to.
 	 */
-	public Circuit(Simulator simulator) {
+	public Circuit(String name, Simulator simulator) {
+		this.name = name;
+		
 		this.simulator = simulator;
 		simulator.addCircuit(this);
 		
@@ -31,6 +34,14 @@ public class Circuit {
 		states = new HashSet<>();
 		
 		topLevelState = new CircuitState(this);
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	/**
@@ -148,6 +159,11 @@ public class Circuit {
 	
 	public void removeListener(CircuitChangeListener listener) {
 		listeners.remove(listener);
+	}
+	
+	@Override
+	public String toString() {
+		return "Circuit " + name;
 	}
 	
 	public interface CircuitChangeListener {

@@ -10,7 +10,7 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 public class SRLatchTest {
 	public static void main(String[] args) {
 		Simulator sim = new Simulator();
-		Circuit circuit = new Circuit(sim);
+		Circuit circuit = new Circuit("SR Latch Test", sim);
 		
 		NorGate nor1 = circuit.addComponent(new NorGate("A", 1, 2));
 		NorGate nor2 = circuit.addComponent(new NorGate("B", 1, 2));

@@ -118,6 +118,8 @@ public class CircuitSimulator extends Application {
 	private static boolean mainCalled = false;
 	
 	public static void main(String[] args) {
+		System.setProperty("javafx.live.resize", "false"); // https://bugs.openjdk.java.net/browse/JDK-8088857
+		
 		mainCalled = true;
 		launch(args);
 	}
@@ -660,6 +662,14 @@ public class CircuitSimulator extends Application {
 			circuitButtonsTab.setContent(pane);
 			buttonTabPane.getTabs().add(circuitButtonsTab);
 		} else {
+			// Clear toggle groups, as they take up memory and don't get cleared automatically
+			GridPane buttons = (GridPane)((ScrollPane)circuitButtonsTab.getContent()).getContent();
+			buttons.getChildren().forEach(node -> {
+				ToggleButton button = (ToggleButton)node;
+				button.setToggleGroup(null);
+			});
+			buttons.getChildren().clear();
+			
 			circuitButtonsTab.setContent(pane);
 		}
 		
@@ -678,8 +688,7 @@ public class CircuitSimulator extends Application {
 			GraphicsContext graphics = icon.getGraphicsContext2D();
 			graphics.translate(5, 5);
 			component.paint(icon.getGraphicsContext2D(), null);
-			component.getConnections().forEach(
-					connection -> connection.paint(icon.getGraphicsContext2D(), null));
+			component.getConnections().forEach(connection -> connection.paint(icon.getGraphicsContext2D(), null));
 			
 			ToggleButton toggleButton = new ToggleButton(circuitPair.getKey().name.getValue(), icon);
 			toggleButton.setAlignment(Pos.CENTER_LEFT);
@@ -767,6 +776,7 @@ public class CircuitSimulator extends Application {
 			});
 			
 			tab.setText(newName);
+			newPair.getValue().setName(newName);
 			
 			editHistory.addAction(EditAction.RENAME_CIRCUIT, null, this, tab, oldName, newName);
 			
@@ -1265,7 +1275,7 @@ public class CircuitSimulator extends Application {
 			Canvas canvas = new Canvas(800, 600);
 			ScrollPane canvasScrollPane = new ScrollPane(canvas);
 			
-			CircuitManager circuitManager = new CircuitManager(this, canvasScrollPane, simulator);
+			CircuitManager circuitManager = new CircuitManager(n, this, canvasScrollPane, simulator);
 			circuitManager.getCircuit().addListener(this::circuitModified);
 			
 			canvas.addEventHandler(MouseEvent.ANY, e -> canvas.requestFocus());
@@ -1299,6 +1309,8 @@ public class CircuitSimulator extends Application {
 			}
 			
 			n = originalName;
+			
+			circuitManager.setName(n);
 			
 			Tab canvasTab = new Tab(n, canvasScrollPane);
 			MenuItem rename = new MenuItem("Rename");

@@ -15,7 +15,7 @@ import javafx.util.Pair;
 public class ControlledBufferTest {
 	public static void main(String[] args) {
 		Simulator sim = new Simulator();
-		Circuit circuit = new Circuit(sim);
+		Circuit circuit = new Circuit("Controlled Buffer Test", sim);
 		
 		AndGate andGate = circuit.addComponent(new AndGate("", 4, 2));
 		OrGate orGate = circuit.addComponent(new OrGate("", 4, 2));

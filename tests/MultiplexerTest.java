@@ -14,7 +14,7 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 public class MultiplexerTest {
 	public static void main(String[] args) {
 		Simulator simulator = new Simulator();
-		Circuit circuit = new Circuit(simulator);
+		Circuit circuit = new Circuit("Multiplexer Test", simulator);
 		
 		Multiplexer mux = circuit.addComponent(new Multiplexer("", 4, 2));
 		AndGate andGate = circuit.addComponent(new AndGate("", 4, 2));

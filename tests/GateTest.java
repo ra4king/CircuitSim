@@ -12,7 +12,7 @@ import javafx.util.Pair;
 public class GateTest {
 	public static void main(String[] args) {
 		Simulator simulator = new Simulator();
-		Circuit circuit = new Circuit(simulator);
+		Circuit circuit = new Circuit("Gate Test", simulator);
 		
 		AndGate andGate = circuit.addComponent(new AndGate("", 1, 2));
 		Pin in1 = circuit.addComponent(new Pin("A", 1, true));

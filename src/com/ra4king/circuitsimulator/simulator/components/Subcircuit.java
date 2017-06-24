@@ -91,9 +91,15 @@ public class Subcircuit extends Component {
 			pins.get(i).addChangeListener(pair);
 		}
 		
+		CircuitState oldState = (CircuitState)lastProperty;
+		
 		for(Component component : subcircuit.getComponents()) {
 			component.init(subcircuitState,
-			               lastProperty == null ? null : ((CircuitState)lastProperty).getComponentProperty(component));
+			               oldState == null ? null : oldState.getComponentProperty(component));
+		}
+		
+		if(oldState != null) {
+			getCircuit().getCircuitStates().remove(oldState);
 		}
 	}
 	

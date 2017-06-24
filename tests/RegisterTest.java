@@ -10,7 +10,7 @@ import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
 public class RegisterTest {
 	public static void main(String[] args) {
 		Simulator sim = new Simulator();
-		Circuit circuit = new Circuit(sim);
+		Circuit circuit = new Circuit("Register Test", sim);
 		
 		Register register = circuit.addComponent(new Register("", 4));
 		Pin dataIn = circuit.addComponent(new Pin("In", 4, true));

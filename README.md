@@ -1,8 +1,8 @@
-Circuit Simulator
+CircuitSim v1.5
 =================
 
-Basic circuit simulator with many built-in components. Check out `src/com/ra4king/circuitsimulator/simulator/components`
-for examples of Components are written. Their GUI counterparts are in `src/com/ra4king/circuitsimulator/gui/peers`.
+Basic circuit simulator with many built-in components. Check out `src/com/ra4king/circuitsim/simulator/components`
+for examples of how Components are written. Their GUI counterparts are in `src/com/ra4king/circuitsim/gui/peers`.
 
 Screenshot
-![Screenshot](http://i.imgur.com/jno5e4z.png)
+![Screenshot](http://i.imgur.com/peE5ZjX.png)

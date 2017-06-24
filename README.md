@@ -5,4 +5,4 @@ Basic circuit simulator with many built-in components. Check out `src/com/ra4kin
 for examples of how Components are written. Their GUI counterparts are in `src/com/ra4king/circuitsim/gui/peers`.
 
 Screenshot
-![Screenshot](http://i.imgur.com/peE5ZjX.png)
+![Screenshot](http://i.imgur.com/Oon39Np.png)

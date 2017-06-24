@@ -7,7 +7,7 @@
       "name": "CPU",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 48,
           "y": 25,
           "properties": {
@@ -17,7 +17,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 22,
           "y": 20,
           "properties": {
@@ -27,7 +27,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 22,
           "properties": {
@@ -37,7 +37,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 15,
           "y": 10,
           "properties": {
@@ -66,7 +66,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 93,
           "y": 30,
           "properties": {
@@ -76,7 +76,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.HexDisplay",
+          "name": "com.ra4king.circuitsim.gui.peers.io.HexDisplay",
           "x": 68,
           "y": 2,
           "properties": {
@@ -85,7 +85,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 87,
           "y": 62,
           "properties": {
@@ -95,7 +95,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 61,
           "y": 38,
           "properties": {
@@ -105,7 +105,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 29,
           "y": 58,
           "properties": {
@@ -115,7 +115,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ClockPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ClockPeer",
           "x": 9,
           "y": 60,
           "properties": {
@@ -125,7 +125,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 29,
           "y": 46,
           "properties": {
@@ -135,7 +135,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 81,
           "y": 20,
           "properties": {
@@ -145,7 +145,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 35,
           "y": 47,
           "properties": {
@@ -155,7 +155,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 86,
           "y": 54,
           "properties": {
@@ -165,7 +165,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 15,
           "y": 22,
           "properties": {
@@ -175,7 +175,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 82,
           "y": 67,
           "properties": {
@@ -185,7 +185,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.ComparatorPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.ComparatorPeer",
           "x": 17,
           "y": 46,
           "properties": {
@@ -195,7 +195,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 93,
           "y": 26,
           "properties": {
@@ -205,7 +205,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.ControlledBufferPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.ControlledBufferPeer",
           "x": 28,
           "y": 38,
           "properties": {
@@ -215,7 +215,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 42,
           "y": 21,
           "properties": {
@@ -225,7 +225,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 36,
           "y": 19,
           "properties": {
@@ -235,7 +235,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 108,
           "y": 69,
           "properties": {
@@ -245,7 +245,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 47,
           "y": 19,
           "properties": {
@@ -255,7 +255,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 35,
           "y": 31,
           "properties": {
@@ -265,7 +265,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.AdderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.AdderPeer",
           "x": 34,
           "y": 74,
           "properties": {
@@ -275,7 +275,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 98,
           "y": 49,
           "properties": {
@@ -285,7 +285,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 126,
           "y": 35,
           "properties": {
@@ -295,7 +295,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.ControlledBufferPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.ControlledBufferPeer",
           "x": 68,
           "y": 38,
           "properties": {
@@ -305,7 +305,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 104,
           "y": 59,
           "properties": {
@@ -315,7 +315,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 59,
           "y": 28,
           "properties": {
@@ -325,7 +325,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 108,
           "y": 73,
           "properties": {
@@ -335,7 +335,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 105,
           "y": 34,
           "properties": {
@@ -347,7 +347,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 21,
           "y": 38,
           "properties": {
@@ -357,7 +357,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 108,
           "y": 71,
           "properties": {
@@ -367,7 +367,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 73,
           "y": 34,
           "properties": {
@@ -377,7 +377,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 124,
           "y": 35,
           "properties": {
@@ -387,7 +387,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 21,
           "y": 73,
           "properties": {
@@ -397,7 +397,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 23,
           "y": 64,
           "properties": {
@@ -407,7 +407,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 35,
           "y": 25,
           "properties": {
@@ -417,7 +417,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 94,
           "y": 67,
           "properties": {
@@ -427,7 +427,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 87,
           "y": 58,
           "properties": {
@@ -437,7 +437,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.HexDisplay",
+          "name": "com.ra4king.circuitsim.gui.peers.io.HexDisplay",
           "x": 24,
           "y": 2,
           "properties": {
@@ -446,7 +446,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 25,
           "y": 76,
           "properties": {
@@ -458,7 +458,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 43,
           "y": 56,
           "properties": {
@@ -468,7 +468,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.LEDMatrix",
+          "name": "com.ra4king.circuitsim.gui.peers.io.LEDMatrix",
           "x": 46,
           "y": 57,
           "properties": {
@@ -479,7 +479,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 14,
           "y": 55,
           "properties": {
@@ -489,7 +489,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 22,
           "y": 49,
           "properties": {
@@ -499,7 +499,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 42,
           "y": 31,
           "properties": {
@@ -509,7 +509,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 24,
           "properties": {
@@ -519,7 +519,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 82,
           "y": 75,
           "properties": {
@@ -529,7 +529,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 82,
           "y": 73,
           "properties": {
@@ -539,7 +539,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 93,
           "y": 28,
           "properties": {
@@ -549,7 +549,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.HexDisplay",
+          "name": "com.ra4king.circuitsim.gui.peers.io.HexDisplay",
           "x": 20,
           "y": 2,
           "properties": {
@@ -558,7 +558,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 20,
           "y": 62,
           "properties": {
@@ -568,7 +568,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 79,
           "y": 38,
           "properties": {
@@ -578,7 +578,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 122,
           "y": 30,
           "properties": {
@@ -607,7 +607,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 20,
           "y": 60,
           "properties": {
@@ -617,7 +617,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 127,
           "y": 38,
           "properties": {
@@ -627,7 +627,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 128,
           "y": 35,
           "properties": {
@@ -637,7 +637,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 98,
           "y": 47,
           "properties": {
@@ -647,7 +647,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 35,
           "y": 72,
           "properties": {
@@ -659,7 +659,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 31,
           "y": 52,
           "properties": {
@@ -669,7 +669,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 86,
           "y": 56,
           "properties": {
@@ -679,7 +679,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 86,
           "y": 27,
           "properties": {
@@ -689,7 +689,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 31,
           "y": 21,
           "properties": {
@@ -699,7 +699,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.HexDisplay",
+          "name": "com.ra4king.circuitsim.gui.peers.io.HexDisplay",
           "x": 12,
           "y": 2,
           "properties": {
@@ -708,7 +708,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 117,
           "y": 26,
           "properties": {
@@ -718,7 +718,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 87,
           "y": 60,
           "properties": {
@@ -728,7 +728,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 109,
           "y": 50,
           "properties": {
@@ -738,7 +738,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.HexDisplay",
+          "name": "com.ra4king.circuitsim.gui.peers.io.HexDisplay",
           "x": 80,
           "y": 2,
           "properties": {
@@ -747,7 +747,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 23,
           "y": 26,
           "properties": {
@@ -757,7 +757,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 9,
           "y": 55,
           "properties": {
@@ -769,7 +769,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.HexDisplay",
+          "name": "com.ra4king.circuitsim.gui.peers.io.HexDisplay",
           "x": 76,
           "y": 2,
           "properties": {
@@ -778,7 +778,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.HexDisplay",
+          "name": "com.ra4king.circuitsim.gui.peers.io.HexDisplay",
           "x": 72,
           "y": 2,
           "properties": {
@@ -787,7 +787,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 98,
           "y": 51,
           "properties": {
@@ -797,7 +797,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 35,
           "y": 38,
           "properties": {
@@ -807,7 +807,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 65,
           "y": 20,
           "properties": {
@@ -817,7 +817,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 82,
           "y": 69,
           "properties": {
@@ -827,7 +827,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.ControlledBufferPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.ControlledBufferPeer",
           "x": 86,
           "y": 38,
           "properties": {
@@ -837,7 +837,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 82,
           "y": 79,
           "properties": {
@@ -847,7 +847,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 104,
           "y": 61,
           "properties": {
@@ -862,7 +862,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 14,
           "y": 60,
           "properties": {
@@ -872,7 +872,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 30,
           "y": 56,
           "properties": {
@@ -882,7 +882,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 71,
           "y": 10,
           "properties": {
@@ -911,7 +911,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 113,
           "y": 26,
           "properties": {
@@ -921,7 +921,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 19,
           "y": 26,
           "properties": {
@@ -931,7 +931,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.ControlledBufferPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.ControlledBufferPeer",
           "x": 134,
           "y": 38,
           "properties": {
@@ -941,7 +941,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.ControlledBufferPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.ControlledBufferPeer",
           "x": 42,
           "y": 38,
           "properties": {
@@ -951,7 +951,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 63,
           "y": 28,
           "properties": {
@@ -961,7 +961,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 109,
           "y": 22,
           "properties": {
@@ -971,7 +971,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.BitExtenderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.BitExtenderPeer",
           "x": 129,
           "y": 27,
           "properties": {
@@ -983,7 +983,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 122,
           "y": 35,
           "properties": {
@@ -993,7 +993,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 77,
           "y": 34,
           "properties": {
@@ -1003,7 +1003,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 82,
           "y": 65,
           "properties": {
@@ -1013,7 +1013,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 27,
           "y": 52,
           "properties": {
@@ -1023,7 +1023,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 116,
           "y": 20,
           "properties": {
@@ -1033,7 +1033,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 82,
           "y": 71,
           "properties": {
@@ -1043,7 +1043,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 74,
           "y": 22,
           "properties": {
@@ -1053,7 +1053,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 7,
           "y": 48,
           "properties": {
@@ -1065,7 +1065,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 100,
           "y": 59,
           "properties": {
@@ -1080,7 +1080,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 82,
           "y": 77,
           "properties": {
@@ -1090,7 +1090,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 108,
           "y": 67,
           "properties": {
@@ -1100,7 +1100,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 122,
           "y": 27,
           "properties": {
@@ -1129,7 +1129,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.io.HexDisplay",
+          "name": "com.ra4king.circuitsim.gui.peers.io.HexDisplay",
           "x": 16,
           "y": 2,
           "properties": {
@@ -1138,7 +1138,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 104,
           "y": 48,
           "properties": {
@@ -1151,7 +1151,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 78,
           "y": 28,
           "properties": {
@@ -2638,7 +2638,7 @@
       "name": "Microcontroller",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 50,
           "y": 59,
           "properties": {
@@ -2648,7 +2648,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 22,
           "y": 8,
           "properties": {
@@ -2660,7 +2660,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 34,
           "y": 16,
           "properties": {
@@ -2672,7 +2672,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 19,
           "y": 6,
           "properties": {
@@ -2684,7 +2684,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 28,
           "y": 12,
           "properties": {
@@ -2696,7 +2696,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 108,
           "y": 54,
           "properties": {
@@ -2708,7 +2708,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 69,
           "y": 3,
           "properties": {
@@ -2746,7 +2746,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 40,
           "y": 20,
           "properties": {
@@ -2758,7 +2758,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 54,
           "y": 59,
           "properties": {
@@ -2768,7 +2768,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 41,
           "y": 51,
           "properties": {
@@ -2781,7 +2781,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 97,
           "y": 9,
           "properties": {
@@ -2791,7 +2791,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.ROMPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.ROMPeer",
           "x": 26,
           "y": 57,
           "properties": {
@@ -2803,7 +2803,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 52,
           "y": 52,
           "properties": {
@@ -2813,7 +2813,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 43,
           "properties": {
@@ -2825,7 +2825,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 44,
           "y": 63,
           "properties": {
@@ -2835,7 +2835,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 100,
           "y": 57,
           "properties": {
@@ -2845,7 +2845,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 33,
           "properties": {
@@ -2857,7 +2857,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 37,
           "properties": {
@@ -2869,7 +2869,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 53,
           "y": 24,
           "properties": {
@@ -2879,7 +2879,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 25,
           "y": 10,
           "properties": {
@@ -2891,7 +2891,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 51,
           "properties": {
@@ -2901,7 +2901,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 31,
           "properties": {
@@ -2913,7 +2913,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 100,
           "y": 54,
           "properties": {
@@ -2923,7 +2923,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 100,
           "y": 48,
           "properties": {
@@ -2933,7 +2933,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 100,
           "y": 51,
           "properties": {
@@ -2943,7 +2943,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 29,
           "properties": {
@@ -2955,7 +2955,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 46,
           "y": 24,
           "properties": {
@@ -2965,7 +2965,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 90,
           "y": 8,
           "properties": {
@@ -2984,7 +2984,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 108,
           "y": 57,
           "properties": {
@@ -2996,7 +2996,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 37,
           "y": 18,
           "properties": {
@@ -3008,7 +3008,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 108,
           "y": 51,
           "properties": {
@@ -3020,7 +3020,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 20,
           "y": 66,
           "properties": {
@@ -3030,7 +3030,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.ROMPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.ROMPeer",
           "x": 62,
           "y": 52,
           "properties": {
@@ -3042,7 +3042,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 43,
           "y": 22,
           "properties": {
@@ -3054,7 +3054,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 56,
           "y": 2,
           "properties": {
@@ -3064,7 +3064,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 108,
           "y": 48,
           "properties": {
@@ -3076,7 +3076,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 40,
           "y": 63,
           "properties": {
@@ -3086,7 +3086,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 41,
           "properties": {
@@ -3098,7 +3098,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 31,
           "y": 14,
           "properties": {
@@ -3110,7 +3110,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 35,
           "properties": {
@@ -3122,7 +3122,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 39,
           "properties": {
@@ -3134,7 +3134,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 20,
           "y": 58,
           "properties": {
@@ -3144,7 +3144,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.ROMPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.ROMPeer",
           "x": 26,
           "y": 65,
           "properties": {
@@ -3156,7 +3156,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 71,
           "y": 53,
           "properties": {
@@ -3166,7 +3166,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 42,
           "y": 58,
           "properties": {
@@ -3638,7 +3638,7 @@
       "name": "ALU",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 11,
           "y": 30,
           "properties": {
@@ -3650,7 +3650,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 27,
           "y": 30,
           "properties": {
@@ -3662,7 +3662,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 21,
           "y": 10,
           "properties": {
@@ -3672,7 +3672,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 36,
           "y": 6,
           "properties": {
@@ -3684,7 +3684,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 28,
           "y": 39,
           "properties": {
@@ -3697,7 +3697,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 18,
           "y": 25,
           "properties": {
@@ -3709,7 +3709,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 7,
           "y": 30,
           "properties": {
@@ -3719,7 +3719,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 18,
           "y": 17,
           "properties": {
@@ -3731,7 +3731,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 34,
           "y": 34,
           "properties": {
@@ -3741,7 +3741,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 34,
           "properties": {
@@ -3751,7 +3751,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 42,
           "y": 29,
           "properties": {
@@ -3761,7 +3761,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 31,
           "y": 28,
           "properties": {
@@ -3771,7 +3771,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.AdderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.AdderPeer",
           "x": 17,
           "y": 28,
           "properties": {
@@ -3781,7 +3781,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 39,
           "y": 10,
           "properties": {
@@ -3791,7 +3791,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.AdderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.AdderPeer",
           "x": 17,
           "y": 20,
           "properties": {
@@ -3801,7 +3801,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 31,
           "y": 22,
           "properties": {
@@ -3811,7 +3811,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 42,
           "y": 21,
           "properties": {
@@ -3821,7 +3821,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 6,
           "properties": {
@@ -3833,7 +3833,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 22,
           "y": 34,
           "properties": {
@@ -3843,7 +3843,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NandGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NandGatePeer",
           "x": 37,
           "y": 20,
           "properties": {
@@ -3857,7 +3857,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 39,
           "y": 25,
           "properties": {
@@ -3869,7 +3869,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 11,
           "y": 20,
           "properties": {
@@ -3879,7 +3879,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 7,
           "y": 28,
           "properties": {
@@ -3889,7 +3889,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 30,
           "y": 34,
           "properties": {
@@ -3899,7 +3899,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 21,
           "y": 21,
           "properties": {
@@ -3909,7 +3909,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 11,
           "y": 39,
           "properties": {
@@ -3921,7 +3921,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 31,
           "y": 20,
           "properties": {
@@ -3931,7 +3931,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.AdderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.AdderPeer",
           "x": 38,
           "y": 28,
           "properties": {
@@ -3941,7 +3941,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 27,
           "y": 48,
           "properties": {
@@ -3953,7 +3953,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 21,
           "y": 29,
           "properties": {
@@ -3963,7 +3963,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 11,
           "y": 22,
           "properties": {
@@ -4142,7 +4142,7 @@
       "name": "Registers",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 104,
           "y": 64,
           "properties": {
@@ -4152,7 +4152,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 83,
           "y": 64,
           "properties": {
@@ -4162,7 +4162,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 65,
           "y": 48,
           "properties": {
@@ -4172,7 +4172,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 65,
           "y": 32,
           "properties": {
@@ -4182,7 +4182,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 9,
           "y": 26,
           "properties": {
@@ -4194,7 +4194,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 132,
           "y": 46,
           "properties": {
@@ -4206,7 +4206,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 45,
           "y": 64,
           "properties": {
@@ -4216,7 +4216,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 65,
           "y": 64,
           "properties": {
@@ -4226,7 +4226,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 16,
           "y": 18,
           "properties": {
@@ -4239,7 +4239,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 104,
           "y": 32,
           "properties": {
@@ -4249,7 +4249,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 132,
           "y": 29,
           "properties": {
@@ -4261,7 +4261,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 45,
           "y": 48,
           "properties": {
@@ -4271,7 +4271,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 15,
           "y": 75,
           "properties": {
@@ -4283,7 +4283,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 65,
           "y": 16,
           "properties": {
@@ -4293,7 +4293,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 83,
           "y": 48,
           "properties": {
@@ -4303,7 +4303,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 43,
           "y": 17,
           "properties": {
@@ -4315,7 +4315,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 123,
           "y": 21,
           "properties": {
@@ -4328,7 +4328,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 14,
           "y": 70,
           "properties": {
@@ -4340,7 +4340,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 104,
           "y": 16,
           "properties": {
@@ -4350,7 +4350,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 83,
           "y": 16,
           "properties": {
@@ -4360,7 +4360,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 83,
           "y": 32,
           "properties": {
@@ -4370,7 +4370,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 104,
           "y": 48,
           "properties": {
@@ -4380,7 +4380,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 8,
           "y": 13,
           "properties": {
@@ -4392,7 +4392,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 45,
           "y": 32,
           "properties": {
@@ -4402,7 +4402,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 12,
           "y": 53,
           "properties": {
@@ -6005,7 +6005,7 @@
       "name": "Memory",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 78,
           "y": 14,
           "properties": {
@@ -6017,7 +6017,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 42,
           "y": 32,
           "properties": {
@@ -6031,7 +6031,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 43,
           "y": 27,
           "properties": {
@@ -6043,7 +6043,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 50,
           "y": 43,
           "properties": {
@@ -6055,7 +6055,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 35,
           "y": 50,
           "properties": {
@@ -6067,7 +6067,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 16,
           "y": 19,
           "properties": {
@@ -6079,7 +6079,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 29,
           "y": 54,
           "properties": {
@@ -6091,7 +6091,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 78,
           "y": 53,
           "properties": {
@@ -6103,7 +6103,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.ControlledBufferPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.ControlledBufferPeer",
           "x": 48,
           "y": 19,
           "properties": {
@@ -6113,7 +6113,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 55,
           "y": 43,
           "properties": {
@@ -6127,7 +6127,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 77,
           "y": 33,
           "properties": {
@@ -6139,7 +6139,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 45,
           "properties": {
@@ -6151,7 +6151,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 46,
           "y": 6,
           "properties": {
@@ -6163,7 +6163,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RAMPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RAMPeer",
           "x": 41,
           "y": 22,
           "properties": {
@@ -6174,7 +6174,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 48,
           "y": 11,
           "properties": {
@@ -6187,7 +6187,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 15,
           "y": 29,
           "properties": {
@@ -6199,7 +6199,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.ComparatorPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.ComparatorPeer",
           "x": 34,
           "y": 43,
           "properties": {
@@ -6209,7 +6209,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 29,
           "y": 6,
           "properties": {
@@ -6221,7 +6221,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 78,
           "y": 44,
           "properties": {
@@ -6233,7 +6233,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.AdderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.AdderPeer",
           "x": 34,
           "y": 52,
           "properties": {
@@ -6496,7 +6496,7 @@
       "name": "Graphics Controller",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 37,
           "properties": {
@@ -6506,7 +6506,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 50,
           "properties": {
@@ -6516,7 +6516,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 62,
           "properties": {
@@ -6526,7 +6526,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 164,
           "properties": {
@@ -6536,7 +6536,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 152,
           "properties": {
@@ -6546,7 +6546,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 161,
           "properties": {
@@ -6556,7 +6556,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 32,
           "y": 102,
           "properties": {
@@ -6585,7 +6585,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 233,
           "properties": {
@@ -6595,7 +6595,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 183,
           "properties": {
@@ -6605,7 +6605,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 197,
           "properties": {
@@ -6615,7 +6615,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 7,
           "properties": {
@@ -6625,7 +6625,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 94,
           "y": 228,
           "properties": {
@@ -6654,7 +6654,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 173,
           "properties": {
@@ -6664,7 +6664,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 14,
           "properties": {
@@ -6674,7 +6674,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 205,
           "properties": {
@@ -6687,7 +6687,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 5,
           "properties": {
@@ -6700,7 +6700,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 38,
           "properties": {
@@ -6710,7 +6710,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 185,
           "properties": {
@@ -6720,7 +6720,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 212,
           "properties": {
@@ -6730,7 +6730,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 188,
           "properties": {
@@ -6740,7 +6740,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 35,
           "y": 275,
           "properties": {
@@ -6752,7 +6752,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 98,
           "properties": {
@@ -6762,7 +6762,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 94,
           "y": 102,
           "properties": {
@@ -6791,7 +6791,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 167,
           "properties": {
@@ -6801,7 +6801,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 14,
           "properties": {
@@ -6811,7 +6811,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 38,
           "properties": {
@@ -6821,7 +6821,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 225,
           "properties": {
@@ -6831,7 +6831,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 26,
           "y": 291,
           "properties": {
@@ -6843,7 +6843,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 1,
           "y": 228,
           "properties": {
@@ -6872,7 +6872,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 33,
           "properties": {
@@ -6882,7 +6882,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 188,
           "properties": {
@@ -6892,7 +6892,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 197,
           "properties": {
@@ -6905,7 +6905,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 237,
           "properties": {
@@ -6915,7 +6915,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 21,
           "y": 259,
           "properties": {
@@ -6925,7 +6925,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 140,
           "properties": {
@@ -6937,7 +6937,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 176,
           "properties": {
@@ -6947,7 +6947,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 74,
           "properties": {
@@ -6957,7 +6957,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 13,
           "properties": {
@@ -6970,7 +6970,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 148,
           "properties": {
@@ -6982,7 +6982,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 241,
           "properties": {
@@ -6992,7 +6992,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 78,
           "y": 112,
           "properties": {
@@ -7021,7 +7021,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 27,
           "y": 124,
           "properties": {
@@ -7040,7 +7040,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 125,
           "properties": {
@@ -7053,7 +7053,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 188,
           "properties": {
@@ -7063,7 +7063,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 247,
           "properties": {
@@ -7073,7 +7073,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 85,
           "properties": {
@@ -7086,7 +7086,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 20,
           "properties": {
@@ -7098,7 +7098,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 212,
           "properties": {
@@ -7108,7 +7108,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 205,
           "properties": {
@@ -7118,7 +7118,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 212,
           "properties": {
@@ -7128,7 +7128,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 253,
           "properties": {
@@ -7141,7 +7141,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 56,
           "y": 294,
           "properties": {
@@ -7151,7 +7151,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 117,
           "properties": {
@@ -7164,7 +7164,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 79,
           "properties": {
@@ -7174,7 +7174,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 188,
           "properties": {
@@ -7184,7 +7184,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 229,
           "properties": {
@@ -7197,7 +7197,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 98,
           "properties": {
@@ -7207,7 +7207,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 74,
           "properties": {
@@ -7217,7 +7217,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 191,
           "properties": {
@@ -7227,7 +7227,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 26,
           "properties": {
@@ -7237,7 +7237,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 151,
           "properties": {
@@ -7247,7 +7247,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 61,
           "properties": {
@@ -7257,7 +7257,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 17,
           "properties": {
@@ -7267,7 +7267,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 38,
           "properties": {
@@ -7277,7 +7277,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 74,
           "properties": {
@@ -7287,7 +7287,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 86,
           "properties": {
@@ -7297,7 +7297,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 212,
           "properties": {
@@ -7309,7 +7309,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 7,
           "y": 4,
           "properties": {
@@ -7321,7 +7321,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 61,
           "properties": {
@@ -7334,7 +7334,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 209,
           "properties": {
@@ -7344,7 +7344,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 89,
           "properties": {
@@ -7354,7 +7354,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 164,
           "properties": {
@@ -7364,7 +7364,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 224,
           "properties": {
@@ -7374,7 +7374,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 140,
           "properties": {
@@ -7384,7 +7384,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 52,
           "y": 125,
           "properties": {
@@ -7397,7 +7397,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 132,
           "properties": {
@@ -7409,7 +7409,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 119,
           "properties": {
@@ -7419,7 +7419,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 69,
           "properties": {
@@ -7432,7 +7432,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 49,
           "properties": {
@@ -7442,7 +7442,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 87,
           "properties": {
@@ -7452,7 +7452,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 217,
           "properties": {
@@ -7462,7 +7462,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 135,
           "properties": {
@@ -7472,7 +7472,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 74,
           "properties": {
@@ -7482,7 +7482,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 74,
           "properties": {
@@ -7492,7 +7492,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 117,
           "properties": {
@@ -7502,7 +7502,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 62,
           "properties": {
@@ -7512,7 +7512,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 10,
           "y": 7,
           "properties": {
@@ -7522,7 +7522,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 14,
           "properties": {
@@ -7532,7 +7532,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 9,
           "properties": {
@@ -7542,7 +7542,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 74,
           "properties": {
@@ -7552,7 +7552,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 74,
           "properties": {
@@ -7562,7 +7562,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 86,
           "properties": {
@@ -7572,7 +7572,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 32,
           "y": 112,
           "properties": {
@@ -7601,7 +7601,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 164,
           "properties": {
@@ -7611,7 +7611,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 176,
           "properties": {
@@ -7621,7 +7621,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 50,
           "properties": {
@@ -7631,7 +7631,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 145,
           "properties": {
@@ -7641,7 +7641,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 188,
           "properties": {
@@ -7651,7 +7651,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 41,
           "properties": {
@@ -7661,7 +7661,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 152,
           "properties": {
@@ -7671,7 +7671,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 200,
           "properties": {
@@ -7681,7 +7681,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 62,
           "properties": {
@@ -7691,7 +7691,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 116,
           "properties": {
@@ -7703,7 +7703,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 188,
           "properties": {
@@ -7713,7 +7713,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 215,
           "properties": {
@@ -7723,7 +7723,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 84,
           "properties": {
@@ -7735,7 +7735,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 164,
           "properties": {
@@ -7747,7 +7747,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 245,
           "properties": {
@@ -7760,7 +7760,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 109,
           "properties": {
@@ -7770,7 +7770,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 221,
           "properties": {
@@ -7783,7 +7783,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 100,
           "properties": {
@@ -7795,7 +7795,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 21,
           "properties": {
@@ -7808,7 +7808,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 212,
           "properties": {
@@ -7818,7 +7818,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 94,
           "y": 238,
           "properties": {
@@ -7847,7 +7847,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 200,
           "properties": {
@@ -7857,7 +7857,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 44,
           "properties": {
@@ -7869,7 +7869,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 188,
           "properties": {
@@ -7881,7 +7881,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 140,
           "properties": {
@@ -7891,7 +7891,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 152,
           "properties": {
@@ -7901,7 +7901,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 177,
           "properties": {
@@ -7911,7 +7911,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 28,
           "properties": {
@@ -7923,7 +7923,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 156,
           "properties": {
@@ -7935,7 +7935,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 213,
           "properties": {
@@ -7948,7 +7948,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 152,
           "properties": {
@@ -7958,7 +7958,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 63,
           "y": 228,
           "properties": {
@@ -7987,7 +7987,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 48,
           "y": 264,
           "properties": {
@@ -8000,7 +8000,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 29,
           "properties": {
@@ -8010,7 +8010,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 109,
           "properties": {
@@ -8023,7 +8023,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 14,
           "properties": {
@@ -8033,7 +8033,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 74,
           "properties": {
@@ -8043,7 +8043,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 62,
           "properties": {
@@ -8053,7 +8053,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 26,
           "y": 296,
           "properties": {
@@ -8065,7 +8065,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 237,
           "properties": {
@@ -8078,7 +8078,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 68,
           "properties": {
@@ -8090,7 +8090,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 253,
           "properties": {
@@ -8100,7 +8100,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 188,
           "properties": {
@@ -8110,7 +8110,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 143,
           "properties": {
@@ -8120,7 +8120,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 50,
           "y": 288,
           "properties": {
@@ -8134,7 +8134,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 164,
           "properties": {
@@ -8144,7 +8144,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 65,
           "properties": {
@@ -8154,7 +8154,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 62,
           "properties": {
@@ -8164,7 +8164,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 236,
           "properties": {
@@ -8176,7 +8176,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 50,
           "properties": {
@@ -8186,7 +8186,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 224,
           "properties": {
@@ -8196,7 +8196,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 14,
           "properties": {
@@ -8206,7 +8206,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 149,
           "properties": {
@@ -8219,7 +8219,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 239,
           "properties": {
@@ -8229,7 +8229,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 173,
           "properties": {
@@ -8242,7 +8242,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 63,
           "y": 102,
           "properties": {
@@ -8271,7 +8271,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 71,
           "properties": {
@@ -8281,7 +8281,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 176,
           "properties": {
@@ -8291,7 +8291,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 38,
           "properties": {
@@ -8301,7 +8301,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 26,
           "properties": {
@@ -8311,7 +8311,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 175,
           "properties": {
@@ -8321,7 +8321,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 224,
           "properties": {
@@ -8331,7 +8331,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 50,
           "properties": {
@@ -8341,7 +8341,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 149,
           "properties": {
@@ -8351,7 +8351,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 181,
           "properties": {
@@ -8364,7 +8364,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 193,
           "properties": {
@@ -8374,7 +8374,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 16,
           "y": 280,
           "properties": {
@@ -8386,7 +8386,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 76,
           "properties": {
@@ -8398,7 +8398,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 133,
           "properties": {
@@ -8411,7 +8411,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
           "x": 97,
           "y": 277,
           "properties": {
@@ -8425,7 +8425,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 53,
           "properties": {
@@ -8438,7 +8438,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 223,
           "properties": {
@@ -8448,7 +8448,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 224,
           "properties": {
@@ -8458,7 +8458,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 153,
           "properties": {
@@ -8468,7 +8468,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 141,
           "properties": {
@@ -8478,7 +8478,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 105,
           "properties": {
@@ -8488,7 +8488,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 85,
           "properties": {
@@ -8498,7 +8498,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 50,
           "y": 293,
           "properties": {
@@ -8512,7 +8512,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 164,
           "properties": {
@@ -8522,7 +8522,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 176,
           "properties": {
@@ -8532,7 +8532,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 17,
           "y": 240,
           "properties": {
@@ -8545,7 +8545,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 98,
           "properties": {
@@ -8555,7 +8555,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 200,
           "properties": {
@@ -8565,7 +8565,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 50,
           "properties": {
@@ -8575,7 +8575,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 60,
           "properties": {
@@ -8587,7 +8587,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 97,
           "properties": {
@@ -8597,7 +8597,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 200,
           "properties": {
@@ -8607,7 +8607,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 229,
           "properties": {
@@ -8617,7 +8617,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 98,
           "properties": {
@@ -8627,7 +8627,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 86,
           "properties": {
@@ -8637,7 +8637,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 98,
           "properties": {
@@ -8647,7 +8647,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 103,
           "properties": {
@@ -8657,7 +8657,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 152,
           "properties": {
@@ -8667,7 +8667,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 133,
           "properties": {
@@ -8677,7 +8677,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 189,
           "properties": {
@@ -8690,7 +8690,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.ComparatorPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.ComparatorPeer",
           "x": 34,
           "y": 294,
           "properties": {
@@ -8700,7 +8700,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 29,
           "properties": {
@@ -8713,7 +8713,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 221,
           "properties": {
@@ -8723,7 +8723,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 26,
           "properties": {
@@ -8733,7 +8733,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 228,
           "properties": {
@@ -8745,7 +8745,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 124,
           "properties": {
@@ -8757,7 +8757,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 93,
           "properties": {
@@ -8770,7 +8770,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 207,
           "properties": {
@@ -8780,7 +8780,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 201,
           "properties": {
@@ -8790,7 +8790,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.BitExtenderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.BitExtenderPeer",
           "x": 45,
           "y": 273,
           "properties": {
@@ -8802,7 +8802,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 77,
           "properties": {
@@ -8812,7 +8812,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 32,
           "y": 238,
           "properties": {
@@ -8841,7 +8841,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 16,
           "y": 112,
           "properties": {
@@ -8870,7 +8870,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 129,
           "properties": {
@@ -8880,7 +8880,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.ComparatorPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.ComparatorPeer",
           "x": 34,
           "y": 289,
           "properties": {
@@ -8890,7 +8890,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 20,
           "y": 264,
           "properties": {
@@ -8900,7 +8900,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 23,
           "properties": {
@@ -8910,7 +8910,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.arithmetic.AdderPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.arithmetic.AdderPeer",
           "x": 38,
           "y": 273,
           "properties": {
@@ -8920,7 +8920,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 50,
           "properties": {
@@ -8930,7 +8930,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 53,
           "properties": {
@@ -8940,7 +8940,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 26,
           "properties": {
@@ -8950,7 +8950,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 77,
           "properties": {
@@ -8963,7 +8963,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 55,
           "y": 264,
           "properties": {
@@ -8976,7 +8976,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 224,
           "properties": {
@@ -8986,7 +8986,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 199,
           "properties": {
@@ -8996,7 +8996,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 14,
           "properties": {
@@ -9006,7 +9006,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 38,
           "properties": {
@@ -9016,7 +9016,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 164,
           "properties": {
@@ -9026,7 +9026,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 93,
           "properties": {
@@ -9036,7 +9036,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 63,
           "properties": {
@@ -9046,7 +9046,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 140,
           "properties": {
@@ -9056,7 +9056,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 165,
           "properties": {
@@ -9066,7 +9066,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 200,
           "properties": {
@@ -9076,7 +9076,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 196,
           "properties": {
@@ -9088,7 +9088,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 188,
           "properties": {
@@ -9098,7 +9098,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 244,
           "properties": {
@@ -9110,7 +9110,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 224,
           "properties": {
@@ -9120,7 +9120,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 62,
           "properties": {
@@ -9130,7 +9130,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 169,
           "properties": {
@@ -9140,7 +9140,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 39,
           "y": 271,
           "properties": {
@@ -9152,7 +9152,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 38,
           "properties": {
@@ -9162,7 +9162,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 224,
           "properties": {
@@ -9172,7 +9172,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 16,
           "y": 285,
           "properties": {
@@ -9184,7 +9184,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 255,
           "properties": {
@@ -9194,7 +9194,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 220,
           "properties": {
@@ -9206,7 +9206,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 38,
           "properties": {
@@ -9216,7 +9216,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 15,
           "y": 260,
           "properties": {
@@ -9228,7 +9228,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 224,
           "properties": {
@@ -9238,7 +9238,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 125,
           "properties": {
@@ -9248,7 +9248,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 176,
           "properties": {
@@ -9258,7 +9258,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 25,
           "properties": {
@@ -9268,7 +9268,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 26,
           "properties": {
@@ -9278,7 +9278,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.NotGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NotGatePeer",
           "x": 31,
           "y": 261,
           "properties": {
@@ -9290,7 +9290,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 121,
           "properties": {
@@ -9300,7 +9300,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 176,
           "properties": {
@@ -9310,7 +9310,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 98,
           "properties": {
@@ -9320,7 +9320,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 140,
           "properties": {
@@ -9330,7 +9330,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 26,
           "properties": {
@@ -9340,7 +9340,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 2,
           "y": 134,
           "properties": {
@@ -9350,7 +9350,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 140,
           "properties": {
@@ -9360,7 +9360,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 14,
           "properties": {
@@ -9370,7 +9370,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 86,
           "properties": {
@@ -9380,7 +9380,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 57,
           "properties": {
@@ -9390,7 +9390,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 95,
           "properties": {
@@ -9400,7 +9400,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 9,
           "y": 262,
           "properties": {
@@ -9410,7 +9410,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 26,
           "properties": {
@@ -9420,7 +9420,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 113,
           "properties": {
@@ -9430,7 +9430,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 212,
           "properties": {
@@ -9440,7 +9440,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 212,
           "properties": {
@@ -9450,7 +9450,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 101,
           "properties": {
@@ -9460,7 +9460,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 212,
           "properties": {
@@ -9470,7 +9470,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 200,
           "properties": {
@@ -9480,7 +9480,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 26,
           "properties": {
@@ -9490,7 +9490,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 79,
           "y": 240,
           "properties": {
@@ -9503,7 +9503,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 80,
           "y": 283,
           "properties": {
@@ -9516,7 +9516,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 213,
           "properties": {
@@ -9526,7 +9526,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 176,
           "properties": {
@@ -9536,7 +9536,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 78,
           "y": 238,
           "properties": {
@@ -9565,7 +9565,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 249,
           "properties": {
@@ -9575,7 +9575,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 101,
           "properties": {
@@ -9588,7 +9588,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 94,
           "y": 112,
           "properties": {
@@ -9617,7 +9617,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 111,
           "properties": {
@@ -9627,7 +9627,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 69,
           "properties": {
@@ -9637,7 +9637,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 50,
           "properties": {
@@ -9647,7 +9647,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 200,
           "properties": {
@@ -9657,7 +9657,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 108,
           "properties": {
@@ -9669,7 +9669,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 245,
           "properties": {
@@ -9679,7 +9679,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 38,
           "properties": {
@@ -9689,7 +9689,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 37,
           "properties": {
@@ -9702,7 +9702,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 73,
           "properties": {
@@ -9712,7 +9712,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 45,
           "properties": {
@@ -9725,7 +9725,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 86,
           "properties": {
@@ -9735,7 +9735,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 98,
           "properties": {
@@ -9745,7 +9745,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 32,
           "y": 228,
           "properties": {
@@ -9774,7 +9774,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 39,
           "properties": {
@@ -9784,7 +9784,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 85,
           "y": 86,
           "properties": {
@@ -9794,7 +9794,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 127,
           "properties": {
@@ -9804,7 +9804,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 176,
           "properties": {
@@ -9814,7 +9814,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.ConstantPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 26,
           "y": 275,
           "properties": {
@@ -9826,7 +9826,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 5,
           "properties": {
@@ -9836,7 +9836,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 252,
           "properties": {
@@ -9848,7 +9848,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 14,
           "properties": {
@@ -9858,7 +9858,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 29,
           "y": 265,
           "properties": {
@@ -9868,7 +9868,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 212,
           "properties": {
@@ -9878,7 +9878,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 140,
           "properties": {
@@ -9888,7 +9888,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 141,
           "properties": {
@@ -9901,7 +9901,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 23,
           "y": 50,
           "properties": {
@@ -9911,7 +9911,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 152,
           "properties": {
@@ -9921,7 +9921,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 231,
           "properties": {
@@ -9931,7 +9931,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 79,
           "y": 114,
           "properties": {
@@ -9944,7 +9944,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 62,
           "properties": {
@@ -9954,7 +9954,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 12,
           "properties": {
@@ -9966,7 +9966,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 47,
           "properties": {
@@ -9976,7 +9976,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 17,
           "y": 114,
           "properties": {
@@ -9989,7 +9989,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 16,
           "y": 301,
           "properties": {
@@ -10001,7 +10001,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 137,
           "properties": {
@@ -10011,7 +10011,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 189,
           "properties": {
@@ -10021,7 +10021,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 15,
           "properties": {
@@ -10031,7 +10031,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 164,
           "properties": {
@@ -10041,7 +10041,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 52,
           "properties": {
@@ -10053,7 +10053,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 54,
           "y": 62,
           "properties": {
@@ -10063,7 +10063,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 1,
           "y": 102,
           "properties": {
@@ -10092,7 +10092,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 181,
           "properties": {
@@ -10102,7 +10102,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 27,
           "y": 250,
           "properties": {
@@ -10121,7 +10121,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 4,
           "properties": {
@@ -10133,7 +10133,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.AndGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
           "x": 50,
           "y": 283,
           "properties": {
@@ -10147,7 +10147,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 31,
           "properties": {
@@ -10157,7 +10157,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 92,
           "properties": {
@@ -10169,7 +10169,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 180,
           "properties": {
@@ -10181,7 +10181,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 157,
           "properties": {
@@ -10194,7 +10194,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 172,
           "properties": {
@@ -10206,7 +10206,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 164,
           "properties": {
@@ -10216,7 +10216,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 36,
           "properties": {
@@ -10228,7 +10228,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 200,
           "properties": {
@@ -10238,7 +10238,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 159,
           "properties": {
@@ -10248,7 +10248,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 152,
           "properties": {
@@ -10258,7 +10258,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 28,
           "y": 120,
           "properties": {
@@ -10276,7 +10276,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 21,
           "properties": {
@@ -10286,7 +10286,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 139,
           "y": 204,
           "properties": {
@@ -10298,7 +10298,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 26,
           "y": 140,
           "properties": {
@@ -10308,7 +10308,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 131,
           "y": 157,
           "properties": {
@@ -10318,7 +10318,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
           "x": 97,
           "y": 282,
           "properties": {
@@ -10332,7 +10332,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 88,
           "y": 86,
           "properties": {
@@ -10342,7 +10342,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 136,
           "y": 165,
           "properties": {
@@ -10355,7 +10355,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 16,
           "y": 238,
           "properties": {
@@ -10384,7 +10384,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 119,
           "y": 152,
           "properties": {
@@ -10394,7 +10394,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 81,
           "properties": {
@@ -10404,7 +10404,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 98,
           "properties": {
@@ -10414,7 +10414,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 45,
           "properties": {
@@ -10424,7 +10424,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 57,
           "y": 140,
           "properties": {
@@ -10434,7 +10434,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.SubcircuitPeer",
           "x": 116,
           "y": 86,
           "properties": {
@@ -10444,7 +10444,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 28,
           "y": 246,
           "properties": {
@@ -10462,7 +10462,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.DemultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer",
           "x": 52,
           "y": 251,
           "properties": {
@@ -10475,7 +10475,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 134,
           "y": 257,
           "properties": {
@@ -10485,7 +10485,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 132,
           "y": 13,
           "properties": {
@@ -10495,7 +10495,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 16,
           "y": 294,
           "properties": {
@@ -10507,7 +10507,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.Tunnel",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.Tunnel",
           "x": 129,
           "y": 55,
           "properties": {
@@ -16458,7 +16458,7 @@
       "name": "Graphics Memory Cell",
       "components": [
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 12,
           "y": 24,
           "properties": {
@@ -16470,7 +16470,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 47,
           "y": 27,
           "properties": {
@@ -16515,7 +16515,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 35,
           "properties": {
@@ -16527,7 +16527,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.SplitterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer",
           "x": 28,
           "y": 14,
           "properties": {
@@ -16572,7 +16572,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 34,
           "y": 26,
           "properties": {
@@ -16585,7 +16585,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 48,
           "y": 47,
           "properties": {
@@ -16597,7 +16597,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.memory.RegisterPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.memory.RegisterPeer",
           "x": 51,
           "y": 25,
           "properties": {
@@ -16607,7 +16607,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 18,
           "y": 33,
           "properties": {
@@ -16619,7 +16619,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.gates.OrGatePeer",
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
           "x": 42,
           "y": 33,
           "properties": {
@@ -16633,7 +16633,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 69,
           "y": 24,
           "properties": {
@@ -16645,7 +16645,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.wiring.PinPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
           "x": 56,
           "y": 47,
           "properties": {
@@ -16657,7 +16657,7 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsimulator.gui.peers.plexers.MultiplexerPeer",
+          "name": "com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer",
           "x": 34,
           "y": 19,
           "properties": {

@@ -2,13 +2,13 @@ import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 
-import com.ra4king.circuitsimulator.gui.CircuitBoard;
-import com.ra4king.circuitsimulator.gui.CircuitSimulator;
-import com.ra4king.circuitsimulator.gui.peers.SubcircuitPeer;
-import com.ra4king.circuitsimulator.gui.peers.memory.RAMPeer;
-import com.ra4king.circuitsimulator.simulator.CircuitState;
-import com.ra4king.circuitsimulator.simulator.components.Subcircuit;
-import com.ra4king.circuitsimulator.simulator.components.memory.RAM;
+import com.ra4king.circuitsim.gui.CircuitBoard;
+import com.ra4king.circuitsim.gui.CircuitSim;
+import com.ra4king.circuitsim.gui.peers.SubcircuitPeer;
+import com.ra4king.circuitsim.gui.peers.memory.RAMPeer;
+import com.ra4king.circuitsim.simulator.CircuitState;
+import com.ra4king.circuitsim.simulator.components.Subcircuit;
+import com.ra4king.circuitsim.simulator.components.memory.RAM;
 
 /**
  * @author Roi Atalla
@@ -16,7 +16,7 @@ import com.ra4king.circuitsimulator.simulator.components.memory.RAM;
 public class CircuitSimulatorTest {
 	public static void main(String[] args) {
 		try {
-			CircuitSimulator simulator = new CircuitSimulator(false);
+			CircuitSim simulator = new CircuitSim(false);
 			
 			simulator.createCircuit("Foo");
 			simulator.renameCircuit("Foo", "Bar");

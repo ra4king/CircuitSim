@@ -1,5 +1,5 @@
-import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.WireValue.State;
+import com.ra4king.circuitsim.simulator.WireValue;
+import com.ra4king.circuitsim.simulator.WireValue.State;
 
 /**
  * @author Roi Atalla

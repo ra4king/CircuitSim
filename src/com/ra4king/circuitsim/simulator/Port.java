@@ -1,0 +1,138 @@
+package com.ra4king.circuitsim.simulator;
+
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * @author Roi Atalla
+ */
+public class Port {
+	public final Component component;
+	public final int portIndex;
+	private Link link;
+	
+	public Port(Component component, int portIndex, int bitSize) {
+		this.component = component;
+		this.portIndex = portIndex;
+		
+		link = new Link(bitSize);
+		link.participants.add(this);
+	}
+	
+	public Component getComponent() {
+		return component;
+	}
+	
+	public int getPortIndex() {
+		return portIndex;
+	}
+	
+	public Link getLink() {
+		return link;
+	}
+	
+	public Port linkPort(Port port) {
+		link.linkPort(port);
+		return this;
+	}
+	
+	public Port unlinkPort(Port port) {
+		link.unlinkPort(port);
+		return this;
+	}
+	
+	@Override
+	public int hashCode() {
+		return component.hashCode() ^ portIndex;
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if(other instanceof Port) {
+			Port port = (Port)other;
+			return port.component == this.component && port.portIndex == this.portIndex;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return "Port(" + component + "[" + portIndex + "])";
+	}
+	
+	public static class Link {
+		private final Set<Port> participants;
+		private final int bitSize;
+		
+		public Link(int bitSize) {
+			this.participants = new HashSet<>();
+			this.bitSize = bitSize;
+		}
+		
+		public Circuit getCircuit() {
+			return participants.isEmpty() ? null : participants.iterator().next().component.getCircuit();
+		}
+		
+		public int getBitSize() {
+			return bitSize;
+		}
+		
+		public Set<Port> getParticipants() {
+			return participants;
+		}
+		
+		public Link linkPort(Port port) {
+			if(participants.contains(port)) return this;
+			
+			Circuit circuit = getCircuit();
+			
+			if(circuit == null) {
+				throw new IllegalStateException("Link does not belong to a circuit.");
+			}
+			
+			if(port.getLink().getCircuit() == null) {
+				throw new IllegalStateException("Port does not belong to a circuit.");
+			}
+			
+			if(port.getLink().getCircuit() != circuit) {
+				throw new IllegalArgumentException("Links belong to different circuits.");
+			}
+			
+			if(port.getLink().bitSize != bitSize) {
+				throw new IllegalArgumentException("Links have different bit sizes.");
+			}
+			
+			circuit.getCircuitStates().forEach(state -> state.link(this, port.getLink()));
+			
+			Set<Port> portParticipants = port.getLink().participants;
+			participants.addAll(portParticipants);
+			
+			for(Port p : portParticipants) {
+				p.link = this;
+			}
+			
+			return this;
+		}
+		
+		public Link unlinkPort(Port port) {
+			if(!participants.contains(port)) {
+				return this;
+			}
+			
+			if(participants.size() == 1) {
+				return this;
+			}
+			
+			Circuit circuit = getCircuit();
+			
+			participants.remove(port);
+			port.link = new Link(bitSize);
+			port.link.participants.add(port);
+			
+			circuit.getCircuitStates().forEach(state -> state.unlink(this, port));
+			
+			return this;
+		}
+	}
+}

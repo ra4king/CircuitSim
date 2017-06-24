@@ -1,8 +1,8 @@
-import com.ra4king.circuitsimulator.simulator.Circuit;
-import com.ra4king.circuitsimulator.simulator.Simulator;
-import com.ra4king.circuitsimulator.simulator.WireValue;
-import com.ra4king.circuitsimulator.simulator.components.gates.AndGate;
-import com.ra4king.circuitsimulator.simulator.components.wiring.Pin;
+import com.ra4king.circuitsim.simulator.Circuit;
+import com.ra4king.circuitsim.simulator.Simulator;
+import com.ra4king.circuitsim.simulator.WireValue;
+import com.ra4king.circuitsim.simulator.components.gates.AndGate;
+import com.ra4king.circuitsim.simulator.components.wiring.Pin;
 
 import javafx.util.Pair;
 

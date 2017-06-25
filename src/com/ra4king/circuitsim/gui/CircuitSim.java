@@ -1002,6 +1002,7 @@ public class CircuitSim extends Application {
 				dialog.initModality(Modality.WINDOW_MODAL);
 				dialog.setTitle("Loading " + f.getName() + "...");
 				dialog.setHeaderText("Loading " + f.getName() + "...");
+				dialog.setContentText("Parsing file...");
 				dialog.setGraphic(bar);
 				
 				lastSaveFile = f;
@@ -1012,15 +1013,10 @@ public class CircuitSim extends Application {
 						
 						long now = System.nanoTime();
 						
-						Platform.runLater(() -> {
-							bar.setProgress(0.1);
-							dialog.setContentText("Parsing file...");
-						});
-						
 						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
 						
 						Platform.runLater(() -> {
-							bar.setProgress(0.2);
+							bar.setProgress(0.1);
 							dialog.setContentText("Creating circuits...");
 						});
 						

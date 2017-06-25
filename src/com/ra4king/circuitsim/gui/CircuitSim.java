@@ -1118,7 +1118,9 @@ public class CircuitSim extends Application {
 									}
 								}
 								
-								bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
+								if(circuitFile.globalBitSize >= 1 && circuitFile.globalBitSize <= 32) {
+									bitSizeSelect.getSelectionModel().select((Integer)circuitFile.globalBitSize);
+								}
 								
 								latch.countDown();
 							});

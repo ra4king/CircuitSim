@@ -465,8 +465,8 @@ public class CircuitSim extends Application {
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.initOwner(stage);
 		alert.initModality(Modality.WINDOW_MODAL);
-		alert.setTitle("Delete this circuit?");
-		alert.setHeaderText("Delete this circuit?");
+		alert.setTitle("Delete \"" + circuitManager.getName() + "\"?");
+		alert.setHeaderText("Delete \"" + circuitManager.getName() + "\"?");
 		alert.setContentText("Are you sure you want to delete this circuit?");
 		
 		Optional<ButtonType> result = alert.showAndWait();

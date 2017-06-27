@@ -1930,11 +1930,11 @@ public class CircuitSim extends Application {
 			alert.setHeaderText("CircuitSim v" + FileFormat.VERSION + ", created by Roi Atalla © 2017");
 			
 			String msg = "";
-			msg += "- Holding Shift will enable Click Mode which will click through to components\n";
-			msg += "- Holding Shift while dragging a new wire will delete existing wires\n";
-			msg += "- Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on "
-					       + "click\n";
-			msg += "- Holding Ctrl while selecting components will include them in the selection group\n";
+			msg += "• Holding Shift will enable Click Mode which will click through to components\n\n";
+			msg += "• Holding Shift while dragging a new wire will delete existing wires\n\n";
+			msg += "• Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on "
+					       + "click\n\n";
+			msg += "• Holding Ctrl while selecting components will include them in the selection group\n\n";
 			
 			alert.setContentText(msg);
 			alert.show();
@@ -1946,7 +1946,7 @@ public class CircuitSim extends Application {
 			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("About");
 			alert.setHeaderText("CircuitSim v" + FileFormat.VERSION);
-			alert.setContentText("CircuitSim created by Roi Atalla © 2017");
+			alert.setContentText("CircuitSim created by Roi Atalla © 2017\n\nThird party tools:\n• GSON by Google");
 			alert.show();
 		});
 		helpMenu.getItems().addAll(help, about);

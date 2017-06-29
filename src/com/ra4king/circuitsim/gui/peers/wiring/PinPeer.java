@@ -2,6 +2,7 @@ package com.ra4king.circuitsim.gui.peers.wiring;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.ra4king.circuitsim.gui.CircuitManager;
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
@@ -18,9 +19,13 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.util.Pair;
 
 /**
@@ -95,6 +100,22 @@ public class PinPeer extends ComponentPeer<Pin> {
 	public void mousePressed(CircuitManager manager, CircuitState state, double x, double y) {
 		if(!isInput()) {
 			return;
+		}
+		
+		if(state != manager.getCircuit().getTopLevelState()) {
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.initOwner(manager.getSimulatorWindow().getStage());
+			alert.initModality(Modality.WINDOW_MODAL);
+			alert.setTitle("Switch to top-level state?");
+			alert.setHeaderText("Switch to top-level state?");
+			alert.setContentText("Cannot modify state of a subcircuit. Switch to top-level state?");
+			Optional<ButtonType> buttonType = alert.showAndWait();
+			if(buttonType.isPresent() && buttonType.get() == ButtonType.OK) {
+				state = manager.getCircuit().getTopLevelState();
+				manager.getCircuitBoard().setCurrentState(state);
+			} else {
+				return;
+			}
 		}
 		
 		Pin pin = getComponent();

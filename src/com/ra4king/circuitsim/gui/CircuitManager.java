@@ -990,4 +990,27 @@ public class CircuitManager {
 		isShiftDown = false;
 		needsRepaint = true;
 	}
+	
+	public void focusGained() {}
+	
+	public void focusLost() {
+		mouseExited(null);
+		simulatorWindow.setClickMode(false);
+		mayThrow(circuitBoard::finalizeMove);
+		
+		if(lastPressed != null && lastPressedKeyCode == null) {
+			lastPressed.mouseReleased(this, circuitBoard.getCurrentState(),
+			                          lastMousePosition.getX() - lastPressed.getScreenX(),
+			                          lastMousePosition.getY() - lastPressed.getScreenY());
+		} else if(lastPressed != null) {
+			lastPressed.keyReleased(this, circuitBoard.getCurrentState(),
+			                        lastPressedKeyCode,
+			                        lastPressedKeyCode.getName());
+		}
+		
+		lastPressed = null;
+		lastPressedKeyCode = null;
+		simulatorWindow.runSim();
+		needsRepaint = true;
+	}
 }

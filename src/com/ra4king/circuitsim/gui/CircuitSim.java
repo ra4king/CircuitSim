@@ -1271,7 +1271,10 @@ public class CircuitSim extends Application {
 			String n = name;
 			
 			Canvas canvas = new Canvas(800, 600);
+			canvas.setFocusTraversable(true);
+			
 			ScrollPane canvasScrollPane = new ScrollPane(canvas);
+			canvasScrollPane.setFocusTraversable(true);
 			
 			CircuitManager circuitManager = new CircuitManager(n, this, canvasScrollPane, simulator);
 			circuitManager.getCircuit().addListener(this::circuitModified);
@@ -1292,6 +1295,13 @@ public class CircuitSim extends Application {
 			canvas.addEventHandler(KeyEvent.KEY_PRESSED, circuitManager::keyPressed);
 			canvas.addEventHandler(KeyEvent.KEY_TYPED, circuitManager::keyTyped);
 			canvas.addEventHandler(KeyEvent.KEY_RELEASED, circuitManager::keyReleased);
+			canvas.focusedProperty().addListener((observable, oldValue, newValue) -> {
+				if(newValue) {
+					circuitManager.focusGained();
+				} else {
+					circuitManager.focusLost();
+				}
+			});
 			
 			canvasScrollPane.widthProperty().addListener(
 					(observable, oldValue, newValue) -> this.updateCanvasSize(circuitManager));
@@ -1436,6 +1446,7 @@ public class CircuitSim extends Application {
 		propertiesTable = new GridPane();
 		
 		componentLabel = new Label();
+		componentLabel.setFont(GuiUtils.getFont(16));
 		
 		canvasTabPane = new TabPane();
 		canvasTabPane.setPrefWidth(800);
@@ -1495,8 +1506,7 @@ public class CircuitSim extends Application {
 		createCircuit("New circuit");
 		editHistory.enable();
 		
-		MenuBar menuBar = new MenuBar();
-		
+		// FILE Menu
 		MenuItem newInstance = new MenuItem("New");
 		newInstance.setAccelerator(new KeyCharacterCombination("N", KeyCombination.CONTROL_DOWN));
 		newInstance.setOnAction(event -> new CircuitSim(true));
@@ -1511,7 +1521,6 @@ public class CircuitSim extends Application {
 			}
 		});
 		
-		// FILE Menu
 		MenuItem load = new MenuItem("Load");
 		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.CONTROL_DOWN));
 		load.setOnAction(event -> {
@@ -1951,9 +1960,7 @@ public class CircuitSim extends Application {
 		});
 		helpMenu.getItems().addAll(help, about);
 		
-		menuBar.getMenus().addAll(fileMenu, editMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
-		
-		componentLabel.setFont(GuiUtils.getFont(16));
+		MenuBar menuBar = new MenuBar(fileMenu, editMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
 		
 		ScrollPane propertiesScrollPane = new ScrollPane(propertiesTable);
 		propertiesScrollPane.setFitToWidth(true);
@@ -1964,7 +1971,6 @@ public class CircuitSim extends Application {
 		
 		SplitPane leftPaneSplit = new SplitPane(buttonTabPane, propertiesBox);
 		leftPaneSplit.setOrientation(Orientation.VERTICAL);
-		leftPaneSplit.setDividerPositions(0.65);
 		leftPaneSplit.setPrefWidth(450);
 		leftPaneSplit.setMinWidth(150);
 		

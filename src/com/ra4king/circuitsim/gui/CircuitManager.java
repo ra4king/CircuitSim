@@ -748,18 +748,15 @@ public class CircuitManager {
 					if(clickedComponent.isPresent()) {
 						GuiElement selectedElement = clickedComponent.get();
 						
-						if(simulatorWindow.isClickMode()) {
-							if(lastPressed == null) {
-								lastPressed = selectedElement;
-								selectedElement.mousePressed(this, circuitBoard.getCurrentState(),
-								                             lastMousePosition.getX() - selectedElement.getScreenX(),
-								                             lastMousePosition.getY() - selectedElement.getScreenY());
-								simulatorWindow.runSim();
-								needsRepaint = true;
-							}
-						} else if(e.getClickCount() == 2 && selectedElement instanceof SubcircuitPeer) {
+						if(e.getClickCount() == 2 && selectedElement instanceof SubcircuitPeer) {
 							reset();
 							((SubcircuitPeer)selectedElement).switchToSubcircuit(this);
+						} else if(simulatorWindow.isClickMode() && lastPressed == null) {
+							lastPressed = selectedElement;
+							selectedElement.mousePressed(this, circuitBoard.getCurrentState(),
+							                             lastMousePosition.getX() - selectedElement.getScreenX(),
+							                             lastMousePosition.getY() - selectedElement.getScreenY());
+							simulatorWindow.runSim();
 						} else if(isCtrlDown) {
 							Set<GuiElement> elements = new HashSet<>(getSelectedElements());
 							elements.add(selectedElement);

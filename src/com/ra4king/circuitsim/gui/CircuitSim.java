@@ -1,6 +1,8 @@
 package com.ra4king.circuitsim.gui;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayDeque;
@@ -25,6 +27,7 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.gson.JsonSyntaxException;
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentCreator;
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentLauncherInfo;
 import com.ra4king.circuitsim.gui.EditHistory.EditAction;
@@ -473,7 +476,7 @@ public class CircuitSim extends Application {
 		if(!result.isPresent() || result.get() != ButtonType.OK) {
 			return false;
 		} else {
-			deleteCircuit(circuitManager, removeTab);
+			deleteCircuit(circuitManager, removeTab, true);
 			return true;
 		}
 	}
@@ -484,10 +487,14 @@ public class CircuitSim extends Application {
 	 * @param name The name of the circuit to delete.
 	 */
 	public void deleteCircuit(String name) {
-		deleteCircuit(getCircuitManager(name), true);
+		deleteCircuit(name, true);
 	}
 	
-	void deleteCircuit(CircuitManager manager, boolean removeTab) {
+	public void deleteCircuit(String name, boolean addNewOnEmpty) {
+		deleteCircuit(getCircuitManager(name), true, addNewOnEmpty);
+	}
+	
+	void deleteCircuit(CircuitManager manager, boolean removeTab, boolean addNewOnEmpty) {
 		runFxSync(() -> {
 			clearSelection();
 			
@@ -515,7 +522,7 @@ public class CircuitSim extends Application {
 			
 			editHistory.addAction(EditAction.DELETE_CIRCUIT, manager, tab, idx);
 			
-			if(isEmpty) {
+			if(addNewOnEmpty && isEmpty) {
 				createCircuit("New circuit");
 				canvasTabPane.getSelectionModel().select(0);
 			}
@@ -1013,7 +1020,13 @@ public class CircuitSim extends Application {
 						
 						long now = System.nanoTime();
 						
+						editHistory.disable();
+						
 						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
+						
+						if(circuitFile.circuits == null) {
+							throw new NullPointerException("File missing circuits");
+						}
 						
 						Platform.runLater(() -> {
 							bar.setProgress(0.1);
@@ -1026,12 +1039,18 @@ public class CircuitSim extends Application {
 						
 						clearCircuits();
 						
-						editHistory.disable();
-						
 						int totalComponents = 0;
 						
 						for(CircuitInfo circuit : circuitFile.circuits) {
 							createCircuit(circuit.name);
+							
+							if(circuit.components == null) {
+								throw new NullPointerException("Circuit " + circuit.name + " missing components");
+							}
+							
+							if(circuit.wires == null) {
+								throw new NullPointerException("Circuit " + circuit.name + " missing wires");
+							}
 							
 							totalComponents += circuit.components.size() + circuit.wires.size();
 						}
@@ -1053,8 +1072,10 @@ public class CircuitSim extends Application {
 										(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
 								
 								Properties properties = new Properties();
-								component.properties.forEach(
-										(key, value) -> properties.setProperty(new Property<>(key, null, value)));
+								if(component.properties != null) {
+									component.properties.forEach(
+											(key, value) -> properties.setProperty(new Property<>(key, null, value)));
+								}
 								
 								ComponentCreator<?> creator;
 								if(clazz == SubcircuitPeer.class) {
@@ -1267,6 +1288,10 @@ public class CircuitSim extends Application {
 	 * @param name The name of the circuit and tab.
 	 */
 	public void createCircuit(String name) {
+		if(name == null || name.isEmpty()) {
+			throw new NullPointerException("Name cannot be null or empty");
+		}
+		
 		runFxSync(() -> {
 			String n = name;
 			
@@ -1528,18 +1553,32 @@ public class CircuitSim extends Application {
 				return;
 			}
 			
+			String errorMessage = null;
 			try {
 				loadCircuits(null);
+			} catch(ClassNotFoundException exc) {
+				errorMessage = "Could not find class:\n" + exc.getMessage();
+			} catch(JsonSyntaxException exc) {
+				errorMessage = "Could not parse file:\n" + exc.getCause().getMessage();
+			} catch(NullPointerException | IllegalArgumentException | IllegalStateException exc) {
+				exc.printStackTrace();
+				
+				errorMessage = "Error: " + exc.getMessage();
 			} catch(Exception exc) {
 				exc.printStackTrace();
 				
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				exc.printStackTrace(new PrintStream(stream));
+				errorMessage = stream.toString();
+			}
+			
+			if(errorMessage != null) {
 				Alert alert = new Alert(AlertType.ERROR);
 				alert.initOwner(stage);
 				alert.initModality(Modality.WINDOW_MODAL);
 				alert.setTitle("Error loading circuits");
 				alert.setHeaderText("Error loading circuits");
-				alert.setContentText("Error when loading circuits file: " + exc.getMessage()
-						                     + "\nPlease send the stack trace to a developer.");
+				alert.setContentText(errorMessage);
 				alert.showAndWait();
 			}
 		});

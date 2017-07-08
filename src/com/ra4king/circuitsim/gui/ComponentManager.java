@@ -1,5 +1,6 @@
 package com.ra4king.circuitsim.gui;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,8 @@ public class ComponentManager {
 				            .newInstance(properties, x, y);
 			} catch(NoSuchMethodException exc) {
 				throw new RuntimeException("Must have constructor taking (Properties props, int x, int y)");
+			} catch(InvocationTargetException exc) {
+				throw new RuntimeException(exc.getTargetException());
 			} catch(RuntimeException exc) {
 				throw exc;
 			} catch(Exception exc) {

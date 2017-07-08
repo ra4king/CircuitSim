@@ -516,6 +516,10 @@ public class CircuitBoard {
 			throw new IllegalArgumentException("Wire cannot go into negative space.");
 		}
 		
+		if(length == 0) {
+			throw new IllegalArgumentException("Length cannot be 0");
+		}
+		
 		try {
 			editHistory.beginGroup();
 			

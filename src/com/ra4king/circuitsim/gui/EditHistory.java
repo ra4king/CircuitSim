@@ -22,7 +22,7 @@ public class EditHistory {
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
-				manager.getSimulatorWindow().deleteCircuit(manager, true);
+				manager.getSimulatorWindow().deleteCircuit(manager, true, false);
 			}
 		},
 		RENAME_CIRCUIT {

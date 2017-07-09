@@ -9,8 +9,8 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
  * @author Roi Atalla
  */
 public class BitExtender extends Component {
-	public static final int PORT_INPUT = 0;
-	public static final int PORT_OUTPUT = 1;
+	public static final int PORT_IN = 0;
+	public static final int PORT_OUT = 1;
 	
 	public enum ExtensionType {
 		ZERO,
@@ -44,7 +44,7 @@ public class BitExtender extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_INPUT) {
+		if(portIndex == PORT_IN) {
 			WireValue extended = new WireValue(value, outputBitSize);
 			if(outputBitSize > inputBitSize) {
 				switch(extensionType) {
@@ -61,7 +61,7 @@ public class BitExtender extends Component {
 				}
 			}
 			
-			state.pushValue(getPort(PORT_OUTPUT), extended);
+			state.pushValue(getPort(PORT_OUT), extended);
 		}
 	}
 }

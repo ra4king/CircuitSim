@@ -10,14 +10,14 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
  * @author Roi Atalla
  */
 public class SRFlipFlop extends Component {
-	public static final int S_PORT = 0;
-	public static final int R_PORT = 1;
-	public static final int CLOCK_PORT = 2;
-	public static final int ENABLE_PORT = 3;
-	public static final int PRESET_PORT = 4;
-	public static final int CLEAR_PORT = 5;
-	public static final int Q_PORT = 6;
-	public static final int QN_PORT = 7;
+	public static final int PORT_S = 0;
+	public static final int PORT_R = 1;
+	public static final int PORT_CLOCK = 2;
+	public static final int PORT_ENABLE = 3;
+	public static final int PORT_PRESET = 4;
+	public static final int PORT_CLEAR = 5;
+	public static final int PORT_Q = 6;
+	public static final int PORT_QN = 7;
 	
 	public SRFlipFlop(String name) {
 		super(name, Utils.getFilledArray(8, 1));
@@ -25,8 +25,8 @@ public class SRFlipFlop extends Component {
 	
 	private void pushValue(CircuitState state, State bit) {
 		state.putComponentProperty(this, bit);
-		state.pushValue(getPort(Q_PORT), new WireValue(1, bit));
-		state.pushValue(getPort(QN_PORT), new WireValue(1, bit.negate()));
+		state.pushValue(getPort(PORT_Q), new WireValue(1, bit));
+		state.pushValue(getPort(PORT_QN), new WireValue(1, bit.negate()));
 	}
 	
 	@Override
@@ -36,21 +36,21 @@ public class SRFlipFlop extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == Q_PORT || portIndex == QN_PORT) {
+		if(portIndex == PORT_Q || portIndex == PORT_QN) {
 			return;
 		}
 		
-		State clear = state.getLastReceived(getPort(CLEAR_PORT)).getBit(0);
-		State preset = state.getLastReceived(getPort(PRESET_PORT)).getBit(0);
-		State enable = state.getLastReceived(getPort(ENABLE_PORT)).getBit(0);
+		State clear = state.getLastReceived(getPort(PORT_CLEAR)).getBit(0);
+		State preset = state.getLastReceived(getPort(PORT_PRESET)).getBit(0);
+		State enable = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0);
 		
 		if(clear == State.ONE) {
 			pushValue(state, State.ZERO);
 		} else if(preset == State.ONE) {
 			pushValue(state, State.ONE);
-		} else if(enable != State.ZERO && portIndex == CLOCK_PORT && value.getBit(0) == State.ONE) {
-			State s = state.getLastReceived(getPort(S_PORT)).getBit(0);
-			State r = state.getLastReceived(getPort(R_PORT)).getBit(0);
+		} else if(enable != State.ZERO && portIndex == PORT_CLOCK && value.getBit(0) == State.ONE) {
+			State s = state.getLastReceived(getPort(PORT_S)).getBit(0);
+			State r = state.getLastReceived(getPort(PORT_R)).getBit(0);
 			
 			if(s == State.ONE && r == State.ZERO) {
 				pushValue(state, State.ONE);

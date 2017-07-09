@@ -8,8 +8,8 @@ import com.ra4king.circuitsim.simulator.WireValue;
  * @author Roi Atalla
  */
 public class Negator extends Component {
-	public static final int IN_PORT = 0;
-	public static final int OUT_PORT = 1;
+	public static final int PORT_IN = 0;
+	public static final int PORT_OUT = 1;
 	
 	private final WireValue xValue;
 	
@@ -21,7 +21,7 @@ public class Negator extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == OUT_PORT) {
+		if(portIndex == PORT_OUT) {
 			return;
 		}
 		
@@ -32,6 +32,6 @@ public class Negator extends Component {
 			result = xValue;
 		}
 		
-		state.pushValue(getPort(OUT_PORT), result);
+		state.pushValue(getPort(PORT_OUT), result);
 	}
 }

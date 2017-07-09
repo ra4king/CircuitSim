@@ -70,11 +70,11 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 				break;
 		}
 		
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.IN_PORT), "Input",
+		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_IN), "Input",
 		                                   0, getHeight() - yOff));
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.GATE_PORT), "Gate",
+		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_GATE), "Gate",
 		                                   getWidth() / 2, yOff));
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.OUT_PORT), "Output",
+		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_OUT), "Output",
 		                                   getWidth(), getHeight() - yOff));
 		
 		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));

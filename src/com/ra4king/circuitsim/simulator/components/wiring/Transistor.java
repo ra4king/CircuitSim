@@ -9,9 +9,9 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
  * @author Roi Atalla
  */
 public class Transistor extends Component {
-	public static final int IN_PORT = 0;
-	public static final int GATE_PORT = 1;
-	public static final int OUT_PORT = 2;
+	public static final int PORT_IN = 0;
+	public static final int PORT_GATE = 1;
+	public static final int PORT_OUT = 2;
 	
 	private static final WireValue X_VALUE = new WireValue(1);
 	
@@ -25,14 +25,14 @@ public class Transistor extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == OUT_PORT) {
+		if(portIndex == PORT_OUT) {
 			return;
 		}
 		
-		if(state.getLastReceived(getPort(GATE_PORT)).getBit(0) == enableBit) {
-			state.pushValue(getPort(OUT_PORT), state.getLastReceived(getPort(IN_PORT)));
+		if(state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
+			state.pushValue(getPort(PORT_OUT), state.getLastReceived(getPort(PORT_IN)));
 		} else {
-			state.pushValue(getPort(OUT_PORT), X_VALUE);
+			state.pushValue(getPort(PORT_OUT), X_VALUE);
 		}
 	}
 }

@@ -49,8 +49,8 @@ public class BitExtenderPeer extends ComponentPeer<BitExtender> {
 		                                       properties.getValue("Extension Type"));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, extender.getPort(BitExtender.PORT_INPUT), "Input", 0, 2));
-		connections.add(new PortConnection(this, extender.getPort(BitExtender.PORT_OUTPUT), "Output", getWidth(), 2));
+		connections.add(new PortConnection(this, extender.getPort(BitExtender.PORT_IN), "Input", 0, 2));
+		connections.add(new PortConnection(this, extender.getPort(BitExtender.PORT_OUT), "Output", getWidth(), 2));
 		
 		init(extender, properties, connections);
 	}

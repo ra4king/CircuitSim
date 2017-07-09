@@ -12,6 +12,7 @@ import com.ra4king.circuitsim.gui.peers.arithmetic.ComparatorPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.DividerPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.MultiplierPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.NegatorPeer;
+import com.ra4king.circuitsim.gui.peers.arithmetic.ShifterPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.SubtractorPeer;
 import com.ra4king.circuitsim.gui.peers.gates.AndGatePeer;
 import com.ra4king.circuitsim.gui.peers.gates.ControlledBufferPeer;
@@ -197,6 +198,7 @@ public class ComponentManager {
 		register(NegatorPeer.class);
 		register(ComparatorPeer.class);
 		register(BitExtenderPeer.class);
+		register(ShifterPeer.class);
 		
 		register(Button.class);
 		register(LED.class);

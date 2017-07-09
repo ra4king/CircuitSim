@@ -38,13 +38,13 @@ public class DFlipFlopPeer extends ComponentPeer<DFlipFlop> {
 		DFlipFlop flipFlop = new DFlipFlop(properties.getValue(Properties.LABEL));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.CLOCK_PORT), "Clock", 0, 1));
-		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.D_PORT), "Data input", 0, 3));
-		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PRESET_PORT), "Preset", 1, 4));
-		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.ENABLE_PORT), "Enable", 2, 4));
-		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.CLEAR_PORT), "Clear", 3, 4));
-		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.Q_PORT), "Current state", 4, 1));
-		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.QN_PORT), "NOT of current state", 4, 3));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_CLOCK), "Clock", 0, 1));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_D), "Data input", 0, 3));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_PRESET), "Preset", 1, 4));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_ENABLE), "Enable", 2, 4));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_CLEAR), "Clear", 3, 4));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_Q), "Current state", 4, 1));
+		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_QN), "NOT of current state", 4, 3));
 		
 		init(flipFlop, properties, connections);
 	}
@@ -63,7 +63,7 @@ public class DFlipFlopPeer extends ComponentPeer<DFlipFlop> {
 		int width = getScreenWidth();
 		int height = getScreenHeight();
 		
-		State bit = state.getLastPushed(getComponent().getPort(DFlipFlop.Q_PORT)).getBit(0);
+		State bit = state.getLastPushed(getComponent().getPort(DFlipFlop.PORT_Q)).getBit(0);
 		GuiUtils.setBitColor(graphics, bit);
 		graphics.fillOval(x + width * 0.5 - 10, y + height * 0.5 - 10, 20, 20);
 		

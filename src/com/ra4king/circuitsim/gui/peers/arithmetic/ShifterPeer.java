@@ -15,6 +15,7 @@ import com.ra4king.circuitsim.simulator.components.arithmetic.Shifter;
 import com.ra4king.circuitsim.simulator.components.arithmetic.Shifter.ShiftType;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -24,7 +25,7 @@ import javafx.util.Pair;
 public class ShifterPeer extends ComponentPeer<Shifter> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Arithmetic", "Shifter"),
-		                     null, //new Image(ShifterPeer.class.getResourceAsStream("/resources/Shifter.png")),
+		                     new Image(ShifterPeer.class.getResourceAsStream("/resources/Shifter.png")),
 		                     new Properties());
 	}
 	

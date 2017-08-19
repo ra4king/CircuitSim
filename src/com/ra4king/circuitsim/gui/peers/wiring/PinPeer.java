@@ -141,9 +141,9 @@ public class PinPeer extends ComponentPeer<Pin> {
 	}
 	
 	@Override
-	public void keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
+	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
 		if(!isInput()) {
-			return;
+			return false;
 		}
 		
 		switch(keyCode) {
@@ -163,6 +163,8 @@ public class PinPeer extends ComponentPeer<Pin> {
 				getComponent().setValue(state, currentValue);
 				break;
 		}
+		
+		return false;
 	}
 	
 	@Override

@@ -54,7 +54,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 	}
 	
 	@Override
-	public void keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
+	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
 		switch(keyCode) {
 			case DIGIT0:
 			case DIGIT1:
@@ -112,6 +112,8 @@ public class RegisterPeer extends ComponentPeer<Register> {
 				state.pushValue(getComponent().getPort(Register.PORT_OUT), currentValue);
 				break;
 		}
+		
+		return false;
 	}
 	
 	@Override

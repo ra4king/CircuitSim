@@ -19,6 +19,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -82,6 +83,11 @@ public class Text extends ComponentPeer<Component> {
 		manager.getSimulatorWindow().getScene().setCursor(prevCursor);
 		
 		entered = false;
+	}
+	
+	@Override
+	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
+		return keyCode == KeyCode.BACK_SPACE;
 	}
 	
 	@Override

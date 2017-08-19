@@ -62,6 +62,7 @@ public class CircuitManager {
 	private Point2D lastMousePressed = new Point2D(0, 0);
 	
 	private GuiElement lastPressed;
+	private boolean lastPressedConsumed;
 	private KeyCode lastPressedKeyCode;
 	
 	private LinkWires inspectLinkWires;
@@ -511,6 +512,18 @@ public class CircuitManager {
 	public void keyPressed(KeyEvent e) {
 		needsRepaint = true;
 		
+		if(lastPressed == null && selectedElementsMap.size() == 1) {
+			lastPressed = selectedElementsMap.keySet().iterator().next();
+			lastPressedConsumed = lastPressed.keyPressed(this, circuitBoard.getCurrentState(), e.getCode(),
+			                                             e.getText());
+			lastPressedKeyCode = e.getCode();
+			simulatorWindow.runSim();
+		}
+		
+		if(lastPressed != null && lastPressedConsumed) {
+			return;
+		}
+		
 		switch(e.getCode()) {
 			case RIGHT: {
 				e.consume();
@@ -563,14 +576,6 @@ public class CircuitManager {
 				}
 				
 				reset();
-				break;
-			default:
-				if(lastPressed == null && selectedElementsMap.size() == 1) {
-					lastPressed = selectedElementsMap.keySet().iterator().next();
-					lastPressed.keyPressed(this, circuitBoard.getCurrentState(), e.getCode(), e.getText());
-					lastPressedKeyCode = e.getCode();
-					simulatorWindow.runSim();
-				}
 				break;
 		}
 	}
@@ -999,15 +1004,16 @@ public class CircuitManager {
 			lastPressed.mouseReleased(this, circuitBoard.getCurrentState(),
 			                          lastMousePosition.getX() - lastPressed.getScreenX(),
 			                          lastMousePosition.getY() - lastPressed.getScreenY());
+			simulatorWindow.runSim();
 		} else if(lastPressed != null) {
 			lastPressed.keyReleased(this, circuitBoard.getCurrentState(),
 			                        lastPressedKeyCode,
 			                        lastPressedKeyCode.getName());
+			simulatorWindow.runSim();
 		}
 		
 		lastPressed = null;
 		lastPressedKeyCode = null;
-		simulatorWindow.runSim();
 		needsRepaint = true;
 	}
 }

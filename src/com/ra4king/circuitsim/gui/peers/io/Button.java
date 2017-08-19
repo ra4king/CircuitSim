@@ -67,10 +67,12 @@ public class Button extends ComponentPeer<Component> {
 	}
 	
 	@Override
-	public void keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
+	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
 		if(keyCode == KeyCode.SPACE) {
 			mousePressed(manager, state, 0, 0);
 		}
+		
+		return false;
 	}
 	
 	@Override

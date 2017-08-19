@@ -127,7 +127,9 @@ public abstract class GuiElement {
 	
 	public void mouseExited(CircuitManager manager, CircuitState state) {}
 	
-	public void keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {}
+	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
+		return false;
+	}
 	
 	public void keyTyped(CircuitManager manager, CircuitState state, String character) {}
 	

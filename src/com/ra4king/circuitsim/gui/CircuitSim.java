@@ -2010,7 +2010,7 @@ public class CircuitSim extends Application {
 		
 		SplitPane leftPaneSplit = new SplitPane(buttonTabPane, propertiesBox);
 		leftPaneSplit.setOrientation(Orientation.VERTICAL);
-		leftPaneSplit.setPrefWidth(450);
+		leftPaneSplit.setPrefWidth(500);
 		leftPaneSplit.setMinWidth(150);
 		
 		SplitPane.setResizableWithParent(buttonTabPane, Boolean.FALSE);

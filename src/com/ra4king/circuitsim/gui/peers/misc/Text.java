@@ -87,7 +87,7 @@ public class Text extends ComponentPeer<Component> {
 	
 	@Override
 	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
-		return keyCode == KeyCode.BACK_SPACE;
+		return keyCode == KeyCode.BACK_SPACE && !this.text.isEmpty();
 	}
 	
 	@Override

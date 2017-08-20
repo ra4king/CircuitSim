@@ -32,21 +32,21 @@ import javafx.util.Pair;
 public class FileFormat {
 	private static final Gson GSON;
 	
-	public static final String VERSION = "1.5.1";
+	public static final String VERSION = "1.5.2";
 	
 	static {
 		GSON = new GsonBuilder().setPrettyPrinting().create();
 	}
 	
 	public static String readFile(Reader reader) {
-		String string = "";
+		StringBuilder string = new StringBuilder();
 		try(BufferedReader bufReader = new BufferedReader(reader)) {
 			String line;
 			while((line = bufReader.readLine()) != null) {
-				string += line + "\n";
+				string.append(line).append("\n");
 			}
 			
-			return string;
+			return string.toString();
 		} catch(Exception exc) {
 			exc.printStackTrace();
 			throw new RuntimeException(exc);

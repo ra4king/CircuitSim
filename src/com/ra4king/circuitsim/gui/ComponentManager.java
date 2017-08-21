@@ -35,6 +35,7 @@ import com.ra4king.circuitsim.gui.peers.misc.Text;
 import com.ra4king.circuitsim.gui.peers.plexers.DecoderPeer;
 import com.ra4king.circuitsim.gui.peers.plexers.DemultiplexerPeer;
 import com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer;
+import com.ra4king.circuitsim.gui.peers.plexers.PriorityEncoderPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.ClockPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.PinPeer;
@@ -184,6 +185,7 @@ public class ComponentManager {
 		register(MultiplexerPeer.class);
 		register(DemultiplexerPeer.class);
 		register(DecoderPeer.class);
+		register(PriorityEncoderPeer.class);
 		
 		register(RegisterPeer.class);
 		register(SRFlipFlopPeer.class);

@@ -512,7 +512,7 @@ public class CircuitManager {
 	public void keyPressed(KeyEvent e) {
 		needsRepaint = true;
 		
-		if(lastPressed == null && selectedElementsMap.size() == 1) {
+		if(e.getCode() != KeyCode.SHIFT && lastPressed == null && selectedElementsMap.size() == 1) {
 			lastPressed = selectedElementsMap.keySet().iterator().next();
 			lastPressedConsumed = lastPressed.keyPressed(this, circuitBoard.getCurrentState(), e.getCode(),
 			                                             e.getText());

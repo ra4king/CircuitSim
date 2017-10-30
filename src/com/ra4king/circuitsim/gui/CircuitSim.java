@@ -989,6 +989,8 @@ public class CircuitSim extends Application {
 	 * @param file The File instance to load the circuits from.
 	 */
 	public void loadCircuits(File file) throws Exception {
+		CountDownLatch loadFileLatch = new CountDownLatch(1);
+		
 		runFxSync(() -> {
 			File f = file;
 			
@@ -1016,6 +1018,7 @@ public class CircuitSim extends Application {
 				
 				new Thread(() -> {
 					try {
+						
 						loadingFile = true;
 						
 						long now = System.nanoTime();
@@ -1168,13 +1171,23 @@ public class CircuitSim extends Application {
 							
 							dialog.setResult(ButtonType.OK);
 							dialog.close();
+							
+							loadFileLatch.countDown();
 						});
 					}
 				}).start();
 				
-				dialog.showAndWait();
+				if(openWindow) {
+					dialog.showAndWait();
+				}
 			}
 		});
+		
+		try {
+			loadFileLatch.await();
+		} catch(Exception exc) {
+			// don't care
+		}
 		
 		if(excThrown != null) {
 			Exception toThrow = excThrown;

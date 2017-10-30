@@ -1,3 +1,5 @@
+package com.ra4king.circuitsim;
+
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.Simulator;
 import com.ra4king.circuitsim.simulator.WireValue;

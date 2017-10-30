@@ -1,3 +1,5 @@
+package com.ra4king.circuitsim;
+
 import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.WireValue.State;
 

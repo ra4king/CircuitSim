@@ -1,3 +1,5 @@
+package com.ra4king.circuitsim;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;
@@ -9,21 +11,44 @@ import com.ra4king.circuitsim.gui.peers.memory.RAMPeer;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.Subcircuit;
 import com.ra4king.circuitsim.simulator.components.memory.RAM;
+import com.ra4king.circuitsim.simulator.components.wiring.Clock;
 
 /**
  * @author Roi Atalla
  */
 public class CircuitSimulatorTest {
 	public static void main(String[] args) {
+		final boolean openWindow = true;
+		
 		try {
-			CircuitSim simulator = new CircuitSim(false);
+			CircuitSim simulator = new CircuitSim(openWindow);
+			
+			if(openWindow) {
+				Thread.sleep(1000);
+			}
 			
 			simulator.createCircuit("Foo");
+			
+			if(openWindow) {
+				Thread.sleep(1000);
+			}
+			
 			simulator.renameCircuit("Foo", "Bar");
+			
+			if(openWindow) {
+				Thread.sleep(1000);
+			}
+			
 			simulator.deleteCircuit("Bar");
 			
 			simulator.loadCircuits(new File("CPU.sim"));
 			Map<String, CircuitBoard> circuitBoards = simulator.getCircuitBoards();
+			
+			if(openWindow) {
+				Clock.tick(simulator.getSimulator());
+				
+				Thread.sleep(1000);
+			}
 			
 			CircuitBoard memory = circuitBoards.get("Memory");
 			if(memory == null) {

@@ -1,3 +1,5 @@
+package com.ra4king.circuitsim;
+
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.Simulator;
 import com.ra4king.circuitsim.simulator.WireValue;
@@ -33,9 +35,9 @@ public class MultiplexerTest {
 		   .linkPort(xorGate.getPort(0))
 		   .linkPort(notGate.getOutPort());
 		in2.getPort(Pin.PORT)
-				.linkPort(andGate.getPort(1))
-				.linkPort(orGate.getPort(1))
-				.linkPort(xorGate.getPort(1));
+		   .linkPort(andGate.getPort(1))
+		   .linkPort(orGate.getPort(1))
+		   .linkPort(xorGate.getPort(1));
 		
 		andGate.getOutPort().linkPort(mux.getPort(0));
 		orGate.getOutPort().linkPort(mux.getPort(1));

@@ -1,0 +1,46 @@
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'com.ra4king.circuitsim.gui.CircuitSim'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    mavenCentral()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    compile 'com.google.code.gson:gson:2.8.2'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+
+    // Bundle dependencies with jar
+    // See: http://stackoverflow.com/a/4894308
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+// Tell gradle to look for source code and resources in `/src/', not
+// `/src/java/main/'.
+// https://docs.gradle.org/current/userguide/java_plugin.html#sec:working_with_java_source_sets
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['tests']
+        }
+    }
+}

@@ -22,6 +22,7 @@ import org.w3c.dom.NodeList;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.ra4king.circuitsim.gui.CircuitSim;
 import com.ra4king.circuitsim.gui.Properties;
 
 import javafx.util.Pair;
@@ -31,8 +32,6 @@ import javafx.util.Pair;
  */
 public class FileFormat {
 	private static final Gson GSON;
-	
-	public static final String VERSION = "1.5.4";
 	
 	static {
 		GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -69,7 +68,7 @@ public class FileFormat {
 	}
 	
 	public static class CircuitFile {
-		private final String version = VERSION;
+		private final String version = CircuitSim.VERSION;
 		
 		public final int globalBitSize;
 		public final int clockSpeed;

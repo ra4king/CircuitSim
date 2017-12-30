@@ -118,6 +118,8 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
+	public static final String VERSION = "1.5.4";
+	
 	private static boolean mainCalled = false;
 	
 	public static void main(String[] args) {
@@ -724,7 +726,7 @@ public class CircuitSim extends Application {
 		if(editHistory.editStackSize() != savedEditStackSize) {
 			name += " *";
 		}
-		stage.setTitle("CircuitSim v" + FileFormat.VERSION + name);
+		stage.setTitle("CircuitSim v" + VERSION + name);
 	}
 	
 	private ComponentCreator<?> getSubcircuitPeerCreator(String name) {
@@ -1988,7 +1990,7 @@ public class CircuitSim extends Application {
 			alert.initOwner(stage);
 			alert.initModality(Modality.NONE);
 			alert.setTitle("Help");
-			alert.setHeaderText("CircuitSim v" + FileFormat.VERSION + ", created by Roi Atalla © 2017");
+			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2017");
 			
 			String msg = "";
 			msg += "• Holding Shift will enable Click Mode which will click through to components\n\n";
@@ -2006,7 +2008,7 @@ public class CircuitSim extends Application {
 			alert.initOwner(stage);
 			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("About");
-			alert.setHeaderText("CircuitSim v" + FileFormat.VERSION);
+			alert.setHeaderText("CircuitSim v" + VERSION);
 			alert.setContentText("CircuitSim created by Roi Atalla © 2017\n\nThird party tools:\n• GSON by Google");
 			alert.show();
 		});

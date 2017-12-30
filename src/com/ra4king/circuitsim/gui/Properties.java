@@ -592,7 +592,7 @@ public class Properties {
 					String[] split = piece.split("-");
 					int count = Integer.parseInt(split[0]);
 					int val = parseValue(split[1]);
-					for(int j = 0; j < count; j++, i++) {
+					for(int j = 0; j < count && i < values.length; j++, i++) {
 						values[i] = val;
 					}
 					i--; // to account for extra increment

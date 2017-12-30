@@ -359,6 +359,7 @@ public class Properties {
 					try {
 						onAction.accept(parse(newValue));
 					} catch(Exception exc) {
+						exc.printStackTrace();
 						valueField.setText(toString(value));
 					}
 				}

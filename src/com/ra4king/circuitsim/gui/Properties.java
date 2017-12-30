@@ -582,18 +582,54 @@ public class Properties {
 		}
 		
 		@Override
-		public List<MemoryLine> parse(String value) {
+		public List<MemoryLine> parse(String contents) {
 			int[] values = new int[1 << addressBits];
-			Scanner scanner = new Scanner(value);
+			Scanner scanner = new Scanner(contents);
 			for(int i = 0; i < values.length && scanner.hasNext(); i++) {
-				values[i] = parseValue(scanner.next());
+				String piece = scanner.next();
+				if(piece.matches("^\\d+-[\\da-fA-F]+$")) {
+					String[] split = piece.split("-");
+					int count = Integer.parseInt(split[0]);
+					int val = parseValue(split[1]);
+					for(int j = 0; j < count; j++, i++) {
+						values[i] = val;
+					}
+					i--; // to account for extra increment
+				} else {
+					values[i] = parseValue(piece);
+				}
 			}
 			return parse(values, null);
 		}
 		
 		@Override
 		public String toString(List<MemoryLine> lines) {
-			return String.join(" ", lines.stream().map(MemoryLine::toString).collect(Collectors.toList()));
+			String values = String.join(" ", lines.stream().map(MemoryLine::toString).collect(Collectors.toList()));
+			
+			// expensive I know, but whatever...
+			String[] split = values.split(" ");
+			StringBuilder builder = new StringBuilder();
+			for(int i = 0; i < split.length; ) {
+				int count = 1;
+				
+				while((i + count) < split.length && split[i].equals(split[i + count])) {
+					count++;
+				}
+				
+				if(count == 1) {
+					builder.append(split[i]);
+				} else {
+					builder.append(count).append('-').append(split[i]);
+				}
+				
+				i += count;
+				
+				if(i < split.length) {
+					builder.append(' ');
+				}
+			}
+			
+			return builder.length() < values.length() ? builder.toString() : values;
 		}
 		
 		@Override

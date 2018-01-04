@@ -1,6 +1,7 @@
 package com.ra4king.circuitsim.gui;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,12 +16,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.sun.javafx.collections.ObservableListWrapper;
-import com.sun.javafx.scene.control.skin.TableHeaderRow;
-
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -654,11 +654,32 @@ public class Properties {
 			tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 			tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 			tableView.setEditable(true);
-			tableView.widthProperty().addListener((source, oldWidth, newWidth) -> {
-				TableHeaderRow header = (TableHeaderRow)tableView.lookup("TableHeaderRow");
-				header.reorderingProperty().addListener(
-						(observable, oldValue, newValue) -> header.setReordering(false));
-			});
+			// In Java 9, the renderingProperty() method of TableHeaderRow
+			// (which now lives in javafx.scene.control.skin instead of
+			// com.sun.javafx.scene.control.skin) is now package-local, so we
+			// can't access it through reflection without raising some scary
+			// Java 9 security exception:
+			// https://stackoverflow.com/q/41265266/321301
+			// So on Java 9, just let users rearrange columns. It sucks, but
+			// that's JavaFX for ya.
+			if (!CircuitSim.isAtLeastJava9()) {
+				tableView.widthProperty().addListener((source, oldWidth, newWidth) -> {
+					Object header = tableView.lookup("TableHeaderRow");
+					try {
+						BooleanProperty reorderingProperty =
+							(BooleanProperty) header.getClass()
+							                        .getDeclaredMethod("reorderingProperty")
+							                        .invoke(header);
+						reorderingProperty.addListener(
+							(observable, oldValue, newValue) -> reorderingProperty.set(false));
+					} catch(NoSuchMethodException|IllegalAccessException
+					        |InvocationTargetException err) {
+						// Take the L if we can't find the private method:
+						// the user can rearrange columns :(
+						err.printStackTrace();
+					}
+				});
+			}
 			
 			TableColumn<MemoryLine, String> address = new TableColumn<>("Address");
 			address.setStyle("-fx-alignment: CENTER-RIGHT;");
@@ -695,7 +716,7 @@ public class Properties {
 				tableView.getColumns().add(column);
 			}
 			
-			tableView.setItems(new ObservableListWrapper<>(lines));
+			tableView.setItems(FXCollections.observableList(lines));
 			
 			Button loadButton = new Button("Load from file");
 			loadButton.setOnAction(event -> {

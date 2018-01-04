@@ -3,6 +3,7 @@ package com.ra4king.circuitsim.gui;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayDeque;
@@ -48,7 +49,6 @@ import com.ra4king.circuitsim.simulator.Simulator;
 import com.ra4king.circuitsim.simulator.components.Subcircuit;
 import com.ra4king.circuitsim.simulator.components.wiring.Clock;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin;
-import com.sun.javafx.application.PlatformImpl;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -194,6 +194,17 @@ public class CircuitSim extends Application {
 			start(new Stage());
 		});
 	}
+
+	/**
+	 * Return true iff we're running on Java 9 or later. Needed for some
+	 * god-awful hacks to run on Java 8 and 9.
+	 */
+	public static boolean isAtLeastJava9() {
+		// In Java 9, the first component of java version (which is in
+		// the form x.y.z(.a)*) is 9. In earlier versions it's
+		// 1.x.y(.a)*.
+		return Integer.parseInt(System.getProperty("java.version").split("\\.", 2)[0]) >= 9;
+	}
 	
 	private void runFxSync(Runnable runnable) {
 		if(Platform.isFxApplicationThread()) {
@@ -207,11 +218,28 @@ public class CircuitSim extends Application {
 				});
 			} catch(Exception exc) {
 				// JavaFX Platform not initialized
-				
-				PlatformImpl.startup(() -> {
+
+				Runnable startup = () -> {
 					runnable.run();
 					latch.countDown();
-				});
+				};
+
+				try {
+					// Java <=8 does not have Platform.startup(), so use
+					// use a reflection hack to call PlatformImpl.startup()
+					// (which isn't accessible in Java 9)
+					if (isAtLeastJava9()) {
+						Platform.class.getMethod("startup", Runnable.class)
+						              .invoke(null, startup);
+					} else {
+						Class.forName("com.sun.javafx.application.PlatformImpl")
+						     .getMethod("startup", Runnable.class).invoke(startup);
+					}
+				} catch(NoSuchMethodException|IllegalAccessException
+				        |ClassNotFoundException|InvocationTargetException err) {
+					throw new RuntimeException("Could not start platform. " +
+					                           "Old/new version of Java?", err);
+				}
 			}
 			
 			try {

@@ -327,10 +327,15 @@ public class CircuitManager {
 		}
 		
 		for(GuiElement selectedElement : selectedElementsMap.keySet()) {
-			graphics.setStroke(Color.RED);
+			graphics.setStroke(Color.ORANGERED);
 			if(selectedElement instanceof Wire) {
-				graphics.strokeRect(selectedElement.getScreenX() - 1, selectedElement.getScreenY() - 1,
-				                    selectedElement.getScreenWidth() + 2, selectedElement.getScreenHeight() + 2);
+				double xOff = ((Wire)selectedElement).isHorizontal() ? 0 : 1;
+				double yOff = ((Wire)selectedElement).isHorizontal() ? 1 : 0;
+				
+				graphics.strokeRect(selectedElement.getScreenX() - xOff,
+				                    selectedElement.getScreenY() - yOff,
+				                    selectedElement.getScreenWidth() + xOff * 2,
+				                    selectedElement.getScreenHeight() + yOff * 2);
 			} else {
 				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
 			}

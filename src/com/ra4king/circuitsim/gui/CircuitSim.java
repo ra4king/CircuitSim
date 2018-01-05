@@ -123,8 +123,6 @@ public class CircuitSim extends Application {
 	private static boolean mainCalled = false;
 	
 	public static void main(String[] args) {
-		System.setProperty("javafx.live.resize", "false"); // https://bugs.openjdk.java.net/browse/JDK-8088857
-		
 		mainCalled = true;
 		launch(args);
 	}
@@ -202,16 +200,26 @@ public class CircuitSim extends Application {
 			final CountDownLatch latch = new CountDownLatch(1);
 			try {
 				Platform.runLater(() -> {
-					runnable.run();
-					latch.countDown();
+					try {
+						runnable.run();
+					} finally {
+						latch.countDown();
+					}
 				});
-			} catch(Exception exc) {
-				// JavaFX Platform not initialized
-				
-				PlatformImpl.startup(() -> {
-					runnable.run();
-					latch.countDown();
-				});
+			} catch(IllegalStateException exc) {
+				if(latch.getCount() > 0) {
+					// JavaFX Platform not initialized
+					
+					PlatformImpl.startup(() -> {
+						try {
+							runnable.run();
+						} finally {
+							latch.countDown();
+						}
+					});
+				} else {
+					throw exc;
+				}
 			}
 			
 			try {
@@ -1182,6 +1190,8 @@ public class CircuitSim extends Application {
 				if(openWindow) {
 					dialog.showAndWait();
 				}
+			} else {
+				loadFileLatch.countDown();
 			}
 		});
 		

@@ -278,22 +278,22 @@ public class LinkWires {
 		
 		@Override
 		public int getScreenX() {
-			return super.getScreenX() - (horizontal ? 0 : 1);
+			return super.getScreenX() - 1;
 		}
 		
 		@Override
 		public int getScreenY() {
-			return super.getScreenY() - (horizontal ? 1 : 0);
+			return super.getScreenY() - 1;
 		}
 		
 		@Override
 		public int getScreenWidth() {
-			return horizontal ? super.getScreenWidth() : 2;
+			return horizontal ? super.getScreenWidth() + 2 : 2;
 		}
 		
 		@Override
 		public int getScreenHeight() {
-			return horizontal ? 2 : super.getScreenHeight();
+			return horizontal ? 2 : super.getScreenHeight() + 2;
 		}
 		
 		public LinkWires getLinkWires() {

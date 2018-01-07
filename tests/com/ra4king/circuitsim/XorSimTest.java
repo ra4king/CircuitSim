@@ -26,7 +26,7 @@ public class XorSimTest {
         try {
             CircuitSim simulator = new CircuitSim(false);
 
-            simulator.loadCircuits(new File("xor.sim"));
+            simulator.loadCircuits(new File("Xor.sim"));
 
             Simulator sim = simulator.getSimulator();
 
@@ -96,61 +96,9 @@ public class XorSimTest {
             sim.stepAll();
             assert xor.getCurrentState().getLastReceived(cout.get().getPort(Pin.PORT)).getValue() == 0;
 
+            System.out.println("remember that asserts have to be enabled for this to be a valid test\n" +
+                    " passed Xor.sim passed tests!");
 
-
-
-//
-//            if(openWindow) {
-//                Clock.tick(simulator.getSimulator());
-//
-//                Thread.sleep(1000);
-//            }
-//
-//            CircuitBoard memory = circuitBoards.get("Memory");
-//            if(memory == null) {
-//                throw new IllegalStateException("Memory circuit not found");
-//            }
-//
-//            CircuitBoard cpu = circuitBoards.get("CPU");
-//            if(cpu == null) {
-//                throw new IllegalStateException("CPU circuit not found");
-//            }
-//
-//            // Find the Memory Subcircuit inside the CPU circuit
-//            Optional<Subcircuit> memorySubcircuitOptional =
-//                    cpu.getComponents().stream()
-//                            .filter(c -> c instanceof SubcircuitPeer)
-//                            .map(c -> ((SubcircuitPeer)c).getComponent())
-//                            .filter(s -> s.getSubcircuit() == memory.getCircuit())
-//                            .findFirst();
-//
-//            if(!memorySubcircuitOptional.isPresent()) {
-//                throw new IllegalStateException("RAM subcircuit not found");
-//            }
-//
-//            Subcircuit memorySubcircuit = memorySubcircuitOptional.get();
-//
-//            // Get its internal state, with the parent state being the CPU's top-level state
-//            CircuitState subcircuitState = memorySubcircuit.getSubcircuitState(
-//                    cpu.getCircuit().getTopLevelState());
-//
-//            // Find the RAM component inside the Memory circuit
-//            Optional<RAM> ramOptional = memory.getComponents().stream()
-//                    .filter(c -> c instanceof RAMPeer)
-//                    .map(c -> ((RAMPeer)c).getComponent())
-//                    .findFirst();
-//
-//            if(!ramOptional.isPresent()) {
-//                throw new IllegalStateException("RAM component not found");
-//            }
-//
-//            RAM ram = ramOptional.get();
-//
-//            // Now we can store
-//            ram.store(subcircuitState, 0x0000, 0x1234);
-//
-//            // And load
-//            System.out.println(ram.load(subcircuitState, 0x0000) == 0x1234);
         } catch(Exception exc) {
             exc.printStackTrace();
         }

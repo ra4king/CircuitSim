@@ -2114,6 +2114,31 @@ public class CircuitSim extends Application {
 		if(openWindow) {
 			showWindow();
 		}
+		
+		Parameters parameters = getParameters();
+		if(parameters != null && !parameters.getRaw().isEmpty()) {
+			List<String> args = getParameters().getRaw();
+			try {
+				loadCircuits(new File(args.get(0)));
+			} catch(Exception exc) {
+				exc.printStackTrace();
+			}
+			
+			if(openWindow && args.size() > 1) {
+				for(int i = 1; i < args.size(); i++) {
+					File file = new File(args.get(i));
+					if(file.exists()) {
+						try {
+							new CircuitSim(true).loadCircuits(file);
+						} catch(Exception exc) {
+							exc.printStackTrace();
+						}
+					} else {
+						System.err.println("File does not exist: " + args.get(i));
+					}
+				}
+			}
+		}
 	}
 	
 	private AnimationTimer currentTimer;

@@ -7,7 +7,7 @@ This tutorial will cover creating a circuit and using tunnels and splitters.
 
 ### Part 0: The Prompt
 
-Wwill create a circuit that will tell you whether you should bring an umbrella 
+We will create a circuit that will tell you whether you should bring an umbrella 
 with you when you go out. To determine this we'll follow the following formula: 
 you should bring an umbrella with you if it's both cloudy and windy or if the 
 weatherman tells you to bring an umbrella.

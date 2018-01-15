@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,7 +119,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.5.5";
+	public static final String VERSION = "1.5.6";
 	
 	private static boolean mainCalled = false;
 	
@@ -167,6 +168,8 @@ public class CircuitSim extends Application {
 	
 	private EditHistory editHistory;
 	private int savedEditStackSize;
+	
+	private boolean showFps = true;
 	
 	private volatile boolean needsRepaint = true;
 	
@@ -990,6 +993,82 @@ public class CircuitSim extends Application {
 		});
 	}
 	
+	private void loadConfFile() {
+		String home = System.getProperty("user.home");
+		File file = new File(home, ".circuitsim");
+		if(file.exists()) {
+			
+			boolean newWindow = getParameters() == null;
+			
+			try {
+				List<String> lines = Files.readAllLines(file.toPath());
+				for(String line : lines) {
+					line = line.trim();
+					if(line.charAt(0) == '#') continue;
+					
+					int comment = line.indexOf('#');
+					if(comment != -1) {
+						line = line.substring(0, comment).trim();
+					}
+					
+					String[] split = line.split("=");
+					if(split.length != 2) continue;
+					
+					String key = split[0].trim();
+					String value = split[1].trim();
+					
+					switch(key) {
+						case "WindowX":
+							stage.setX(Integer.parseInt(value) + (newWindow ? 20 : 0));
+							break;
+						case "WindowY":
+							stage.setY(Integer.parseInt(value) + (newWindow ? 20 : 0));
+							break;
+						case "WindowWidth":
+							stage.setWidth(Integer.parseInt(value));
+							break;
+						case "WindowHeight":
+							stage.setHeight(Integer.parseInt(value));
+							break;
+						case "ShowFps":
+							showFps = Boolean.parseBoolean(value);
+							break;
+						case "LastSavePath":
+							lastSaveFile = new File(value);
+							break;
+					}
+				}
+			} catch(Exception exc) {
+				System.err.println("Error loading configuration file: " + file);
+				exc.printStackTrace();
+			}
+		}
+	}
+	
+	private void saveConfFile() {
+		if(!openWindow) return;
+		
+		String home = System.getProperty("user.home");
+		File file = new File(home, ".circuitsim");
+		
+		List<String> conf = new ArrayList<>();
+		conf.add("WindowX=" + (int)stage.getX());
+		conf.add("WindowY=" + (int)stage.getY());
+		conf.add("WindowWidth=" + (int)stage.getWidth());
+		conf.add("WindowHeight=" + (int)stage.getHeight());
+		conf.add("ShowFps=" + showFps);
+		if(lastSaveFile != null) {
+			conf.add("LastSavePath=" + lastSaveFile.getAbsolutePath());
+		}
+		
+		try {
+			Files.write(file.toPath(), conf);
+		} catch(Exception exc) {
+			System.err.println("Error saving configuration file: " + file);
+			exc.printStackTrace();
+		}
+	}
+	
 	private Exception excThrown;
 	
 	/**
@@ -1201,6 +1280,8 @@ public class CircuitSim extends Application {
 			// don't care
 		}
 		
+		saveConfFile();
+		
 		if(excThrown != null) {
 			Exception toThrow = excThrown;
 			excThrown = null;
@@ -1299,6 +1380,8 @@ public class CircuitSim extends Application {
 				}
 			}
 		});
+		
+		saveConfFile();
 		
 		if(excThrown != null) {
 			Exception toThrow = excThrown;
@@ -1559,7 +1642,10 @@ public class CircuitSim extends Application {
 		// FILE Menu
 		MenuItem newInstance = new MenuItem("New");
 		newInstance.setAccelerator(new KeyCharacterCombination("N", KeyCombination.CONTROL_DOWN));
-		newInstance.setOnAction(event -> new CircuitSim(true));
+		newInstance.setOnAction(event -> {
+			saveConfFile();
+			new CircuitSim(true);
+		});
 		
 		MenuItem clear = new MenuItem("Clear");
 		clear.setOnAction(event -> {
@@ -2111,9 +2197,13 @@ public class CircuitSim extends Application {
 		stage.sizeToScene();
 		stage.centerOnScreen();
 		
+		loadConfFile();
+		
 		if(openWindow) {
 			showWindow();
 		}
+		
+		saveConfFile();
 		
 		Parameters parameters = getParameters();
 		if(parameters != null && !parameters.getRaw().isEmpty()) {
@@ -2151,6 +2241,8 @@ public class CircuitSim extends Application {
 			stage.setOnCloseRequest(event -> {
 				if(checkUnsavedChanges()) {
 					event.consume();
+				} else {
+					saveConfFile();
 				}
 			});
 			
@@ -2183,7 +2275,9 @@ public class CircuitSim extends Application {
 					
 					graphics.setFont(GuiUtils.getFont(12));
 					graphics.setFill(Color.BLACK);
-					graphics.fillText("FPS: " + lastFrameCount, 6, 50);
+					if(showFps) {
+						graphics.fillText("FPS: " + lastFrameCount, 6, 50);
+					}
 					if(Clock.getLastTickCount(simulator) > 0) {
 						graphics.fillText("Clock: " + (Clock.getLastTickCount(simulator) >> 1) + " Hz", 6, 65);
 					}

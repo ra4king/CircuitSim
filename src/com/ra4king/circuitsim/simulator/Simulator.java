@@ -44,20 +44,17 @@ public class Simulator {
 	/**
 	 * Allows execution of code that is synchronized with the Simulator
 	 *
+	 * Similar to but more efficient than <code>synchronized(simulator) { runnable.run(); }</code>
+	 *
 	 * @param runnable The block of code to run synchronously
 	 */
 	public void runSync(Runnable runnable) {
-		boolean alreadyLocked = lock.isHeldByCurrentThread();
-		if(!alreadyLocked) {
-			lock.lock();
-		}
+		lock.lock();
 		
 		try {
 			runnable.run();
 		} finally {
-			if(!alreadyLocked) {
-				lock.unlock();
-			}
+			lock.unlock();
 		}
 	}
 	

@@ -61,7 +61,7 @@ public class Text extends ComponentPeer<Component> {
 		this.text = text;
 		this.lines = Arrays.asList(text.split("\n", -1));
 		
-		Bounds bounds = GuiUtils.getBounds(GuiUtils.getFont(13), text);
+		Bounds bounds = GuiUtils.getBounds(GuiUtils.getFont(13), text, false);
 		setWidth(Math.max(2, (int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE)));
 		setHeight(Math.max(2, (int)Math.ceil(bounds.getHeight() / GuiUtils.BLOCK_SIZE)));
 	}
@@ -127,7 +127,7 @@ public class Text extends ComponentPeer<Component> {
 			graphics.setFont(GuiUtils.getFont(13));
 			for(int i = 0; i < lines.size(); i++) {
 				String line = lines.get(i);
-				Bounds bounds = GuiUtils.getBounds(graphics.getFont(), line);
+				Bounds bounds = GuiUtils.getBounds(graphics.getFont(), line, false);
 				
 				graphics.fillText(line,
 				                  x + (width - bounds.getWidth()) * 0.5,

@@ -99,10 +99,25 @@ public class GuiUtils {
 		return getCircuitCoord(a) * BLOCK_SIZE;
 	}
 	
+	private static Map<Font, Map<String, Bounds>> boundsSeen = new HashMap<>();
+	
 	public static Bounds getBounds(Font font, String string) {
-		Text text = new Text(string);
-		text.setFont(font);
-		return text.getLayoutBounds();
+		return getBounds(font, string, true);
+	}
+	
+	public static Bounds getBounds(Font font, String string, boolean save) {
+		if(save) {
+			Map<String, Bounds> strings = boundsSeen.computeIfAbsent(font, f -> new HashMap<>());
+			return strings.computeIfAbsent(string, s -> {
+				Text text = new Text(string);
+				text.setFont(font);
+				return text.getLayoutBounds();
+			});
+		} else {
+			Text text = new Text(string);
+			text.setFont(font);
+			return text.getLayoutBounds();
+		}
 	}
 	
 	public interface Drawable {
@@ -145,7 +160,7 @@ public class GuiUtils {
 	}
 	
 	public static void drawValue(GraphicsContext graphics, String string, int x, int y, int width) {
-		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string);
+		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string, false);
 		
 		if(string.length() == 1) {
 			graphics.fillText(string, x + (width - bounds.getWidth()) * 0.5, y + bounds.getHeight() * 0.75 + 1);
@@ -165,25 +180,19 @@ public class GuiUtils {
 				if(circuitState.isShortCircuited(link)) {
 					graphics.setStroke(Color.RED);
 					graphics.setFill(Color.RED);
+				} else if(link.getBitSize() == 1) {
+					setBitColor(graphics, circuitState.getMergedValue(link), Color.BLACK);
 				} else {
-					try {
-						setBitColor(graphics, circuitState.getMergedValue(link));
-					} catch(Exception exc) {
-						graphics.setStroke(Color.RED);
-						graphics.setFill(Color.RED);
-					}
+					graphics.setStroke(Color.BLACK);
+					graphics.setFill(Color.BLACK);
 				}
 			} else {
-				setBitColor(graphics, new WireValue(1));
+				setBitColor(graphics, State.X);
 			}
 		} else {
 			graphics.setStroke(Color.ORANGE);
 			graphics.setFill(Color.ORANGE);
 		}
-	}
-	
-	public static void setBitColor(GraphicsContext graphics, WireValue value) {
-		setBitColor(graphics, value, Color.BLACK);
 	}
 	
 	public static void setBitColor(GraphicsContext graphics, WireValue value, Color defaultColor) {

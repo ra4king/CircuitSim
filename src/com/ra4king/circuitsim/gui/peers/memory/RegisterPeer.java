@@ -146,7 +146,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		for(int i = 0; i * 4 < value.length(); i++) {
 			int endIndex = i * 4 + 4 > value.length() ? value.length() : 4 * i + 4;
 			String toPrint = value.substring(4 * i, endIndex);
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), toPrint);
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), toPrint, false);
 			graphics.fillText(toPrint, x + width * 0.5 - bounds.getWidth() * 0.5, y + 11 + 10 * i);
 		}
 		graphics.setStroke(Color.BLACK);

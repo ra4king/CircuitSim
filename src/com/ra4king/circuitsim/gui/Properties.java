@@ -15,12 +15,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.sun.javafx.collections.ObservableListWrapper;
-import com.sun.javafx.scene.control.skin.TableHeaderRow;
-
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -654,11 +652,7 @@ public class Properties {
 			tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 			tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 			tableView.setEditable(true);
-			tableView.widthProperty().addListener((source, oldWidth, newWidth) -> {
-				TableHeaderRow header = (TableHeaderRow)tableView.lookup("TableHeaderRow");
-				header.reorderingProperty().addListener(
-						(observable, oldValue, newValue) -> header.setReordering(false));
-			});
+			JavaFXCompatibilityWrapper.tableDisableColumnReordering(tableView);
 			
 			TableColumn<MemoryLine, String> address = new TableColumn<>("Address");
 			address.setStyle("-fx-alignment: CENTER-RIGHT;");
@@ -695,7 +689,7 @@ public class Properties {
 				tableView.getColumns().add(column);
 			}
 			
-			tableView.setItems(new ObservableListWrapper<>(lines));
+			tableView.setItems(FXCollections.observableList(lines));
 			
 			Button loadButton = new Button("Load from file");
 			loadButton.setOnAction(event -> {

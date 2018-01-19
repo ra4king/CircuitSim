@@ -21,7 +21,7 @@ class JavaFXCompatibilityWrapper {
 	 * the new Platform.startup() function instead.
 	 */
 	static void platformStartup(Runnable runnable) {
-	PlatformImpl.startup(runnable);
+		PlatformImpl.startup(runnable);
 	}
 
 	/**

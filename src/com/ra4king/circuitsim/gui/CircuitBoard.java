@@ -1,5 +1,6 @@
 package com.ra4king.circuitsim.gui;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,6 +17,7 @@ import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.Connection.WireConnection;
 import com.ra4king.circuitsim.gui.EditHistory.EditAction;
 import com.ra4king.circuitsim.gui.LinkWires.Wire;
+import com.ra4king.circuitsim.gui.PathFinding.Point;
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Simulator;
@@ -35,12 +39,25 @@ public class CircuitBoard {
 	private Set<LinkWires> badLinks;
 	
 	private Set<GuiElement> moveElements;
+	private List<Connection> connectedPorts = new ArrayList<>();
+	private Thread computeThread;
+	private MoveComputeResult moveResult;
 	private boolean addMoveAction;
 	private int moveDeltaX, moveDeltaY;
 	
 	private Map<Pair<Integer, Integer>, Set<Connection>> connectionsMap;
 	
 	private EditHistory editHistory;
+	
+	private static class MoveComputeResult {
+		final Set<Wire> wiresToAdd;
+		final Set<Wire> wiresToRemove;
+		
+		MoveComputeResult(Set<Wire> wiresToAdd, Set<Wire> wiresToRemove) {
+			this.wiresToAdd = wiresToAdd;
+			this.wiresToRemove = wiresToRemove;
+		}
+	}
 	
 	public CircuitBoard(String name, CircuitManager circuitManager, Simulator simulator, EditHistory editHistory) {
 		this.circuitManager = circuitManager;
@@ -223,17 +240,37 @@ public class CircuitBoard {
 		return moveElements != null;
 	}
 	
-	public void initMove(Set<GuiElement> elements) {
-		initMove(elements, true);
+	public void initMove(Set<GuiElement> elements, boolean extendWires) {
+		initMove(elements, true, extendWires);
 	}
 	
-	public void initMove(Set<GuiElement> elements, boolean remove) {
+	public void initMove(Set<GuiElement> elements, boolean remove, boolean extendWires) {
 		if(moveElements != null) {
 			try {
 				finalizeMove();
 			} catch(Exception exc) {
 				// exc.printStackTrace();
 			}
+		}
+		
+		connectedPorts.clear();
+		
+		if(extendWires) {
+			for(GuiElement element : elements) {
+				for(Connection connection : element.getConnections()) {
+					if(getConnections(connection.getX(), connection.getY()).size() > 1) {
+						connectedPorts.add(connection);
+					}
+				}
+			}
+			
+			connectedPorts.sort((p1, p2) -> {
+				if(p1.getX() == p2.getX()) {
+					return p1.getY() - p2.getY();
+				}
+				
+				return p1.getX() - p2.getX();
+			});
 		}
 		
 		try {
@@ -257,7 +294,99 @@ public class CircuitBoard {
 		moveDeltaX = dx;
 		moveDeltaY = dy;
 		
-		// TODO: Add wires to attach connections
+		CountDownLatch latch = new CountDownLatch(1);
+		
+		synchronized(CircuitBoard.this) {
+			moveResult = null;
+			
+			if(computeThread != null) {
+				computeThread.interrupt();
+			}
+			
+			Set<Connection> connectedPorts = new HashSet<>(this.connectedPorts);
+			
+			computeThread = new Thread(() -> {
+				Set<Wire> wiresToAdd = new HashSet<>();
+				Set<Wire> wiresToRemove = new HashSet<>();
+				
+				for(Connection connectedPort : connectedPorts) {
+					if(Thread.currentThread().isInterrupted()) {
+						return;
+					}
+					
+					int x = connectedPort.getX();
+					int y = connectedPort.getY();
+					int sx = x - dx;
+					int sy = y - dy;
+					
+					synchronized(CircuitBoard.this) {
+						if(getConnections(sx, sy).isEmpty()) {
+							continue;
+						}
+					}
+					
+					Pair<Set<Wire>, Set<Point>> pair = PathFinding.bestPath(sx, sy, x, y, (px, py, horizontal) -> {
+						if(px == x && py == y) {
+							return true;
+						}
+						
+						if(px == sx && py == sy) {
+							return true;
+						}
+						
+						Set<Connection> connections =
+								Stream.concat(connectedPorts.stream(),
+								              wiresToAdd.stream().flatMap(w -> w.getConnections().stream()))
+								      .filter(c -> c.getX() == px && c.getY() == py)
+								      .collect(Collectors.toSet());
+						synchronized(CircuitBoard.this) {
+							connections.addAll(getConnections(px, py));
+						}
+						
+						for(Connection connection : connections) {
+							if(connection instanceof PortConnection) {
+								return false;
+							}
+							if(connection instanceof WireConnection) {
+								Wire wire = (Wire)connection.getParent();
+								if(wire.isHorizontal() == horizontal
+										   || connection == wire.getStartConnection()
+										   || connection == wire.getEndConnection()) {
+									return false;
+								}
+							}
+						}
+						
+						return true;
+					});
+					if(pair != null) {
+						wiresToAdd.addAll(pair.getKey());
+					}
+				}
+				
+				synchronized(CircuitBoard.this) {
+					moveResult = new MoveComputeResult(wiresToAdd, wiresToRemove);
+					if(computeThread == Thread.currentThread()) {
+						computeThread = null;
+					}
+					
+					lastException = null;
+					
+					circuitManager.setNeedsRepaint();
+				}
+				
+				latch.countDown();
+			});
+			computeThread.start();
+			
+			lastException = new Exception("Computing...");
+		}
+		
+		try {
+			latch.await(20, TimeUnit.MILLISECONDS);
+		} catch(InterruptedException e) {
+			// ignore
+		}
 	}
 	
 	public void finalizeMove() {
@@ -271,6 +400,21 @@ public class CircuitBoard {
 			editHistory.beginGroup();
 		}
 		
+		MoveComputeResult result;
+		
+		synchronized(this) {
+			if(computeThread != null) {
+				computeThread.interrupt();
+				computeThread = null;
+			}
+			
+			result = moveResult;
+			moveResult = null;
+		}
+		
+		Set<Wire> wiresToAdd = result == null ? new HashSet<>() : result.wiresToAdd;
+		Set<Wire> wiresToRemove = result == null ? new HashSet<>() : result.wiresToRemove;
+		
 		boolean cannotMoveHere = false;
 		
 		for(GuiElement element : moveElements) {
@@ -280,13 +424,24 @@ public class CircuitBoard {
 					element1.setY(element1.getY() - moveDeltaY);
 				}
 				
+				wiresToAdd.clear();
+				wiresToRemove.clear();
+				
 				cannotMoveHere = true;
 				break;
 			}
 		}
 		
+		removeElements(wiresToRemove);
+		
+		Set<GuiElement> elements = new HashSet<>();
+		elements.addAll(moveElements);
+		elements.addAll(wiresToAdd);
+		
+		Set<Wire> extraWiresAdded = new HashSet<>();
+		
 		RuntimeException toThrow = null;
-		for(GuiElement element : moveElements) {
+		for(GuiElement element : elements) {
 			if(element instanceof ComponentPeer<?>) {
 				ComponentPeer<?> component = (ComponentPeer<?>)element;
 				
@@ -298,14 +453,17 @@ public class CircuitBoard {
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
 				try {
-					addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+					Set<Wire> added = addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+					if(wiresToAdd.contains(element)) {
+						extraWiresAdded.addAll(added);
+					}
 				} catch(RuntimeException exc) {
 					toThrow = exc;
 				}
 			}
 		}
 		
-		for(GuiElement element : moveElements) {
+		for(GuiElement element : elements) {
 			if(element instanceof ComponentPeer<?>) {
 				ComponentPeer<?> component = (ComponentPeer<?>)element;
 				// moving components doesn't actually modify the Circuit, so we must trigger the listener directly
@@ -315,13 +473,22 @@ public class CircuitBoard {
 		
 		if(addMoveAction) {
 			editHistory.enable();
-			editHistory.addAction(EditAction.MOVE_ELEMENTS, circuitManager,
-			                      new HashSet<>(moveElements), moveDeltaX, moveDeltaY);
+			if(moveDeltaX != 0 || moveDeltaY != 0) {
+				editHistory.beginGroup();
+				editHistory.addAction(EditAction.MOVE_ELEMENTS, circuitManager,
+				                      new HashSet<>(moveElements), moveDeltaX, moveDeltaY);
+				wiresToRemove.forEach(w -> editHistory.addAction(EditAction.REMOVE_WIRE, circuitManager, w));
+				extraWiresAdded.forEach((w) -> editHistory.addAction(EditAction.ADD_WIRE, circuitManager, w));
+				
+				editHistory.endGroup();
+			}
 		} else {
 			editHistory.endGroup();
 		}
 		
 		moveElements = null;
+		wiresToAdd.clear();
+		connectedPorts.clear();
 		moveDeltaX = 0;
 		moveDeltaY = 0;
 		
@@ -367,7 +534,7 @@ public class CircuitBoard {
 						int x = wire.isHorizontal() ? wire.getX() + i : wire.getX();
 						int y = wire.isHorizontal() ? wire.getY() : wire.getY() + i;
 						for(Connection conn : new HashSet<>(getConnections(x, y))) {
-							if(conn.getParent() instanceof Wire) {
+							if(conn instanceof WireConnection) {
 								Wire w = (Wire)conn.getParent();
 								if(w.isHorizontal() == wire.isHorizontal()) {
 									if(w.equals(wire)) {
@@ -556,12 +723,10 @@ public class CircuitBoard {
 				int yOff = horizontal ? 0 : i;
 				Connection currConnection = findConnection(x + xOff, y + yOff);
 				
-				if(currConnection != null && (i == length ||
-						                              currConnection instanceof PortConnection ||
-						                              currConnection == ((Wire)currConnection.getParent())
-								                                                .getStartConnection() ||
-						                              currConnection == ((Wire)currConnection.getParent())
-								                                                .getEndConnection())) {
+				if(currConnection != null &&
+						   (i == length || currConnection instanceof PortConnection ||
+								    currConnection == ((Wire)currConnection.getParent()).getStartConnection() ||
+								    currConnection == ((Wire)currConnection.getParent()).getEndConnection())) {
 					int len = horizontal ? currConnection.getX() - lastX
 					                     : currConnection.getY() - lastY;
 					Wire wire = new Wire(linkWires, lastX, lastY, len, horizontal);
@@ -829,6 +994,15 @@ public class CircuitBoard {
 				}
 			}
 			
+			MoveComputeResult result = this.moveResult;
+			if(result != null) {
+				graphics.setFill(Color.RED);
+				result.wiresToRemove.forEach(wire -> wire.paint(graphics));
+				
+				graphics.setFill(Color.BLACK);
+				result.wiresToAdd.forEach(wire -> wire.paint(graphics));
+			}
+			
 			graphics.restore();
 		}
 	}
@@ -858,14 +1032,14 @@ public class CircuitBoard {
 		}
 	}
 	
-	private void addConnection(Connection connection) {
+	private synchronized void addConnection(Connection connection) {
 		Pair<Integer, Integer> pair = new Pair<>(connection.getX(), connection.getY());
 		Set<Connection> set = connectionsMap.containsKey(pair) ? connectionsMap.get(pair) : new HashSet<>();
 		set.add(connection);
 		connectionsMap.put(pair, set);
 	}
 	
-	private void removeConnection(Connection connection) {
+	private synchronized void removeConnection(Connection connection) {
 		Pair<Integer, Integer> pair = new Pair<>(connection.getX(), connection.getY());
 		if(!connectionsMap.containsKey(pair)) {
 			return;

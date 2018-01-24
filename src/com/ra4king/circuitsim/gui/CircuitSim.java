@@ -322,13 +322,15 @@ public class CircuitSim extends Application {
 	/**
 	 * Get all circuits.
 	 *
-	 * @return Map from their names to their wrapping CircuitBoard.
+	 * @return Map from their names to their wrapping CircuitBoard in appearance order.
 	 */
-	public Map<String, CircuitBoard> getCircuitBoards() {
+	public LinkedHashMap<String, CircuitBoard> getCircuitBoards() {
 		return circuitManagers.keySet().stream()
 		                      .collect(Collectors.toMap(name -> name,
 		                                                name -> circuitManagers.get(name).getValue()
-		                                                                       .getCircuitBoard()));
+		                                                                       .getCircuitBoard(),
+		                                                (v1, v2) -> v1,
+		                                                LinkedHashMap::new));
 	}
 	
 	/**
@@ -997,7 +999,6 @@ public class CircuitSim extends Application {
 		String home = System.getProperty("user.home");
 		File file = new File(home, ".circuitsim");
 		if(file.exists()) {
-			
 			boolean newWindow = getParameters() == null;
 			
 			try {
@@ -1030,6 +1031,9 @@ public class CircuitSim extends Application {
 						case "WindowHeight":
 							stage.setHeight(Integer.parseInt(value));
 							break;
+						case "IsMaximized":
+							stage.setMaximized(Boolean.parseBoolean(value));
+							break;
 						case "ShowFps":
 							showFps = Boolean.parseBoolean(value);
 							break;
@@ -1056,6 +1060,7 @@ public class CircuitSim extends Application {
 		conf.add("WindowY=" + (int)stage.getY());
 		conf.add("WindowWidth=" + (int)stage.getWidth());
 		conf.add("WindowHeight=" + (int)stage.getHeight());
+		conf.add("IsMaximized=" + stage.isMaximized());
 		conf.add("ShowFps=" + showFps);
 		if(lastSaveFile != null) {
 			conf.add("LastSavePath=" + lastSaveFile.getAbsolutePath());
@@ -1084,10 +1089,16 @@ public class CircuitSim extends Application {
 			File f = file;
 			
 			if(f == null) {
+				
+				File initialDirectory = lastSaveFile == null
+						                        || lastSaveFile.getParentFile() == null
+						                        || !lastSaveFile.getParentFile().isDirectory()
+				                        ? new File(System.getProperty("user.dir"))
+				                        : lastSaveFile.getParentFile();
+				
 				FileChooser fileChooser = new FileChooser();
 				fileChooser.setTitle("Choose sim file");
-				fileChooser.setInitialDirectory(lastSaveFile == null ? new File(System.getProperty("user.dir"))
-				                                                     : lastSaveFile.getParentFile());
+				fileChooser.setInitialDirectory(initialDirectory);
 				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
 				f = fileChooser.showOpenDialog(stage);
 			}
@@ -1888,7 +1899,7 @@ public class CircuitSim extends Application {
 							}
 							
 							manager.setSelectedElements(elementsCreated);
-							manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false));
+							manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false, false));
 							
 							break;
 						}
@@ -2197,12 +2208,11 @@ public class CircuitSim extends Application {
 		stage.sizeToScene();
 		stage.centerOnScreen();
 		
-		loadConfFile();
-		
 		if(openWindow) {
 			showWindow();
 		}
 		
+		loadConfFile();
 		saveConfFile();
 		
 		Parameters parameters = getParameters();

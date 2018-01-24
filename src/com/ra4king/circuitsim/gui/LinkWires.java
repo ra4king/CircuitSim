@@ -363,8 +363,17 @@ public class LinkWires {
 		}
 		
 		@Override
+		public String toString() {
+			return "Wire(x = " + getX() + ", y = " + getY() + ", horizontal = " + isHorizontal() + ")";
+		}
+		
+		@Override
 		public void paint(GraphicsContext graphics, CircuitState circuitState) {
 			GuiUtils.setBitColor(graphics, circuitState, linkWires);
+			GuiUtils.drawShape(graphics::fillRect, this);
+		}
+		
+		public void paint(GraphicsContext graphics) {
 			GuiUtils.drawShape(graphics::fillRect, this);
 		}
 	}

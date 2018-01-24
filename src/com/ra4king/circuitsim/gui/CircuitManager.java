@@ -136,7 +136,24 @@ public class CircuitManager {
 		return "CircuitManager " + getName();
 	}
 	
+	private void resetLastPressed() {
+		if(lastPressed != null && lastPressedKeyCode == null) {
+			lastPressed.mouseReleased(this, circuitBoard.getCurrentState(),
+			                          lastMousePosition.getX() - lastPressed.getScreenX(),
+			                          lastMousePosition.getY() - lastPressed.getScreenY());
+		} else if(lastPressed != null) {
+			lastPressed.keyReleased(this, circuitBoard.getCurrentState(),
+			                        lastPressedKeyCode,
+			                        lastPressedKeyCode.getName());
+		}
+		
+		lastPressed = null;
+		lastPressedKeyCode = null;
+	}
+	
 	private void reset() {
+		resetLastPressed();
+		
 		currentState = SelectingState.IDLE;
 		
 		setSelectedElements(Collections.emptySet());
@@ -150,6 +167,7 @@ public class CircuitManager {
 		simulatorWindow.updateCanvasSize(this);
 		
 		needsRepaint = true;
+		simulatorWindow.runSim();
 	}
 	
 	public void destroy() {
@@ -207,6 +225,10 @@ public class CircuitManager {
 	
 	public boolean needsRepaint() {
 		return needsRepaint;
+	}
+	
+	void setNeedsRepaint() {
+		needsRepaint = true;
 	}
 	
 	private Properties getCommonSelectedProperties() {
@@ -270,8 +292,10 @@ public class CircuitManager {
 									component -> (ComponentPeer<?>)ComponentManager
 											                               .forClass(component.getClass())
 											                               .createComponent(
-													                               component.getProperties()
-													                                        .mergeIfExists(properties),
+													                               new Properties(component
+															                                              .getProperties())
+															
+															                               .mergeIfExists(properties),
 													                               component.getX(),
 													                               component.getY())));
 			
@@ -512,6 +536,21 @@ public class CircuitManager {
 		}
 	}
 	
+	private void handleArrowPressed(Direction direction) {
+		if(!getSelectedElements().isEmpty()) {
+			if(currentState == SelectingState.ELEMENT_DRAGGED
+					   || currentState == SelectingState.ELEMENT_SELECTED) {
+				mayThrow(circuitBoard::finalizeMove);
+				currentState = SelectingState.IDLE;
+			}
+			
+			Properties props = new Properties(currentState == SelectingState.PLACING_COMPONENT ?
+			                                  this.potentialComponentProperties : getCommonSelectedProperties());
+			props.setValue(Properties.DIRECTION, direction);
+			modifiedSelection(componentCreator, props);
+		}
+	}
+	
 	public void keyPressed(KeyEvent e) {
 		needsRepaint = true;
 		
@@ -530,34 +569,22 @@ public class CircuitManager {
 		switch(e.getCode()) {
 			case RIGHT: {
 				e.consume();
-				Properties props = currentState == SelectingState.PLACING_COMPONENT ?
-				                   this.potentialComponentProperties : getCommonSelectedProperties();
-				props.setValue(Properties.DIRECTION, Direction.EAST);
-				modifiedSelection(componentCreator, props);
+				handleArrowPressed(Direction.EAST);
 				break;
 			}
 			case LEFT: {
 				e.consume();
-				Properties props = currentState == SelectingState.PLACING_COMPONENT ?
-				                   this.potentialComponentProperties : getCommonSelectedProperties();
-				props.setValue(Properties.DIRECTION, Direction.WEST);
-				modifiedSelection(componentCreator, props);
+				handleArrowPressed(Direction.WEST);
 				break;
 			}
 			case UP: {
 				e.consume();
-				Properties props = currentState == SelectingState.PLACING_COMPONENT ?
-				                   this.potentialComponentProperties : getCommonSelectedProperties();
-				props.setValue(Properties.DIRECTION, Direction.NORTH);
-				modifiedSelection(componentCreator, props);
+				handleArrowPressed(Direction.NORTH);
 				break;
 			}
 			case DOWN: {
 				e.consume();
-				Properties props = currentState == SelectingState.PLACING_COMPONENT ?
-				                   this.potentialComponentProperties : getCommonSelectedProperties();
-				props.setValue(Properties.DIRECTION, Direction.SOUTH);
-				modifiedSelection(componentCreator, props);
+				handleArrowPressed(Direction.SOUTH);
 				break;
 			}
 			case CONTROL:
@@ -572,7 +599,12 @@ public class CircuitManager {
 				break;
 			case DELETE:
 			case BACK_SPACE:
-				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
+				if(!getSelectedElements().isEmpty()) {
+					mayThrow(circuitBoard::finalizeMove);
+					mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
+					reset();
+				}
+				break;
 			case ESCAPE:
 				if(currentState == SelectingState.ELEMENT_DRAGGED) {
 					mayThrow(() -> circuitBoard.moveElements(0, 0));
@@ -730,7 +762,7 @@ public class CircuitManager {
 			case ELEMENT_DRAGGED:
 			case CONNECTION_SELECTED:
 			case HIGHLIGHT_DRAGGED:
-				throw new IllegalStateException("How?!");
+				break;
 			
 			case IDLE:
 			case ELEMENT_SELECTED:
@@ -810,7 +842,7 @@ public class CircuitManager {
 					setSelectedElements(Collections.singleton(newComponent));
 				}
 				
-				currentState = SelectingState.PLACING_COMPONENT;
+				currentState = SelectingState.ELEMENT_SELECTED;
 				break;
 		}
 		
@@ -829,15 +861,7 @@ public class CircuitManager {
 			case IDLE:
 			case ELEMENT_SELECTED:
 			case ELEMENT_DRAGGED:
-				if(lastPressed != null && lastPressedKeyCode == null) {
-					lastPressed.mouseReleased(this, circuitBoard.getCurrentState(),
-					                          lastMousePosition.getX() - lastPressed.getScreenX(),
-					                          lastMousePosition.getY() - lastPressed.getScreenY());
-					lastPressed = null;
-					simulatorWindow.runSim();
-					needsRepaint = true;
-				}
-				
+				resetLastPressed();
 				mayThrow(circuitBoard::finalizeMove);
 				currentState = SelectingState.IDLE;
 				break;
@@ -871,6 +895,7 @@ public class CircuitManager {
 		
 		checkStartConnection();
 		
+		simulatorWindow.runSim();
 		needsRepaint = true;
 	}
 	
@@ -920,7 +945,7 @@ public class CircuitManager {
 					currentState = SelectingState.ELEMENT_DRAGGED;
 					
 					if(!circuitBoard.isMoving()) {
-						mayThrow(() -> circuitBoard.initMove(getSelectedElements()));
+						mayThrow(() -> circuitBoard.initMove(getSelectedElements(), !isCtrlDown));
 					}
 					
 					mayThrow(() -> circuitBoard.moveElements(dx, dy));
@@ -1001,22 +1026,8 @@ public class CircuitManager {
 	public void focusLost() {
 		mouseExited(null);
 		simulatorWindow.setClickMode(false);
-		mayThrow(circuitBoard::finalizeMove);
-		
-		if(lastPressed != null && lastPressedKeyCode == null) {
-			lastPressed.mouseReleased(this, circuitBoard.getCurrentState(),
-			                          lastMousePosition.getX() - lastPressed.getScreenX(),
-			                          lastMousePosition.getY() - lastPressed.getScreenY());
-			simulatorWindow.runSim();
-		} else if(lastPressed != null) {
-			lastPressed.keyReleased(this, circuitBoard.getCurrentState(),
-			                        lastPressedKeyCode,
-			                        lastPressedKeyCode.getName());
-			simulatorWindow.runSim();
-		}
-		
-		lastPressed = null;
-		lastPressedKeyCode = null;
+		resetLastPressed();
+		simulatorWindow.runSim();
 		needsRepaint = true;
 	}
 }

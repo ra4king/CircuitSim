@@ -106,7 +106,7 @@ public class EditHistory {
 			protected void redo(CircuitManager manager, Object[] params) {
 				@SuppressWarnings("unchecked")
 				Set<GuiElement> elements = (Set<GuiElement>)params[0];
-				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements));
+				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements, false));
 				manager.getCircuitBoard().moveElements((int)params[1], (int)params[2]);
 				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
 			}
@@ -114,7 +114,7 @@ public class EditHistory {
 			protected void undo(CircuitManager manager, Object[] params) {
 				@SuppressWarnings("unchecked")
 				Set<GuiElement> elements = (Set<GuiElement>)params[0];
-				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements));
+				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements, false));
 				manager.getCircuitBoard().moveElements(-(int)params[1], -(int)params[2]);
 				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
 			}

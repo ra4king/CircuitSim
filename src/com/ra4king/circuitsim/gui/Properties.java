@@ -319,7 +319,7 @@ public class Properties {
 		
 		public Property(String name, String displayName, PropertyValidator<T> validator, T value) {
 			this.name = name;
-			this.display = name;
+			this.display = displayName;
 			this.validator = validator;
 			this.value = value;
 		}

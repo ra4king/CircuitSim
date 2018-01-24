@@ -119,7 +119,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.5.6";
+	public static final String VERSION = "1.6.0";
 	
 	private static boolean mainCalled = false;
 	
@@ -131,6 +131,8 @@ public class CircuitSim extends Application {
 	private Stage stage;
 	private Scene scene;
 	private boolean openWindow = true;
+	
+	private MenuItem help;
 	
 	private Simulator simulator;
 	private Exception lastException;
@@ -782,8 +784,7 @@ public class CircuitSim extends Application {
 					                                         s -> s.equals(oldName) ? newPair
 					                                                                : circuitManagers.get(s),
 					                                         (a, b) -> {
-						                                         throw new IllegalStateException("Name already " +
-								                                                                         "exists");
+						                                         throw new IllegalStateException("Name already exists");
 					                                         },
 					                                         LinkedHashMap::new));
 			
@@ -1046,6 +1047,8 @@ public class CircuitSim extends Application {
 				System.err.println("Error loading configuration file: " + file);
 				exc.printStackTrace();
 			}
+		} else {
+			help.fire();
 		}
 	}
 	
@@ -2091,7 +2094,7 @@ public class CircuitSim extends Application {
 		
 		// HELP Menu
 		Menu helpMenu = new Menu("Help");
-		MenuItem help = new MenuItem("Help");
+		help = new MenuItem("Help");
 		help.setOnAction(event -> {
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.initOwner(stage);
@@ -2101,10 +2104,11 @@ public class CircuitSim extends Application {
 			
 			String msg = "";
 			msg += "• Holding Shift will enable Click Mode which will click through to components\n\n";
-			msg += "• Holding Shift while dragging a new wire will delete existing wires\n\n";
-			msg += "• Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on "
+			msg += "• Holding Shift after dragging a new wire will delete existing wires\n\n";
+			msg += "• Holding Ctrl before dragging a new wire allows release of the mouse, and continuing the wire on "
 					       + "click\n\n";
 			msg += "• Holding Ctrl while selecting components will include them in the selection group\n\n";
+			msg += "• Holding Ctrl before dragging components and wires will disable preserving connections\n\n";
 			
 			alert.setContentText(msg);
 			alert.show();

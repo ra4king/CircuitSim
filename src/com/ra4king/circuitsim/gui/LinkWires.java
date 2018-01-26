@@ -318,19 +318,22 @@ public class LinkWires {
 		}
 		
 		public boolean isWithin(Wire wire) {
-			return wire.horizontal == this.horizontal &&
-					       this.getX() >= wire.getX() && this.getX() + this.getWidth() <= wire.getX() + wire.getWidth
-							                                                                                         () &&
-					
-					       this.getY() >= wire.getY() && this.getY() + this.getHeight() <= wire.getY() + wire
-							                                                                                     .getHeight();
+			return wire.horizontal == this.horizontal
+					       && this.getX() >= wire.getX()
+					       && this.getX() + this.getWidth() <= wire.getX() + wire.getWidth()
+					       && this.getY() >= wire.getY()
+					       && this.getY() + this.getHeight() <= wire.getY() + wire.getHeight();
 		}
 		
 		public boolean overlaps(Wire wire) {
 			return wire.horizontal == this.horizontal &&
 					       (wire.horizontal
-					        ? !(wire.getX() >= getX() + getLength() || getX() >= wire.getX() + wire.getLength())
-					        : !(wire.getY() >= getY() + getLength() || getY() >= wire.getY() + wire.getLength()));
+					        ? wire.getY() == getY()
+							          && !(wire.getX() >= getX() + getLength()
+									               || getX() >= wire.getX() + wire.getLength())
+					        : wire.getX() == getX()
+							          && !(wire.getY() >= getY() + getLength()
+									               || getY() >= wire.getY() + wire.getLength()));
 		}
 		
 		public Connection getStartConnection() {

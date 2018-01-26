@@ -997,6 +997,8 @@ public class CircuitSim extends Application {
 	}
 	
 	private void loadConfFile() {
+		boolean showHelp = true;
+		
 		String home = System.getProperty("user.home");
 		File file = new File(home, ".circuitsim");
 		if(file.exists()) {
@@ -1041,13 +1043,20 @@ public class CircuitSim extends Application {
 						case "LastSavePath":
 							lastSaveFile = new File(value);
 							break;
+						case "HelpShown":
+							if(value.equals(VERSION)) {
+								showHelp = false;
+							}
+							break;
 					}
 				}
 			} catch(Exception exc) {
 				System.err.println("Error loading configuration file: " + file);
 				exc.printStackTrace();
 			}
-		} else {
+		}
+		
+		if(showHelp) {
 			help.fire();
 		}
 	}
@@ -1065,6 +1074,7 @@ public class CircuitSim extends Application {
 		conf.add("WindowHeight=" + (int)stage.getHeight());
 		conf.add("IsMaximized=" + stage.isMaximized());
 		conf.add("ShowFps=" + showFps);
+		conf.add("HelpShown=" + VERSION);
 		if(lastSaveFile != null) {
 			conf.add("LastSavePath=" + lastSaveFile.getAbsolutePath());
 		}
@@ -2103,15 +2113,20 @@ public class CircuitSim extends Application {
 			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2017");
 			
 			String msg = "";
-			msg += "• Holding Shift will enable Click Mode which will click through to components\n\n";
-			msg += "• Holding Shift after dragging a new wire will delete existing wires\n\n";
+			msg += "• Right clicking works! Try it on components, subcircuits, and circuit tabs.\n\n";
+			msg += "• Double clicking on a subcircuit will automatically go to its circuit tab as a child state.\n\n";
+			msg += "• Holding Shift will enable Click Mode which will click through to components.\n\n";
+			msg += "• Holding Shift after dragging a new wire will delete existing wires.\n\n";
 			msg += "• Holding Ctrl before dragging a new wire allows release of the mouse, and continuing the wire on "
-					       + "click\n\n";
-			msg += "• Holding Ctrl while selecting components will include them in the selection group\n\n";
-			msg += "• Holding Ctrl before dragging components and wires will disable preserving connections\n\n";
+					       + "click.\n\n";
+			msg += "• Holding Ctrl while selecting components will include them in the selection group.\n\n";
+			msg += "• Holding Ctrl before dragging components and wires will disable preserving connections.\n\n";
 			
 			alert.setContentText(msg);
 			alert.show();
+			alert.setResizable(true);
+			alert.setWidth(600);
+			alert.setHeight(440);
 		});
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(event -> {

@@ -7,8 +7,8 @@ import java.util.Set;
  * @author Roi Atalla
  */
 public class Port {
-	public final Component component;
-	public final int portIndex;
+	private final Component component;
+	private final int portIndex;
 	private Link link;
 	
 	public Port(Component component, int portIndex, int bitSize) {

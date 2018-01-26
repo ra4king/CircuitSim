@@ -14,11 +14,19 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class PathFinding {
-	public interface ValidWireLocation {
-		boolean isValidWireLocation(int x, int y, boolean horizontal);
+	public enum LocationPreference {
+		INVALID,
+		VALID,
+		PREFER
 	}
 	
-	public static Pair<Set<Wire>, Set<Point>> bestPath(int sx, int sy, int dx, int dy, ValidWireLocation exist) {
+	public interface ValidWireLocation {
+		LocationPreference isValidWireLocation(int x, int y, boolean horizontal);
+	}
+	
+	private static final Cost INFINITY = new Cost(Integer.MAX_VALUE, Integer.MAX_VALUE);
+	
+	public static Pair<Set<Wire>, Set<Point>> bestPath(int sx, int sy, int dx, int dy, ValidWireLocation valid) {
 		if(dx < 0 || dy < 0) {
 			return new Pair<>(Collections.emptySet(), Collections.emptySet());
 		}
@@ -37,13 +45,15 @@ public class PathFinding {
 		gScore.put(source, new Cost(0, 0));
 		fScore.put(source, destination.estimateCost(source));
 		
-		final Cost INFINITY = new Cost(Integer.MAX_VALUE, Integer.MAX_VALUE);
-		
 		int iterations = 0;
 		
 		while(!openSet.isEmpty()) {
+			if(Thread.currentThread().isInterrupted()) {
+				return new Pair<>(Collections.emptySet(), closedSet); 
+			}
+			
 			iterations++;
-			if(iterations == 2000) {
+			if(iterations == 5000) {
 				System.err.println("Path finding taking too long, bail...");
 				return new Pair<>(Collections.emptySet(), closedSet);
 			}
@@ -83,16 +93,28 @@ public class PathFinding {
 					continue;
 				}
 				
-				if(!exist.isValidWireLocation(neighbor.x, neighbor.y,
-				                              direction == Direction.RIGHT || direction == Direction.LEFT)) {
+				LocationPreference preference =
+						valid.isValidWireLocation(neighbor.x, neighbor.y, 
+						                          direction == Direction.RIGHT || direction == Direction.LEFT);
+				
+				if(preference == LocationPreference.INVALID) {
 					continue;
 				}
 				
+				int additionalLength = preference == LocationPreference.PREFER ? -1 : 1;
+				
+				int additionalTurns = 0;
+				if(preference != LocationPreference.PREFER && current.direction != null && direction != current.direction) {
+					if(neighbor.x == destination.x || neighbor.y == destination.y) {
+						additionalTurns = 1;
+					} else {
+						additionalTurns = 2;
+					}
+				}
+				
 				Cost currentCost = gScore.get(current);
-				Cost totalCost =
-						new Cost(currentCost.length + 1,
-						         currentCost.turns +
-								         (current.direction == null || direction == current.direction ? 0 : 1));
+				Cost totalCost = new Cost(currentCost.length + additionalLength, currentCost.turns + additionalTurns);
+				
 				if(totalCost.compareTo(gScore.getOrDefault(neighbor, INFINITY)) >= 0) {
 					continue;
 				}

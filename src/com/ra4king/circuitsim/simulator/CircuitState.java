@@ -195,16 +195,16 @@ public class CircuitState {
 		}
 	}
 	
-	private class LinkState {
-		private final Link link;
-		private final HashMap<Port, PortStateInfo> participants;
-		private WireValue cachedMergedValue;
-		private Boolean isShortCircuited;
+	class LinkState {
+		final Link link;
+		final HashMap<Port, PortStateInfo> participants;
+		WireValue cachedMergedValue;
+		Boolean isShortCircuited;
 		
-		private class PortStateInfo {
-			private WireValue lastPushed;
-			private WireValue lastMerged;
-			private WireValue lastReceived;
+		class PortStateInfo {
+			WireValue lastPushed;
+			WireValue lastMerged;
+			WireValue lastReceived;
 			
 			PortStateInfo() {
 				this(new WireValue(link.getBitSize()),
@@ -299,9 +299,9 @@ public class CircuitState {
 			}
 			
 			for(Port participantPort : toNotify) {
-				participantPort.component.valueChanged(CircuitState.this,
-				                                       getLastReceived(participantPort),
-				                                       participantPort.portIndex);
+				participantPort.getComponent().valueChanged(CircuitState.this,
+				                                            getLastReceived(participantPort),
+				                                            participantPort.getPortIndex());
 			}
 		}
 		
@@ -333,7 +333,7 @@ public class CircuitState {
 			WireValue newValue = new WireValue(link.getBitSize());
 			if(!info.lastReceived.equals(newValue)) {
 				info.lastReceived.set(newValue);
-				port.component.valueChanged(CircuitState.this, newValue, port.portIndex);
+				port.getComponent().valueChanged(CircuitState.this, newValue, port.getPortIndex());
 			}
 			
 			if(participants.isEmpty()) {

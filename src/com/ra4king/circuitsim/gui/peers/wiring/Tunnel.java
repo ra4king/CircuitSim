@@ -2,8 +2,10 @@ package com.ra4king.circuitsim.gui.peers.wiring;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.ComponentPeer;
@@ -28,13 +30,15 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class Tunnel extends ComponentPeer<Component> {
-	private static Map<String, List<Tunnel>> tunnels = new HashMap<>();
+	private static Map<Circuit, Map<String, Set<Tunnel>>> tunnels = new HashMap<>();
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Tunnel"),
 		                     new Image(Tunnel.class.getResourceAsStream("/resources/Tunnel.png")),
 		                     new Properties(new Property<>(Properties.DIRECTION, Direction.WEST)));
 	}
+	
+	private final Component tunnel;
 	
 	public Tunnel(Properties props, int x, int y) {
 		super(x, y, 0, 2);
@@ -51,29 +55,31 @@ public class Tunnel extends ComponentPeer<Component> {
 		Bounds bounds = GuiUtils.getBounds(GuiUtils.getFont(13), label);
 		setWidth(Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1));
 		
-		Component tunnel = new Component(label, new int[] { bitSize }) {
+		tunnel = new Component(label, new int[] { bitSize }) {
 			@Override
 			public void setCircuit(Circuit circuit) {
+				Circuit oldCircuit = getCircuit();
+				
 				super.setCircuit(circuit);
 				
 				if(circuit == null) {
-					List<Tunnel> tunnelList = tunnels.get(label);
-					if(tunnelList != null) {
-						tunnelList.remove(Tunnel.this);
-						if(tunnelList.isEmpty()) {
-							tunnels.remove(label);
+					Map<String, Set<Tunnel>> tunnelSet = tunnels.get(oldCircuit);
+					if(tunnelSet != null) {
+						Set<Tunnel> tunnels = tunnelSet.get(label);
+						if(tunnels == null || !tunnels.remove(Tunnel.this)) {
+							throw new IllegalStateException("This is impossible: Tunnel should be in its circuit's list");
 						}
 					}
 				} else if(!label.isEmpty()) {
-					List<Tunnel> tunnelList = tunnels.getOrDefault(label, new ArrayList<>());
-					tunnelList.add(Tunnel.this);
-					tunnels.put(label, tunnelList);
+					Map<String, Set<Tunnel>> tunnelSet = tunnels.computeIfAbsent(circuit, l -> new HashMap<>());
+					tunnelSet.computeIfAbsent(label, c -> new HashSet<>()).add(Tunnel.this);
 				}
 			}
 			
 			@Override
 			public void init(CircuitState state, Object lastProperty) {
-				List<Tunnel> toNotify = tunnels.get(label);
+				Map<String, Set<Tunnel>> tunnelSet = tunnels.get(getCircuit());
+				Set<Tunnel> toNotify = tunnelSet.get(label);
 				if(toNotify != null) {
 					WireValue value = new WireValue(bitSize);
 					
@@ -98,11 +104,11 @@ public class Tunnel extends ComponentPeer<Component> {
 			
 			@Override
 			public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-				List<Tunnel> toNotify = tunnels.get(label);
+				Map<String, Set<Tunnel>> tunnelSet = tunnels.get(getCircuit());
+				Set<Tunnel> toNotify = tunnelSet.get(label);
 				if(toNotify != null) {
 					for(Tunnel tunnel : toNotify) {
-						if(tunnel != Tunnel.this
-								   && tunnel.getComponent().getCircuit() == getComponent().getCircuit()) {
+						if(tunnel != Tunnel.this) {
 							state.pushValue(tunnel.getComponent().getPort(0), value);
 						}
 					}
@@ -139,8 +145,9 @@ public class Tunnel extends ComponentPeer<Component> {
 		String label = getComponent().getName();
 		int bitSize = getComponent().getPort(0).getLink().getBitSize();
 		
-		if(tunnels.containsKey(label)) {
-			for(Tunnel tunnel : tunnels.get(label)) {
+		Map<String, Set<Tunnel>> tunnelSet = tunnels.get(tunnel.getCircuit());
+		if(tunnelSet.containsKey(label)) {
+			for(Tunnel tunnel : tunnelSet.get(label)) {
 				if(tunnel.getComponent().getCircuit() == getComponent().getCircuit() &&
 						   tunnel.getComponent().getPort(0).getLink().getBitSize() != bitSize) {
 					return true;

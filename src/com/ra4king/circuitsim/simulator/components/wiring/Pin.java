@@ -1,20 +1,20 @@
 package com.ra4king.circuitsim.simulator.components.wiring;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
 import com.ra4king.circuitsim.simulator.Utils;
 import com.ra4king.circuitsim.simulator.WireValue;
 
-import javafx.util.Pair;
-
 /**
  * @author Roi Atalla
  */
 public class Pin extends Component {
-	private List<Pair<CircuitState, PinChangeListener>> pinChangeListeners;
+	private Map<CircuitState, Set<PinChangeListener>> pinChangeListeners;
 	private int bitSize = 0;
 	private boolean isInput;
 	
@@ -22,7 +22,7 @@ public class Pin extends Component {
 	
 	public Pin(String name, int bitSize, boolean isInput) {
 		super(name, Utils.getFilledArray(1, bitSize));
-		pinChangeListeners = new ArrayList<>();
+		pinChangeListeners = new HashMap<>();
 		this.bitSize = bitSize;
 		this.isInput = isInput;
 	}
@@ -35,12 +35,15 @@ public class Pin extends Component {
 		return isInput;
 	}
 	
-	public void addChangeListener(Pair<CircuitState, PinChangeListener> listener) {
-		pinChangeListeners.add(listener);
+	public void addChangeListener(CircuitState state, PinChangeListener listener) {
+		pinChangeListeners.computeIfAbsent(state, s -> new HashSet<>()).add(listener);
 	}
 	
-	public void removeChangeListener(Pair<CircuitState, PinChangeListener> listener) {
-		pinChangeListeners.remove(listener);
+	public void removeChangeListener(CircuitState state, PinChangeListener listener) {
+		Set<PinChangeListener> listeners = this.pinChangeListeners.get(state);
+		if(listeners != null && !listeners.remove(listener)) {
+			throw new IllegalStateException("PinChangeListener wasn't set in the first place?");
+		}
 	}
 	
 	public void setValue(CircuitState state, WireValue value) {
@@ -56,8 +59,12 @@ public class Pin extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		pinChangeListeners.stream().filter(pair -> state == pair.getKey())
-		                  .forEach(pair -> pair.getValue().valueChanged(this, state, value));
+		Set<PinChangeListener> listeners = pinChangeListeners.get(state);
+		if(listeners != null) {
+			for(PinChangeListener listener : listeners) {
+				listener.valueChanged(this, state, value);
+			}
+		}
 	}
 	
 	public interface PinChangeListener {

@@ -29,6 +29,10 @@ public class WireValue {
 		setAllBits(state);
 	}
 	
+	public WireValue(State... states) {
+		bits = states;
+	}
+	
 	public WireValue(WireValue value) {
 		bits = new State[value.bits.length];
 		System.arraycopy(value.bits, 0, bits, 0, bits.length);
@@ -166,10 +170,10 @@ public class WireValue {
 	
 	@Override
 	public String toString() {
-		String string = "";
+		StringBuilder builder = new StringBuilder();
 		for(int i = this.getBitSize() - 1; i >= 0; i--) {
-			string += this.getBit(i).repr;
+			builder.append(this.getBit(i).repr);
 		}
-		return string;
+		return builder.toString();
 	}
 }

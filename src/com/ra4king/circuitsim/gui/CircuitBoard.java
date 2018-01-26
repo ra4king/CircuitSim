@@ -17,6 +17,7 @@ import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.Connection.WireConnection;
 import com.ra4king.circuitsim.gui.EditHistory.EditAction;
 import com.ra4king.circuitsim.gui.LinkWires.Wire;
+import com.ra4king.circuitsim.gui.PathFinding.LocationPreference;
 import com.ra4king.circuitsim.gui.PathFinding.Point;
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.CircuitState;
@@ -39,7 +40,7 @@ public class CircuitBoard {
 	private Set<LinkWires> badLinks;
 	
 	private Set<GuiElement> moveElements;
-	private List<Connection> connectedPorts = new ArrayList<>();
+	private Set<Connection> connectedPorts = new HashSet<>();
 	private Thread computeThread;
 	private MoveComputeResult moveResult;
 	private boolean addMoveAction;
@@ -263,14 +264,6 @@ public class CircuitBoard {
 					}
 				}
 			}
-			
-			connectedPorts.sort((p1, p2) -> {
-				if(p1.getX() == p2.getX()) {
-					return p1.getY() - p2.getY();
-				}
-				
-				return p1.getX() - p2.getX();
-			});
 		}
 		
 		try {
@@ -303,11 +296,19 @@ public class CircuitBoard {
 				computeThread.interrupt();
 			}
 			
-			Set<Connection> connectedPorts = new HashSet<>(this.connectedPorts);
+			List<Connection> connectedPorts = new ArrayList<>(this.connectedPorts);
+			connectedPorts.sort((p1, p2) -> {
+				if(p1.getX() == p2.getX()) {
+					return dy > 0 ? p1.getY() - p2.getY() : p2.getY() - p1.getY();
+				}
+				
+				return dx > 0 ? p1.getX() - p2.getX() : p2.getX() - p1.getX();
+			});
 			
 			computeThread = new Thread(() -> {
-				Set<Wire> wiresToAdd = new HashSet<>();
-				Set<Wire> wiresToRemove = new HashSet<>();
+				Set<Wire> paths = new HashSet<>();
+				
+				Set<Pair<Integer, Integer>> portsSeen = new HashSet<>();
 				
 				for(Connection connectedPort : connectedPorts) {
 					if(Thread.currentThread().isInterrupted()) {
@@ -319,24 +320,60 @@ public class CircuitBoard {
 					int sx = x - dx;
 					int sy = y - dy;
 					
+					if(!portsSeen.add(new Pair<>(x, y))) {
+						continue;
+					}
+					
+					final LinkWires linkWires;
+					
 					synchronized(CircuitBoard.this) {
-						if(getConnections(sx, sy).isEmpty()) {
+						Set<Connection> otherConnections = getConnections(sx, sy);
+						if(otherConnections.isEmpty()) {
 							continue;
 						}
+						
+						LinkWires lw = null;
+						for(Connection connection : otherConnections) {
+							if(connection instanceof PortConnection) {
+								if(lw != null && lw != connection.getLinkWires()) {
+									throw new IllegalStateException("How is this remotely possible?!");
+								}
+								
+								lw = connection.getLinkWires();
+							} else if(connection instanceof WireConnection) {
+								Wire wire = (Wire)connection.getParent();
+								if(connection == wire.getStartConnection()
+										   || connection == wire.getEndConnection()) {
+									if(lw != null && lw != connection.getLinkWires()) {
+										throw new IllegalStateException("How is this remotely possible?!");
+									}
+									
+									lw = connection.getLinkWires();
+								}
+							}
+						}
+						
+						linkWires = lw;
 					}
+					
+					Set<ComponentPeer<?>> components = new HashSet<>(getComponents());
+					components.addAll(moveElements.stream()
+					                              .filter(e -> e instanceof ComponentPeer)
+					                              .map(e -> (ComponentPeer<?>)e)
+					                              .collect(Collectors.toSet()));
 					
 					Pair<Set<Wire>, Set<Point>> pair = PathFinding.bestPath(sx, sy, x, y, (px, py, horizontal) -> {
 						if(px == x && py == y) {
-							return true;
+							return LocationPreference.PREFER;
 						}
 						
 						if(px == sx && py == sy) {
-							return true;
+							return LocationPreference.PREFER;
 						}
 						
 						Set<Connection> connections =
 								Stream.concat(connectedPorts.stream(),
-								              wiresToAdd.stream().flatMap(w -> w.getConnections().stream()))
+								              paths.stream().flatMap(w -> w.getConnections().stream()))
 								      .filter(c -> c.getX() == px && c.getY() == py)
 								      .collect(Collectors.toSet());
 						synchronized(CircuitBoard.this) {
@@ -345,27 +382,83 @@ public class CircuitBoard {
 						
 						for(Connection connection : connections) {
 							if(connection instanceof PortConnection) {
-								return false;
+								return LocationPreference.INVALID;
 							}
+							
+							if(connection.getLinkWires() == linkWires) {
+								return LocationPreference.PREFER;
+							}
+							
 							if(connection instanceof WireConnection) {
 								Wire wire = (Wire)connection.getParent();
 								if(wire.isHorizontal() == horizontal
 										   || connection == wire.getStartConnection()
 										   || connection == wire.getEndConnection()) {
-									return false;
+									return LocationPreference.INVALID;
 								}
 							}
 						}
 						
-						return true;
+						for(ComponentPeer<?> component : components) {
+							if(component.contains(px, py)) {
+								return LocationPreference.INVALID;
+							}
+						}
+						
+						return LocationPreference.VALID;
 					});
 					if(pair != null) {
-						wiresToAdd.addAll(pair.getKey());
+						paths.addAll(pair.getKey());
 					}
 				}
 				
 				synchronized(CircuitBoard.this) {
-					moveResult = new MoveComputeResult(wiresToAdd, wiresToRemove);
+					Set<Wire> toRemove = new HashSet<>();
+					Set<Wire> toAdd = new HashSet<>();
+
+					for(Wire newWire : paths) {
+						if(wireAlreadyExists(newWire) != null) {
+							toRemove.add(newWire);
+						} else {
+							boolean wasRemoved = false;
+							
+							for(LinkWires wires : links) {
+								for(Wire existing : wires.getWires()) {
+									if(existing.isHorizontal() == newWire.isHorizontal()) {
+										if(existing.equals(newWire)) {
+											wasRemoved = true;
+											toRemove.add(existing);
+											break;
+										} else if(existing.isWithin(newWire)) {
+											wasRemoved = true;
+											toAdd.addAll(spliceWire(newWire, existing));
+											toRemove.add(existing);
+											break;
+										} else if(newWire.isWithin(existing)) {
+											wasRemoved = true;
+											toAdd.addAll(spliceWire(existing, newWire));
+											toRemove.add(newWire);
+											break;
+										} else if(existing.overlaps(newWire)) {
+											Pair<Wire, Pair<Wire, Wire>> pairs = spliceOverlappingWire(newWire, existing);
+											
+											toAdd.add(pairs.getKey());
+											toRemove.add(pairs.getValue().getKey());
+											
+											wasRemoved = true;
+											break;
+										}
+									}
+								}
+							}
+							
+							if(!wasRemoved) {
+								toAdd.add(newWire);
+							}
+						}
+					}
+					
+					moveResult = new MoveComputeResult(toAdd, toRemove);
 					if(computeThread == Thread.currentThread()) {
 						computeThread = null;
 					}

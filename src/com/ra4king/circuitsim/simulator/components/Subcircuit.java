@@ -13,8 +13,6 @@ import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin.PinChangeListener;
 
-import javafx.util.Pair;
-
 /**
  * @author Roi Atalla
  */
@@ -84,11 +82,9 @@ public class Subcircuit extends Component {
 		
 		for(int i = 0; i < pins.size(); i++) {
 			Port port = getPort(i);
-			Pair<CircuitState, PinChangeListener> pair =
-					new Pair<>(subcircuitState, (pin, state, value) -> circuitState.pushValue(port, value));
-			pinListeners.put(pair.getKey(), pair.getValue());
-			
-			pins.get(i).addChangeListener(pair);
+			PinChangeListener listener = (pin, state, value) -> circuitState.pushValue(port, value);
+			pinListeners.put(subcircuitState, listener);
+			pins.get(i).addChangeListener(subcircuitState, listener);
 		}
 		
 		CircuitState oldState = (CircuitState)lastProperty;
@@ -113,8 +109,7 @@ public class Subcircuit extends Component {
 		subcircuit.getComponents().forEach(component -> component.uninit(subcircuitState));
 		subcircuit.getCircuitStates().remove(subcircuitState);
 		if(pinListeners.containsKey(circuitState)) {
-			Pair<CircuitState, PinChangeListener> pair = new Pair<>(subcircuitState, pinListeners.get(circuitState));
-			pins.forEach(pin -> pin.removeChangeListener(pair));
+			pins.forEach(pin -> pin.removeChangeListener(subcircuitState, pinListeners.get(circuitState)));
 		}
 	}
 	

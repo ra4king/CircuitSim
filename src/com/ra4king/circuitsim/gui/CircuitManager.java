@@ -537,7 +537,7 @@ public class CircuitManager {
 	}
 	
 	private void handleArrowPressed(Direction direction) {
-		if(!getSelectedElements().isEmpty()) {
+		if(currentState == SelectingState.PLACING_COMPONENT || !getSelectedElements().isEmpty()) {
 			if(currentState == SelectingState.ELEMENT_DRAGGED
 					   || currentState == SelectingState.ELEMENT_SELECTED) {
 				mayThrow(circuitBoard::finalizeMove);
@@ -689,9 +689,11 @@ public class CircuitManager {
 		if(isShiftDown) {
 			mayThrow(() -> circuitBoard.removeElements(wires));
 		} else {
+			simulatorWindow.getEditHistory().beginGroup();
 			for(Wire w : wires) {
 				mayThrow(() -> circuitBoard.addWire(w.getX(), w.getY(), w.getLength(), w.isHorizontal()));
 			}
+			simulatorWindow.getEditHistory().endGroup();
 		}
 	}
 	

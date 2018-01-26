@@ -79,8 +79,8 @@ public class Tunnel extends ComponentPeer<Component> {
 			@Override
 			public void init(CircuitState state, Object lastProperty) {
 				Map<String, Set<Tunnel>> tunnelSet = tunnels.get(getCircuit());
-				Set<Tunnel> toNotify = tunnelSet.get(label);
-				if(toNotify != null) {
+				if(tunnelSet != null && tunnelSet.containsKey(label)) {
+					Set<Tunnel> toNotify = tunnelSet.get(label);
 					WireValue value = new WireValue(bitSize);
 					
 					for(Tunnel tunnel : toNotify) {
@@ -105,8 +105,8 @@ public class Tunnel extends ComponentPeer<Component> {
 			@Override
 			public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 				Map<String, Set<Tunnel>> tunnelSet = tunnels.get(getCircuit());
-				Set<Tunnel> toNotify = tunnelSet.get(label);
-				if(toNotify != null) {
+				if(tunnelSet != null && tunnelSet.containsKey(label)) {
+					Set<Tunnel> toNotify = tunnelSet.get(label);
 					for(Tunnel tunnel : toNotify) {
 						if(tunnel != Tunnel.this) {
 							state.pushValue(tunnel.getComponent().getPort(0), value);
@@ -146,7 +146,7 @@ public class Tunnel extends ComponentPeer<Component> {
 		int bitSize = getComponent().getPort(0).getLink().getBitSize();
 		
 		Map<String, Set<Tunnel>> tunnelSet = tunnels.get(tunnel.getCircuit());
-		if(tunnelSet.containsKey(label)) {
+		if(tunnelSet != null && tunnelSet.containsKey(label)) {
 			for(Tunnel tunnel : tunnelSet.get(label)) {
 				if(tunnel.getComponent().getCircuit() == getComponent().getCircuit() &&
 						   tunnel.getComponent().getPort(0).getLink().getBitSize() != bitSize) {

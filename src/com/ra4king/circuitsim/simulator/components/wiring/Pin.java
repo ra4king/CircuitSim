@@ -40,7 +40,7 @@ public class Pin extends Component {
 	}
 	
 	public void removeChangeListener(CircuitState state, PinChangeListener listener) {
-		Set<PinChangeListener> listeners = this.pinChangeListeners.get(state);
+		Set<PinChangeListener> listeners = pinChangeListeners.get(state);
 		if(listeners != null && !listeners.remove(listener)) {
 			throw new IllegalStateException("PinChangeListener wasn't set in the first place?");
 		}

@@ -1,4 +1,4 @@
-CircuitSim v1.5
+CircuitSim v1.6
 =================
 
 Basic circuit simulator with many built-in components. Check out `src/com/ra4king/circuitsim/simulator/components`

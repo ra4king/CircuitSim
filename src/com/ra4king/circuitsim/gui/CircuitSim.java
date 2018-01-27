@@ -119,7 +119,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.6.0";
+	public static final String VERSION = "1.6.1";
 	
 	private static boolean mainCalled = false;
 	
@@ -1056,7 +1056,7 @@ public class CircuitSim extends Application {
 			}
 		}
 		
-		if(showHelp) {
+		if(openWindow && showHelp) {
 			help.fire();
 		}
 	}
@@ -1134,8 +1134,6 @@ public class CircuitSim extends Application {
 						
 						loadingFile = true;
 						
-						long now = System.nanoTime();
-						
 						editHistory.disable();
 						
 						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
@@ -1148,10 +1146,6 @@ public class CircuitSim extends Application {
 							bar.setProgress(0.1);
 							dialog.setContentText("Creating circuits...");
 						});
-						
-						System.out.printf("Parsed file in %.3f ms\n", (System.nanoTime() - now) / 1e6);
-						
-						now = System.nanoTime();
 						
 						clearCircuits();
 						
@@ -1266,8 +1260,6 @@ public class CircuitSim extends Application {
 						latch.await();
 						
 						saveFile = lastSaveFile;
-						
-						System.out.printf("Loaded circuit in %.3f ms\n", (System.nanoTime() - now) / 1e6);
 					} catch(Exception exc) {
 						clearCircuits();
 						excThrown = exc;
@@ -2110,7 +2102,7 @@ public class CircuitSim extends Application {
 			alert.initOwner(stage);
 			alert.initModality(Modality.NONE);
 			alert.setTitle("Help");
-			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2017");
+			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2018");
 			
 			String msg = "";
 			msg += "• Right clicking works! Try it on components, subcircuits, and circuit tabs.\n\n";

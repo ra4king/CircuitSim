@@ -66,8 +66,8 @@ public class Tunnel extends ComponentPeer<Component> {
 					Map<String, Set<Tunnel>> tunnelSet = tunnels.get(oldCircuit);
 					if(tunnelSet != null) {
 						Set<Tunnel> tunnels = tunnelSet.get(label);
-						if(tunnels == null || !tunnels.remove(Tunnel.this)) {
-							throw new IllegalStateException("This is impossible: Tunnel should be in its circuit's list");
+						if(tunnels != null) {
+							tunnels.remove(Tunnel.this);
 						}
 					}
 				} else if(!label.isEmpty()) {

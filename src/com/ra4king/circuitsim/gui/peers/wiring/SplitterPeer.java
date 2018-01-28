@@ -33,7 +33,7 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 			fanOuts.add(i);
 		}
 		
-		FANOUTS = new Property<>("Fanouts", new PropertyListValidator<>(fanOuts), 1);
+		FANOUTS = new Property<>("Fanouts", new PropertyListValidator<>(fanOuts), 2);
 		
 		INPUT_LOCATION = new Property<>("Input location", Properties.LOCATION_VALIDATOR, true);
 	}
@@ -41,7 +41,7 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Splitter"),
 		                     new Image(SplitterPeer.class.getResourceAsStream("/resources/Splitter.png")),
-		                     new Properties());
+		                     new Properties(new Property<>(Properties.BITSIZE, 2)));
 	}
 	
 	public SplitterPeer(Properties props, int x, int y) {
@@ -107,16 +107,16 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		for(int i = 0; i < splitter.getNumPorts() - 1; i++) {
-			String tooltip = "";
+			StringBuilder tooltip = new StringBuilder();
 			for(int j = 0, start = -1; j < bitFanIndices.length; j++) {
 				if(bitFanIndices[j] == splitter.getNumPorts() - 2 - i) {
 					if(start == -1 || j == bitFanIndices.length - 1) {
-						tooltip += (start == -1 ? "," : "-") + j;
+						tooltip.append(start == -1 ? ',' : '-').append(j);
 						start = j;
 					}
 				} else if(start != -1) {
 					if(start < j - 1) {
-						tooltip += "-" + (j - 1);
+						tooltip.append('-').append(j - 1);
 					}
 					
 					start = -1;
@@ -146,7 +146,8 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 			}
 			
 			connections.add(new PortConnection(this, splitter.getPort(splitter.getNumPorts() - 2 - i),
-			                                   tooltip.isEmpty() ? tooltip : tooltip.substring(1), cx, cy));
+			                                   tooltip.length() == 0 ? tooltip.toString() : tooltip.substring(1),
+			                                   cx, cy));
 		}
 		
 		switch(direction) {

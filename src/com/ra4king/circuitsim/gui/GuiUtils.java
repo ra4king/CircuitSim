@@ -180,11 +180,8 @@ public class GuiUtils {
 				if(circuitState.isShortCircuited(link)) {
 					graphics.setStroke(Color.RED);
 					graphics.setFill(Color.RED);
-				} else if(link.getBitSize() == 1) {
-					setBitColor(graphics, circuitState.getMergedValue(link), Color.BLACK);
 				} else {
-					graphics.setStroke(Color.BLACK);
-					graphics.setFill(Color.BLACK);
+					setBitColor(graphics, circuitState.getMergedValue(link));
 				}
 			} else {
 				setBitColor(graphics, State.X);
@@ -195,18 +192,22 @@ public class GuiUtils {
 		}
 	}
 	
-	public static void setBitColor(GraphicsContext graphics, WireValue value, Color defaultColor) {
-		if(value.getBitSize() == 1) {
-			setBitColor(graphics, value.getBit(0));
-		} else {
-			graphics.setStroke(defaultColor);
-			graphics.setFill(defaultColor);
-		}
-	}
-	
 	private static final Color ONE_COLOR = Color.GREEN.brighter();
 	private static final Color ZERO_COLOR = Color.GREEN.darker();
-	private static final Color X_COLOR = Color.BLUE.brighter();
+	private static final Color X_1BIT_COLOR = Color.BLUE;
+	private static final Color X_MULTIBIT_COLOR = Color.BLUE.darker();
+	
+	public static void setBitColor(GraphicsContext graphics, WireValue value) {
+		if(value.getBitSize() == 1) {
+			setBitColor(graphics, value.getBit(0));
+		} else if(value.isValidValue()) {
+			graphics.setStroke(Color.BLACK);
+			graphics.setFill(Color.BLACK);
+		} else {
+			graphics.setStroke(X_MULTIBIT_COLOR);
+			graphics.setFill(X_MULTIBIT_COLOR);
+		}
+	}
 	
 	public static void setBitColor(GraphicsContext graphics, State bitState) {
 		switch(bitState) {
@@ -219,8 +220,8 @@ public class GuiUtils {
 				graphics.setFill(ZERO_COLOR);
 				break;
 			case X:
-				graphics.setStroke(X_COLOR);
-				graphics.setFill(X_COLOR);
+				graphics.setStroke(X_1BIT_COLOR);
+				graphics.setFill(X_1BIT_COLOR);
 				break;
 		}
 	}

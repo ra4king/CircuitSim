@@ -385,7 +385,9 @@ public class CircuitBoard {
 								return LocationPreference.INVALID;
 							}
 							
-							if(connection.getLinkWires() == linkWires) {
+							if(connection.getLinkWires() == null
+									   || linkWires == null
+									   || connection.getLinkWires() == linkWires) {
 								return LocationPreference.PREFER;
 							}
 							

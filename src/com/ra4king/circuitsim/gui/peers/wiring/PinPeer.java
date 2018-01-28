@@ -178,7 +178,11 @@ public class PinPeer extends ComponentPeer<Pin> {
 		if(circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {
-			GuiUtils.setBitColor(graphics, value, Color.WHITE);
+			if(value.getBitSize() == 1) {
+				GuiUtils.setBitColor(graphics, value.getBit(0));
+			} else {
+				graphics.setFill(Color.WHITE);
+			}
 		}
 		graphics.setStroke(Color.BLACK);
 		

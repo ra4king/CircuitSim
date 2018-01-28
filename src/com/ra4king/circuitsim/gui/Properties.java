@@ -353,7 +353,8 @@ public class Properties {
 		
 		default Node createGui(Stage stage, T value, Consumer<T> onAction) {
 			TextField valueField = new TextField(toString(value));
-			valueField.setOnAction(event -> {
+			
+			Runnable updateValue = () -> {
 				String newValue = valueField.getText();
 				if(!newValue.equals(value)) {
 					try {
@@ -362,6 +363,13 @@ public class Properties {
 						exc.printStackTrace();
 						valueField.setText(toString(value));
 					}
+				}
+			};
+			
+			valueField.setOnAction(event -> updateValue.run());
+			valueField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+				if(!newValue) {
+					updateValue.run();
 				}
 			});
 			return valueField;

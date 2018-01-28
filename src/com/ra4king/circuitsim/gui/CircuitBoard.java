@@ -364,11 +364,11 @@ public class CircuitBoard {
 					
 					Pair<Set<Wire>, Set<Point>> pair = PathFinding.bestPath(sx, sy, x, y, (px, py, horizontal) -> {
 						if(px == x && py == y) {
-							return LocationPreference.PREFER;
+							return LocationPreference.VALID;
 						}
 						
 						if(px == sx && py == sy) {
-							return LocationPreference.PREFER;
+							return LocationPreference.VALID;
 						}
 						
 						Set<Connection> connections =

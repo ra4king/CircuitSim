@@ -101,10 +101,10 @@ public class PathFinding {
 					continue;
 				}
 				
-				int additionalLength = preference == LocationPreference.PREFER ? -1 : 1;
+				int additionalLength = preference == LocationPreference.PREFER ? 0 : 1;
 				
 				int additionalTurns = 0;
-				if(preference != LocationPreference.PREFER && current.direction != null && direction != current.direction) {
+				if(current.direction != null && direction != current.direction) {
 					if(neighbor.x == destination.x || neighbor.y == destination.y) {
 						additionalTurns = 1;
 					} else {
@@ -122,7 +122,7 @@ public class PathFinding {
 				cameFrom.put(neighbor, current);
 				gScore.put(neighbor, totalCost);
 				
-				int estimateCost = destination.estimateCost(neighbor) + totalCost.length + 100 * totalCost.turns;
+				int estimateCost = destination.estimateCost(neighbor) + totalCost.length + 50 * totalCost.turns;
 				fScore.put(neighbor, estimateCost);
 				
 				openSet.add(neighbor);

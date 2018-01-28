@@ -60,11 +60,13 @@ public class FileFormat {
 		
 		public final int globalBitSize;
 		public final int clockSpeed;
+		public final List<String> libraryPaths;
 		public final List<CircuitInfo> circuits;
 		
-		public CircuitFile(int globalBitSize, int clockSpeed, List<CircuitInfo> circuits) {
+		public CircuitFile(int globalBitSize, int clockSpeed, List<String> libraryPaths, List<CircuitInfo> circuits) {
 			this.globalBitSize = globalBitSize;
 			this.clockSpeed = clockSpeed;
+			this.libraryPaths = libraryPaths;
 			this.circuits = circuits;
 		}
 	}

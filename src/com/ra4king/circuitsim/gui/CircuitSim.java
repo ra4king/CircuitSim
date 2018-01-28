@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -146,11 +148,13 @@ public class CircuitSim extends Application {
 	private boolean clickedDirectly;
 	
 	private ComponentManager componentManager;
+	private List<String> libraryPaths;
 	
 	private Canvas overlayCanvas;
 	
 	private TabPane buttonTabPane;
 	private ToggleGroup buttonsToggleGroup;
+	private Runnable refreshComponentsTabs;
 	
 	private ComboBox<Integer> bitSizeSelect;
 	private ComboBox<Double> scaleFactorSelect;
@@ -1037,6 +1041,9 @@ public class CircuitSim extends Application {
 						case "IsMaximized":
 							stage.setMaximized(Boolean.parseBoolean(value));
 							break;
+						case "Scale":
+							scaleFactorSelect.setValue(Double.parseDouble(value));
+							break;
 						case "ShowFps":
 							showFps = Boolean.parseBoolean(value);
 							break;
@@ -1073,6 +1080,7 @@ public class CircuitSim extends Application {
 		conf.add("WindowWidth=" + (int)stage.getWidth());
 		conf.add("WindowHeight=" + (int)stage.getHeight());
 		conf.add("IsMaximized=" + stage.isMaximized());
+		conf.add("Scale=" + scaleFactorSelect.getValue());
 		conf.add("ShowFps=" + showFps);
 		conf.add("HelpShown=" + VERSION);
 		if(lastSaveFile != null) {
@@ -1131,7 +1139,6 @@ public class CircuitSim extends Application {
 				
 				new Thread(() -> {
 					try {
-						
 						loadingFile = true;
 						
 						editHistory.disable();
@@ -1148,6 +1155,15 @@ public class CircuitSim extends Application {
 						});
 						
 						clearCircuits();
+						
+						if(circuitFile.libraryPaths != null) {
+							for(String libraryPath : circuitFile.libraryPaths) {
+								File libraryFile = new File(libraryPath);
+								if(libraryFile.isFile()) {
+									runFxSync(() -> loadLibrary(libraryFile));
+								}
+							}
+						}
 						
 						int totalComponents = 0;
 						
@@ -1305,6 +1321,72 @@ public class CircuitSim extends Application {
 		}
 	}
 	
+	private void loadLibrary(File file) {
+		try(JarFile jarFile = new JarFile(file)) {
+			Enumeration<JarEntry> e = jarFile.entries();
+			
+			URLClassLoader cl = URLClassLoader.newInstance(new URL[] { file.toURI().toURL() });
+			
+			while(e.hasMoreElements()) {
+				JarEntry je = e.nextElement();
+				if(je.isDirectory() || !je.getName().endsWith(".class")) {
+					continue;
+				}
+				
+				try {
+					String className = je.getName().substring(0, je.getName().length() - 6);
+					className = className.replace('/', '.');
+					Class<?> c = cl.loadClass(className);
+					
+					if(ComponentPeer.class.isAssignableFrom(c)) {
+						@SuppressWarnings("unchecked")
+						Class<? extends ComponentPeer<?>> cc = (Class<? extends ComponentPeer<?>>)c;
+						componentManager.register(cc);
+					}
+				} catch(Exception exc) {
+					exc.printStackTrace();
+					
+					Alert alert = new Alert(AlertType.ERROR);
+					alert.initOwner(stage);
+					alert.initModality(Modality.WINDOW_MODAL);
+					alert.setTitle("Error loading class");
+					alert.setHeaderText("Error loading class");
+					alert.setContentText("Error when loading class: " + exc.getMessage());
+					alert.getButtonTypes().add(ButtonType.CANCEL);
+					Optional<ButtonType> buttonType = alert.showAndWait();
+					if(buttonType.isPresent() && buttonType.get() == ButtonType.CANCEL) {
+						break;
+					}
+				}
+			}
+			
+			if(libraryPaths == null) {
+				libraryPaths = new ArrayList<>();
+			}
+			
+			Path currDir = Paths.get(System.getProperty("user.dir"));
+			Path libraryDir = file.toPath().toAbsolutePath();
+			
+			Path relativePath = currDir.relativize(libraryDir);
+			String relative = relativePath.toString();
+			if(!libraryPaths.contains(relative)) {
+				libraryPaths.add(relative);
+			}
+			
+			refreshComponentsTabs.run();
+		} catch(Exception exc) {
+			exc.printStackTrace();
+			
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.initOwner(stage);
+			alert.initModality(Modality.WINDOW_MODAL);
+			alert.setTitle("Error opening library");
+			alert.setHeaderText("Error opening library");
+			alert.setContentText("Error when opening library: " + exc.getMessage());
+			alert.showAndWait();
+		}
+	}
+	
 	/**
 	 * Get the last saved file.
 	 *
@@ -1385,7 +1467,9 @@ public class CircuitSim extends Application {
 				
 				try {
 					FileFormat.save(f, new CircuitFile(bitSizeSelect.getSelectionModel().getSelectedItem(),
-					                                   getCurrentClockSpeed(), circuits));
+					                                   getCurrentClockSpeed(),
+					                                   libraryPaths,
+					                                   circuits));
 					savedEditStackSize = editHistory.editStackSize();
 					saveFile = f;
 					
@@ -1619,7 +1703,7 @@ public class CircuitSim extends Application {
 		buttonsToggleGroup = new ToggleGroup();
 		Map<String, Tab> buttonTabs = new HashMap<>();
 		
-		Runnable refreshComponentsTabs = () -> {
+		refreshComponentsTabs = () -> {
 			buttonTabPane.getTabs().clear();
 			buttonTabs.clear();
 			
@@ -1802,7 +1886,7 @@ public class CircuitSim extends Application {
 				
 				try {
 					String data = FileFormat.stringify(
-							new CircuitFile(0, 0, Collections.singletonList(
+							new CircuitFile(0, 0, null, Collections.singletonList(
 									new CircuitInfo("Copy", components, wires))));
 					
 					Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -1946,56 +2030,7 @@ public class CircuitSim extends Application {
 			fileChooser.getExtensionFilters().add(new ExtensionFilter("Java Archive", "*.jar"));
 			File file = fileChooser.showOpenDialog(stage);
 			if(file != null) {
-				try(JarFile jarFile = new JarFile(file)) {
-					Enumeration<JarEntry> e = jarFile.entries();
-					
-					URLClassLoader cl = URLClassLoader.newInstance(new URL[] { file.toURI().toURL() });
-					
-					while(e.hasMoreElements()) {
-						JarEntry je = e.nextElement();
-						if(je.isDirectory() || !je.getName().endsWith(".class")) {
-							continue;
-						}
-						
-						try {
-							String className = je.getName().substring(0, je.getName().length() - 6);
-							className = className.replace('/', '.');
-							Class<?> c = cl.loadClass(className);
-							
-							if(ComponentPeer.class.isAssignableFrom(c)) {
-								@SuppressWarnings("unchecked")
-								Class<? extends ComponentPeer<?>> cc = (Class<? extends ComponentPeer<?>>)c;
-								componentManager.register(cc);
-							}
-						} catch(Exception exc) {
-							exc.printStackTrace();
-							
-							Alert alert = new Alert(AlertType.ERROR);
-							alert.initOwner(stage);
-							alert.initModality(Modality.WINDOW_MODAL);
-							alert.setTitle("Error loading class");
-							alert.setHeaderText("Error loading class");
-							alert.setContentText("Error when loading class: " + exc.getMessage());
-							alert.getButtonTypes().add(ButtonType.CANCEL);
-							Optional<ButtonType> buttonType = alert.showAndWait();
-							if(buttonType.isPresent() && buttonType.get() == ButtonType.CANCEL) {
-								break;
-							}
-						}
-					}
-					
-					refreshComponentsTabs.run();
-				} catch(Exception exc) {
-					exc.printStackTrace();
-					
-					Alert alert = new Alert(AlertType.ERROR);
-					alert.initOwner(stage);
-					alert.initModality(Modality.WINDOW_MODAL);
-					alert.setTitle("Error opening library");
-					alert.setHeaderText("Error opening library");
-					alert.setContentText("Error when opening library: " + exc.getMessage());
-					alert.showAndWait();
-				}
+				loadLibrary(file);
 			}
 		});
 		

@@ -7,7 +7,9 @@ import com.ra4king.circuitsim.gui.CircuitManager;
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
+import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
+import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
 import com.ra4king.circuitsim.simulator.WireValue;
@@ -36,6 +38,7 @@ public class Button extends ComponentPeer<Component> {
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.LABEL_LOCATION);
+		properties.ensureProperty(Properties.DIRECTION);
 		properties.mergeIfExists(props);
 		
 		Component component = new Component(properties.getValue(Properties.LABEL), new int[] { 1 }) {
@@ -50,6 +53,8 @@ public class Button extends ComponentPeer<Component> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, component.getPort(0), getWidth(), getHeight() / 2));
+		
+		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		
 		init(component, properties, connections);
 	}

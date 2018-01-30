@@ -296,10 +296,22 @@ public class CircuitState {
 				}
 			}
 			
+			RuntimeException exception = null;
+			
 			for(Port participantPort : toNotify) {
-				participantPort.getComponent().valueChanged(CircuitState.this,
-				                                            getLastReceived(participantPort),
-				                                            participantPort.getPortIndex());
+				try {
+					participantPort.getComponent().valueChanged(CircuitState.this,
+					                                            getLastReceived(participantPort),
+					                                            participantPort.getPortIndex());
+				} catch(RuntimeException exc) {
+					if(exception == null) { // grab the first one
+						exception = exc;
+					}
+				}
+			}
+			
+			if(exception != null) {
+				throw exception;
 			}
 		}
 		
@@ -328,16 +340,26 @@ public class CircuitState {
 			                                                             new WireValue(info.lastPushed),
 			                                                             new WireValue(link.getBitSize())));
 			
+			RuntimeException exception = null;
+			
 			WireValue newValue = new WireValue(link.getBitSize());
 			if(!info.lastReceived.equals(newValue)) {
 				info.lastReceived.set(newValue);
-				port.getComponent().valueChanged(CircuitState.this, newValue, port.getPortIndex());
+				try {
+					port.getComponent().valueChanged(CircuitState.this, newValue, port.getPortIndex());
+				} catch(RuntimeException exc) {
+					exception = exc;
+				}
 			}
 			
 			if(participants.isEmpty()) {
 				linkStates.remove(link);
 			} else {
 				getCircuit().getSimulator().valueChanged(CircuitState.this, link);
+			}
+			
+			if(exception != null) {
+				throw exception;
 			}
 		}
 	}

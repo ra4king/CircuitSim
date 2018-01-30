@@ -39,6 +39,8 @@ public class Tunnel extends ComponentPeer<Component> {
 	}
 	
 	private final Component tunnel;
+	private final String label;
+	private final int bitSize;
 	
 	public Tunnel(Properties props, int x, int y) {
 		super(x, y, 0, 2);
@@ -49,8 +51,8 @@ public class Tunnel extends ComponentPeer<Component> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
-		String label = properties.getValue(Properties.LABEL);
-		int bitSize = properties.getValue(Properties.BITSIZE);
+		label = properties.getValue(Properties.LABEL);
+		bitSize = properties.getValue(Properties.BITSIZE);
 		
 		Bounds bounds = GuiUtils.getBounds(GuiUtils.getFont(13), label);
 		setWidth(Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1));
@@ -116,7 +118,7 @@ public class Tunnel extends ComponentPeer<Component> {
 				if(tunnelSet != null && tunnelSet.containsKey(label)) {
 					Set<Tunnel> toNotify = tunnelSet.get(label);
 					for(Tunnel tunnel : toNotify) {
-						if(tunnel != Tunnel.this) {
+						if(tunnel != Tunnel.this && tunnel.bitSize == bitSize) {
 							state.pushValue(tunnel.getComponent().getPort(0), value);
 						}
 					}
@@ -150,14 +152,10 @@ public class Tunnel extends ComponentPeer<Component> {
 	}
 	
 	private boolean isIncompatible() {
-		String label = getComponent().getName();
-		int bitSize = getComponent().getPort(0).getLink().getBitSize();
-		
 		Map<String, Set<Tunnel>> tunnelSet = tunnels.get(tunnel.getCircuit());
 		if(tunnelSet != null && tunnelSet.containsKey(label)) {
 			for(Tunnel tunnel : tunnelSet.get(label)) {
-				if(tunnel.getComponent().getCircuit() == getComponent().getCircuit() &&
-						   tunnel.getComponent().getPort(0).getLink().getBitSize() != bitSize) {
+				if(tunnel.bitSize != bitSize) {
 					return true;
 				}
 			}
@@ -230,10 +228,10 @@ public class Tunnel extends ComponentPeer<Component> {
 		graphics.fill();
 		graphics.stroke();
 		
-		if(!getComponent().getName().isEmpty()) {
-			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), getComponent().getName());
+		if(!label.isEmpty()) {
+			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), label);
 			graphics.setFill(Color.BLACK);
-			graphics.fillText(getComponent().getName(),
+			graphics.fillText(label,
 			                  x + xOff + ((width - xOff) - bounds.getWidth()) * 0.5,
 			                  y + yOff + ((height - yOff) + bounds.getHeight()) * 0.4);
 		}
@@ -242,14 +240,14 @@ public class Tunnel extends ComponentPeer<Component> {
 			PortConnection port = getConnections().get(0);
 			
 			graphics.setFill(Color.BLACK);
-			graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
+			graphics.fillText(String.valueOf(bitSize),
 			                  port.getScreenX() + 11,
 			                  port.getScreenY() + 21);
 			
 			graphics.setStroke(Color.ORANGE);
 			graphics.setFill(Color.ORANGE);
 			graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-			graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
+			graphics.fillText(String.valueOf(bitSize),
 			                  port.getScreenX() + 10,
 			                  port.getScreenY() + 20);
 		}

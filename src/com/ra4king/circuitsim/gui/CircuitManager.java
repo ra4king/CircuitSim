@@ -166,7 +166,7 @@ public class CircuitManager {
 		inspectLinkWires = null;
 		simulatorWindow.updateCanvasSize(this);
 		
-		needsRepaint = true;
+		setNeedsRepaint();
 		simulatorWindow.runSim();
 	}
 	
@@ -229,6 +229,7 @@ public class CircuitManager {
 	
 	void setNeedsRepaint() {
 		needsRepaint = true;
+		//System.out.println(Thread.currentThread().getStackTrace()[2].getMethodName() + " set needsRepaint");
 	}
 	
 	private Properties getCommonSelectedProperties() {
@@ -260,7 +261,7 @@ public class CircuitManager {
 		this.componentCreator = componentCreator;
 		this.potentialComponentProperties = properties;
 		
-		needsRepaint = true;
+		setNeedsRepaint();
 		
 		if(currentState != SelectingState.IDLE && currentState != SelectingState.PLACING_COMPONENT) {
 			reset();
@@ -295,6 +296,7 @@ public class CircuitManager {
 													                               new Properties(component
 															                                              .getProperties())
 															
+															
 															                               .mergeIfExists(properties),
 													                               component.getX(),
 													                               component.getY())));
@@ -318,11 +320,12 @@ public class CircuitManager {
 		isDraggedHorizontally = false;
 		startConnection = null;
 		endConnection = null;
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Can this be optimized?
 	}
 	
 	public void paint() {
 		needsRepaint = false;
+		System.out.println("Repainted");
 		
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		
@@ -552,7 +555,7 @@ public class CircuitManager {
 	}
 	
 	public void keyPressed(KeyEvent e) {
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Can this be optimized?
 		
 		if(e.getCode() != KeyCode.SHIFT && lastPressed == null && selectedElementsMap.size() == 1) {
 			lastPressed = selectedElementsMap.keySet().iterator().next();
@@ -620,12 +623,12 @@ public class CircuitManager {
 			GuiElement element = selectedElementsMap.keySet().iterator().next();
 			element.keyTyped(this, circuitBoard.getCurrentState(), e.getCharacter());
 			simulatorWindow.runSim();
-			needsRepaint = true;
+			setNeedsRepaint(); // TODO: Can this be optimized?
 		}
 	}
 	
 	public void keyReleased(KeyEvent e) {
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Can this be optimized?
 		
 		switch(e.getCode()) {
 			case CONTROL:
@@ -716,9 +719,11 @@ public class CircuitManager {
 				selected = selectedConns.iterator().next();
 			}
 			
-			startConnection = selected;
+			if(selected != null && startConnection != selected) {
+				setNeedsRepaint(); // TODO: Can this be optimized? Is this implementation correct?
+			}
 			
-			needsRepaint = true;
+			startConnection = selected;
 		}
 	}
 	
@@ -742,7 +747,7 @@ public class CircuitManager {
 			endConnection = circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
 			                                            GuiUtils.getCircuitCoord(lastMousePosition.getY()));
 			
-			needsRepaint = true;
+			setNeedsRepaint(); // TODO: Can this be optimized?
 		}
 	}
 	
@@ -848,7 +853,7 @@ public class CircuitManager {
 				break;
 		}
 		
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Can this be optimized?
 	}
 	
 	public void mouseReleased(MouseEvent e) {
@@ -898,7 +903,7 @@ public class CircuitManager {
 		checkStartConnection();
 		
 		simulatorWindow.runSim();
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Can this be optimized?
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -936,7 +941,9 @@ public class CircuitManager {
 				break;
 			
 			case ELEMENT_SELECTED:
-				if(simulatorWindow.isClickMode()) break;
+				if(simulatorWindow.isClickMode()) {
+					break;
+				}
 			
 			case ELEMENT_DRAGGED:
 			case PLACING_COMPONENT:
@@ -963,7 +970,7 @@ public class CircuitManager {
 		
 		checkStartConnection();
 		
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Can this be optimized?
 	}
 	
 	private GuiElement lastEntered;
@@ -978,6 +985,8 @@ public class CircuitManager {
 					lastMousePosition.getX()) - potentialComponent.getWidth() / 2);
 			potentialComponent.setY(GuiUtils.getCircuitCoord(
 					lastMousePosition.getY()) - potentialComponent.getHeight() / 2);
+			
+			setNeedsRepaint();
 		}
 		
 		checkStartConnection();
@@ -998,38 +1007,43 @@ public class CircuitManager {
 					}
 					
 					(lastEntered = peer).mouseEntered(this, circuitBoard.getCurrentState());
+					
+					setNeedsRepaint();
 				}
 			} else if(lastEntered != null) {
 				lastEntered.mouseExited(this, circuitBoard.getCurrentState());
 				lastEntered = null;
+				
+				setNeedsRepaint();
 			}
 		} else if(lastEntered != null) {
 			lastEntered.mouseExited(this, circuitBoard.getCurrentState());
 			lastEntered = null;
+			
+			setNeedsRepaint();
 		}
-		
-		needsRepaint = true;
 	}
 	
 	public void mouseEntered(MouseEvent e) {
 		isMouseInsideCanvas = true;
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Is this necessary?
 	}
 	
 	public void mouseExited(MouseEvent e) {
 		isMouseInsideCanvas = false;
 		isCtrlDown = false;
 		isShiftDown = false;
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Is this necessary?
 	}
 	
-	public void focusGained() {}
+	public void focusGained() {
+	}
 	
 	public void focusLost() {
 		mouseExited(null);
 		simulatorWindow.setClickMode(false);
 		resetLastPressed();
 		simulatorWindow.runSim();
-		needsRepaint = true;
+		setNeedsRepaint(); // TODO: Is this necessary?
 	}
 }

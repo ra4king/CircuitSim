@@ -19,7 +19,7 @@ import com.ra4king.circuitsim.simulator.components.wiring.Pin.PinChangeListener;
 public class Subcircuit extends Component {
 	private Circuit subcircuit;
 	private List<Pin> pins;
-	private Map<CircuitState, PinChangeListener> pinListeners;
+	private Map<CircuitState, Map<Pin, PinChangeListener>> pinListeners;
 	
 	public Subcircuit(String name, Circuit subcircuit) {
 		this(name, subcircuit, getCircuitPins(subcircuit));
@@ -80,12 +80,21 @@ public class Subcircuit extends Component {
 		CircuitState subcircuitState = new CircuitState(subcircuit);
 		circuitState.putComponentProperty(this, subcircuitState);
 		
+		Map<Pin, PinChangeListener> listeners = new HashMap<>();
+		
 		for(int i = 0; i < pins.size(); i++) {
-			Port port = getPort(i);
-			PinChangeListener listener = (pin, state, value) -> circuitState.pushValue(port, value);
-			pinListeners.put(subcircuitState, listener);
-			pins.get(i).addChangeListener(subcircuitState, listener);
+			Pin pin = pins.get(i);
+			if(!pin.isInput()) {
+				Port port = getPort(i);
+				
+				PinChangeListener listener = (p, state, value) -> circuitState.pushValue(port, value);
+				pin.addChangeListener(subcircuitState, listener);
+				
+				listeners.put(pin, listener);
+			}
 		}
+		
+		pinListeners.put(subcircuitState, listeners);
 		
 		CircuitState oldState = (CircuitState)lastProperty;
 		
@@ -108,8 +117,13 @@ public class Subcircuit extends Component {
 		CircuitState subcircuitState = (CircuitState)circuitState.getComponentProperty(this);
 		subcircuit.getComponents().forEach(component -> component.uninit(subcircuitState));
 		subcircuit.getCircuitStates().remove(subcircuitState);
-		if(pinListeners.containsKey(circuitState)) {
-			pins.forEach(pin -> pin.removeChangeListener(subcircuitState, pinListeners.get(circuitState)));
+		if(pinListeners.containsKey(subcircuitState)) {
+			Map<Pin, PinChangeListener> listeners = pinListeners.get(subcircuitState);
+			pins.forEach(pin -> {
+				if(listeners.containsKey(pin)) {
+					pin.removeChangeListener(subcircuitState, listeners.get(pin));
+				}
+			});
 		}
 	}
 	
@@ -124,6 +138,8 @@ public class Subcircuit extends Component {
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		CircuitState subcircuitState = (CircuitState)state.getComponentProperty(this);
-		subcircuitState.pushValue(pins.get(portIndex).getPort(0), value);
+		if(pins.get(portIndex).isInput()) {
+			subcircuitState.pushValue(pins.get(portIndex).getPort(0), value);
+		}
 	}
 }

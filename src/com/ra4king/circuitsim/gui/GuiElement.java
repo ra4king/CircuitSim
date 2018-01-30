@@ -93,8 +93,12 @@ public abstract class GuiElement {
 	}
 	
 	public boolean isWithinScreenCoord(int x, int y, int width, int height) {
-		return getScreenX() >= x && getScreenX() + getScreenWidth() <= x + width &&
-				       getScreenY() >= y && getScreenY() + getScreenHeight() <= y + height;
+		int screenX = getScreenX();
+		int screenY = getScreenY();
+		int screenWidth = getScreenWidth();
+		int screenHeight = getScreenHeight();
+		return screenX >= x && screenX + screenWidth <= x + width &&
+				       screenY >= y && screenY + screenHeight <= y + height;
 	}
 	
 	public boolean isWithin(int x, int y, int width, int height) {

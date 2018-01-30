@@ -285,8 +285,6 @@ public class CircuitState {
 		}
 		
 		void propagate() {
-			getMergedValue(); // check for short circuit before propagating
-			
 			Set<Port> toNotify = new HashSet<>();
 			
 			for(Port participantPort : participants.keySet()) {

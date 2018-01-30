@@ -65,9 +65,17 @@ public class Tunnel extends ComponentPeer<Component> {
 				if(circuit == null) {
 					Map<String, Set<Tunnel>> tunnelSet = tunnels.get(oldCircuit);
 					if(tunnelSet != null) {
-						Set<Tunnel> tunnels = tunnelSet.get(label);
-						if(tunnels != null) {
-							tunnels.remove(Tunnel.this);
+						Set<Tunnel> sameTunnels = tunnelSet.get(label);
+						if(sameTunnels != null) {
+							sameTunnels.remove(Tunnel.this);
+							
+							if(sameTunnels.isEmpty()) {
+								tunnelSet.remove(label);
+								
+								if(tunnelSet.isEmpty()) {
+									tunnels.remove(oldCircuit);
+								}
+							}
 						}
 					}
 				} else if(!label.isEmpty()) {

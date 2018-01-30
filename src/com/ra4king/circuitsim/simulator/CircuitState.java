@@ -313,6 +313,8 @@ public class CircuitState {
 			if(exception != null) {
 				throw exception;
 			}
+			
+			getMergedValue(); // check for short circuit
 		}
 		
 		void link(LinkState other) {

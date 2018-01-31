@@ -478,7 +478,7 @@ public class CircuitSim extends Application {
 	
 	void readdCircuit(CircuitManager manager, Tab tab, int index) {
 		canvasTabPane.getTabs().add(Math.min(index, canvasTabPane.getTabs().size()), tab);
-		circuitManagers.put(tab.getText(), new Pair<>(createCircuitLauncherInfo(tab.getText()), manager));
+		circuitManagers.put(tab.getText(), new Pair<>(createSubcircuitLauncherInfo(tab.getText()), manager));
 		manager.getCircuitBoard().setCurrentState(manager.getCircuit().getTopLevelState());
 		
 		canvasTabPane.getSelectionModel().select(tab);
@@ -757,7 +757,7 @@ public class CircuitSim extends Application {
 		};
 	}
 	
-	private ComponentLauncherInfo createCircuitLauncherInfo(String name) {
+	private ComponentLauncherInfo createSubcircuitLauncherInfo(String name) {
 		return new ComponentLauncherInfo(SubcircuitPeer.class,
 		                                 new Pair<>("Circuits", name),
 		                                 null,
@@ -781,7 +781,7 @@ public class CircuitSim extends Application {
 			
 			Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.get(oldName);
 			Pair<ComponentLauncherInfo, CircuitManager> newPair =
-					new Pair<>(createCircuitLauncherInfo(newName), removed.getValue());
+					new Pair<>(createSubcircuitLauncherInfo(newName), removed.getValue());
 			// use stream operators to replace mapping at the same index
 			circuitManagers =
 					circuitManagers.keySet().stream()
@@ -1093,6 +1093,37 @@ public class CircuitSim extends Application {
 		} catch(Exception exc) {
 			System.err.println("Error saving configuration file: " + file);
 			exc.printStackTrace();
+		}
+	}
+	
+	private void loadCircuitsInternal(File file) {
+		String errorMessage = null;
+		try {
+			loadCircuits(file);
+		} catch(ClassNotFoundException exc) {
+			errorMessage = "Could not find class:\n" + exc.getMessage();
+		} catch(JsonSyntaxException exc) {
+			errorMessage = "Could not parse file:\n" + exc.getCause().getMessage();
+		} catch(NullPointerException | IllegalArgumentException | IllegalStateException exc) {
+			exc.printStackTrace();
+			
+			errorMessage = "Error: " + exc.getMessage();
+		} catch(Exception exc) {
+			exc.printStackTrace();
+			
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			exc.printStackTrace(new PrintStream(stream));
+			errorMessage = stream.toString();
+		}
+		
+		if(errorMessage != null) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.initOwner(stage);
+			alert.initModality(Modality.WINDOW_MODAL);
+			alert.setTitle("Error loading circuits");
+			alert.setHeaderText("Error loading circuits");
+			alert.setContentText(errorMessage);
+			alert.showAndWait();
 		}
 	}
 	
@@ -1623,7 +1654,7 @@ public class CircuitSim extends Application {
 				}
 			});
 			
-			circuitManagers.put(canvasTab.getText(), new Pair<>(createCircuitLauncherInfo(n), circuitManager));
+			circuitManagers.put(canvasTab.getText(), new Pair<>(createSubcircuitLauncherInfo(n), circuitManager));
 			canvasTabPane.getTabs().add(canvasTab);
 			
 			refreshCircuitsTab();
@@ -1765,34 +1796,7 @@ public class CircuitSim extends Application {
 				return;
 			}
 			
-			String errorMessage = null;
-			try {
-				loadCircuits(null);
-			} catch(ClassNotFoundException exc) {
-				errorMessage = "Could not find class:\n" + exc.getMessage();
-			} catch(JsonSyntaxException exc) {
-				errorMessage = "Could not parse file:\n" + exc.getCause().getMessage();
-			} catch(NullPointerException | IllegalArgumentException | IllegalStateException exc) {
-				exc.printStackTrace();
-				
-				errorMessage = "Error: " + exc.getMessage();
-			} catch(Exception exc) {
-				exc.printStackTrace();
-				
-				ByteArrayOutputStream stream = new ByteArrayOutputStream();
-				exc.printStackTrace(new PrintStream(stream));
-				errorMessage = stream.toString();
-			}
-			
-			if(errorMessage != null) {
-				Alert alert = new Alert(AlertType.ERROR);
-				alert.initOwner(stage);
-				alert.initModality(Modality.WINDOW_MODAL);
-				alert.setTitle("Error loading circuits");
-				alert.setHeaderText("Error loading circuits");
-				alert.setContentText(errorMessage);
-				alert.showAndWait();
-			}
+			loadCircuitsInternal(null);
 		});
 		
 		MenuItem save = new MenuItem("Save");
@@ -2266,7 +2270,11 @@ public class CircuitSim extends Application {
 		if(parameters != null && !parameters.getRaw().isEmpty()) {
 			List<String> args = getParameters().getRaw();
 			try {
-				loadCircuits(new File(args.get(0)));
+				if(openWindow) {
+					loadCircuitsInternal(new File(args.get(0)));
+				} else {
+					loadCircuits(new File(args.get(0)));
+				}
 			} catch(Exception exc) {
 				exc.printStackTrace();
 			}
@@ -2276,7 +2284,7 @@ public class CircuitSim extends Application {
 					File file = new File(args.get(i));
 					if(file.exists()) {
 						try {
-							new CircuitSim(true).loadCircuits(file);
+							new CircuitSim(true).loadCircuitsInternal(file);
 						} catch(Exception exc) {
 							exc.printStackTrace();
 						}

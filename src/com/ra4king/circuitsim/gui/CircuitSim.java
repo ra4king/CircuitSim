@@ -51,7 +51,6 @@ import com.ra4king.circuitsim.simulator.Simulator;
 import com.ra4king.circuitsim.simulator.components.Subcircuit;
 import com.ra4king.circuitsim.simulator.components.wiring.Clock;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin;
-import com.sun.javafx.application.PlatformImpl;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;

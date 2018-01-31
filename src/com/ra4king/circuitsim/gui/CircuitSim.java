@@ -1741,7 +1741,7 @@ public class CircuitSim extends Application {
 		
 		// FILE Menu
 		MenuItem newInstance = new MenuItem("New");
-		newInstance.setAccelerator(new KeyCharacterCombination("N", KeyCombination.CONTROL_DOWN));
+		newInstance.setAccelerator(new KeyCharacterCombination("N", KeyCombination.SHORTCUT_DOWN));
 		newInstance.setOnAction(event -> {
 			saveConfFile();
 			new CircuitSim(true);
@@ -1758,7 +1758,7 @@ public class CircuitSim extends Application {
 		});
 		
 		MenuItem load = new MenuItem("Load");
-		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.CONTROL_DOWN));
+		load.setAccelerator(new KeyCharacterCombination("O", KeyCombination.SHORTCUT_DOWN));
 		load.setOnAction(event -> {
 			if(checkUnsavedChanges()) {
 				return;
@@ -1795,12 +1795,12 @@ public class CircuitSim extends Application {
 		});
 		
 		MenuItem save = new MenuItem("Save");
-		save.setAccelerator(new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN));
+		save.setAccelerator(new KeyCharacterCombination("S", KeyCombination.SHORTCUT_DOWN));
 		save.setOnAction(event -> saveCircuitsInternal());
 		
 		MenuItem saveAs = new MenuItem("Save as");
 		saveAs.setAccelerator(
-				new KeyCharacterCombination("S", KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+				new KeyCharacterCombination("S", KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN));
 		saveAs.setOnAction(event -> {
 			lastSaveFile = saveFile;
 			
@@ -1829,7 +1829,7 @@ public class CircuitSim extends Application {
 		// EDIT Menu
 		undo = new MenuItem("Undo");
 		undo.setDisable(true);
-		undo.setAccelerator(new KeyCharacterCombination("Z", KeyCombination.CONTROL_DOWN));
+		undo.setAccelerator(new KeyCharacterCombination("Z", KeyCombination.SHORTCUT_DOWN));
 		undo.setOnAction(event -> {
 			CircuitManager manager = getCurrentCircuit();
 			if(manager != null) {
@@ -1847,7 +1847,7 @@ public class CircuitSim extends Application {
 		
 		redo = new MenuItem("Redo");
 		redo.setDisable(true);
-		redo.setAccelerator(new KeyCharacterCombination("Y", KeyCombination.CONTROL_DOWN));
+		redo.setAccelerator(new KeyCharacterCombination("Y", KeyCombination.SHORTCUT_DOWN));
 		redo.setOnAction(event -> {
 			CircuitManager manager = editHistory.redo();
 			if(manager != null) {
@@ -1859,7 +1859,7 @@ public class CircuitSim extends Application {
 		editHistory.addListener((action, manager, params) -> redo.setDisable(editHistory.redoStackSize() == 0));
 		
 		MenuItem copy = new MenuItem("Copy");
-		copy.setAccelerator(new KeyCharacterCombination("C", KeyCombination.CONTROL_DOWN));
+		copy.setAccelerator(new KeyCharacterCombination("C", KeyCombination.SHORTCUT_DOWN));
 		copy.setOnAction(event -> {
 			CircuitManager manager = getCurrentCircuit();
 			if(manager != null) {
@@ -1900,7 +1900,7 @@ public class CircuitSim extends Application {
 		});
 		
 		MenuItem cut = new MenuItem("Cut");
-		cut.setAccelerator(new KeyCharacterCombination("X", KeyCombination.CONTROL_DOWN));
+		cut.setAccelerator(new KeyCharacterCombination("X", KeyCombination.SHORTCUT_DOWN));
 		cut.setOnAction(event -> {
 			CircuitManager manager = getCurrentCircuit();
 			if(manager != null) {
@@ -1918,7 +1918,7 @@ public class CircuitSim extends Application {
 		});
 		
 		MenuItem paste = new MenuItem("Paste");
-		paste.setAccelerator(new KeyCharacterCombination("V", KeyCombination.CONTROL_DOWN));
+		paste.setAccelerator(new KeyCharacterCombination("V", KeyCombination.SHORTCUT_DOWN));
 		paste.setOnAction(event -> {
 			Clipboard clipboard = Clipboard.getSystemClipboard();
 			String data = (String)clipboard.getContent(copyDataFormat);
@@ -2003,7 +2003,7 @@ public class CircuitSim extends Application {
 		});
 		
 		MenuItem selectAll = new MenuItem("Select All");
-		selectAll.setAccelerator(new KeyCharacterCombination("A", KeyCombination.CONTROL_DOWN));
+		selectAll.setAccelerator(new KeyCharacterCombination("A", KeyCombination.SHORTCUT_DOWN));
 		selectAll.setOnAction(event -> {
 			CircuitManager manager = getCurrentCircuit();
 			if(manager != null) {
@@ -2039,11 +2039,11 @@ public class CircuitSim extends Application {
 		
 		// CIRCUITS Menu
 		MenuItem newCircuit = new MenuItem("New circuit");
-		newCircuit.setAccelerator(new KeyCharacterCombination("T", KeyCombination.CONTROL_DOWN));
+		newCircuit.setAccelerator(new KeyCharacterCombination("T", KeyCombination.SHORTCUT_DOWN));
 		newCircuit.setOnAction(event -> createCircuit("New circuit"));
 		
 		MenuItem deleteCircuit = new MenuItem("Delete circuit");
-		deleteCircuit.setAccelerator(new KeyCharacterCombination("W", KeyCombination.CONTROL_DOWN));
+		deleteCircuit.setAccelerator(new KeyCharacterCombination("W", KeyCombination.SHORTCUT_DOWN));
 		deleteCircuit.setOnAction(event -> {
 			CircuitManager currentCircuit = getCurrentCircuit();
 			if(currentCircuit != null) {
@@ -2057,7 +2057,7 @@ public class CircuitSim extends Application {
 		// SIMULATION Menu
 		MenuItem stepSimulation = new MenuItem("Step Simulation");
 		stepSimulation.setDisable(true);
-		stepSimulation.setAccelerator(new KeyCharacterCombination("I", KeyCombination.CONTROL_DOWN));
+		stepSimulation.setAccelerator(new KeyCharacterCombination("I", KeyCombination.SHORTCUT_DOWN));
 		stepSimulation.setOnAction(event -> {
 			try {
 				simulator.step();
@@ -2071,7 +2071,7 @@ public class CircuitSim extends Application {
 		
 		simulationEnabled = new CheckMenuItem("Simulation Enabled");
 		simulationEnabled.setSelected(true);
-		simulationEnabled.setAccelerator(new KeyCharacterCombination("E", KeyCombination.CONTROL_DOWN));
+		simulationEnabled.setAccelerator(new KeyCharacterCombination("E", KeyCombination.SHORTCUT_DOWN));
 		simulationEnabled.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			runSim();
 			
@@ -2081,7 +2081,7 @@ public class CircuitSim extends Application {
 		});
 		
 		MenuItem reset = new MenuItem("Reset simulation");
-		reset.setAccelerator(new KeyCharacterCombination("R", KeyCombination.CONTROL_DOWN));
+		reset.setAccelerator(new KeyCharacterCombination("R", KeyCombination.SHORTCUT_DOWN));
 		reset.setOnAction(event -> {
 			Clock.reset(simulator);
 			clockEnabled.setSelected(false);
@@ -2095,11 +2095,11 @@ public class CircuitSim extends Application {
 		});
 		
 		MenuItem tickClock = new MenuItem("Tick clock");
-		tickClock.setAccelerator(new KeyCharacterCombination("J", KeyCombination.CONTROL_DOWN));
+		tickClock.setAccelerator(new KeyCharacterCombination("J", KeyCombination.SHORTCUT_DOWN));
 		tickClock.setOnAction(event -> Clock.tick(simulator));
 		
 		clockEnabled = new CheckMenuItem("Clock Enabled");
-		clockEnabled.setAccelerator(new KeyCharacterCombination("K", KeyCombination.CONTROL_DOWN));
+		clockEnabled.setAccelerator(new KeyCharacterCombination("K", KeyCombination.SHORTCUT_DOWN));
 		clockEnabled.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			tickClock.setDisable(newValue);
 			

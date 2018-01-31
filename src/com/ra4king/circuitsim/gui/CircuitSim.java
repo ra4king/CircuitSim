@@ -219,13 +219,15 @@ public class CircuitSim extends Application {
 				if(latch.getCount() > 0) {
 					// JavaFX Platform not initialized
 					
-					PlatformImpl.startup(() -> {
+					Runnable startup = () -> {
 						try {
 							runnable.run();
 						} finally {
 							latch.countDown();
 						}
-					});
+					};
+
+					JavaFXCompatibilityWrapper.platformStartup(startup);
 				} else {
 					throw exc;
 				}

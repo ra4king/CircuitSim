@@ -222,13 +222,12 @@ public class CircuitManager {
 		updateSelectedProperties();
 	}
 	
-	public boolean needsRepaint() {
+	boolean needsRepaint() {
 		return needsRepaint;
 	}
 	
 	void setNeedsRepaint() {
 		needsRepaint = true;
-		//System.out.println(Thread.currentThread().getStackTrace()[2].getMethodName() + " set needsRepaint");
 	}
 	
 	private Properties getCommonSelectedProperties() {
@@ -324,7 +323,6 @@ public class CircuitManager {
 	
 	public void paint() {
 		needsRepaint = false;
-		System.out.println("Repainted");
 		
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		

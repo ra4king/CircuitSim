@@ -24,7 +24,7 @@ public class Clock extends Component {
 		private long lastTickTime;
 		private long lastPrintTime;
 		private int tickCount;
-		private int lastTickCount;
+		private volatile int lastTickCount;
 		
 		void reset() {
 			stopClock();

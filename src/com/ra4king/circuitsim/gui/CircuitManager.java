@@ -607,7 +607,7 @@ public class CircuitManager {
 				break;
 			case ESCAPE:
 				if(currentState == SelectingState.ELEMENT_DRAGGED) {
-					mayThrow(() -> circuitBoard.moveElements(0, 0));
+					mayThrow(() -> circuitBoard.moveElements(0, 0, false));
 				}
 				
 				reset();
@@ -947,10 +947,10 @@ public class CircuitManager {
 					currentState = SelectingState.ELEMENT_DRAGGED;
 					
 					if(!circuitBoard.isMoving()) {
-						mayThrow(() -> circuitBoard.initMove(getSelectedElements(), !isCtrlDown));
+						mayThrow(() -> circuitBoard.initMove(getSelectedElements()));
 					}
 					
-					mayThrow(() -> circuitBoard.moveElements(dx, dy));
+					mayThrow(() -> circuitBoard.moveElements(dx, dy, !isCtrlDown));
 				}
 				break;
 			

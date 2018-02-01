@@ -56,7 +56,6 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
@@ -106,10 +105,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.FontSmoothingType;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
@@ -133,8 +130,6 @@ public class CircuitSim extends Application {
 	private Scene scene;
 	private boolean openWindow = true;
 	
-	private MenuItem help;
-	
 	private Simulator simulator;
 	private Exception lastException;
 	private CheckMenuItem simulationEnabled;
@@ -142,6 +137,7 @@ public class CircuitSim extends Application {
 	private MenuItem undo, redo;
 	private CheckMenuItem clockEnabled;
 	private Menu frequenciesMenu;
+	private MenuItem help;
 	
 	private ToggleButton clickMode;
 	private boolean clickedDirectly;
@@ -149,14 +145,16 @@ public class CircuitSim extends Application {
 	private ComponentManager componentManager;
 	private List<String> libraryPaths;
 	
-	private Canvas overlayCanvas;
-	
 	private TabPane buttonTabPane;
 	private ToggleGroup buttonsToggleGroup;
 	private Runnable refreshComponentsTabs;
 	
 	private ComboBox<Integer> bitSizeSelect;
 	private ComboBox<Double> scaleFactorSelect;
+	private Label fpsLabel;
+	private Label clockLabel;
+	private Label messageLabel;
+	
 	private GridPane propertiesTable;
 	private Label componentLabel;
 	
@@ -225,7 +223,7 @@ public class CircuitSim extends Application {
 							latch.countDown();
 						}
 					};
-
+					
 					JavaFXCompatibilityWrapper.platformStartup(startup);
 				} else {
 					throw exc;
@@ -372,7 +370,11 @@ public class CircuitSim extends Application {
 		Exception exc = lastException != null ? lastException
 		                                      : manager != null ? manager.getCurrentError() : null;
 		
-		return exc == null ? "" : exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage();
+		String message =
+				exc == null ? ""
+				            : (exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage());
+		
+		return message == null ? "" : message;
 	}
 	
 	private int getCurrentClockSpeed() {
@@ -789,7 +791,8 @@ public class CircuitSim extends Application {
 					                                         s -> s.equals(oldName) ? newPair
 					                                                                : circuitManagers.get(s),
 					                                         (a, b) -> {
-						                                         throw new IllegalStateException("Name already exists");
+						                                         throw new IllegalStateException(
+								                                         "Name already exists");
 					                                         },
 					                                         LinkedHashMap::new));
 			
@@ -959,12 +962,9 @@ public class CircuitSim extends Application {
 			if(result.isPresent()) {
 				if(result.get() == ButtonType.OK) {
 					saveCircuitsInternal();
-					
-					if(saveFile == null) {
-						return true;
-					}
-				} else if(result.get() == ButtonType.CANCEL) {
-					return true;
+					return saveFile == null;
+				} else {
+					return result.get() == ButtonType.CANCEL;
 				}
 			}
 		}
@@ -1993,7 +1993,7 @@ public class CircuitSim extends Application {
 							}
 							
 							manager.setSelectedElements(elementsCreated);
-							manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false, false));
+							manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false));
 							
 							break;
 						}
@@ -2152,7 +2152,7 @@ public class CircuitSim extends Application {
 			msg += "• Holding Ctrl before dragging a new wire allows release of the mouse, and continuing the wire on "
 					       + "click.\n\n";
 			msg += "• Holding Ctrl while selecting components will include them in the selection group.\n\n";
-			msg += "• Holding Ctrl before dragging components and wires will disable preserving connections.\n\n";
+			msg += "• Holding Ctrl while dragging components will disable preserving connections.\n\n";
 			
 			alert.setContentText(msg);
 			alert.show();
@@ -2188,18 +2188,31 @@ public class CircuitSim extends Application {
 		
 		SplitPane.setResizableWithParent(buttonTabPane, Boolean.FALSE);
 		
-		overlayCanvas = new Canvas();
-		overlayCanvas.setDisable(true);
+		fpsLabel = new Label();
+		fpsLabel.setMinWidth(100);
+		fpsLabel.setFont(GuiUtils.getFont(13));
+		fpsLabel.setAlignment(Pos.CENTER_LEFT);
 		
-		Pane pane = new Pane(overlayCanvas);
-		pane.setDisable(true);
+		clockLabel = new Label();
+		clockLabel.setMinWidth(100);
+		clockLabel.setAlignment(Pos.CENTER_LEFT);
+		clockLabel.setFont(GuiUtils.getFont(13));
 		
-		overlayCanvas.widthProperty().bind(pane.widthProperty());
-		overlayCanvas.heightProperty().bind(pane.heightProperty());
+		messageLabel = new Label();
+		messageLabel.setTextFill(Color.RED);
+		messageLabel.setFont(GuiUtils.getFont(20, true));
 		
-		StackPane canvasStackPane = new StackPane(canvasTabPane, pane);
+		Pane blank1 = new Pane();
+		HBox.setHgrow(blank1, Priority.ALWAYS);
 		
-		SplitPane canvasPropsSplit = new SplitPane(leftPaneSplit, canvasStackPane);
+		Pane blank2 = new Pane();
+		HBox.setHgrow(blank2, Priority.ALWAYS);
+		
+		HBox bottomBar = new HBox(fpsLabel, clockLabel, blank1, messageLabel, blank2);
+		VBox canvasTabBox = new VBox(canvasTabPane, bottomBar);
+		VBox.setVgrow(canvasTabPane, Priority.ALWAYS);
+		
+		SplitPane canvasPropsSplit = new SplitPane(leftPaneSplit, canvasTabBox);
 		canvasPropsSplit.setOrientation(Orientation.HORIZONTAL);
 		canvasPropsSplit.setDividerPositions(0.35);
 		
@@ -2322,44 +2335,33 @@ public class CircuitSim extends Application {
 						lastFrameCount = frameCount;
 						frameCount = 0;
 						lastRepaint = now;
+						
+						fpsLabel.setText(showFps ? "FPS: " + lastFrameCount : "");
+						clockLabel.setText(Clock.isRunning(simulator)
+						                   ? "Clock: " + (Clock.getLastTickCount(simulator) >> 1) + " Hz"
+						                   : "");
 					}
 					
 					frameCount++;
 					
 					CircuitManager manager = getCurrentCircuit();
-					if(manager != null && (needsRepaint || manager.needsRepaint())) {
-						manager.paint();
-						needsRepaint = false;
-					}
-					
-					GraphicsContext graphics = overlayCanvas.getGraphicsContext2D();
-					
-					graphics.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
-					
-					graphics.setFontSmoothingType(FontSmoothingType.LCD);
-					
-					graphics.setFont(GuiUtils.getFont(12));
-					graphics.setFill(Color.BLACK);
-					if(showFps) {
-						graphics.fillText("FPS: " + lastFrameCount, 6, 50);
-					}
-					if(Clock.getLastTickCount(simulator) > 0) {
-						graphics.fillText("Clock: " + (Clock.getLastTickCount(simulator) >> 1) + " Hz", 6, 65);
-					}
-					
-					if(manager != null && !loadingFile) {
-						String message = getCurrentError();
-						
-						if(message != null && !message.isEmpty() && Clock.isRunning(simulator)) {
-							clockEnabled.setSelected(false);
+					if(manager != null) {
+						if((needsRepaint || manager.needsRepaint())) {
+							manager.paint();
+							needsRepaint = false;
 						}
 						
-						graphics.setFont(GuiUtils.getFont(20));
-						graphics.setFill(Color.RED);
-						Bounds bounds = GuiUtils.getBounds(graphics.getFont(), message);
-						graphics.fillText(message,
-						                  (overlayCanvas.getWidth() - bounds.getWidth()) * 0.5,
-						                  overlayCanvas.getHeight() - 50);
+						if(!loadingFile) {
+							String message = getCurrentError();
+							
+							if(!message.isEmpty() && Clock.isRunning(simulator)) {
+								clockEnabled.setSelected(false);
+							}
+							
+							messageLabel.setText(message);
+						} else {
+							messageLabel.setText("");
+						}
 					}
 				}
 			}).start();

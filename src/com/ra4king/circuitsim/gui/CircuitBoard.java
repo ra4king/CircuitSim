@@ -41,6 +41,7 @@ public class CircuitBoard {
 	
 	private Set<GuiElement> moveElements;
 	private Set<Connection> connectedPorts = new HashSet<>();
+	
 	private Thread computeThread;
 	private MoveComputeResult moveResult;
 	private boolean addMoveAction;
@@ -144,15 +145,14 @@ public class CircuitBoard {
 	}
 	
 	public boolean isValidLocation(ComponentPeer<?> component) {
-		return component.getX() >= 0 && component.getY() >= 0 &&
-				       Stream.concat(components.stream(),
-				                     moveElements != null ? moveElements.stream()
-				                                                        .filter(e -> e instanceof ComponentPeer<?>)
-				                                          : Stream.empty())
-				             .noneMatch(
-						             c -> c != component &&
-								                  c.getX() == component.getX() &&
-								                  c.getY() == component.getY());
+		return component.getX() >= 0
+				       && component.getY() >= 0
+				       && Stream.concat(components.stream(),
+				                        moveElements != null
+					                        ? moveElements.stream().filter(e -> e instanceof ComponentPeer<?>)
+					                        : Stream.empty())
+				                .noneMatch(c -> c != component&& c.getX() == component.getX()
+						                                && c.getY() == component.getY());
 	}
 	
 	public void addComponent(ComponentPeer<?> component) {
@@ -241,11 +241,11 @@ public class CircuitBoard {
 		return moveElements != null;
 	}
 	
-	public void initMove(Set<GuiElement> elements, boolean extendWires) {
-		initMove(elements, true, extendWires);
+	public void initMove(Set<GuiElement> elements) {
+		initMove(elements, true);
 	}
 	
-	public void initMove(Set<GuiElement> elements, boolean remove, boolean extendWires) {
+	void initMove(Set<GuiElement> elements, boolean remove) {
 		if(moveElements != null) {
 			try {
 				finalizeMove();
@@ -255,8 +255,10 @@ public class CircuitBoard {
 		}
 		
 		connectedPorts.clear();
+		moveElements = elements;
+		addMoveAction = remove;
 		
-		if(extendWires) {
+		if(remove) {
 			for(GuiElement element : elements) {
 				for(Connection connection : element.getConnections()) {
 					if(getConnections(connection.getX(), connection.getY()).size() > 1) {
@@ -264,21 +266,17 @@ public class CircuitBoard {
 					}
 				}
 			}
-		}
-		
-		try {
-			editHistory.disable();
-			moveElements = elements;
-			addMoveAction = remove;
-			if(remove) {
+			
+			try {
+				editHistory.disable();
 				removeElements(elements, false);
+			} finally {
+				editHistory.enable();
 			}
-		} finally {
-			editHistory.enable();
 		}
 	}
 	
-	public void moveElements(int dx, int dy) {
+	public void moveElements(int dx, int dy, boolean extendWires) {
 		for(GuiElement element : moveElements) {
 			element.setX(element.getX() + (-moveDeltaX + dx));
 			element.setY(element.getY() + (-moveDeltaY + dy));
@@ -294,6 +292,10 @@ public class CircuitBoard {
 			
 			if(computeThread != null) {
 				computeThread.interrupt();
+			}
+			
+			if(!extendWires) {
+				return;
 			}
 			
 			List<Connection> connectedPorts = new ArrayList<>(this.connectedPorts);

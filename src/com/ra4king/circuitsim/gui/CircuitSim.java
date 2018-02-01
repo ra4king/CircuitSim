@@ -681,7 +681,7 @@ public class CircuitSim extends Application {
 		return button;
 	}
 	
-	private void refreshCircuitsTab() {
+	void refreshCircuitsTab() {
 		if(loadingFile) return;
 		
 		ScrollPane pane = new ScrollPane(new GridPane());
@@ -1626,8 +1626,9 @@ public class CircuitSim extends Application {
 				if(idx > 0) {
 					tabs.remove(idx);
 					tabs.add(idx - 1, canvasTab);
+					canvasTabPane.getSelectionModel().select(canvasTab);
 					
-					editHistory.addAction(EditAction.MOVE_CIRCUIT, null, tabs, canvasTab, idx, idx - 1);
+					editHistory.addAction(EditAction.MOVE_CIRCUIT, circuitManager, tabs, canvasTab, idx, idx - 1);
 					
 					refreshCircuitsTab();
 				}
@@ -1640,8 +1641,9 @@ public class CircuitSim extends Application {
 				if(idx >= 0 && idx < tabs.size() - 1) {
 					tabs.remove(idx);
 					tabs.add(idx + 1, canvasTab);
+					canvasTabPane.getSelectionModel().select(canvasTab);
 					
-					editHistory.addAction(EditAction.MOVE_CIRCUIT, null, tabs, canvasTab, idx, idx + 1);
+					editHistory.addAction(EditAction.MOVE_CIRCUIT, circuitManager, tabs, canvasTab, idx, idx + 1);
 					
 					refreshCircuitsTab();
 				}

@@ -48,6 +48,8 @@ public class EditHistory {
 				
 				tabs.remove(fromIdx);
 				tabs.add(toIdx, tab);
+				
+				manager.getSimulatorWindow().refreshCircuitsTab();
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {

@@ -123,6 +123,16 @@ public class Simulator {
 		runSync(() -> linksToUpdate.add(new Pair<>(state, link)));
 	}
 	
+	private boolean tmp;
+	
+	/**
+	 * Returns true if there are pending links to update.
+	 */
+	public boolean hasLinksToUpdate() {
+		runSync(() -> tmp = !linksToUpdate.isEmpty());
+		return tmp;
+	}
+	
 	private boolean stepping = false;
 	
 	/**
@@ -180,6 +190,7 @@ public class Simulator {
 			
 			do {
 				if(history.contains(linksToUpdate)) {
+					linksToUpdate.clear();
 					throw new IllegalStateException("Oscillation apparent.");
 				}
 				

@@ -68,10 +68,8 @@ public class RAMPeer extends ComponentPeer<RAM> {
 			
 			CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
 			List<MemoryLine> memory =
-					memoryValidator.parse(getComponent().getMemoryContents(currentState), (address, value) -> {
-						getComponent().store(currentState, address, value);
-						circuit.getSimulatorWindow().runSim();
-					});
+					memoryValidator.parse(getComponent().getMemoryContents(currentState),
+					                      (address, value) -> getComponent().store(currentState, address, value));
 			
 			BiConsumer<Integer, Integer> listener;
 			getComponent().addMemoryListener(listener = (address, data) -> {

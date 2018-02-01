@@ -210,7 +210,6 @@ public class CircuitBoard {
 			}
 			
 			updateBadLinks();
-			circuitManager.getSimulatorWindow().runSim();
 		} finally {
 			editHistory.endGroup();
 		}
@@ -590,7 +589,6 @@ public class CircuitBoard {
 		moveDeltaY = 0;
 		
 		updateBadLinks();
-		circuitManager.getSimulatorWindow().runSim();
 		
 		if(cannotMoveHere) {
 			throw new IllegalArgumentException("Cannot move components here.");
@@ -692,7 +690,6 @@ public class CircuitBoard {
 			rejoinWires();
 			
 			updateBadLinks();
-			circuitManager.getSimulatorWindow().runSim();
 		} finally {
 			editHistory.endGroup();
 		}
@@ -873,7 +870,6 @@ public class CircuitBoard {
 			rejoinWires();
 			
 			updateBadLinks();
-			circuitManager.getSimulatorWindow().runSim();
 			
 			return wiresToAdd;
 		} finally {

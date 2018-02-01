@@ -167,7 +167,6 @@ public class CircuitManager {
 		simulatorWindow.updateCanvasSize(this);
 		
 		setNeedsRepaint();
-		simulatorWindow.runSim();
 	}
 	
 	public void destroy() {
@@ -562,7 +561,6 @@ public class CircuitManager {
 			lastPressedConsumed = lastPressed.keyPressed(this, circuitBoard.getCurrentState(), e.getCode(),
 			                                             e.getText());
 			lastPressedKeyCode = e.getCode();
-			simulatorWindow.runSim();
 		}
 		
 		if(lastPressed != null && lastPressedConsumed) {
@@ -622,21 +620,20 @@ public class CircuitManager {
 		if(selectedElementsMap.size() == 1) {
 			GuiElement element = selectedElementsMap.keySet().iterator().next();
 			element.keyTyped(this, circuitBoard.getCurrentState(), e.getCharacter());
-			simulatorWindow.runSim();
-			setNeedsRepaint(); // TODO: Can this be optimized?
+			setNeedsRepaint();
 		}
 	}
 	
 	public void keyReleased(KeyEvent e) {
-		setNeedsRepaint(); // TODO: Can this be optimized?
-		
 		switch(e.getCode()) {
 			case CONTROL:
 				isCtrlDown = false;
+				setNeedsRepaint();
 				break;
 			case SHIFT:
 				simulatorWindow.setClickMode(false);
 				isShiftDown = false;
+				setNeedsRepaint();
 				break;
 		}
 		
@@ -644,7 +641,7 @@ public class CircuitManager {
 			lastPressed.keyReleased(this, circuitBoard.getCurrentState(), e.getCode(), e.getText());
 			lastPressed = null;
 			lastPressedKeyCode = null;
-			simulatorWindow.runSim();
+			setNeedsRepaint();
 		}
 	}
 	
@@ -719,8 +716,8 @@ public class CircuitManager {
 				selected = selectedConns.iterator().next();
 			}
 			
-			if(selected != null && startConnection != selected) {
-				setNeedsRepaint(); // TODO: Can this be optimized? Is this implementation correct?
+			if(startConnection != selected) {
+				setNeedsRepaint();
 			}
 			
 			startConnection = selected;
@@ -736,18 +733,30 @@ public class CircuitManager {
 			
 			if(currDiffX == 0 || prevDiffX == 0 ||
 					   currDiffX / Math.abs(currDiffX) != prevDiffX / Math.abs(prevDiffX)) {
+				if(isDraggedHorizontally) {
+					setNeedsRepaint();
+				}
+				
 				isDraggedHorizontally = false;
 			}
 			
 			if(currDiffY == 0 || prevDiffY == 0 ||
 					   currDiffY / Math.abs(currDiffY) != prevDiffY / Math.abs(prevDiffY)) {
+				if(!isDraggedHorizontally) {
+					setNeedsRepaint();
+				}
+				
 				isDraggedHorizontally = true;
 			}
 			
-			endConnection = circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
-			                                            GuiUtils.getCircuitCoord(lastMousePosition.getY()));
+			Connection connection = circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
+			                                                    GuiUtils.getCircuitCoord(lastMousePosition.getY()));
 			
-			setNeedsRepaint(); // TODO: Can this be optimized?
+			if(endConnection != connection) {
+				setNeedsRepaint();
+			}
+			
+			endConnection = connection;
 		}
 	}
 	
@@ -803,7 +812,6 @@ public class CircuitManager {
 							selectedElement.mousePressed(this, circuitBoard.getCurrentState(),
 							                             lastMousePosition.getX() - selectedElement.getScreenX(),
 							                             lastMousePosition.getY() - selectedElement.getScreenY());
-							simulatorWindow.runSim();
 						} else if(isCtrlDown) {
 							Set<GuiElement> elements = new HashSet<>(getSelectedElements());
 							elements.add(selectedElement);
@@ -853,7 +861,7 @@ public class CircuitManager {
 				break;
 		}
 		
-		setNeedsRepaint(); // TODO: Can this be optimized?
+		setNeedsRepaint();
 	}
 	
 	public void mouseReleased(MouseEvent e) {
@@ -902,8 +910,7 @@ public class CircuitManager {
 		
 		checkStartConnection();
 		
-		simulatorWindow.runSim();
-		setNeedsRepaint(); // TODO: Can this be optimized?
+		setNeedsRepaint();
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -970,7 +977,7 @@ public class CircuitManager {
 		
 		checkStartConnection();
 		
-		setNeedsRepaint(); // TODO: Can this be optimized?
+		setNeedsRepaint();
 	}
 	
 	private GuiElement lastEntered;
@@ -979,6 +986,11 @@ public class CircuitManager {
 		Point2D prevMousePosition = lastMousePosition;
 		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
 		                                e.getY() * simulatorWindow.getScaleFactorInverted());
+		
+		// For the case of creating wires without holding down mouse button
+		if(currentState == SelectingState.CONNECTION_DRAGGED) {
+			setNeedsRepaint();
+		}
 		
 		if(potentialComponent != null) {
 			potentialComponent.setX(GuiUtils.getCircuitCoord(
@@ -1026,14 +1038,14 @@ public class CircuitManager {
 	
 	public void mouseEntered(MouseEvent e) {
 		isMouseInsideCanvas = true;
-		setNeedsRepaint(); // TODO: Is this necessary?
+		setNeedsRepaint();
 	}
 	
 	public void mouseExited(MouseEvent e) {
 		isMouseInsideCanvas = false;
 		isCtrlDown = false;
 		isShiftDown = false;
-		setNeedsRepaint(); // TODO: Is this necessary?
+		setNeedsRepaint();
 	}
 	
 	public void focusGained() {
@@ -1043,7 +1055,6 @@ public class CircuitManager {
 		mouseExited(null);
 		simulatorWindow.setClickMode(false);
 		resetLastPressed();
-		simulatorWindow.runSim();
-		setNeedsRepaint(); // TODO: Is this necessary?
+		setNeedsRepaint();
 	}
 }

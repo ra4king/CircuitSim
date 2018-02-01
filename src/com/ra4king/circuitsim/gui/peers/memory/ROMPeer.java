@@ -106,8 +106,6 @@ public class ROMPeer extends ComponentPeer<ROM> {
 						for(CircuitState state : circuit.getCircuit().getCircuitStates()) {
 							getComponent().valueChanged(state, null, 0);
 						}
-						
-						circuit.getSimulatorWindow().runSim();
 					});
 			
 			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), lines);

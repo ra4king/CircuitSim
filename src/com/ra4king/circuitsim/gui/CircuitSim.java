@@ -351,16 +351,15 @@ public class CircuitSim extends Application {
 		return simulationEnabled.isSelected();
 	}
 	
-	public void runSim() {
+	private void runSim() {
 		try {
-			if(isSimulationEnabled()) {
+			if(isSimulationEnabled() && simulator.hasLinksToUpdate()) {
+				needsRepaint = true;
 				simulator.stepAll();
 				lastException = null;
 			}
 		} catch(Exception exc) {
 			lastException = exc;
-		} finally {
-			needsRepaint = true;
 		}
 	}
 	
@@ -2344,11 +2343,13 @@ public class CircuitSim extends Application {
 					
 					frameCount++;
 					
+					runSim();
+					
 					CircuitManager manager = getCurrentCircuit();
 					if(manager != null) {
 						if((needsRepaint || manager.needsRepaint())) {
-							manager.paint();
 							needsRepaint = false;
+							manager.paint();
 						}
 						
 						if(!loadingFile) {

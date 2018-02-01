@@ -2207,8 +2207,8 @@ public class CircuitSim extends Application {
 		Pane blank2 = new Pane();
 		HBox.setHgrow(blank2, Priority.ALWAYS);
 		
-		HBox bottomBar = new HBox(fpsLabel, clockLabel, blank1, messageLabel, blank2);
-		VBox canvasTabBox = new VBox(canvasTabPane, bottomBar);
+		HBox statusBar = new HBox(fpsLabel, clockLabel, blank1, messageLabel, blank2);
+		VBox canvasTabBox = new VBox(canvasTabPane, statusBar);
 		VBox.setVgrow(canvasTabPane, Priority.ALWAYS);
 		
 		SplitPane canvasPropsSplit = new SplitPane(leftPaneSplit, canvasTabBox);

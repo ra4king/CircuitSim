@@ -62,6 +62,13 @@ public class Simulator {
 		return linksToUpdate;
 	}
 	
+	private boolean tmp;
+	
+	public boolean hasLinksToUpdate() {
+		runSync(() -> tmp = !linksToUpdate.isEmpty());
+		return tmp;
+	}
+	
 	/**
 	 * Clears all circuits and queue of un-propagated links.
 	 */
@@ -121,16 +128,6 @@ public class Simulator {
 	 */
 	public void valueChanged(CircuitState state, Link link) {
 		runSync(() -> linksToUpdate.add(new Pair<>(state, link)));
-	}
-	
-	private boolean tmp;
-	
-	/**
-	 * Returns true if there are pending links to update.
-	 */
-	public boolean hasLinksToUpdate() {
-		runSync(() -> tmp = !linksToUpdate.isEmpty());
-		return tmp;
 	}
 	
 	private boolean stepping = false;

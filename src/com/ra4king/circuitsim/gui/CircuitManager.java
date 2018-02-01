@@ -318,7 +318,7 @@ public class CircuitManager {
 		isDraggedHorizontally = false;
 		startConnection = null;
 		endConnection = null;
-		setNeedsRepaint(); // TODO: Can this be optimized?
+		setNeedsRepaint();
 	}
 	
 	public void paint() {
@@ -552,18 +552,19 @@ public class CircuitManager {
 	}
 	
 	public void keyPressed(KeyEvent e) {
-		setNeedsRepaint(); // TODO: Can this be optimized?
-		
 		if(e.getCode() != KeyCode.SHIFT && lastPressed == null && selectedElementsMap.size() == 1) {
 			lastPressed = selectedElementsMap.keySet().iterator().next();
 			lastPressedConsumed = lastPressed.keyPressed(this, circuitBoard.getCurrentState(), e.getCode(),
 			                                             e.getText());
 			lastPressedKeyCode = e.getCode();
+			setNeedsRepaint();
 		}
 		
 		if(lastPressed != null && lastPressedConsumed) {
 			return;
 		}
+		
+		setNeedsRepaint();
 		
 		switch(e.getCode()) {
 			case RIGHT: {

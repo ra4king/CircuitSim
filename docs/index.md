@@ -8,8 +8,6 @@ and lack of continued development, I have decided to make my own simulator progr
 
 It’s free! Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 
-CircuitSim is also incompatible with Java 9.
-
 [Click here to download CircuitSim!]
 
 Click on the links in the navbar to go to see the documentation and some tutorials.

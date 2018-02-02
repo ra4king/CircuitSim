@@ -214,20 +214,20 @@ public class Properties {
 			new PropertyListValidator<>(new Boolean[] { true, false }, bool -> bool ? "Yes" : "No");
 	public static final PropertyValidator<Integer> INTEGER_VALIDATOR = value -> {
 		try {
-			return Integer.parseInt(value);
-		} catch(Exception exc) {
+			return (int)Long.parseLong(value);
+		} catch(NumberFormatException exc) {
 			String modified;
 			if(value.startsWith("0x")) {
 				modified = value.substring(2);
 			} else if(value.startsWith("x")) {
 				modified = value.substring(1);
 			} else {
-				throw new IllegalArgumentException(value + " is not a valid integer.");
+				modified = value;
 			}
 			
 			try {
-				return Integer.parseInt(modified, 16);
-			} catch(Exception exc2) {
+				return (int)Long.parseLong(modified, 16);
+			} catch(NumberFormatException exc2) {
 				throw new IllegalArgumentException(value + " is not a valid integer.");
 			}
 		}

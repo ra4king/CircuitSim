@@ -1,6 +1,7 @@
 package com.ra4king.circuitsim.gui.peers.arithmetic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
@@ -8,6 +9,8 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
+import com.ra4king.circuitsim.gui.Properties.Property;
+import com.ra4king.circuitsim.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.arithmetic.Comparator;
 
@@ -20,6 +23,11 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class ComparatorPeer extends ComponentPeer<Comparator> {
+	private static final Property<Boolean> USE_SIGNED_COMPARE
+			= new Property<>("Comparison Type",
+			                 new PropertyListValidator<>(Arrays.asList(true, false),
+			                                             s -> s ? "2's complement" : "Unsigned"), true);
+	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Arithmetic", "Comparator"),
 		                     new Image(ComparatorPeer.class.getResourceAsStream("/resources/Comparator.png")),
@@ -33,10 +41,12 @@ public class ComparatorPeer extends ComponentPeer<Comparator> {
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
+		properties.ensureProperty(USE_SIGNED_COMPARE);
 		properties.mergeIfExists(props);
 		
 		Comparator comparator = new Comparator(properties.getValue(Properties.LABEL),
-		                                       properties.getValue(Properties.BITSIZE));
+		                                       properties.getValue(Properties.BITSIZE),
+		                                       properties.getValue(USE_SIGNED_COMPARE));
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, comparator.getPort(Comparator.PORT_A), "A", 0, 1));

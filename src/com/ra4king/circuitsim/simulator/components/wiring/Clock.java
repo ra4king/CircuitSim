@@ -91,7 +91,6 @@ public class Clock extends Component {
 			if(currentClock != null) {
 				Thread clockThread = currentClock;
 				
-				System.out.println("Stopping clock");
 				currentClock.interrupt();
 				currentClock = null;
 				lastTickCount = 0;

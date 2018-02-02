@@ -123,7 +123,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.6.2";
+	public static final String VERSION = "1.7.0";
 	
 	private static boolean mainCalled = false;
 	private static AtomicBoolean versionChecked = new AtomicBoolean(false);
@@ -178,8 +178,6 @@ public class CircuitSim extends Application {
 	
 	private EditHistory editHistory;
 	private int savedEditStackSize;
-	
-	private boolean showFps = true;
 	
 	private volatile boolean needsRepaint = true;
 	
@@ -1124,9 +1122,6 @@ public class CircuitSim extends Application {
 						case "Scale":
 							scaleFactorSelect.setValue(Double.parseDouble(value));
 							break;
-						case "ShowFps":
-							showFps = Boolean.parseBoolean(value);
-							break;
 						case "LastSavePath":
 							lastSaveFile = new File(value);
 							break;
@@ -1161,7 +1156,6 @@ public class CircuitSim extends Application {
 		conf.add("WindowHeight=" + (int)stage.getHeight());
 		conf.add("IsMaximized=" + stage.isMaximized());
 		conf.add("Scale=" + scaleFactorSelect.getValue());
-		conf.add("ShowFps=" + showFps);
 		conf.add("HelpShown=" + VERSION);
 		if(lastSaveFile != null) {
 			conf.add("LastSavePath=" + lastSaveFile.getAbsolutePath());
@@ -2405,7 +2399,7 @@ public class CircuitSim extends Application {
 						frameCount = 0;
 						lastRepaint = now;
 						
-						fpsLabel.setText(showFps ? "FPS: " + lastFrameCount : "");
+						fpsLabel.setText("FPS: " + lastFrameCount);
 						clockLabel.setText(Clock.isRunning(simulator)
 						                   ? "Clock: " + (Clock.getLastTickCount(simulator) >> 1) + " Hz"
 						                   : "");
@@ -2429,8 +2423,10 @@ public class CircuitSim extends Application {
 								clockEnabled.setSelected(false);
 							}
 							
-							messageLabel.setText(message);
-						} else {
+							if(!messageLabel.getText().equals(message)) {
+								messageLabel.setText(message);
+							}
+						} else if(!messageLabel.getText().isEmpty()) {
 							messageLabel.setText("");
 						}
 					}

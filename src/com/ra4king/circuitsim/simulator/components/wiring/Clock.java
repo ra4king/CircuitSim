@@ -49,8 +49,7 @@ public class Clock extends Component {
 			lastTickTime = lastPrintTime = System.nanoTime();
 			lastTickCount = tickCount = 0;
 			
-			long nanosPerTick = (long)(1e9 / (2 * hertz));
-			System.out.println("Starting clock: " + hertz + " Hz = " + nanosPerTick + " nanos per tick");
+			final long nanosPerTick = (long)(1e9 / (2 * hertz));
 			
 			stopClock();
 			Thread clockThread = new Thread(() -> {

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ public class FileFormat {
 		GSON = new GsonBuilder().setPrettyPrinting().create();
 	}
 	
-	public static String readFile(Reader reader) {
+	public static String readFile(Reader reader) throws IOException {
 		StringBuilder string = new StringBuilder();
 		try(BufferedReader bufReader = new BufferedReader(reader)) {
 			String line;
@@ -34,21 +35,14 @@ public class FileFormat {
 			}
 			
 			return string.toString();
-		} catch(Exception exc) {
-			exc.printStackTrace();
-			throw new RuntimeException(exc);
 		}
 	}
 	
-	public static String readFile(File file) {
-		try {
-			return readFile(new FileReader(file));
-		} catch(Exception exc) {
-			throw new RuntimeException(exc);
-		}
+	public static String readFile(File file) throws IOException {
+		return readFile(new FileReader(file));
 	}
 	
-	public static void writeFile(File file, String contents) throws Exception {
+	public static void writeFile(File file, String contents) throws IOException {
 		try(FileWriter writer = new FileWriter(file)) {
 			writer.write(contents);
 			writer.write('\n');
@@ -119,19 +113,19 @@ public class FileFormat {
 		}
 	}
 	
-	public static void save(File file, CircuitFile circuitFile) throws Exception {
+	public static void save(File file, CircuitFile circuitFile) throws IOException {
 		writeFile(file, stringify(circuitFile));
 	}
 	
-	public static String stringify(CircuitFile circuitFile) throws Exception {
+	public static String stringify(CircuitFile circuitFile) {
 		return GSON.toJson(circuitFile);
 	}
 	
-	public static CircuitFile load(File file) throws Exception {
+	public static CircuitFile load(File file) throws IOException {
 		return parse(readFile(file));
 	}
 	
-	public static CircuitFile parse(String contents) throws Exception {
+	public static CircuitFile parse(String contents) {
 		return GSON.fromJson(contents, CircuitFile.class);
 	}
 }

@@ -1,8 +1,12 @@
 package com.ra4king.circuitsim.gui;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -23,6 +27,7 @@ import java.util.OptionalInt;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
@@ -121,6 +126,7 @@ public class CircuitSim extends Application {
 	public static final String VERSION = "1.6.2";
 	
 	private static boolean mainCalled = false;
+	private static AtomicBoolean versionChecked = new AtomicBoolean(false);
 	
 	public static void main(String[] args) {
 		mainCalled = true;
@@ -1001,6 +1007,79 @@ public class CircuitSim extends Application {
 		});
 	}
 	
+	private static AtomicBoolean checkingForUpdate = new AtomicBoolean(false);
+	
+	private void checkForUpdate(boolean showOk) {
+		if(VERSION.indexOf('b') == -1 && checkingForUpdate.compareAndSet(false, true)) {
+			Thread versionCheckThread = new Thread(() -> {
+				try {
+					URL url;
+					try {
+						url = new URL("https://www.roiatalla.com/public/CircuitSim/version.txt");
+					} catch(MalformedURLException exc) {
+						exc.printStackTrace();
+						return;
+					}
+					
+					String remoteVersion;
+					
+					try(BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
+						remoteVersion = reader.readLine();
+					} catch(IOException exc) {
+						System.err.println("Error checking server for version.");
+						exc.printStackTrace();
+						
+						if(showOk) {
+							runFxSync(() -> {
+								Alert alert = new Alert(AlertType.ERROR);
+								alert.initOwner(stage);
+								alert.initModality(Modality.APPLICATION_MODAL);
+								alert.setTitle("Error");
+								alert.setHeaderText("Error checking server");
+								alert.setContentText("Error occurred when checking server for new update.\n" + exc);
+								alert.show();
+							});
+						}
+						
+						return;
+					}
+					
+					if(!VERSION.equals(remoteVersion)) {
+						runFxSync(() -> {
+							Alert alert = new Alert(AlertType.INFORMATION);
+							alert.initOwner(stage);
+							alert.initModality(Modality.APPLICATION_MODAL);
+							alert.setTitle("New Version Available");
+							alert.setHeaderText("New version available: CircuitSim v" + remoteVersion);
+							alert.setContentText("Click Update to open a browser to the download location.");
+							alert.getButtonTypes().set(0, new ButtonType("Update", ButtonData.OK_DONE));
+							alert.getButtonTypes().add(ButtonType.CANCEL);
+							Optional<ButtonType> result = alert.showAndWait();
+							if(result.isPresent() && result.get().getButtonData() == ButtonData.OK_DONE) {
+								getHostServices().showDocument("https://www.roiatalla.com/public/CircuitSim/");
+							}
+						});
+					} else if(showOk) {
+						runFxSync(() -> {
+							Alert alert = new Alert(AlertType.INFORMATION);
+							alert.initOwner(stage);
+							alert.initModality(Modality.APPLICATION_MODAL);
+							alert.setTitle("No new updates");
+							alert.setHeaderText("No new updates");
+							alert.setContentText("You have the latest version and are good to go! :)");
+							alert.show();
+						});
+					}
+				} finally {
+					checkingForUpdate.set(false);
+				}
+			});
+			versionCheckThread.setDaemon(true);
+			versionCheckThread.setName("Version Check Thread");
+			versionCheckThread.start();
+		}
+	}
+	
 	private void loadConfFile() {
 		boolean showHelp = true;
 		
@@ -1020,11 +1099,11 @@ public class CircuitSim extends Application {
 						line = line.substring(0, comment).trim();
 					}
 					
-					String[] split = line.split("=");
-					if(split.length != 2) continue;
+					int idx = line.indexOf('=');
+					if(idx == -1) continue;
 					
-					String key = split[0].trim();
-					String value = split[1].trim();
+					String key = line.substring(0, idx).trim();
+					String value = line.substring(idx + 1).trim();
 					
 					switch(key) {
 						case "WindowX":
@@ -1104,9 +1183,8 @@ public class CircuitSim extends Application {
 			errorMessage = "Could not find class:\n" + exc.getMessage();
 		} catch(JsonSyntaxException exc) {
 			errorMessage = "Could not parse file:\n" + exc.getCause().getMessage();
-		} catch(NullPointerException | IllegalArgumentException | IllegalStateException exc) {
+		} catch(IOException | NullPointerException | IllegalArgumentException | IllegalStateException exc) {
 			exc.printStackTrace();
-			
 			errorMessage = "Error: " + exc.getMessage();
 		} catch(Exception exc) {
 			exc.printStackTrace();
@@ -1142,7 +1220,6 @@ public class CircuitSim extends Application {
 			File f = file;
 			
 			if(f == null) {
-				
 				File initialDirectory = lastSaveFile == null
 						                        || lastSaveFile.getParentFile() == null
 						                        || !lastSaveFile.getParentFile().isDirectory()
@@ -2162,6 +2239,8 @@ public class CircuitSim extends Application {
 			alert.setWidth(600);
 			alert.setHeight(440);
 		});
+		MenuItem checkUpdate = new MenuItem("Check for update");
+		checkUpdate.setOnAction(event -> checkForUpdate(true));
 		MenuItem about = new MenuItem("About");
 		about.setOnAction(event -> {
 			Alert alert = new Alert(AlertType.INFORMATION);
@@ -2172,9 +2251,10 @@ public class CircuitSim extends Application {
 			alert.setContentText("CircuitSim created by Roi Atalla © 2017\n\nThird party tools:\n• GSON by Google");
 			alert.show();
 		});
-		helpMenu.getItems().addAll(help, about);
+		helpMenu.getItems().addAll(help, checkUpdate, about);
 		
 		MenuBar menuBar = new MenuBar(fileMenu, editMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
+		menuBar.setUseSystemMenuBar(true);
 		
 		ScrollPane propertiesScrollPane = new ScrollPane(propertiesTable);
 		propertiesScrollPane.setFitToWidth(true);
@@ -2276,37 +2356,24 @@ public class CircuitSim extends Application {
 		
 		if(openWindow) {
 			showWindow();
-		}
-		
-		loadConfFile();
-		saveConfFile();
-		
-		Parameters parameters = getParameters();
-		if(parameters != null && !parameters.getRaw().isEmpty()) {
-			List<String> args = getParameters().getRaw();
-			try {
-				if(openWindow) {
-					loadCircuitsInternal(new File(args.get(0)));
-				} else {
-					loadCircuits(new File(args.get(0)));
-				}
-			} catch(Exception exc) {
-				exc.printStackTrace();
-			}
 			
-			if(openWindow && args.size() > 1) {
-				for(int i = 1; i < args.size(); i++) {
-					File file = new File(args.get(i));
-					if(file.exists()) {
-						try {
-							new CircuitSim(true).loadCircuitsInternal(file);
-						} catch(Exception exc) {
-							exc.printStackTrace();
-						}
-					} else {
-						System.err.println("File does not exist: " + args.get(i));
+			loadConfFile();
+			saveConfFile();
+			
+			Parameters parameters = getParameters();
+			if(parameters != null && !parameters.getRaw().isEmpty()) {
+				List<String> args = parameters.getRaw();
+				loadCircuitsInternal(new File(args.get(0)));
+				
+				if(args.size() > 1) {
+					for(int i = 1; i < args.size(); i++) {
+						new CircuitSim(true).loadCircuitsInternal(new File(args.get(i)));
 					}
 				}
+			}
+			
+			if(mainCalled && versionChecked.compareAndSet(false, true)) {
+				checkForUpdate(false);
 			}
 		}
 	}

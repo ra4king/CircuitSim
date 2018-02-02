@@ -986,8 +986,7 @@ public class CircuitManager {
 		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
 		                                e.getY() * simulatorWindow.getScaleFactorInverted());
 		
-		// For the case of creating wires without holding down mouse button
-		if(currentState == SelectingState.CONNECTION_DRAGGED) {
+		if(currentState != SelectingState.IDLE) {
 			setNeedsRepaint();
 		}
 		

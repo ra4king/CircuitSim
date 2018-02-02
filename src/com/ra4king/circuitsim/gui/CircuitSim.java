@@ -2247,8 +2247,8 @@ public class CircuitSim extends Application {
 			alert.initOwner(stage);
 			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("About");
-			alert.setHeaderText("CircuitSim v" + VERSION);
-			alert.setContentText("CircuitSim created by Roi Atalla © 2017\n\nThird party tools:\n• GSON by Google");
+			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2018");
+			alert.setContentText("Third party tools:\n• GSON by Google");
 			alert.show();
 		});
 		helpMenu.getItems().addAll(help, checkUpdate, about);

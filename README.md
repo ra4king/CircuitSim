@@ -1,4 +1,4 @@
-CircuitSim v1.6.2
+CircuitSim v1.7.0
 =================
 
 Site: https://ra4king.github.io/CircuitSim

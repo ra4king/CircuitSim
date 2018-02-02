@@ -24,7 +24,7 @@ Version 1.7.0 changelog:
 
 
 Version 1.6.2 changelog:
-- Fixed @247
+- Fixed exceptions being thrown when using Tunnels
 - Now you don't have hit enter to update a text or value property, someone complained that it was annoying. The component is automatically updated when you unfocus from the text input.
 - Multi-bit wires with a floating bit (X) now show up as dark blue instead of black
 - Button now has directions

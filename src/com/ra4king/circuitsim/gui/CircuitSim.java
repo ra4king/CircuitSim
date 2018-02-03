@@ -123,7 +123,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.7.0";
+	public static final String VERSION = "1.7.1beta0";
 	
 	private static boolean mainCalled = false;
 	private static AtomicBoolean versionChecked = new AtomicBoolean(false);
@@ -253,7 +253,7 @@ public class CircuitSim extends Application {
 		}
 		
 		simulator = new Simulator();
-		circuitManagers = new LinkedHashMap<>();
+		circuitManagers = new HashMap<>();
 		Clock.addChangeListener(simulator, value -> runSim());
 		
 		editHistory = new EditHistory();
@@ -785,20 +785,10 @@ public class CircuitSim extends Application {
 		runFxSync(() -> {
 			String oldName = tab.getText();
 			
-			Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.get(oldName);
+			Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(oldName);
 			Pair<ComponentLauncherInfo, CircuitManager> newPair =
 					new Pair<>(createSubcircuitLauncherInfo(newName), removed.getValue());
-			// use stream operators to replace mapping at the same index
-			circuitManagers =
-					circuitManagers.keySet().stream()
-					               .collect(Collectors.toMap(s -> s.equals(oldName) ? newName : s,
-					                                         s -> s.equals(oldName) ? newPair
-					                                                                : circuitManagers.get(s),
-					                                         (a, b) -> {
-						                                         throw new IllegalStateException(
-								                                         "Name already exists");
-					                                         },
-					                                         LinkedHashMap::new));
+			circuitManagers.put(newName, newPair);
 			
 			circuitManagers.values().forEach(componentPair -> {
 				for(ComponentPeer<?> componentPeer : componentPair.getValue().getCircuitBoard().getComponents()) {
@@ -1553,16 +1543,18 @@ public class CircuitSim extends Application {
 					Set<ComponentInfo> components =
 							manager.getCircuitBoard()
 							       .getComponents().stream()
-							       .map(component ->
-									            new ComponentInfo(component.getClass().getName(),
-									                              component.getX(), component.getY(),
-									                              component.getProperties())).collect(
-									Collectors.toSet());
+							       .map(component -> new ComponentInfo(component.getClass().getName(),
+							                                           component.getX(),
+							                                           component.getY(),
+							                                           component.getProperties()))
+							       .collect(Collectors.toSet());
 					Set<WireInfo> wires = manager.getCircuitBoard()
 					                             .getLinks().stream()
 					                             .flatMap(linkWires -> linkWires.getWires().stream())
-					                             .map(wire -> new WireInfo(wire.getX(), wire.getY(),
-					                                                       wire.getLength(), wire.isHorizontal()))
+					                             .map(wire -> new WireInfo(wire.getX(),
+					                                                       wire.getY(),
+					                                                       wire.getLength(),
+					                                                       wire.isHorizontal()))
 					                             .collect(Collectors.toSet());
 					
 					circuits.add(new CircuitInfo(name, components, wires));

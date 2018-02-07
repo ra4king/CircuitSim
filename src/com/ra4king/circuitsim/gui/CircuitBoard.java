@@ -151,7 +151,7 @@ public class CircuitBoard {
 				                        moveElements != null
 					                        ? moveElements.stream().filter(e -> e instanceof ComponentPeer<?>)
 					                        : Stream.empty())
-				                .noneMatch(c -> c != component&& c.getX() == component.getX()
+				                .noneMatch(c -> c != component && c.getX() == component.getX()
 						                                && c.getY() == component.getY());
 	}
 	
@@ -1012,10 +1012,7 @@ public class CircuitBoard {
 			}
 		}
 		
-		if(!components.remove(component)) {
-			throw new IllegalStateException("Couldn't find component!");
-		}
-		
+		components.remove(component);
 		editHistory.addAction(EditAction.REMOVE_COMPONENT, circuitManager, component);
 	}
 	

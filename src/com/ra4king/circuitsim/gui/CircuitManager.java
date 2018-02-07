@@ -1,7 +1,6 @@
 package com.ra4king.circuitsim.gui;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +78,7 @@ public class CircuitManager {
 	
 	private Connection startConnection, endConnection;
 	
-	private Map<GuiElement, Point2D> selectedElementsMap = new HashMap<>();
+	private Set<GuiElement> selectedElements = new HashSet<>();
 	
 	private Exception lastException;
 	private long lastErrorTime;
@@ -97,12 +96,12 @@ public class CircuitManager {
 			
 			MenuItem delete = new MenuItem("Delete");
 			delete.setOnAction(event1 -> {
-				mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
+				mayThrow(() -> circuitBoard.removeElements(selectedElements));
 				setSelectedElements(Collections.emptySet());
 				reset();
 			});
 			
-			if(selectedElementsMap.size() == 0) {
+			if(selectedElements.size() == 0) {
 				Optional<ComponentPeer<?>> any = circuitBoard.getComponents().stream().filter(
 						component -> component.containsScreenCoord((int)event.getX(), (int)event.getY())).findAny();
 				if(any.isPresent()) {
@@ -110,9 +109,9 @@ public class CircuitManager {
 					menu.getItems().add(delete);
 					menu.getItems().addAll(any.get().getContextMenuItems(this));
 				}
-			} else if(selectedElementsMap.size() == 1) {
+			} else if(selectedElements.size() == 1) {
 				menu.getItems().add(delete);
-				menu.getItems().addAll(selectedElementsMap.keySet().iterator().next().getContextMenuItems(this));
+				menu.getItems().addAll(selectedElements.iterator().next().getContextMenuItems(this));
 			} else {
 				menu.getItems().add(delete);
 			}
@@ -210,15 +209,13 @@ public class CircuitManager {
 	}
 	
 	public Set<GuiElement> getSelectedElements() {
-		return selectedElementsMap.keySet();
+		return selectedElements;
 	}
 	
 	public void setSelectedElements(Set<GuiElement> elements) {
 		mayThrow(circuitBoard::finalizeMove);
-		selectedElementsMap = elements.stream().collect(
-				Collectors.toMap(peer -> peer,
-				                 peer -> new Point2D(peer.getX(),
-				                                     peer.getY())));
+		selectedElements.clear();
+		selectedElements.addAll(elements);
 		updateSelectedProperties();
 	}
 	
@@ -231,19 +228,19 @@ public class CircuitManager {
 	}
 	
 	private Properties getCommonSelectedProperties() {
-		return selectedElementsMap.keySet().stream()
-		                          .filter(element -> element instanceof ComponentPeer<?>)
-		                          .map(element -> ((ComponentPeer<?>)element).getProperties())
-		                          .reduce(Properties::intersect).orElse(new Properties());
+		return selectedElements.stream()
+		                       .filter(element -> element instanceof ComponentPeer<?>)
+		                       .map(element -> ((ComponentPeer<?>)element).getProperties())
+		                       .reduce(Properties::intersect).orElse(new Properties());
 	}
 	
 	private void updateSelectedProperties() {
-		long componentCount = selectedElementsMap.keySet().stream()
-		                                         .filter(element -> element instanceof ComponentPeer<?>)
-		                                         .count();
+		long componentCount = selectedElements.stream()
+		                                      .filter(element -> element instanceof ComponentPeer<?>)
+		                                      .count();
 		if(componentCount == 1) {
-			Optional<? extends ComponentPeer<?>> peer = selectedElementsMap
-					                                            .keySet().stream()
+			Optional<? extends ComponentPeer<?>> peer = selectedElements
+					                                            .stream()
 					                                            .filter(element -> element instanceof ComponentPeer<?>)
 					                                            .map(element -> ((ComponentPeer<?>)element))
 					                                            .findAny();
@@ -259,7 +256,7 @@ public class CircuitManager {
 		this.componentCreator = componentCreator;
 		this.potentialComponentProperties = properties;
 		
-		setNeedsRepaint();
+		mayThrow(circuitBoard::finalizeMove);
 		
 		if(currentState != SelectingState.IDLE && currentState != SelectingState.PLACING_COMPONENT) {
 			reset();
@@ -280,10 +277,10 @@ public class CircuitManager {
 			return;
 		}
 		
-		if(properties != null && !properties.isEmpty() && !selectedElementsMap.isEmpty()) {
+		if(properties != null && !properties.isEmpty() && !selectedElements.isEmpty()) {
 			Map<ComponentPeer<?>, ComponentPeer<?>> newComponents =
-					selectedElementsMap
-							.keySet().stream()
+					selectedElements
+							.stream()
 							.filter(element -> element instanceof ComponentPeer<?>)
 							.map(element -> (ComponentPeer<?>)element)
 							.collect(Collectors.toMap(
@@ -305,7 +302,7 @@ public class CircuitManager {
 			simulatorWindow.getEditHistory().endGroup();
 			
 			setSelectedElements(Stream.concat(
-					selectedElementsMap.keySet().stream().filter(element -> !(element instanceof ComponentPeer<?>)),
+					selectedElements.stream().filter(element -> !(element instanceof ComponentPeer<?>)),
 					newComponents.values().stream())
 			                          .collect(Collectors.toSet()));
 			return;
@@ -350,7 +347,7 @@ public class CircuitManager {
 			exc.printStackTrace();
 		}
 		
-		for(GuiElement selectedElement : selectedElementsMap.keySet()) {
+		for(GuiElement selectedElement : selectedElements) {
 			graphics.setStroke(Color.ORANGERED);
 			if(selectedElement instanceof Wire) {
 				double xOff = ((Wire)selectedElement).isHorizontal() ? 0 : 1;
@@ -538,12 +535,6 @@ public class CircuitManager {
 	
 	private void handleArrowPressed(Direction direction) {
 		if(currentState == SelectingState.PLACING_COMPONENT || !getSelectedElements().isEmpty()) {
-			if(currentState == SelectingState.ELEMENT_DRAGGED
-					   || currentState == SelectingState.ELEMENT_SELECTED) {
-				mayThrow(circuitBoard::finalizeMove);
-				currentState = SelectingState.IDLE;
-			}
-			
 			Properties props = new Properties(currentState == SelectingState.PLACING_COMPONENT ?
 			                                  this.potentialComponentProperties : getCommonSelectedProperties());
 			props.setValue(Properties.DIRECTION, direction);
@@ -552,8 +543,8 @@ public class CircuitManager {
 	}
 	
 	public void keyPressed(KeyEvent e) {
-		if(e.getCode() != KeyCode.SHIFT && lastPressed == null && selectedElementsMap.size() == 1) {
-			lastPressed = selectedElementsMap.keySet().iterator().next();
+		if(e.getCode() != KeyCode.SHIFT && lastPressed == null && selectedElements.size() == 1) {
+			lastPressed = selectedElements.iterator().next();
 			lastPressedConsumed = lastPressed.keyPressed(this, circuitBoard.getCurrentState(), e.getCode(),
 			                                             e.getText());
 			lastPressedKeyCode = e.getCode();
@@ -601,7 +592,7 @@ public class CircuitManager {
 			case BACK_SPACE:
 				if(!getSelectedElements().isEmpty()) {
 					mayThrow(circuitBoard::finalizeMove);
-					mayThrow(() -> circuitBoard.removeElements(selectedElementsMap.keySet()));
+					mayThrow(() -> circuitBoard.removeElements(selectedElements));
 					reset();
 				}
 				break;
@@ -616,8 +607,8 @@ public class CircuitManager {
 	}
 	
 	public void keyTyped(KeyEvent e) {
-		if(selectedElementsMap.size() == 1) {
-			GuiElement element = selectedElementsMap.keySet().iterator().next();
+		if(selectedElements.size() == 1) {
+			GuiElement element = selectedElements.iterator().next();
 			element.keyTyped(this, circuitBoard.getCurrentState(), e.getCharacter());
 			setNeedsRepaint();
 		}
@@ -934,7 +925,7 @@ public class CircuitManager {
 				int height = (int)Math.abs(lastMousePosition.getY() - lastMousePressed.getY());
 				
 				if(!isCtrlDown) {
-					selectedElementsMap.clear();
+					selectedElements.clear();
 				}
 				
 				setSelectedElements(Stream.concat(

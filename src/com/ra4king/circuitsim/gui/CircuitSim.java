@@ -2002,7 +2002,7 @@ public class CircuitSim extends Application {
 					CircuitManager manager = getCurrentCircuit();
 					if(manager != null) {
 						outer:
-						for(int i = 3; ; i += 3) {
+						for(int i = 0; ; i += 3) { // start 0 in the case of Cut and Paste
 							Set<GuiElement> elementsCreated = new HashSet<>();
 							
 							for(CircuitInfo circuit : parsed.circuits) {

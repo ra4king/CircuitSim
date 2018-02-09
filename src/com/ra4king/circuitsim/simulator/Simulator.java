@@ -148,8 +148,6 @@ public class Simulator {
 				linksToUpdate = temp;
 				temp = tmp;
 				
-				temp.addAll(shortCircuited);
-				
 				linksToUpdate.clear();
 				shortCircuited.clear();
 				lastShortCircuit = null;
@@ -163,7 +161,7 @@ public class Simulator {
 					}
 				});
 				
-				if(lastShortCircuit != null && linksToUpdate.size() == 0) {
+				if(lastShortCircuit != null && linksToUpdate.isEmpty()) {
 					throw lastShortCircuit;
 				}
 				
@@ -185,15 +183,19 @@ public class Simulator {
 			
 			history.clear();
 			
-			do {
+			int repeatCount = 0;
+			
+			while(!linksToUpdate.isEmpty()) {
 				if(history.contains(linksToUpdate)) {
-					linksToUpdate.clear();
-					throw new IllegalStateException("Oscillation apparent.");
+					if(++repeatCount == 10) { // since short circuits are retried, it looks like they're oscillating
+						throw new IllegalStateException("Oscillation apparent.");
+					}
 				}
 				
 				history.add(new LinkedHashSet<>(linksToUpdate));
+				
 				step();
-			} while(!linksToUpdate.isEmpty());
+			}
 		});
 	}
 }

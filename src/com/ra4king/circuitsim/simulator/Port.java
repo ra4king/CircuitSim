@@ -42,21 +42,6 @@ public class Port {
 	}
 	
 	@Override
-	public int hashCode() {
-		return component.hashCode() ^ portIndex;
-	}
-	
-	@Override
-	public boolean equals(Object other) {
-		if(other instanceof Port) {
-			Port port = (Port)other;
-			return port.component == this.component && port.portIndex == this.portIndex;
-		}
-		
-		return false;
-	}
-	
-	@Override
 	public String toString() {
 		return "Port(" + component + "[" + portIndex + "])";
 	}

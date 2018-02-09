@@ -44,6 +44,8 @@ public class Circuit {
 		this.name = name;
 	}
 	
+	private RuntimeException exception = null;
+	
 	/**
 	 * Add the Component to this Circuit. Its {@code init} method is called for each state belonging to this Circuit.
 	 * All attached listeners are notified of the addition.
@@ -63,10 +65,24 @@ public class Circuit {
 			
 			component.setCircuit(this);
 			components.add(component);
-			states.forEach(state -> component.init(state, state.getComponentProperty(component)));
+			states.forEach(state -> {
+				try {
+					component.init(state, state.getComponentProperty(component));
+				} catch(RuntimeException exc) {
+					if(exception != null) {
+						exception = exc;
+					}
+				}
+			});
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, component, true));
 		});
+		
+		if(exception != null) {
+			RuntimeException exc = exception;
+			exception = null;
+			throw exc;
+		}
 		
 		return component;
 	}
@@ -86,7 +102,15 @@ public class Circuit {
 			states.forEach(state -> state.ensureUnlinked(oldComponent));
 			
 			components.remove(oldComponent);
-			states.forEach(oldComponent::uninit);
+			states.forEach(state -> {
+				try {
+					oldComponent.uninit(state);
+				} catch(RuntimeException exc) {
+					if(exception != null) {
+						exception = exc;
+					}
+				}
+			});
 			oldComponent.setCircuit(null);
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, oldComponent, false));
@@ -97,10 +121,24 @@ public class Circuit {
 			
 			newComponent.setCircuit(this);
 			components.add(newComponent);
-			states.forEach(state -> newComponent.init(state, state.getComponentProperty(oldComponent)));
+			states.forEach(state -> {
+				try {
+					newComponent.init(state, state.getComponentProperty(oldComponent));
+				} catch(RuntimeException exc) {
+					if(exception != null) {
+						exception = exc;
+					}
+				}
+			});
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, newComponent, true));
 		});
+		
+		if(exception != null) {
+			RuntimeException exc = exception;
+			exception = null;
+			throw exc;
+		}
 	}
 	
 	/**
@@ -114,11 +152,25 @@ public class Circuit {
 			states.forEach(state -> state.ensureUnlinked(component));
 			
 			components.remove(component);
-			states.forEach(component::uninit);
+			states.forEach(state -> {
+				try {
+					component.uninit(state);
+				} catch(RuntimeException exc) {
+					if(exception != null) {
+						exception = exc;
+					}
+				}
+			});
 			component.setCircuit(null);
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, component, false));
 		});
+		
+		if(exception != null) {
+			RuntimeException exc = exception;
+			exception = null;
+			throw exc;
+		}
 	}
 	
 	public Set<Component> getComponents() {

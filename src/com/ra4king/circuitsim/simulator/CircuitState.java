@@ -1,9 +1,8 @@
 package com.ra4king.circuitsim.simulator;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.ra4king.circuitsim.simulator.Port.Link;
@@ -114,15 +113,24 @@ public class CircuitState {
 		linkStates.putAll(linkStates.keySet().stream().collect(Collectors.toMap(link -> link, LinkState::new)));
 		
 		circuit.getComponents().forEach(c -> {
-			c.uninit(this);
-			c.init(this, null);
+			try {
+				c.uninit(this);
+				c.init(this, null);
+			} catch(Exception exc) {
+				// ignore
+			}
 		});
 	}
 	
 	private LinkState get(Link link) {
 		if(!linkStates.containsKey(link)) {
 			if(link.getCircuit() == null) {
-				throw new IllegalArgumentException("Link has no circuit!");
+				try {
+					throw new IllegalArgumentException("Link has no circuit!");
+				} catch(IllegalArgumentException exc) {
+					exc.printStackTrace();
+					throw exc;
+				}
 			}
 			
 			if(link.getCircuit() != circuit) {
@@ -285,23 +293,36 @@ public class CircuitState {
 		}
 		
 		void propagate() {
-			Set<Port> toNotify = new HashSet<>();
-			
-			for(Port participantPort : participants.keySet()) {
-				WireValue incomingValue = getIncomingValue(participantPort);
-				WireValue lastReceived = getLastReceived(participantPort);
-				if(!lastReceived.equals(incomingValue)) {
-					lastReceived.set(incomingValue);
-					toNotify.add(participantPort);
-				}
-			}
+			Map<Port, WireValue> toNotify = new HashMap<>();
 			
 			RuntimeException exception = null;
 			
-			for(Port participantPort : toNotify) {
+			for(Port participantPort : participants.keySet()) {
+				WireValue incomingValue;
+				try {
+					incomingValue = getIncomingValue(participantPort);
+				} catch(ShortCircuitException exc) {
+					if(exception == null) { // grab the first one
+						exception = exc;
+					}
+					continue;
+				}
+				
+				WireValue lastReceived = getLastReceived(participantPort);
+				if(!lastReceived.equals(incomingValue)) {
+					toNotify.put(participantPort, incomingValue);
+				}
+			}
+			
+			for(Entry<Port, WireValue> entry : toNotify.entrySet()) {
+				Port participantPort = entry.getKey();
+				WireValue incomingValue = entry.getValue();
+				
+				getLastReceived(participantPort).set(incomingValue);
+				
 				try {
 					participantPort.getComponent().valueChanged(CircuitState.this,
-					                                            getLastReceived(participantPort),
+					                                            incomingValue,
 					                                            participantPort.getPortIndex());
 				} catch(RuntimeException exc) {
 					if(exception == null) { // grab the first one

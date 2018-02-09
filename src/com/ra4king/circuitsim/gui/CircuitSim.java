@@ -123,7 +123,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.7.1beta0";
+	public static final String VERSION = "1.7.1beta1";
 	
 	private static boolean mainCalled = false;
 	private static AtomicBoolean versionChecked = new AtomicBoolean(false);
@@ -601,9 +601,11 @@ public class CircuitSim extends Application {
 							                                                      : Color.WHITE, null, null)));
 					
 					Node node = property.validator.createGui(stage, property.value, newValue -> {
-						Properties newProperties = new Properties(properties);
-						newProperties.setValue(property, newValue);
-						updateProperties(newProperties);
+						Platform.runLater(() -> {
+							Properties newProperties = new Properties(properties);
+							newProperties.setValue(property, newValue);
+							updateProperties(newProperties);
+						});
 					});
 					
 					if(node != null) {

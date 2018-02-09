@@ -258,7 +258,8 @@ public class CircuitManager {
 		
 		mayThrow(circuitBoard::finalizeMove);
 		
-		if(currentState != SelectingState.IDLE && currentState != SelectingState.PLACING_COMPONENT) {
+		if(currentState != SelectingState.IDLE && currentState != SelectingState.PLACING_COMPONENT
+				&& currentState != SelectingState.ELEMENT_SELECTED && currentState != SelectingState.ELEMENT_DRAGGED) {
 			reset();
 		}
 		

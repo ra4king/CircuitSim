@@ -374,11 +374,8 @@ public class CircuitSim extends Application {
 		Exception exc = lastException != null ? lastException
 		                                      : manager != null ? manager.getCurrentError() : null;
 		
-		String message =
-				exc == null ? ""
-				            : (exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage());
-		
-		return message == null ? "" : message;
+		return exc == null || exc.getMessage() == null
+		       ? "" : (exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage());
 	}
 	
 	private int getCurrentClockSpeed() {

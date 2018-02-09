@@ -125,12 +125,7 @@ public class CircuitState {
 	private LinkState get(Link link) {
 		if(!linkStates.containsKey(link)) {
 			if(link.getCircuit() == null) {
-				try {
-					throw new IllegalArgumentException("Link has no circuit!");
-				} catch(IllegalArgumentException exc) {
-					exc.printStackTrace();
-					throw exc;
-				}
+				throw new IllegalArgumentException("Link has no circuit!");
 			}
 			
 			if(link.getCircuit() != circuit) {
@@ -295,16 +290,14 @@ public class CircuitState {
 		void propagate() {
 			Map<Port, WireValue> toNotify = new HashMap<>();
 			
-			RuntimeException exception = null;
+			ShortCircuitException shortCircuit = null;
 			
 			for(Port participantPort : participants.keySet()) {
 				WireValue incomingValue;
 				try {
 					incomingValue = getIncomingValue(participantPort);
 				} catch(ShortCircuitException exc) {
-					if(exception == null) { // grab the first one
-						exception = exc;
-					}
+					shortCircuit = exc;
 					continue;
 				}
 				
@@ -313,6 +306,8 @@ public class CircuitState {
 					toNotify.put(participantPort, incomingValue);
 				}
 			}
+			
+			RuntimeException exception = null;
 			
 			for(Entry<Port, WireValue> entry : toNotify.entrySet()) {
 				Port participantPort = entry.getKey();
@@ -324,15 +319,24 @@ public class CircuitState {
 					participantPort.getComponent().valueChanged(CircuitState.this,
 					                                            incomingValue,
 					                                            participantPort.getPortIndex());
+				} catch(ShortCircuitException exc) {
+					shortCircuit = exc;
 				} catch(RuntimeException exc) {
+					exc.printStackTrace();
+					
 					if(exception == null) { // grab the first one
 						exception = exc;
 					}
 				}
 			}
 			
+			// Component error is more important than a short circuit
 			if(exception != null) {
 				throw exception;
+			}
+			
+			if(shortCircuit != null) {
+				throw shortCircuit;
 			}
 			
 			getMergedValue(); // check for short circuit

@@ -153,6 +153,10 @@ public class Simulator {
 				lastShortCircuit = null;
 				
 				temp.forEach(pair -> {
+					if(pair.getValue().getCircuit() == null) {
+						return;
+					}
+					
 					try {
 						pair.getKey().propagateSignal(pair.getValue());
 					} catch(ShortCircuitException exc) {
@@ -188,7 +192,7 @@ public class Simulator {
 			while(!linksToUpdate.isEmpty()) {
 				if(history.contains(linksToUpdate)) {
 					if(++repeatCount == 10) { // since short circuits are retried, it looks like they're oscillating
-						throw new IllegalStateException("Oscillation apparent.");
+						throw new IllegalStateException("Oscillation apparent");
 					}
 				}
 				

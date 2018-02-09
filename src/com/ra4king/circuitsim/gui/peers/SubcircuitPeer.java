@@ -124,6 +124,18 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		return Collections.singletonList(view);
 	}
 	
+	private boolean mouseEntered = false;
+	
+	@Override
+	public void mouseEntered(CircuitManager manager, CircuitState state) {
+		mouseEntered = true;
+	}
+	
+	@Override
+	public void mouseExited(CircuitManager manager, CircuitState state) {
+		mouseEntered = false;
+	}
+	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
@@ -132,5 +144,22 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		GuiUtils.drawShape(graphics::fillRect, this);
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
+		
+		if(mouseEntered) {
+			double width = getScreenWidth();
+			double height = getScreenHeight();
+			
+			graphics.setLineWidth(1.5);
+			graphics.strokeOval(getScreenX() + (width - 13) / 2,
+			                    getScreenY() + (height - 13) / 2,
+			                    13,
+			                    13);
+			
+			graphics.setLineWidth(2.5);
+			graphics.strokeLine(getScreenX() + width / 2 + 4.6,
+			                    getScreenY() + height / 2 + 4.6,
+			                    getScreenX() + width / 2 + 10,
+			                    getScreenY() + height / 2 + 10);
+		}
 	}
 }

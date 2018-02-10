@@ -4,7 +4,6 @@ import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.simulator.CircuitState;
-import com.ra4king.circuitsim.simulator.components.gates.Gate;
 import com.ra4king.circuitsim.simulator.components.gates.NandGate;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -15,7 +14,7 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class NandGatePeer extends GatePeer {
+public class NandGatePeer extends GatePeer<NandGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Gates", "NAND"),
 		                     new Image(NandGatePeer.class.getResourceAsStream("/resources/NandGate.png")),
@@ -33,7 +32,7 @@ public class NandGatePeer extends GatePeer {
 	}
 	
 	@Override
-	public Gate buildGate(Properties properties) {
+	public NandGate buildGate(Properties properties) {
 		int numInputs;
 		return new NandGate(properties.getValue(Properties.LABEL),
 		                    properties.getValue(Properties.BITSIZE),

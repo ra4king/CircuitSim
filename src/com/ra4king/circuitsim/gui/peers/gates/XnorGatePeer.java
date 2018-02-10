@@ -4,7 +4,6 @@ import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.simulator.CircuitState;
-import com.ra4king.circuitsim.simulator.components.gates.Gate;
 import com.ra4king.circuitsim.simulator.components.gates.XnorGate;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -16,7 +15,7 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class XnorGatePeer extends GatePeer {
+public class XnorGatePeer extends GatePeer<XnorGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Gates", "XNOR"),
 		                     new Image(XnorGatePeer.class.getResourceAsStream("/resources/XnorGate.png")),
@@ -34,7 +33,7 @@ public class XnorGatePeer extends GatePeer {
 	}
 	
 	@Override
-	public Gate buildGate(Properties properties) {
+	public XnorGate buildGate(Properties properties) {
 		int numInputs;
 		return new XnorGate(properties.getValue(Properties.LABEL),
 		                    properties.getValue(Properties.BITSIZE),

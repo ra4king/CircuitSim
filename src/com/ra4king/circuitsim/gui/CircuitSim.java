@@ -1106,7 +1106,9 @@ public class CircuitSim extends Application {
 							stage.setHeight(Integer.parseInt(value));
 							break;
 						case "IsMaximized":
-							stage.setMaximized(Boolean.parseBoolean(value));
+							if(!newWindow) {
+								stage.setMaximized(Boolean.parseBoolean(value));
+							}
 							break;
 						case "Scale":
 							scaleFactorSelect.setValue(Double.parseDouble(value));
@@ -1139,11 +1141,14 @@ public class CircuitSim extends Application {
 		File file = new File(home, ".circuitsim");
 		
 		List<String> conf = new ArrayList<>();
-		conf.add("WindowX=" + (int)stage.getX());
-		conf.add("WindowY=" + (int)stage.getY());
-		conf.add("WindowWidth=" + (int)stage.getWidth());
-		conf.add("WindowHeight=" + (int)stage.getHeight());
-		conf.add("IsMaximized=" + stage.isMaximized());
+		if(stage.isMaximized()) {
+			conf.add("IsMaximized=true");
+		} else {
+			conf.add("WindowX=" + (int)stage.getX());
+			conf.add("WindowY=" + (int)stage.getY());
+			conf.add("WindowWidth=" + (int)stage.getWidth());
+			conf.add("WindowHeight=" + (int)stage.getHeight());
+		}
 		conf.add("Scale=" + scaleFactorSelect.getValue());
 		conf.add("HelpShown=" + VERSION);
 		if(lastSaveFile != null) {
@@ -1252,6 +1257,8 @@ public class CircuitSim extends Application {
 							for(String libraryPath : circuitFile.libraryPaths) {
 								File libraryFile = new File(libraryPath);
 								if(libraryFile.isFile()) {
+									Platform.runLater(
+											() -> dialog.setContentText("Loading library " + libraryFile.getName()));
 									runFxSync(() -> loadLibrary(libraryFile));
 								}
 							}
@@ -1435,15 +1442,15 @@ public class CircuitSim extends Application {
 						Class<? extends ComponentPeer<?>> cc = (Class<? extends ComponentPeer<?>>)c;
 						componentManager.register(cc);
 					}
-				} catch(Exception exc) {
-					exc.printStackTrace();
+				} catch(Throwable t) {
+					t.printStackTrace();
 					
 					Alert alert = new Alert(AlertType.ERROR);
 					alert.initOwner(stage);
 					alert.initModality(Modality.WINDOW_MODAL);
 					alert.setTitle("Error loading class");
 					alert.setHeaderText("Error loading class");
-					alert.setContentText("Error when loading class: " + exc.getMessage());
+					alert.setContentText("Error when loading class: " + t.getMessage());
 					alert.getButtonTypes().add(ButtonType.CANCEL);
 					Optional<ButtonType> buttonType = alert.showAndWait();
 					if(buttonType.isPresent() && buttonType.get() == ButtonType.CANCEL) {

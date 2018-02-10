@@ -4,7 +4,6 @@ import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.simulator.CircuitState;
-import com.ra4king.circuitsim.simulator.components.gates.Gate;
 import com.ra4king.circuitsim.simulator.components.gates.XorGate;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -16,7 +15,7 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class XorGatePeer extends GatePeer {
+public class XorGatePeer extends GatePeer<XorGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Gates", "XOR"),
 		                     new Image(XorGatePeer.class.getResourceAsStream("/resources/XorGate.png")),
@@ -34,7 +33,7 @@ public class XorGatePeer extends GatePeer {
 	}
 	
 	@Override
-	public Gate buildGate(Properties properties) {
+	public XorGate buildGate(Properties properties) {
 		int numInputs;
 		return new XorGate(properties.getValue(Properties.LABEL),
 		                   properties.getValue(Properties.BITSIZE),

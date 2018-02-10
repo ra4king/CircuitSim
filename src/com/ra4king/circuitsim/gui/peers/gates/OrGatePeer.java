@@ -4,7 +4,6 @@ import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.simulator.CircuitState;
-import com.ra4king.circuitsim.simulator.components.gates.Gate;
 import com.ra4king.circuitsim.simulator.components.gates.OrGate;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -15,7 +14,7 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class OrGatePeer extends GatePeer {
+public class OrGatePeer extends GatePeer<OrGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Gates", "OR"),
 		                     new Image(OrGatePeer.class.getResourceAsStream("/resources/OrGate.png")),
@@ -33,7 +32,7 @@ public class OrGatePeer extends GatePeer {
 	}
 	
 	@Override
-	public Gate buildGate(Properties properties) {
+	public OrGate buildGate(Properties properties) {
 		int numInputs;
 		return new OrGate(properties.getValue(Properties.LABEL),
 		                  properties.getValue(Properties.BITSIZE),

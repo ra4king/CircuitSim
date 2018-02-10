@@ -4,7 +4,6 @@ import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.simulator.CircuitState;
-import com.ra4king.circuitsim.simulator.components.gates.Gate;
 import com.ra4king.circuitsim.simulator.components.gates.NotGate;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -15,7 +14,7 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class NotGatePeer extends GatePeer {
+public class NotGatePeer extends GatePeer<NotGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Gates", "NOT"),
 		                     new Image(NotGatePeer.class.getResourceAsStream("/resources/NotGate.png")),
@@ -32,7 +31,7 @@ public class NotGatePeer extends GatePeer {
 	}
 	
 	@Override
-	public Gate buildGate(Properties properties) {
+	public NotGate buildGate(Properties properties) {
 		return new NotGate(properties.getValue(Properties.LABEL),
 		                   properties.getValue(Properties.BITSIZE));
 	}

@@ -1668,6 +1668,7 @@ public class CircuitSim extends Application {
 						if(value.isPresent() && !(lastTyped = value.get().trim()).isEmpty()
 								   && !lastTyped.equals(canvasTab.getText())) {
 							renameCircuit(canvasTab, lastTyped);
+							clearSelection();
 						}
 						break;
 					} catch(Exception exc) {

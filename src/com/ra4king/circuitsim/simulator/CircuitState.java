@@ -303,6 +303,7 @@ public class CircuitState {
 				
 				WireValue lastReceived = getLastReceived(participantPort);
 				if(!lastReceived.equals(incomingValue)) {
+					lastReceived.set(incomingValue);
 					toNotify.put(participantPort, incomingValue);
 				}
 			}
@@ -312,8 +313,6 @@ public class CircuitState {
 			for(Entry<Port, WireValue> entry : toNotify.entrySet()) {
 				Port participantPort = entry.getKey();
 				WireValue incomingValue = entry.getValue();
-				
-				getLastReceived(participantPort).set(incomingValue);
 				
 				try {
 					participantPort.getComponent().valueChanged(CircuitState.this,

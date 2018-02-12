@@ -257,6 +257,7 @@ public class CircuitManager {
 		this.potentialComponentProperties = properties;
 		
 		mayThrow(circuitBoard::finalizeMove);
+		dummyCircuit.clearComponents();
 		
 		if(currentState != SelectingState.IDLE && currentState != SelectingState.PLACING_COMPONENT
 				&& currentState != SelectingState.ELEMENT_SELECTED && currentState != SelectingState.ELEMENT_DRAGGED) {
@@ -311,7 +312,6 @@ public class CircuitManager {
 		
 		currentState = SelectingState.IDLE;
 		setSelectedElements(Collections.emptySet());
-		dummyCircuit.clearComponents();
 		potentialComponent = null;
 		isDraggedHorizontally = false;
 		startConnection = null;

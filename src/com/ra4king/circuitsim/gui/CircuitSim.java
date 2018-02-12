@@ -1941,6 +1941,9 @@ public class CircuitSim extends Application {
 			CircuitManager manager = getCurrentCircuit();
 			if(manager != null) {
 				Set<GuiElement> selectedElements = manager.getSelectedElements();
+				if(selectedElements.isEmpty()) {
+					return;
+				}
 				
 				Set<ComponentInfo> components =
 						selectedElements

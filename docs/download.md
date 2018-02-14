@@ -11,6 +11,14 @@ Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 Changes
 -------
 
+Version 1.7.1 changelog:
+- Squashed tunnel bugs: now short-circuits should propagate properly across them and tunnels should work properly
+- Added comparison type to Comparator: now you can do both 2's complement and unsigned comparison
+- Draw magnifying glass to subcircuit components when hovering over them to indicate ability to view internal state
+- Officially making a file format change supporting library paths
+- Other minor bugs fixed
+
+
 Version 1.7.0 changelog:
 - Big thanks to Cem Gokmen for helping with the Mac issues and Austin Adams for gradle-ifying the repo!
 - Now supporting both Java 8 and 9 - thanks to Austin Adams for figuring out how to create a multi-release Jar.

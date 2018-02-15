@@ -11,6 +11,13 @@ Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 Changes
 -------
 
+Version 1.7.2 changelog:
+- Add Probe component, which lets you observe values on wires without resorting to output pins
+- Improve behavior multi-component selection when holding down control by disabling drag-less wire creation when control is held down
+- Copy doesn't do anything when nothing is selected instead of emptying the clipboard
+- Other minor bugs fixed
+
+
 Version 1.7.1 changelog:
 - Squashed tunnel bugs: now short-circuits should propagate properly across them and tunnels should work properly
 - Added comparison type to Comparator: now you can do both 2's complement and unsigned comparison

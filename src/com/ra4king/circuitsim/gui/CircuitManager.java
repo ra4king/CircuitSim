@@ -780,7 +780,7 @@ public class CircuitManager {
 						inspectLinkWires = startConnection.getLinkWires();
 						currentState = SelectingState.IDLE;
 					} else {
-						if(isCtrlDown) {
+						if(isCtrlDown && getSelectedElements().isEmpty()) {
 							currentState = SelectingState.CONNECTION_DRAGGED;
 						} else {
 							currentState = SelectingState.CONNECTION_SELECTED;
@@ -884,7 +884,7 @@ public class CircuitManager {
 			}
 			
 			case CONNECTION_DRAGGED: {
-				if(!isCtrlDown) {
+				if(!getSelectedElements().isEmpty() || !isCtrlDown) {
 					addCurrentWire();
 					currentState = SelectingState.IDLE;
 					startConnection = null;

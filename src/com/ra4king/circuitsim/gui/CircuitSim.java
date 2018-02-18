@@ -597,13 +597,16 @@ public class CircuitSim extends Application {
 							new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
 							                                                      : Color.WHITE, null, null)));
 					
-					Node node = property.validator.createGui(stage, property.value, newValue -> {
-						Platform.runLater(() -> {
-							Properties newProperties = new Properties(properties);
-							newProperties.setValue(property, newValue);
-							updateProperties(newProperties);
-						});
-					});
+					Node node =
+							property.validator
+									.createGui(stage,
+									           property.value,
+									           newValue ->
+											           Platform.runLater(() -> {
+												           Properties newProperties = new Properties(properties);
+												           newProperties.setValue(property, newValue);
+												           updateProperties(newProperties);
+											           }));
 					
 					if(node != null) {
 						Pane valuePane = new Pane(node);
@@ -997,7 +1000,7 @@ public class CircuitSim extends Application {
 	private static AtomicBoolean checkingForUpdate = new AtomicBoolean(false);
 	
 	private void checkForUpdate(boolean showOk) {
-		if(VERSION.indexOf('b') == -1 && checkingForUpdate.compareAndSet(false, true)) {
+		if(checkingForUpdate.compareAndSet(false, true)) {
 			Thread versionCheckThread = new Thread(() -> {
 				try {
 					URL url;
@@ -1031,7 +1034,44 @@ public class CircuitSim extends Application {
 						return;
 					}
 					
-					if(!VERSION.equals(remoteVersion)) {
+					boolean updateAvailable = false;
+					{
+						String local = VERSION;
+						
+						int beta = local.indexOf('b');
+						if(beta != -1) {
+							local = local.substring(0, beta);
+						}
+						
+						String[] parts = local.split("\\.");
+						int localMajor = Integer.parseInt(parts[0]);
+						int localMinor = Integer.parseInt(parts[1]);
+						int localBugfix = Integer.parseInt(parts[2]);
+						
+						parts = remoteVersion.split("\\.");
+						int remoteMajor = Integer.parseInt(parts[0]);
+						int remoteMinor = Integer.parseInt(parts[1]);
+						int remoteBugfix = Integer.parseInt(parts[2]);
+						
+						if(remoteMajor > localMajor) {
+							updateAvailable = true;
+						} else if(remoteMajor == localMajor) {
+							
+							if(remoteMinor > localMinor) {
+								updateAvailable = true;
+							} else if(remoteMinor == localMinor) {
+								
+								if(remoteBugfix > localBugfix) {
+									updateAvailable = true;
+								}
+								if(beta != -1 && remoteBugfix == localBugfix) {
+									updateAvailable = true;
+								}
+							}
+						}
+					}
+					
+					if(updateAvailable) {
 						runFxSync(() -> {
 							Alert alert = new Alert(AlertType.INFORMATION);
 							alert.initOwner(stage);
@@ -1208,11 +1248,12 @@ public class CircuitSim extends Application {
 			File f = file;
 			
 			if(f == null) {
-				File initialDirectory = lastSaveFile == null
-						                        || lastSaveFile.getParentFile() == null
-						                        || !lastSaveFile.getParentFile().isDirectory()
-				                        ? new File(System.getProperty("user.dir"))
-				                        : lastSaveFile.getParentFile();
+				File initialDirectory =
+						lastSaveFile == null
+								|| lastSaveFile.getParentFile() == null
+								|| !lastSaveFile.getParentFile().isDirectory()
+						? new File(System.getProperty("user.dir"))
+						: lastSaveFile.getParentFile();
 				
 				FileChooser fileChooser = new FileChooser();
 				fileChooser.setTitle("Choose sim file");

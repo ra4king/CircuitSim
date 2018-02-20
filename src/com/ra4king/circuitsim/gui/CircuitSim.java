@@ -331,8 +331,6 @@ public class CircuitSim extends Application {
 	}
 	
 	void zoomIn(double x, double y) {
-		System.out.println("Zoom in: " + x + " " + y);
-		
 		int selectedIndex = scaleFactorSelect.getSelectionModel().getSelectedIndex();
 		if(selectedIndex < scaleFactorSelect.getItems().size()) {
 			scaleFactorSelect.getSelectionModel().select(selectedIndex + 1);
@@ -342,8 +340,6 @@ public class CircuitSim extends Application {
 	}
 	
 	void zoomOut(double x, double y) {
-		System.out.println("Zoom out: " + x + " " + y);
-		
 		int selectedIndex = scaleFactorSelect.getSelectionModel().getSelectedIndex();
 		if(selectedIndex > 0) {
 			scaleFactorSelect.getSelectionModel().select(selectedIndex - 1);

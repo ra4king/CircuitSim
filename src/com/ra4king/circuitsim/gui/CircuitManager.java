@@ -1038,15 +1038,11 @@ public class CircuitManager {
 	public void mouseEntered(MouseEvent e) {
 		isMouseInsideCanvas = true;
 		setNeedsRepaint();
-		
-		System.out.println("Mouse entered");
 	}
 	
 	public void mouseExited(MouseEvent e) {
 		isMouseInsideCanvas = false;
 		setNeedsRepaint();
-		
-		System.out.println("Mouse exited");
 	}
 	
 	public void mouseWheelScrolled(ScrollEvent e) {

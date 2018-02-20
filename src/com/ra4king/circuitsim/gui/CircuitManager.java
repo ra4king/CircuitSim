@@ -102,8 +102,6 @@ public class CircuitManager {
 				reset();
 			});
 			
-			System.out.println("Right click menu!");
-			
 			Optional<ComponentPeer<?>> any = circuitBoard.getComponents().stream().filter(
 					component -> component.containsScreenCoord(
 							(int)Math.round(event.getX() * simulatorWindow.getScaleFactorInverted()),

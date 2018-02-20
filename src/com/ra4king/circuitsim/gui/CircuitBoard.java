@@ -149,8 +149,8 @@ public class CircuitBoard {
 				       && component.getY() >= 0
 				       && Stream.concat(components.stream(),
 				                        moveElements != null
-					                        ? moveElements.stream().filter(e -> e instanceof ComponentPeer<?>)
-					                        : Stream.empty())
+				                        ? moveElements.stream().filter(e -> e instanceof ComponentPeer<?>)
+				                        : Stream.empty())
 				                .noneMatch(c -> c != component && c.getX() == component.getX()
 						                                && c.getY() == component.getY());
 	}
@@ -260,7 +260,10 @@ public class CircuitBoard {
 		if(remove) {
 			for(GuiElement element : elements) {
 				for(Connection connection : element.getConnections()) {
-					if(getConnections(connection.getX(), connection.getY()).size() > 1) {
+					if((connection instanceof PortConnection
+							    || connection == ((Wire)connection.getParent()).getEndConnection()
+							    || connection == ((Wire)connection.getParent()).getStartConnection())
+							   && getConnections(connection.getX(), connection.getY()).size() > 1) {
 						connectedPorts.add(connection);
 					}
 				}
@@ -418,7 +421,7 @@ public class CircuitBoard {
 				synchronized(CircuitBoard.this) {
 					Set<Wire> toRemove = new HashSet<>();
 					Set<Wire> toAdd = new HashSet<>();
-
+					
 					for(Wire newWire : paths) {
 						if(wireAlreadyExists(newWire) != null) {
 							toRemove.add(newWire);
@@ -443,7 +446,8 @@ public class CircuitBoard {
 											toRemove.add(newWire);
 											break;
 										} else if(existing.overlaps(newWire)) {
-											Pair<Wire, Pair<Wire, Wire>> pairs = spliceOverlappingWire(newWire, existing);
+											Pair<Wire, Pair<Wire, Wire>> pairs =
+													spliceOverlappingWire(newWire, existing);
 											
 											toAdd.add(pairs.getKey());
 											toRemove.add(pairs.getValue().getKey());
@@ -1042,14 +1046,14 @@ public class CircuitBoard {
 		return connectionsMap.containsKey(pair) ? connectionsMap.get(pair) : Collections.emptySet();
 	}
 	
-	public void paint(GraphicsContext graphics) {
+	public void paint(GraphicsContext graphics, LinkWires highlightLinkWires) {
 		CircuitState currentState = new CircuitState(this.currentState);
 		
 		components.forEach(component -> paintComponent(graphics, currentState, component));
 		
 		for(LinkWires linkWires : links) {
 			for(Wire wire : linkWires.getWires()) {
-				paintWire(graphics, currentState, wire);
+				paintWire(graphics, currentState, wire, linkWires == highlightLinkWires);
 			}
 		}
 		
@@ -1080,7 +1084,7 @@ public class CircuitBoard {
 				if(element instanceof ComponentPeer<?>) {
 					paintComponent(graphics, currentState, (ComponentPeer<?>)element);
 				} else if(element instanceof Wire) {
-					paintWire(graphics, currentState, (Wire)element);
+					paintWire(graphics, currentState, (Wire)element, false);
 				}
 			}
 			
@@ -1107,9 +1111,9 @@ public class CircuitBoard {
 		}
 	}
 	
-	private void paintWire(GraphicsContext graphics, CircuitState state, Wire wire) {
+	private void paintWire(GraphicsContext graphics, CircuitState state, Wire wire, boolean highlight) {
 		graphics.save();
-		wire.paint(graphics, state);
+		wire.paint(graphics, state, highlight ? 4.0 : 2.0);
 		graphics.restore();
 		
 		Connection startConn = wire.getStartConnection();

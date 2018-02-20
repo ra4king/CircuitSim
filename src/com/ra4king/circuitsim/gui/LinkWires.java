@@ -372,12 +372,23 @@ public class LinkWires {
 		
 		@Override
 		public void paint(GraphicsContext graphics, CircuitState circuitState) {
-			GuiUtils.setBitColor(graphics, circuitState, linkWires);
-			GuiUtils.drawShape(graphics::fillRect, this);
+			paint(graphics, circuitState, 2.0);
 		}
 		
 		public void paint(GraphicsContext graphics) {
-			GuiUtils.drawShape(graphics::fillRect, this);
+			paint(graphics, 2.0);
+		}
+		
+		public void paint(GraphicsContext graphics, CircuitState circuitState, double width) {
+			GuiUtils.setBitColor(graphics, circuitState, linkWires);
+			paint(graphics, width);
+		}
+		
+		public void paint(GraphicsContext graphics, double width) {
+			graphics.setLineWidth(width);
+			graphics.strokeLine(super.getScreenX(), super.getScreenY(),
+			                    super.getScreenX() + super.getScreenWidth(),
+			                    super.getScreenY() + super.getScreenHeight());
 		}
 	}
 }

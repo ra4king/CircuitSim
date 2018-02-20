@@ -30,6 +30,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.Text;
@@ -343,7 +344,7 @@ public class CircuitManager {
 		}
 		
 		try {
-			circuitBoard.paint(graphics);
+			circuitBoard.paint(graphics, inspectLinkWires);
 		} catch(Exception exc) {
 			exc.printStackTrace();
 		}
@@ -757,6 +758,14 @@ public class CircuitManager {
 		}
 		
 		if(e.getButton() != MouseButton.PRIMARY) {
+			switch(currentState) {
+				case PLACING_COMPONENT:
+				case CONNECTION_SELECTED:
+				case CONNECTION_DRAGGED:
+					reset();
+					break;
+			}
+			
 			return;
 		}
 		
@@ -1036,6 +1045,16 @@ public class CircuitManager {
 		isCtrlDown = false;
 		isShiftDown = false;
 		setNeedsRepaint();
+	}
+	
+	public void mouseWheelScrolled(ScrollEvent e) {
+		if(isCtrlDown) {
+			if(e.getDeltaY() < 0) {
+				simulatorWindow.zoomOut();
+			} else {
+				simulatorWindow.zoomIn();
+			}
+		}
 	}
 	
 	public void focusGained() {

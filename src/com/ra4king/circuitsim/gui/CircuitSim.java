@@ -105,6 +105,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
@@ -327,6 +328,20 @@ public class CircuitSim extends Application {
 	
 	public double getScaleFactorInverted() {
 		return 1.0 / getScaleFactor();
+	}
+	
+	void zoomIn() {
+		int selectedIndex = scaleFactorSelect.getSelectionModel().getSelectedIndex();
+		if(selectedIndex < scaleFactorSelect.getItems().size()) {
+			scaleFactorSelect.getSelectionModel().select(selectedIndex + 1);
+		}
+	}
+	
+	void zoomOut() {
+		int selectedIndex = scaleFactorSelect.getSelectionModel().getSelectedIndex();
+		if(selectedIndex > 0) {
+			scaleFactorSelect.getSelectionModel().select(selectedIndex - 1);
+		}
 	}
 	
 	/**
@@ -1665,6 +1680,7 @@ public class CircuitSim extends Application {
 				e.consume();
 			});
 			canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, circuitManager::mouseReleased);
+			canvas.addEventHandler(ScrollEvent.SCROLL, circuitManager::mouseWheelScrolled);
 			canvas.addEventHandler(MouseEvent.MOUSE_ENTERED, circuitManager::mouseEntered);
 			canvas.addEventHandler(MouseEvent.MOUSE_EXITED, circuitManager::mouseExited);
 			canvas.addEventHandler(KeyEvent.KEY_PRESSED, circuitManager::keyPressed);

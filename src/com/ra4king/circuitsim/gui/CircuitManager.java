@@ -102,19 +102,28 @@ public class CircuitManager {
 				reset();
 			});
 			
-			if(selectedElements.size() == 0) {
-				Optional<ComponentPeer<?>> any = circuitBoard.getComponents().stream().filter(
-						component -> component.containsScreenCoord((int)event.getX(), (int)event.getY())).findAny();
-				if(any.isPresent()) {
+			System.out.println("Right click menu!");
+			
+			Optional<ComponentPeer<?>> any = circuitBoard.getComponents().stream().filter(
+					component -> component.containsScreenCoord(
+							(int)Math.round(event.getX() * simulatorWindow.getScaleFactorInverted()),
+							(int)Math.round(event.getY() * simulatorWindow.getScaleFactorInverted())))
+			                                             .findAny();
+			
+			menu.getItems().add(delete);
+			
+			if(any.isPresent()) {
+				if(isCtrlDown) {
+					Set<GuiElement> selected = new HashSet<>(getSelectedElements());
+					selected.add(any.get());
+					setSelectedElements(selected);
+				} else if(!getSelectedElements().contains(any.get())) {
 					setSelectedElements(Collections.singleton(any.get()));
-					menu.getItems().add(delete);
-					menu.getItems().addAll(any.get().getContextMenuItems(this));
 				}
-			} else if(selectedElements.size() == 1) {
-				menu.getItems().add(delete);
-				menu.getItems().addAll(selectedElements.iterator().next().getContextMenuItems(this));
-			} else {
-				menu.getItems().add(delete);
+			}
+			
+			if(getSelectedElements().size() == 1) {
+				menu.getItems().addAll(getSelectedElements().iterator().next().getContextMenuItems(this));
 			}
 			
 			if(menu.getItems().size() > 0) {
@@ -260,8 +269,10 @@ public class CircuitManager {
 		mayThrow(circuitBoard::finalizeMove);
 		dummyCircuit.clearComponents();
 		
-		if(currentState != SelectingState.IDLE && currentState != SelectingState.PLACING_COMPONENT
-				&& currentState != SelectingState.ELEMENT_SELECTED && currentState != SelectingState.ELEMENT_DRAGGED) {
+		if(currentState != SelectingState.IDLE
+				   && currentState != SelectingState.PLACING_COMPONENT
+				   && currentState != SelectingState.ELEMENT_SELECTED
+				   && currentState != SelectingState.ELEMENT_DRAGGED) {
 			reset();
 		}
 		

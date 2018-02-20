@@ -1038,21 +1038,23 @@ public class CircuitManager {
 	public void mouseEntered(MouseEvent e) {
 		isMouseInsideCanvas = true;
 		setNeedsRepaint();
+		
+		System.out.println("Mouse entered");
 	}
 	
 	public void mouseExited(MouseEvent e) {
 		isMouseInsideCanvas = false;
-		isCtrlDown = false;
-		isShiftDown = false;
 		setNeedsRepaint();
+		
+		System.out.println("Mouse exited");
 	}
 	
 	public void mouseWheelScrolled(ScrollEvent e) {
 		if(isCtrlDown) {
 			if(e.getDeltaY() < 0) {
-				simulatorWindow.zoomOut();
+				simulatorWindow.zoomOut(e.getX(), e.getY());
 			} else {
-				simulatorWindow.zoomIn();
+				simulatorWindow.zoomIn(e.getX(), e.getY());
 			}
 		}
 	}

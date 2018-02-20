@@ -330,17 +330,36 @@ public class CircuitSim extends Application {
 		return 1.0 / getScaleFactor();
 	}
 	
-	void zoomIn() {
+	void zoomIn(double x, double y) {
+		System.out.println("Zoom in: " + x + " " + y);
+		
 		int selectedIndex = scaleFactorSelect.getSelectionModel().getSelectedIndex();
 		if(selectedIndex < scaleFactorSelect.getItems().size()) {
 			scaleFactorSelect.getSelectionModel().select(selectedIndex + 1);
+			
+			setScrollPosition(x, y);
 		}
 	}
 	
-	void zoomOut() {
+	void zoomOut(double x, double y) {
+		System.out.println("Zoom out: " + x + " " + y);
+		
 		int selectedIndex = scaleFactorSelect.getSelectionModel().getSelectedIndex();
 		if(selectedIndex > 0) {
 			scaleFactorSelect.getSelectionModel().select(selectedIndex - 1);
+			
+			setScrollPosition(x, y);
+		}
+	}
+	
+	private void setScrollPosition(double x, double y) {
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			ScrollPane scrollPane = manager.getCanvasScrollPane();
+			Canvas canvas = manager.getCanvas();
+			
+			scrollPane.setHvalue(scrollPane.getHmax() * x / canvas.getWidth());
+			scrollPane.setVvalue(scrollPane.getVmax() * y / canvas.getHeight());
 		}
 	}
 	
@@ -1820,8 +1839,11 @@ public class CircuitSim extends Application {
 		             .addListener((observable, oldValue, newValue) -> modifiedSelection(selectedComponent));
 		
 		scaleFactorSelect = new ComboBox<>();
-		for(int i = 1; i <= 20; i++) {
-			scaleFactorSelect.getItems().add(i * 0.25);
+		for(int i = 3; i <= 10; i++) {
+			scaleFactorSelect.getItems().add(i / 10.0);
+		}
+		for(int i = 1; i <= 16; i++) {
+			scaleFactorSelect.getItems().add(1 + i * 0.25);
 		}
 		scaleFactorSelect.setValue(1.0);
 		scaleFactorSelect.getSelectionModel()

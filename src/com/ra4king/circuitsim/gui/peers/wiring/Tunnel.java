@@ -59,32 +59,65 @@ public class Tunnel extends ComponentPeer<Component> {
 		
 		tunnel = new Component(label, new int[] { bitSize }) {
 			@Override
+			public void setCircuit(Circuit circuit) {
+				Circuit oldCircuit = getCircuit();
+				
+				super.setCircuit(circuit);
+				
+				if(label.isEmpty()) {
+					return;
+				}
+				
+				if(circuit != null) {
+					Map<String, Set<Tunnel>> tunnelSet = tunnels.computeIfAbsent(circuit, l -> new HashMap<>());
+					Set<Tunnel> toNotify = tunnelSet.computeIfAbsent(label, c -> new HashSet<>());
+					toNotify.add(Tunnel.this);
+				} else {
+					Map<String, Set<Tunnel>> tunnelSet = tunnels.get(oldCircuit);
+					if(tunnelSet != null) {
+						Set<Tunnel> toNotify = tunnelSet.get(label);
+						if(toNotify != null) {
+							toNotify.remove(Tunnel.this);
+							
+							if(toNotify.isEmpty()) {
+								tunnelSet.remove(label);
+								
+								if(tunnelSet.isEmpty()) {
+									tunnels.remove(oldCircuit);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			@Override
 			public void init(CircuitState state, Object lastProperty) {
 				if(label.isEmpty()) {
 					return;
 				}
 				
-				Map<String, Set<Tunnel>> tunnelSet = tunnels.computeIfAbsent(state.getCircuit(), l -> new HashMap<>());
-				Set<Tunnel> toNotify = tunnelSet.computeIfAbsent(label, c -> new HashSet<>());
-				toNotify.add(Tunnel.this);
-				
-				WireValue value = new WireValue(bitSize);
-				
-				for(Tunnel tunnel : toNotify) {
-					if(tunnel != Tunnel.this) {
-						Port port = tunnel.getComponent().getPort(0);
-						WireValue portValue = state.getLastReceived(port);
-						if(portValue.getBitSize() == value.getBitSize()) {
-							try {
-								value.merge(portValue);
-							} catch(Exception exc) {
-								return; // nothing to push, it's a short circuit
+				Map<String, Set<Tunnel>> tunnelSet = tunnels.get(getCircuit());
+				if(tunnelSet != null) {
+					Set<Tunnel> toNotify = tunnelSet.get(label);
+					WireValue value = new WireValue(bitSize);
+					
+					for(Tunnel tunnel : toNotify) {
+						if(tunnel != Tunnel.this) {
+							Port port = tunnel.getComponent().getPort(0);
+							WireValue portValue = state.getLastReceived(port);
+							if(portValue.getBitSize() == value.getBitSize()) {
+								try {
+									value.merge(portValue);
+								} catch(Exception exc) {
+									return; // nothing to push, it's a short circuit
+								}
 							}
 						}
 					}
+					
+					state.pushValue(getPort(0), value);
 				}
-				
-				state.pushValue(getPort(0), value);
 			}
 			
 			@Override
@@ -93,36 +126,26 @@ public class Tunnel extends ComponentPeer<Component> {
 				if(tunnelSet != null) {
 					Set<Tunnel> toNotify = tunnelSet.get(label);
 					if(toNotify != null) {
-						toNotify.remove(Tunnel.this);
-						
-						if(toNotify.isEmpty()) {
-							tunnelSet.remove(label);
-							
-							if(tunnelSet.isEmpty()) {
-								tunnels.remove(getCircuit());
-							}
-						} else {
-							tunnels:
-							for(Tunnel tunnel : toNotify) {
-								if(tunnel.bitSize == bitSize) {
-									WireValue combined = new WireValue(bitSize);
-									
-									for(Tunnel otherTunnel : toNotify) {
-										if(tunnel != otherTunnel && otherTunnel != Tunnel.this) {
-											Port port = otherTunnel.getComponent().getPort(0);
-											WireValue portValue = state.getLastReceived(port);
-											if(portValue.getBitSize() == combined.getBitSize()) {
-												try {
-													combined.merge(portValue);
-												} catch(Exception exc) {
-													continue tunnels;
-												}
+						tunnels:
+						for(Tunnel tunnel : toNotify) {
+							if(tunnel.bitSize == bitSize) {
+								WireValue combined = new WireValue(bitSize);
+								
+								for(Tunnel otherTunnel : toNotify) {
+									if(tunnel != otherTunnel && otherTunnel != Tunnel.this) {
+										Port port = otherTunnel.getComponent().getPort(0);
+										WireValue portValue = state.getLastReceived(port);
+										if(portValue.getBitSize() == combined.getBitSize()) {
+											try {
+												combined.merge(portValue);
+											} catch(Exception exc) {
+												continue tunnels;
 											}
 										}
 									}
-									
-									state.pushValue(tunnel.getComponent().getPort(0), combined);
 								}
+								
+								state.pushValue(tunnel.getComponent().getPort(0), combined);
 							}
 						}
 					}

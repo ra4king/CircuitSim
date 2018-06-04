@@ -73,11 +73,13 @@ public class Simulator {
 	 * Clears all circuits and queue of un-propagated links.
 	 */
 	public void clear() {
-		circuits.clear();
-		linksToUpdate.clear();
-		temp.clear();
-		shortCircuited.clear();
-		history.clear();
+		runSync(() -> {
+			circuits.clear();
+			linksToUpdate.clear();
+			temp.clear();
+			shortCircuited.clear();
+			history.clear();
+		});
 	}
 	
 	/**

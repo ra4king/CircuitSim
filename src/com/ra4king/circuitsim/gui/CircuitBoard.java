@@ -91,13 +91,18 @@ public class CircuitBoard {
 	public void destroy() {
 		try {
 			removeElements(components);
-			removeElements(links.stream().flatMap(l -> l.getWires().stream()).collect(Collectors.toSet()));
-			badLinks.clear();
-			moveElements = null;
 		} catch(Exception exc) {
-			// Ignore
+			exc.printStackTrace();
 		}
 		
+		try {
+			removeElements(links.stream().flatMap(l -> l.getWires().stream()).collect(Collectors.toSet()));
+		} catch(Exception exc) {
+			exc.printStackTrace();
+		}
+		
+		badLinks.clear();
+		moveElements = null;
 		circuit.getSimulator().removeCircuit(circuit);
 	}
 	

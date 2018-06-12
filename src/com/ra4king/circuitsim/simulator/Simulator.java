@@ -157,14 +157,17 @@ public class Simulator {
 				lastShortCircuit = null;
 				
 				temp.forEach(pair -> {
+					CircuitState state = pair.getKey();
+					Link link = pair.getValue();
+					
 					// The Link or CircuitState have been removed
-					if(pair.getValue().getCircuit() == null ||
-						   !pair.getKey().getCircuit().getCircuitStates().contains(pair.getKey())) {
+					if(link.getCircuit() == null ||
+						   !state.getCircuit().getCircuitStates().contains(state)) {
 						return;
 					}
 					
 					try {
-						pair.getKey().propagateSignal(pair.getValue());
+						state.propagateSignal(link);
 					} catch(ShortCircuitException exc) {
 						shortCircuited.add(pair);
 						lastShortCircuit = exc;

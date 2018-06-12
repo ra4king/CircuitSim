@@ -49,6 +49,6 @@ public abstract class Component {
 	
 	@Override
 	public String toString() {
-		return name;
+		return name.isEmpty() ? getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) : name;
 	}
 }

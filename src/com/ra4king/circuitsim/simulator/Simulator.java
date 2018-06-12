@@ -157,7 +157,9 @@ public class Simulator {
 				lastShortCircuit = null;
 				
 				temp.forEach(pair -> {
-					if(pair.getValue().getCircuit() == null) {
+					// The Link or CircuitState have been removed
+					if(pair.getValue().getCircuit() == null ||
+						   !pair.getKey().getCircuit().getCircuitStates().contains(pair.getKey())) {
 						return;
 					}
 					

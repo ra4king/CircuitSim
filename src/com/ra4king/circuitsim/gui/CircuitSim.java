@@ -871,6 +871,9 @@ public class CircuitSim extends Application {
 		needsRepaint = true;
 	}
 	
+	/**
+	 * if Component == null, the circuit was deleted
+	 */
 	void circuitModified(Circuit circuit, Component component, boolean added) {
 		if(component != null && !(component instanceof Pin)) {
 			return;
@@ -881,6 +884,7 @@ public class CircuitSim extends Application {
 		circuitManagers.values().forEach(componentPair -> {
 			for(ComponentPeer<?> componentPeer :
 				new HashSet<>(componentPair.getValue().getCircuitBoard().getComponents())) {
+				
 				if(componentPeer.getClass() == SubcircuitPeer.class) {
 					SubcircuitPeer peer = (SubcircuitPeer)componentPeer;
 					if(peer.getComponent().getSubcircuit() == circuit) {
@@ -1305,7 +1309,7 @@ public class CircuitSim extends Application {
 				
 				lastSaveFile = f;
 				
-				new Thread(() -> {
+				Thread loadThread = new Thread(() -> {
 					try {
 						loadingFile = true;
 						
@@ -1402,7 +1406,7 @@ public class CircuitSim extends Application {
 						}
 						
 						int comps = totalComponents;
-						new Thread(() -> {
+						Thread tasksThread = new Thread(() -> {
 							final int maxRunLater = Math.max(comps / 20, 50);
 							
 							while(!runnables.isEmpty()) {
@@ -1441,7 +1445,9 @@ public class CircuitSim extends Application {
 								
 								latch.countDown();
 							});
-						}).start();
+						});
+						tasksThread.setName("LoadCircuits Tasks Thread");
+						tasksThread.start();
 						
 						latch.await();
 						
@@ -1466,7 +1472,9 @@ public class CircuitSim extends Application {
 							loadFileLatch.countDown();
 						});
 					}
-				}).start();
+				});
+				loadThread.setName("LoadCircuits");
+				loadThread.start();
 				
 				if(openWindow) {
 					dialog.showAndWait();

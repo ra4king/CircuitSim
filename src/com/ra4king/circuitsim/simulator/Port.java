@@ -119,5 +119,12 @@ public class Port {
 			
 			return this;
 		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder("Link[");
+			participants.forEach(port -> builder.append(port).append(","));
+			return builder.deleteCharAt(builder.length() - 1).append("]").toString();
+		}
 	}
 }

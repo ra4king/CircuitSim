@@ -875,54 +875,58 @@ public class CircuitSim extends Application {
 	 * if Component == null, the circuit was deleted
 	 */
 	void circuitModified(Circuit circuit, Component component, boolean added) {
-		if(component != null && !(component instanceof Pin)) {
-			return;
-		}
-		
-		refreshCircuitsTab();
-		
-		circuitManagers.values().forEach(componentPair -> {
-			for(ComponentPeer<?> componentPeer :
-				new HashSet<>(componentPair.getValue().getCircuitBoard().getComponents())) {
-				
-				if(componentPeer.getClass() == SubcircuitPeer.class) {
-					SubcircuitPeer peer = (SubcircuitPeer)componentPeer;
-					if(peer.getComponent().getSubcircuit() == circuit) {
-						CircuitNode node =
-							getSubcircuitStates(peer.getComponent(),
-							                    componentPair.getValue().getCircuitBoard().getCurrentState());
-						
-						componentPair.getValue().getSelectedElements().remove(peer);
-						
-						if(component == null) {
-							componentPair.getValue().mayThrow(
-								() -> componentPair.getValue()
-								                   .getCircuitBoard()
-								                   .removeElements(Collections.singleton(peer)));
+		if(component == null || component instanceof Pin) {
+			refreshCircuitsTab();
+			
+			circuitManagers.values().forEach(componentPair -> {
+				for(ComponentPeer<?> componentPeer :
+					new HashSet<>(componentPair.getValue().getCircuitBoard().getComponents())) {
+					
+					if(componentPeer.getClass() == SubcircuitPeer.class) {
+						SubcircuitPeer peer = (SubcircuitPeer)componentPeer;
+						if(peer.getComponent().getSubcircuit() == circuit) {
+							CircuitNode node =
+								getSubcircuitStates(peer.getComponent(),
+								                    componentPair.getValue().getCircuitBoard().getCurrentState());
 							
-							resetSubcircuitStates(node);
-						} else {
-							SubcircuitPeer newSubcircuit =
-								new SubcircuitPeer(componentPeer.getProperties(),
-								                   componentPeer.getX(),
-								                   componentPeer.getY());
+							componentPair.getValue().getSelectedElements().remove(peer);
 							
-							editHistory.disable();
-							componentPair.getValue().mayThrow(
-								() -> componentPair.getValue()
-								                   .getCircuitBoard()
-								                   .updateComponent(peer, newSubcircuit));
-							editHistory.enable();
-							
-							node.subcircuit = newSubcircuit.getComponent();
-							updateSubcircuitStates(node, componentPair.getValue()
-							                                          .getCircuitBoard()
-							                                          .getCurrentState());
+							if(component == null) {
+								componentPair.getValue().mayThrow(
+									() -> componentPair.getValue()
+									                   .getCircuitBoard()
+									                   .removeElements(Collections.singleton(peer)));
+								
+								resetSubcircuitStates(node);
+							} else {
+								SubcircuitPeer newSubcircuit =
+									new SubcircuitPeer(componentPeer.getProperties(),
+									                   componentPeer.getX(),
+									                   componentPeer.getY());
+								
+								editHistory.disable();
+								componentPair.getValue().mayThrow(
+									() -> componentPair.getValue()
+									                   .getCircuitBoard()
+									                   .updateComponent(peer, newSubcircuit));
+								editHistory.enable();
+								
+								node.subcircuit = newSubcircuit.getComponent();
+								updateSubcircuitStates(node, componentPair.getValue()
+								                                          .getCircuitBoard()
+								                                          .getCurrentState());
+							}
 						}
 					}
 				}
-			}
-		});
+			});
+		} else if(component instanceof Subcircuit && !added) {
+			Subcircuit subcircuit = (Subcircuit)component;
+			
+			CircuitNode node =
+				getSubcircuitStates(subcircuit, getCircuitManager(circuit).getCircuitBoard().getCurrentState());
+			resetSubcircuitStates(node);
+		}
 	}
 	
 	private class CircuitNode {

@@ -11,6 +11,7 @@ import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.Connection.WireConnection;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Port.Link;
+import com.ra4king.circuitsim.simulator.SimulationException;
 
 import javafx.scene.canvas.GraphicsContext;
 
@@ -251,7 +252,7 @@ public class LinkWires {
 			setLinkWires(linkWires);
 			
 			if(length == 0) {
-				throw new IllegalArgumentException("Length cannot be 0");
+				throw new SimulationException("Length cannot be 0");
 			}
 			
 			if(length < 0) {

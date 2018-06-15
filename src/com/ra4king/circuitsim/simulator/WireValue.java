@@ -56,7 +56,7 @@ public class WireValue {
 			} else if(value.getBit(i) == State.X) {
 				setBit(i, getBit(i));
 			} else if(value.getBit(i) != getBit(i)) {
-				throw new ShortCircuitException("Short circuit detected! value1 = " + this + ", value2 = " + value);
+				throw new ShortCircuitException(this, value);
 			}
 		}
 		

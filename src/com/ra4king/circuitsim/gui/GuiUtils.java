@@ -50,7 +50,7 @@ public class GuiUtils {
 		@Override
 		public boolean equals(Object other) {
 			if(other == null || !(other instanceof FontInfo)) {
-				throw new IllegalArgumentException("Cannot be null or instance other than FontInfo");
+				return false;
 			}
 			
 			FontInfo info = (FontInfo)other;

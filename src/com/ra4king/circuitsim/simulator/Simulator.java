@@ -201,7 +201,7 @@ public class Simulator {
 			while(!linksToUpdate.isEmpty()) {
 				if(history.contains(linksToUpdate)) {
 					if(++repeatCount == 10) { // since short circuits are retried, it looks like they're oscillating
-						throw new IllegalStateException("Oscillation apparent");
+						throw new OscillationException();
 					}
 				}
 				

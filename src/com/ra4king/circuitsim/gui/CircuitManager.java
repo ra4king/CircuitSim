@@ -17,6 +17,7 @@ import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Port;
 import com.ra4king.circuitsim.simulator.Port.Link;
+import com.ra4king.circuitsim.simulator.SimulationException;
 import com.ra4king.circuitsim.simulator.Simulator;
 
 import javafx.geometry.Bounds;
@@ -355,7 +356,7 @@ public class CircuitManager {
 		try {
 			circuitBoard.paint(graphics, inspectLinkWires);
 		} catch(Exception exc) {
-			exc.printStackTrace();
+			getSimulatorWindow().getDebugUtil().logException(exc);
 		}
 		
 		for(GuiElement selectedElement : selectedElements) {
@@ -536,8 +537,12 @@ public class CircuitManager {
 			}
 			
 			return false;
+		} catch(SimulationException exc) {
+			lastException = exc;
+			lastErrorTime = System.currentTimeMillis();
+			return true;
 		} catch(Exception exc) {
-			exc.printStackTrace();
+			getSimulatorWindow().getDebugUtil().logException(exc);
 			lastException = exc;
 			lastErrorTime = System.currentTimeMillis();
 			return true;

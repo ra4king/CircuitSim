@@ -15,6 +15,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.ra4king.circuitsim.simulator.SimulationException;
+
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -228,7 +230,7 @@ public class Properties {
 			try {
 				return (int)Long.parseLong(modified, 16);
 			} catch(NumberFormatException exc2) {
-				throw new IllegalArgumentException(value + " is not a valid integer.");
+				throw new SimulationException(value + " is not a valid integer.");
 			}
 		}
 	};
@@ -523,7 +525,7 @@ public class Properties {
 			try {
 				return Integer.parseUnsignedInt(value, 16);
 			} catch(NumberFormatException exc) {
-				throw new IllegalArgumentException("Cannot parse invalid hex value: " + value);
+				throw new SimulationException("Cannot parse invalid hex value: " + value);
 			}
 		}
 		

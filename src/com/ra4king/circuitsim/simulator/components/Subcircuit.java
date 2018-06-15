@@ -9,6 +9,7 @@ import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
 import com.ra4king.circuitsim.simulator.Port;
+import com.ra4king.circuitsim.simulator.SimulationException;
 import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin.PinChangeListener;
@@ -57,7 +58,7 @@ public class Subcircuit extends Component {
 	
 	private void checkCircuitLoop(Circuit circuit) {
 		if(circuit == getCircuit()) {
-			throw new IllegalArgumentException("Subcircuit loop detected.");
+			throw new SimulationException("Subcircuit loop detected.");
 		}
 		
 		for(Component component : circuit.getComponents()) {

@@ -21,6 +21,7 @@ import com.ra4king.circuitsim.gui.PathFinding.LocationPreference;
 import com.ra4king.circuitsim.gui.PathFinding.Point;
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.CircuitState;
+import com.ra4king.circuitsim.simulator.SimulationException;
 import com.ra4king.circuitsim.simulator.Simulator;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -166,7 +167,7 @@ public class CircuitBoard {
 	
 	void addComponent(ComponentPeer<?> component, boolean splitWires) {
 		if(!isValidLocation(component)) {
-			throw new IllegalArgumentException("Cannot place component here.");
+			throw new SimulationException("Cannot place component here.");
 		}
 		
 		// Component must be added before added to the circuit as listeners will be triggered to recreate Subcircuits
@@ -254,7 +255,7 @@ public class CircuitBoard {
 			try {
 				finalizeMove();
 			} catch(Exception exc) {
-				// exc.printStackTrace();
+				circuitManager.getSimulatorWindow().getDebugUtil().logException(exc);
 			}
 		}
 		
@@ -600,7 +601,7 @@ public class CircuitBoard {
 		updateBadLinks();
 		
 		if(cannotMoveHere) {
-			throw new IllegalArgumentException("Cannot move components here.");
+			throw new SimulationException("Cannot move components here.");
 		}
 		
 		if(toThrow != null) {
@@ -783,11 +784,11 @@ public class CircuitBoard {
 	
 	public Set<Wire> addWire(int x, int y, int length, boolean horizontal) {
 		if(x < 0 || y < 0 || (horizontal && x + length < 0) || (!horizontal && y + length < 0)) {
-			throw new IllegalArgumentException("Wire cannot go into negative space.");
+			throw new SimulationException("Wire cannot go into negative space.");
 		}
 		
 		if(length == 0) {
-			throw new IllegalArgumentException("Length cannot be 0");
+			throw new SimulationException("Length cannot be 0");
 		}
 		
 		try {

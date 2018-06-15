@@ -52,6 +52,7 @@ import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
 import com.ra4king.circuitsim.simulator.ShortCircuitException;
+import com.ra4king.circuitsim.simulator.SimulationException;
 import com.ra4king.circuitsim.simulator.Simulator;
 import com.ra4king.circuitsim.simulator.components.Subcircuit;
 import com.ra4king.circuitsim.simulator.components.wiring.Clock;
@@ -90,6 +91,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -124,7 +126,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.7.2";
+	public static final String VERSION = "1.7.3";
 	
 	private static boolean mainCalled = false;
 	private static AtomicBoolean versionChecked = new AtomicBoolean(false);
@@ -133,6 +135,8 @@ public class CircuitSim extends Application {
 		mainCalled = true;
 		launch(args);
 	}
+	
+	private DebugUtil debugUtil = new DebugUtil(this);
 	
 	private Stage stage;
 	private Scene scene;
@@ -203,6 +207,10 @@ public class CircuitSim extends Application {
 			init();
 			start(new Stage());
 		});
+	}
+	
+	public boolean isWindowOpen() {
+		return openWindow;
 	}
 	
 	private void runFxSync(Runnable runnable) {
@@ -302,6 +310,10 @@ public class CircuitSim extends Application {
 		return scene;
 	}
 	
+	public DebugUtil getDebugUtil() {
+		return debugUtil;
+	}
+	
 	/**
 	 * Sets the global click mode.
 	 *
@@ -393,8 +405,11 @@ public class CircuitSim extends Application {
 				simulator.stepAll();
 				lastException = null;
 			}
+		} catch(SimulationException exc) {
+			lastException = exc;
 		} catch(Exception exc) {
 			lastException = exc;
+			getDebugUtil().logException(exc);
 		}
 	}
 	
@@ -1045,7 +1060,7 @@ public class CircuitSim extends Application {
 					try {
 						url = new URL("https://www.roiatalla.com/public/CircuitSim/version.txt");
 					} catch(MalformedURLException exc) {
-						exc.printStackTrace();
+						getDebugUtil().logException(exc);
 						return;
 					}
 					
@@ -1202,8 +1217,7 @@ public class CircuitSim extends Application {
 					}
 				}
 			} catch(Exception exc) {
-				System.err.println("Error loading configuration file: " + file);
-				exc.printStackTrace();
+				getDebugUtil().logException("Error loading configuration file: " + file, exc);
 			}
 		}
 		
@@ -1236,8 +1250,7 @@ public class CircuitSim extends Application {
 		try {
 			Files.write(file.toPath(), conf);
 		} catch(Exception exc) {
-			System.err.println("Error saving configuration file: " + file);
-			exc.printStackTrace();
+			getDebugUtil().logException("Error saving configuration file: " + file, exc);
 		}
 	}
 	
@@ -1266,7 +1279,7 @@ public class CircuitSim extends Application {
 			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("Error loading circuits");
 			alert.setHeaderText("Error loading circuits");
-			alert.setContentText(errorMessage);
+			alert.getDialogPane().setContent(new TextArea(errorMessage));
 			alert.showAndWait();
 		}
 	}
@@ -2061,7 +2074,7 @@ public class CircuitSim extends Application {
 					content.put(copyDataFormat, data);
 					clipboard.setContent(content);
 				} catch(Exception exc) {
-					exc.printStackTrace();
+					getDebugUtil().logException("Error while copying", exc);
 				}
 			}
 		});
@@ -2133,7 +2146,7 @@ public class CircuitSim extends Application {
 										
 										elementsCreated.add(created);
 									} catch(Exception exc) {
-										exc.printStackTrace();
+										getDebugUtil().logException("Error loading component " + component.name, exc);
 									}
 								}
 							}
@@ -2161,7 +2174,7 @@ public class CircuitSim extends Application {
 						}
 					}
 				} catch(Exception exc) {
-					exc.printStackTrace();
+					getDebugUtil().logException("Error while pasting", exc);
 				} finally {
 					editHistory.endGroup();
 					needsRepaint = true;

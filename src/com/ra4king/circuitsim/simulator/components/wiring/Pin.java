@@ -15,7 +15,7 @@ import com.ra4king.circuitsim.simulator.WireValue;
  */
 public class Pin extends Component {
 	private Map<CircuitState, Set<PinChangeListener>> pinChangeListeners;
-	private int bitSize = 0;
+	private int bitSize;
 	private boolean isInput;
 	
 	public static final int PORT = 0;

@@ -11,6 +11,15 @@ Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 Changes
 -------
 
+Version 1.7.3 changelog:
+- Fix blue wire issues with Tunnels and subcircuits
+- Highlight wires when clicking on them
+- Ctrl+scroll now zooms in/out
+- Right clicking when placing components or dragging wires cancels the action
+- Fix bug with intersecting wires being auto-joined on drag
+- Improved error handling
+
+
 Version 1.7.2 changelog:
 - Add Probe component, which lets you observe values on wires without resorting to output pins
 - Improve behavior multi-component selection when holding down control by disabling drag-less wire creation when control is held down

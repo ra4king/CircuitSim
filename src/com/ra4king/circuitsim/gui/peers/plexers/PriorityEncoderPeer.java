@@ -21,7 +21,12 @@ import javafx.util.Pair;
  * @author Elliott Childre
  */
 public class PriorityEncoderPeer extends ComponentPeer<PriorityEncoder> {
-
+	public static void installComponent(ComponentManagerInterface manager) {
+		manager.addComponent(new Pair<>("Plexer", "Priority Encoder"),
+		                     new Image(PriorityEncoderPeer.class.getResourceAsStream("/resources/PriorityEncoder.png")),
+		                     new Properties());
+	}
+	
 	private static final byte ENABLED_INOUT_SIDE_LEN = 4;
 
 	public PriorityEncoderPeer(Properties props, int x, int y) {
@@ -88,12 +93,6 @@ public class PriorityEncoderPeer extends ComponentPeer<PriorityEncoder> {
 		init(pEncoder, properties, connections);
 	}
 
-	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Plexer", "Priority Encoder"),
-		                     new Image(PriorityEncoderPeer.class.getResourceAsStream("/resources/PriorityEncoder.png")),
-		                     new Properties());
-	}
-
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
@@ -137,6 +136,5 @@ public class PriorityEncoderPeer extends ComponentPeer<PriorityEncoder> {
 
 		graphics.setFill(Color.BLACK);
 		graphics.fillText("Pri", (width >> 1) - graphics.getFont().getSize(), (height >> 1) + 0.5 * GuiUtils.BLOCK_SIZE);
-		graphics.getFont().getSize();
 	}
 }

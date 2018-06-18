@@ -82,10 +82,10 @@ public class EditHistory {
 				
 				for(ComponentPeer<?> component : manager.getCircuitBoard().getComponents()) {
 					if(component == toRemove ||
-							   (component.getClass() == toRemove.getClass()
-									    && component.getX() == toRemove.getX()
-									    && component.getY() == toRemove.getY()
-									    && component.getProperties().equals(toRemove.getProperties()))) {
+						   (component.getClass() == toRemove.getClass()
+							    && component.getX() == toRemove.getX()
+							    && component.getY() == toRemove.getY()
+							    && component.getProperties().equals(toRemove.getProperties()))) {
 						manager.mayThrow(() -> manager.getCircuitBoard()
 						                              .removeElements(Collections.singleton(component)));
 						break;
@@ -108,17 +108,53 @@ public class EditHistory {
 			protected void redo(CircuitManager manager, Object[] params) {
 				@SuppressWarnings("unchecked")
 				Set<GuiElement> elements = (Set<GuiElement>)params[0];
+				int dx = (int)params[1];
+				int dy = (int)params[2];
+				@SuppressWarnings("unchecked")
+				Set<Wire> wiresToAdd = (Set<Wire>)params[3];
+				@SuppressWarnings("unchecked")
+				Set<Wire> wiresToRemove = (Set<Wire>)params[4];
+				
+				manager.mayThrow(
+					() -> manager
+						      .getCircuitBoard()
+						      .removeElements(wiresToRemove));
+				
 				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements));
-				manager.getCircuitBoard().moveElements((int)params[1], (int)params[2], false);
+				manager.getCircuitBoard().moveElements(dx, dy, false);
 				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
+				
+				wiresToAdd.forEach(w ->
+					                   manager.mayThrow(
+						                   () -> manager
+							                         .getCircuitBoard()
+							                         .addWire(w.getX(), w.getY(), w.getLength(), w.isHorizontal())));
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
 				@SuppressWarnings("unchecked")
 				Set<GuiElement> elements = (Set<GuiElement>)params[0];
+				int dx = -(int)params[1];
+				int dy = -(int)params[2];
+				@SuppressWarnings("unchecked")
+				Set<Wire> wiresToRemove = (Set<Wire>)params[3];
+				@SuppressWarnings("unchecked")
+				Set<Wire> wiresToAdd = (Set<Wire>)params[4];
+				
+				manager.mayThrow(
+					() -> manager
+						      .getCircuitBoard()
+						      .removeElements(wiresToRemove));
+				
 				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements));
-				manager.getCircuitBoard().moveElements(-(int)params[1], -(int)params[2], false);
+				manager.getCircuitBoard().moveElements(dx, dy, false);
 				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
+				
+				wiresToAdd.forEach(w ->
+					                   manager.mayThrow(
+						                   () -> manager
+							                         .getCircuitBoard()
+							                         .addWire(w.getX(), w.getY(), w.getLength(), w.isHorizontal())));
 			}
 		},
 		REMOVE_COMPONENT {

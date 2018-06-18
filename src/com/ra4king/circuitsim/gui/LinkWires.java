@@ -368,7 +368,8 @@ public class LinkWires {
 		
 		@Override
 		public String toString() {
-			return "Wire(x = " + getX() + ", y = " + getY() + ", horizontal = " + isHorizontal() + ")";
+			return "Wire(x = " + getX() + ", y = " + getY() +
+				       ", length = " + getLength() + ", horizontal = " + isHorizontal() + ")";
 		}
 		
 		@Override

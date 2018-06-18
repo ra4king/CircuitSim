@@ -1216,6 +1216,8 @@ public class CircuitSim extends Application {
 							break;
 					}
 				}
+			} catch(IOException exc) {
+				exc.printStackTrace();
 			} catch(Exception exc) {
 				getDebugUtil().logException("Error loading configuration file: " + file, exc);
 			}
@@ -1249,8 +1251,8 @@ public class CircuitSim extends Application {
 		
 		try {
 			Files.write(file.toPath(), conf);
-		} catch(Exception exc) {
-			getDebugUtil().logException("Error saving configuration file: " + file, exc);
+		} catch(IOException exc) {
+			exc.printStackTrace();
 		}
 	}
 	

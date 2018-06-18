@@ -166,7 +166,7 @@ public class CircuitManager {
 		
 		setSelectedElements(Collections.emptySet());
 		simulatorWindow.clearSelection();
-		dummyCircuit.clearComponents();
+		mayThrow(dummyCircuit::clearComponents);
 		potentialComponent = null;
 		isDraggedHorizontally = false;
 		startConnection = null;
@@ -266,7 +266,7 @@ public class CircuitManager {
 		this.potentialComponentProperties = properties;
 		
 		mayThrow(circuitBoard::finalizeMove);
-		dummyCircuit.clearComponents();
+		mayThrow(dummyCircuit::clearComponents);
 		
 		if(currentState != SelectingState.IDLE
 				   && currentState != SelectingState.PLACING_COMPONENT

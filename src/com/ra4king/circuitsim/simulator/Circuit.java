@@ -69,7 +69,7 @@ public class Circuit {
 				try {
 					component.init(state, state.getComponentProperty(component));
 				} catch(RuntimeException exc) {
-					if(exception != null) {
+					if(exception == null) {
 						exception = exc;
 					}
 				}
@@ -106,7 +106,7 @@ public class Circuit {
 				try {
 					oldComponent.uninit(state);
 				} catch(RuntimeException exc) {
-					if(exception != null) {
+					if(exception == null) {
 						exception = exc;
 					}
 				}
@@ -125,7 +125,7 @@ public class Circuit {
 				try {
 					newComponent.init(state, state.getComponentProperty(oldComponent));
 				} catch(RuntimeException exc) {
-					if(exception != null) {
+					if(exception == null) {
 						exception = exc;
 					}
 				}
@@ -156,7 +156,7 @@ public class Circuit {
 				try {
 					component.uninit(state);
 				} catch(RuntimeException exc) {
-					if(exception != null) {
+					if(exception == null) {
 						exception = exc;
 					}
 				}

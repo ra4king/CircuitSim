@@ -313,6 +313,7 @@ public class CircuitBoard {
 			}
 			
 			if(!extendWires) {
+				lastException = null;
 				return;
 			}
 			

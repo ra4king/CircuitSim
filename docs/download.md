@@ -11,6 +11,12 @@ Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 Changes
 -------
 
+Version 1.7.4 changelog:
+- Fix several bugs with wire creation when dragging components
+- Give an option to send an error report upon unexpected errors
+- Minor bug fixes
+
+
 Version 1.7.3 changelog:
 - Fix blue wire issues with Tunnels and subcircuits
 - Highlight wires when clicking on them

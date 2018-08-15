@@ -36,7 +36,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 	private final Property<List<MemoryLine>> contentsProperty;
 	
 	public ROMPeer(Properties props, int x, int y) {
-		super(x, y, 5, 4);
+		super(x, y, 9, 5);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
@@ -65,7 +65,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_ADDRESS), "Address", 0, 2));
-		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_ENABLE), "Enable", 2, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_ENABLE), "Enable", 3, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_DATA), "Data", getWidth(), 2));
 		
 		init(ram, properties, connections);
@@ -122,12 +122,30 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
+
+		String address = circuitState.getLastReceived(getComponent().getPort(ROM.PORT_ADDRESS)).toHexString();
+		String value = circuitState.getLastPushed(getComponent().getPort(ROM.PORT_DATA)).toHexString();
 		
+		int x = getScreenX();
+		int y = getScreenY();
+		int width = getScreenWidth();
+		int height = getScreenHeight();
+
 		String text = "ROM";
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), text);
 		graphics.setFill(Color.BLACK);
 		graphics.fillText(text,
-		                    getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-		                    getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
+		                  x + (width - bounds.getWidth()) * 0.5,
+		                  y + (height + bounds.getHeight()) * 0.2);
+
+		graphics.setFont(GuiUtils.getFont(11));
+		// Draw address
+		text = "A: " + address;
+		double addrY = y + bounds.getHeight() + 15;
+		graphics.fillText(text, x + 10, addrY);
+
+		// Draw data afterward
+		bounds = GuiUtils.getBounds(graphics.getFont(), text);
+		graphics.fillText("D: " + value, x + 10, addrY + bounds.getHeight());
 	}
 }

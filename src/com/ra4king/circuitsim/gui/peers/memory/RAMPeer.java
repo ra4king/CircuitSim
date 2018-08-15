@@ -14,6 +14,7 @@ import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.MemoryLine;
 import com.ra4king.circuitsim.gui.Properties.PropertyMemoryValidator;
 import com.ra4king.circuitsim.simulator.CircuitState;
+import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.components.memory.RAM;
 
 import javafx.geometry.Bounds;
@@ -34,7 +35,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	}
 	
 	public RAMPeer(Properties props, int x, int y) {
-		super(x, y, 5, 4);
+		super(x, y, 9, 5);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
@@ -50,10 +51,10 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), "Address", 0, 2));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLK), "Clock", 1, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), "Enable", 2, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), "Load", 3, getHeight()));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), "Clear", 4, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLK), "Clock", 3, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), "Enable", 4, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), "Load", 5, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), "Clear", 6, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA), "Data", getWidth(), 2));
 		
 		init(ram, properties, connections);
@@ -94,12 +95,38 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
-		
+
+		WireValue addressVal = circuitState.getLastReceived(getComponent().getPort(RAM.PORT_ADDRESS));
+		WireValue valueVal;
+		if (addressVal.isValidValue()) {
+			int val = getComponent().load(circuitState, addressVal.getValue());
+			valueVal = WireValue.of(val, getComponent().getDataBits());
+		} else {
+			valueVal = new WireValue(getComponent().getDataBits());
+		}
+		String address = addressVal.toHexString();
+		String value = valueVal.toHexString();
+
+		int x = getScreenX();
+		int y = getScreenY();
+		int width = getScreenWidth();
+		int height = getScreenHeight();
+
 		String text = "RAM";
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), text);
 		graphics.setFill(Color.BLACK);
 		graphics.fillText(text,
-		                  getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
+		                  x + (width - bounds.getWidth()) * 0.5,
+		                  y + (height + bounds.getHeight()) * 0.2);
+
+		graphics.setFont(GuiUtils.getFont(11));
+		// Draw address
+		text = "A: " + address;
+		double addrY = y + bounds.getHeight() + 15;
+		graphics.fillText(text, x + 10, addrY);
+
+		// Draw data afterward
+		bounds = GuiUtils.getBounds(graphics.getFont(), text);
+		graphics.fillText("D: " + value, x + 10, addrY + bounds.getHeight());
 	}
 }

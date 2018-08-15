@@ -123,18 +123,7 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		graphics.setFill(Color.WHITE);
 		GuiUtils.drawShape(graphics::fillRect, this);
 		
-		WireValue lastPushedValue = circuitState.getLastPushed(getComponent().getPort(Register.PORT_OUT));
-		String value;
-		int hexDigits = 1 + (getComponent().getBitSize() - 1) / 4;
-		if(lastPushedValue.isValidValue()) {
-			int num = lastPushedValue.getValue();
-			value = String.format("%0" + hexDigits + "x", num);
-		} else {
-			value = "";
-			for(int i = 0; i < hexDigits; i++) {
-				value += "x";
-			}
-		}
+		String value = circuitState.getLastPushed(getComponent().getPort(Register.PORT_OUT)).toHexString();
 		
 		int x = getScreenX();
 		int y = getScreenY();

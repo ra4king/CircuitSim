@@ -147,7 +147,27 @@ public class WireValue {
 		}
 		return value;
 	}
-	
+
+	/**
+	 * Converts the value held on this wire to a hex string.
+	 *
+	 * @return a lowercase hex string if all bits are defined, otherwise
+	 *         getBitSize() 'x's
+	 */
+	public String toHexString() {
+		String value;
+		int hexDigits = 1 + (getBitSize() - 1) / 4;
+		if(isValidValue()) {
+			value = String.format("%0" + hexDigits + "x", getValue());
+		} else {
+			value = "";
+			for(int i = 0; i < hexDigits; i++) {
+				value += "x";
+			}
+		}
+		return value;
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if(other instanceof WireValue) {

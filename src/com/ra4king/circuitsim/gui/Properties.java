@@ -33,6 +33,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -651,6 +654,17 @@ public class Properties {
 			});
 			return button;
 		}
+
+		private void copyMemoryValues(List<MemoryLine> dest, List<MemoryLine> src) {
+			for(int i = 0; i < src.size(); i++) {
+				MemoryLine srcLine = src.get(i);
+				MemoryLine tableLine = dest.get(i);
+
+				for(int j = 0; j < srcLine.values.size() && j < tableLine.values.size(); j++) {
+					tableLine.values.get(j).set(srcLine.values.get(j).get());
+				}
+			}
+		}
 		
 		public void createAndShowMemoryWindow(Stage stage, List<MemoryLine> lines) {
 			Stage memoryStage = new Stage();
@@ -709,17 +723,10 @@ public class Properties {
 				File selectedFile = fileChooser.showOpenDialog(memoryStage);
 				if(selectedFile != null) {
 					try {
-						List<String> strings = Files.readAllLines(selectedFile.toPath());
-						List<MemoryLine> fileLines = parse(String.join(" ", strings));
-						for(int i = 0; i < fileLines.size(); i++) {
-							MemoryLine fileLine = fileLines.get(i);
-							MemoryLine tableLine = lines.get(i);
-							
-							for(int j = 0; j < fileLine.values.size() && j < tableLine.values.size(); j++) {
-								tableLine.values.get(j).set(fileLine.values.get(j).get());
-							}
-						}
+						String contents = new String(Files.readAllBytes(selectedFile.toPath()));
+						copyMemoryValues(lines, parse(contents));
 					} catch(Exception exc) {
+						exc.printStackTrace();
 						new Alert(AlertType.ERROR, "Could not open file").showAndWait();
 					}
 				}
@@ -735,7 +742,21 @@ public class Properties {
 					try {
 						Files.write(selectedFile.toPath(), strings);
 					} catch(Exception exc) {
+						exc.printStackTrace();
 						new Alert(AlertType.ERROR, "Could not open file").showAndWait();
+					}
+				}
+			});
+			memoryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+				if (keyEvent.isShortcutDown() && keyEvent.getCode() == KeyCode.V) {
+					String clipboard = Clipboard.getSystemClipboard().getString();
+					if (clipboard != null) {
+						try {
+							copyMemoryValues(lines, parse(clipboard));
+						} catch (Exception exc) {
+							exc.printStackTrace();
+							new Alert(AlertType.ERROR, "Invalid clipboard data").showAndWait();
+						}
 					}
 				}
 			});

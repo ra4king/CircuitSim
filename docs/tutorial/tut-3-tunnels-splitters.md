@@ -7,14 +7,14 @@ This tutorial will cover creating a circuit and using tunnels and splitters.
 
 ### Part 0: The Prompt
 
-We will create a circuit that will tell you whether you should bring an umbrella 
-with you when you go out. To determine this we'll follow the following formula: 
-you should bring an umbrella with you if it's both cloudy and windy or if the 
+We will create a circuit that will tell you whether you should bring an umbrella
+with you when you go out. To determine this we'll follow the following formula:
+you should bring an umbrella with you if it's both cloudy and windy or if the
 weatherman tells you to bring an umbrella.
 
 ### Part 1: Adding the Input
 
-This circuit will have a single 3-bit input that will handle all of the conditions. 
+This circuit will have a single 3-bit input that will handle all of the conditions.
 Add an input to the circuit and change it to be three bits:
 
 ![tut-3-pt-1-adding-input-pin]
@@ -45,7 +45,7 @@ Make sure that the splitter connects to the correct fanouts.
 If you hover over the link on each of the fanouts, you can see which fanout it is. In this splitter,
 fanout 0 is at the bottom.
 
-If you attach wires to the splitter, then you can observe its value in "Click Mode" by clicking on the 
+If you attach wires to the splitter, then you can observe its value in "Click Mode" by clicking on the
 wire like so.
 
 Notice that the color of the link on the splitter will also change as you change the value of the input.
@@ -68,11 +68,11 @@ something like this when you are finished:
 
 We are close to being done with our circuit! The last thing we must do is connect the OR
 gate to the output of the circuit. Instead of directly connecting the gate to an output, we're
-going to use tunnels. 
+going to use tunnels.
 
-Tunnels are a very useful organizational tool to use when making circuits. They can be thought of 
-as invisible wires; two wires with matching labels will act as if they are connected by a wire. 
-They are not something that exist in real life, but can be used to tidy up your circuits. 
+Tunnels are a very useful organizational tool to use when making circuits. They can be thought of
+as invisible wires; two wires with matching labels will act as if they are connected by a wire.
+They are not something that exist in real life, but can be used to tidy up your circuits.
 
 Start by adding an output and two tunnels (found under the wiring folder or by pressing the tunnel
 button on the very right of the item bar) to the circuit. In the properties of the tunnels, set
@@ -90,6 +90,8 @@ Lastly, you should test the circuit. Try different inputs and make sure that the
 correct!
 
 Credit: I did not write this tutorial, and I have no idea who did (probably some CS-2110 TA long past).
+
+Previous tutorial: [Tutorial: 3: Creating a circuit with Tunnels and Splitters]({{ site.baseurl }}/tutorial/tut-3-tunnels-splitters)
 
 [tut-3-pt-1-adding-input-pin]: img/tut-3-pt-1-adding-input-pin.PNG "circuit with 3-bit input pin"
 [tut-3-pt-2-adding-splitter]: img/tut-3-pt-2-adding-splitter.PNG "added default splitter"

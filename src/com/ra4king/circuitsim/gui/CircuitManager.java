@@ -1073,6 +1073,8 @@ public class CircuitManager {
 	}
 	
 	public void focusLost() {
+		isCtrlDown = false;
+		isShiftDown = false;
 		mouseExited(null);
 		simulatorWindow.setClickMode(false);
 		resetLastPressed();

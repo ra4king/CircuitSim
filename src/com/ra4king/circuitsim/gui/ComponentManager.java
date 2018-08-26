@@ -12,6 +12,7 @@ import com.ra4king.circuitsim.gui.peers.arithmetic.ComparatorPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.DividerPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.MultiplierPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.NegatorPeer;
+import com.ra4king.circuitsim.gui.peers.arithmetic.RandomGeneratorPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.ShifterPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.SubtractorPeer;
 import com.ra4king.circuitsim.gui.peers.gates.AndGatePeer;
@@ -80,7 +81,7 @@ public class ComponentManager {
 		
 		@Override
 		public boolean equals(Object other) {
-			if(other == null || !(other instanceof ComponentLauncherInfo)) {
+			if(!(other instanceof ComponentLauncherInfo)) {
 				return false;
 			}
 			
@@ -203,6 +204,7 @@ public class ComponentManager {
 		register(ComparatorPeer.class);
 		register(BitExtenderPeer.class);
 		register(ShifterPeer.class);
+		register(RandomGeneratorPeer.class);
 		
 		register(Button.class);
 		register(LED.class);

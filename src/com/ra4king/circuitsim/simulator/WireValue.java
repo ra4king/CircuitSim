@@ -63,7 +63,7 @@ public class WireValue {
 		return this;
 	}
 	
-	public static WireValue of(int value, int bitSize) {
+	public static WireValue of(long value, int bitSize) {
 		WireValue wireValue = new WireValue(bitSize);
 		for(int i = bitSize - 1; i >= 0; i--) {
 			if((value & (1 << i)) == 0) {

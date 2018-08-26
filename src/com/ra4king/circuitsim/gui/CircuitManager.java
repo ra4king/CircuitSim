@@ -96,6 +96,15 @@ public class CircuitManager {
 		getCanvas().setOnContextMenuRequested(event -> {
 			menu = new ContextMenu();
 			
+			MenuItem copy = new MenuItem("Copy");
+			copy.setOnAction(event1 -> simulatorWindow.copySelectedComponents());
+			
+			MenuItem cut = new MenuItem("Cut");
+			cut.setOnAction(event1 -> simulatorWindow.cutSelectedComponents());
+			
+			MenuItem paste = new MenuItem("Paste");
+			paste.setOnAction(event1 -> simulatorWindow.pasteFromClipboard());
+			
 			MenuItem delete = new MenuItem("Delete");
 			delete.setOnAction(event1 -> {
 				mayThrow(() -> circuitBoard.removeElements(selectedElements));
@@ -106,10 +115,7 @@ public class CircuitManager {
 			Optional<ComponentPeer<?>> any = circuitBoard.getComponents().stream().filter(
 					component -> component.containsScreenCoord(
 							(int)Math.round(event.getX() * simulatorWindow.getScaleFactorInverted()),
-							(int)Math.round(event.getY() * simulatorWindow.getScaleFactorInverted())))
-			                                             .findAny();
-			
-			menu.getItems().add(delete);
+							(int)Math.round(event.getY() * simulatorWindow.getScaleFactorInverted()))).findAny();
 			
 			if(any.isPresent()) {
 				if(isCtrlDown) {
@@ -119,6 +125,12 @@ public class CircuitManager {
 				} else if(!getSelectedElements().contains(any.get())) {
 					setSelectedElements(Collections.singleton(any.get()));
 				}
+			}
+			
+			if(getSelectedElements().size() > 0) {
+				menu.getItems().addAll(copy, cut, paste, delete);
+			} else {
+				menu.getItems().add(paste);
 			}
 			
 			if(getSelectedElements().size() == 1) {

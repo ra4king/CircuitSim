@@ -1050,6 +1050,147 @@ public class CircuitSim extends Application {
 		});
 	}
 	
+	void copySelectedComponents() {
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			Set<GuiElement> selectedElements = manager.getSelectedElements();
+			if(selectedElements.isEmpty()) {
+				return;
+			}
+			
+			Set<ComponentInfo> components =
+				selectedElements
+					.stream()
+					.filter(element -> element instanceof ComponentPeer<?>)
+					.map(element -> (ComponentPeer<?>)element)
+					.map(component ->
+						     new ComponentInfo(component.getClass().getName(),
+						                       component.getX(), component.getY(),
+						                       component.getProperties())).collect(
+					Collectors.toSet());
+			
+			Set<WireInfo> wires = selectedElements
+				                      .stream()
+				                      .filter(element -> element instanceof Wire)
+				                      .map(element -> (Wire)element)
+				                      .map(wire -> new WireInfo(wire.getX(), wire.getY(),
+				                                                wire.getLength(), wire.isHorizontal()))
+				                      .collect(Collectors.toSet());
+			
+			try {
+				String data = FileFormat.stringify(
+					new CircuitFile(0, 0, null, Collections.singletonList(
+						new CircuitInfo("Copy", components, wires))));
+				
+				Clipboard clipboard = Clipboard.getSystemClipboard();
+				ClipboardContent content = new ClipboardContent();
+				content.put(copyDataFormat, data);
+				clipboard.setContent(content);
+			} catch(Exception exc) {
+				getDebugUtil().logException("Error while copying", exc);
+			}
+		}
+	}
+	
+	void cutSelectedComponents() {
+		CircuitManager manager = getCurrentCircuit();
+		if(manager != null) {
+			copySelectedComponents();
+			
+			manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
+			
+			Set<GuiElement> selectedElements = manager.getSelectedElements();
+			manager.mayThrow(() -> manager.getCircuitBoard().removeElements(selectedElements));
+			
+			clearSelection();
+			
+			needsRepaint = true;
+		}
+	}
+	
+	void pasteFromClipboard() {
+		Clipboard clipboard = Clipboard.getSystemClipboard();
+		String data = (String)clipboard.getContent(copyDataFormat);
+		
+		if(data != null) {
+			try {
+				editHistory.beginGroup();
+				
+				CircuitFile parsed = FileFormat.parse(data);
+				
+				CircuitManager manager = getCurrentCircuit();
+				if(manager != null) {
+					outer:
+					for(int i = 0; ; i += 3) { // start 0 in the case of Cut and Paste
+						Set<GuiElement> elementsCreated = new HashSet<>();
+						
+						for(CircuitInfo circuit : parsed.circuits) {
+							for(ComponentInfo component : circuit.components) {
+								try {
+									@SuppressWarnings("unchecked")
+									Class<? extends ComponentPeer<?>> clazz =
+										(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
+									
+									Properties properties = new Properties();
+									component.properties.forEach(
+										(key, value) -> properties.setProperty(
+											new Property<>(key, null, value)));
+									
+									ComponentCreator<?> creator;
+									if(clazz == SubcircuitPeer.class) {
+										creator = getSubcircuitPeerCreator(
+											properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
+									} else {
+										creator = componentManager.get(clazz).creator;
+									}
+									
+									ComponentPeer<?> created = creator.createComponent(properties,
+									                                                   component.x + i,
+									                                                   component.y + i);
+									
+									if(!manager.getCircuitBoard().isValidLocation(created)) {
+										elementsCreated.clear();
+										continue outer;
+									}
+									
+									elementsCreated.add(created);
+								} catch(Exception exc) {
+									getDebugUtil().logException("Error loading component " + component.name, exc);
+								}
+							}
+						}
+						
+						manager.getCircuitBoard().finalizeMove();
+						
+						editHistory.disable();
+						elementsCreated.forEach(
+							element -> manager.getCircuitBoard()
+							                  .addComponent((ComponentPeer<?>)element, false));
+						manager.getCircuitBoard().removeElements(elementsCreated, false);
+						editHistory.enable();
+						
+						for(CircuitInfo circuit : parsed.circuits) {
+							for(WireInfo wire : circuit.wires) {
+								elementsCreated.add(
+									new Wire(null, wire.x + i, wire.y + i, wire.length, wire.isHorizontal));
+							}
+						}
+						
+						manager.setSelectedElements(elementsCreated);
+						manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false));
+						
+						break;
+					}
+				}
+			} catch(Exception exc) {
+				getDebugUtil().logException("Error while pasting", exc);
+			} finally {
+				editHistory.endGroup();
+				needsRepaint = true;
+			}
+		}
+	}
+	
 	private static AtomicBoolean checkingForUpdate = new AtomicBoolean(false);
 	
 	private void checkForUpdate(boolean showOk) {
@@ -2039,150 +2180,15 @@ public class CircuitSim extends Application {
 		
 		MenuItem copy = new MenuItem("Copy");
 		copy.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
-		copy.setOnAction(event -> {
-			CircuitManager manager = getCurrentCircuit();
-			if(manager != null) {
-				Set<GuiElement> selectedElements = manager.getSelectedElements();
-				if(selectedElements.isEmpty()) {
-					return;
-				}
-				
-				Set<ComponentInfo> components =
-					selectedElements
-						.stream()
-						.filter(element -> element instanceof ComponentPeer<?>)
-						.map(element -> (ComponentPeer<?>)element)
-						.map(component ->
-							     new ComponentInfo(component.getClass().getName(),
-							                       component.getX(), component.getY(),
-							                       component.getProperties())).collect(
-						Collectors.toSet());
-				
-				Set<WireInfo> wires = selectedElements
-					                      .stream()
-					                      .filter(element -> element instanceof Wire)
-					                      .map(element -> (Wire)element)
-					                      .map(wire -> new WireInfo(wire.getX(), wire.getY(),
-					                                                wire.getLength(), wire.isHorizontal()))
-					                      .collect(Collectors.toSet());
-				
-				try {
-					String data = FileFormat.stringify(
-						new CircuitFile(0, 0, null, Collections.singletonList(
-							new CircuitInfo("Copy", components, wires))));
-					
-					Clipboard clipboard = Clipboard.getSystemClipboard();
-					ClipboardContent content = new ClipboardContent();
-					content.put(copyDataFormat, data);
-					clipboard.setContent(content);
-				} catch(Exception exc) {
-					getDebugUtil().logException("Error while copying", exc);
-				}
-			}
-		});
+		copy.setOnAction(event -> copySelectedComponents());
 		
 		MenuItem cut = new MenuItem("Cut");
 		cut.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN));
-		cut.setOnAction(event -> {
-			CircuitManager manager = getCurrentCircuit();
-			if(manager != null) {
-				copy.fire();
-				
-				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
-				
-				Set<GuiElement> selectedElements = manager.getSelectedElements();
-				manager.mayThrow(() -> manager.getCircuitBoard().removeElements(selectedElements));
-				
-				clearSelection();
-				
-				needsRepaint = true;
-			}
-		});
+		cut.setOnAction(event -> cutSelectedComponents());
 		
 		MenuItem paste = new MenuItem("Paste");
 		paste.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN));
-		paste.setOnAction(event -> {
-			Clipboard clipboard = Clipboard.getSystemClipboard();
-			String data = (String)clipboard.getContent(copyDataFormat);
-			
-			if(data != null) {
-				try {
-					editHistory.beginGroup();
-					
-					CircuitFile parsed = FileFormat.parse(data);
-					
-					CircuitManager manager = getCurrentCircuit();
-					if(manager != null) {
-						outer:
-						for(int i = 0; ; i += 3) { // start 0 in the case of Cut and Paste
-							Set<GuiElement> elementsCreated = new HashSet<>();
-							
-							for(CircuitInfo circuit : parsed.circuits) {
-								for(ComponentInfo component : circuit.components) {
-									try {
-										@SuppressWarnings("unchecked")
-										Class<? extends ComponentPeer<?>> clazz =
-											(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
-										
-										Properties properties = new Properties();
-										component.properties.forEach(
-											(key, value) -> properties.setProperty(
-												new Property<>(key, null, value)));
-										
-										ComponentCreator<?> creator;
-										if(clazz == SubcircuitPeer.class) {
-											creator = getSubcircuitPeerCreator(
-												properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
-										} else {
-											creator = componentManager.get(clazz).creator;
-										}
-										
-										ComponentPeer<?> created = creator.createComponent(properties,
-										                                                   component.x + i,
-										                                                   component.y + i);
-										
-										if(!manager.getCircuitBoard().isValidLocation(created)) {
-											elementsCreated.clear();
-											continue outer;
-										}
-										
-										elementsCreated.add(created);
-									} catch(Exception exc) {
-										getDebugUtil().logException("Error loading component " + component.name, exc);
-									}
-								}
-							}
-							
-							manager.getCircuitBoard().finalizeMove();
-							
-							editHistory.disable();
-							elementsCreated.forEach(
-								element -> manager.getCircuitBoard()
-								                  .addComponent((ComponentPeer<?>)element, false));
-							manager.getCircuitBoard().removeElements(elementsCreated, false);
-							editHistory.enable();
-							
-							for(CircuitInfo circuit : parsed.circuits) {
-								for(WireInfo wire : circuit.wires) {
-									elementsCreated.add(
-										new Wire(null, wire.x + i, wire.y + i, wire.length, wire.isHorizontal));
-								}
-							}
-							
-							manager.setSelectedElements(elementsCreated);
-							manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false));
-							
-							break;
-						}
-					}
-				} catch(Exception exc) {
-					getDebugUtil().logException("Error while pasting", exc);
-				} finally {
-					editHistory.endGroup();
-					needsRepaint = true;
-				}
-			}
-		});
+		paste.setOnAction(event -> pasteFromClipboard());
 		
 		MenuItem selectAll = new MenuItem("Select All");
 		selectAll.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN));

@@ -11,6 +11,7 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
+import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.MemoryLine;
 import com.ra4king.circuitsim.gui.Properties.PropertyMemoryValidator;
 import com.ra4king.circuitsim.simulator.CircuitState;
@@ -34,6 +35,8 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		                     new Properties());
 	}
 	
+	private final PortConnection clockConnection;
+	
 	public RAMPeer(Properties props, int x, int y) {
 		super(x, y, 9, 5);
 		
@@ -51,7 +54,8 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), "Address", 0, 2));
-		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLK), "Clock", 3, getHeight()));
+		connections.add(
+			clockConnection = new PortConnection(this, ram.getPort(RAM.PORT_CLK), "Clock", 3, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), "Enable", 4, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), "Load", 5, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), "Clear", 6, getHeight()));
@@ -65,12 +69,12 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		MenuItem menuItem = new MenuItem("Edit contents");
 		menuItem.setOnAction(event -> {
 			PropertyMemoryValidator memoryValidator =
-					new PropertyMemoryValidator(getComponent().getAddressBits(), getComponent().getDataBits());
+				new PropertyMemoryValidator(getComponent().getAddressBits(), getComponent().getDataBits());
 			
 			CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
 			List<MemoryLine> memory =
-					memoryValidator.parse(getComponent().getMemoryContents(currentState),
-					                      (address, value) -> getComponent().store(currentState, address, value));
+				memoryValidator.parse(getComponent().getMemoryContents(currentState),
+				                      (address, value) -> getComponent().store(currentState, address, value));
 			
 			BiConsumer<Integer, Integer> listener;
 			getComponent().addMemoryListener(listener = (address, data) -> {
@@ -95,10 +99,13 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
-
+		
+		graphics.setStroke(Color.BLACK);
+		GuiUtils.drawClockInput(graphics, clockConnection, Direction.SOUTH);
+		
 		WireValue addressVal = circuitState.getLastReceived(getComponent().getPort(RAM.PORT_ADDRESS));
 		WireValue valueVal;
-		if (addressVal.isValidValue()) {
+		if(addressVal.isValidValue()) {
 			int val = getComponent().load(circuitState, addressVal.getValue());
 			valueVal = WireValue.of(val, getComponent().getDataBits());
 		} else {
@@ -106,27 +113,36 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		}
 		String address = addressVal.toHexString();
 		String value = valueVal.toHexString();
-
+		
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = getScreenWidth();
 		int height = getScreenHeight();
-
+		
+		graphics.setFont(GuiUtils.getFont(11, true));
+		
 		String text = "RAM";
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), text);
 		graphics.setFill(Color.BLACK);
 		graphics.fillText(text,
 		                  x + (width - bounds.getWidth()) * 0.5,
 		                  y + (height + bounds.getHeight()) * 0.2);
-
-		graphics.setFont(GuiUtils.getFont(11));
+		
 		// Draw address
 		text = "A: " + address;
-		double addrY = y + bounds.getHeight() + 15;
-		graphics.fillText(text, x + 10, addrY);
-
+		double addrY = y + bounds.getHeight() + 12;
+		graphics.fillText(text, x + 13, addrY);
+		
 		// Draw data afterward
 		bounds = GuiUtils.getBounds(graphics.getFont(), text);
-		graphics.fillText("D: " + value, x + 10, addrY + bounds.getHeight());
+		graphics.fillText("D: " + value, x + 13, addrY + bounds.getHeight());
+
+		graphics.setFill(Color.GRAY);
+		graphics.setFont(GuiUtils.getFont(10));
+		graphics.fillText("A", x + 3, y + height * 0.5 - 1);
+		graphics.fillText("D", x + width - 9, y + height * 0.5 - 1);
+		graphics.fillText("en", x + width * 0.5 - 11.5, y + height - 3.5);
+		graphics.fillText("L", x + width * 0.5 + 2, y + height - 3.5);
+		graphics.fillText("0", x + width * 0.5 + 11.5, y + height - 3.5);
 	}
 }

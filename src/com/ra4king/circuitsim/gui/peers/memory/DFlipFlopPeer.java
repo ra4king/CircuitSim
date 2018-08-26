@@ -8,6 +8,7 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
+import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.WireValue.State;
 import com.ra4king.circuitsim.simulator.components.memory.DFlipFlop;
@@ -27,6 +28,8 @@ public class DFlipFlopPeer extends ComponentPeer<DFlipFlop> {
 		                     new Properties());
 	}
 	
+	private final PortConnection clockConnection;
+	
 	public DFlipFlopPeer(Properties props, int x, int y) {
 		super(x, y, 4, 4);
 		
@@ -38,7 +41,8 @@ public class DFlipFlopPeer extends ComponentPeer<DFlipFlop> {
 		DFlipFlop flipFlop = new DFlipFlop(properties.getValue(Properties.LABEL));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_CLOCK), "Clock", 0, 1));
+		connections.add(
+			clockConnection = new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_CLOCK), "Clock", 0, 1));
 		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_D), "Data input", 0, 3));
 		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_PRESET), "Preset", 1, 4));
 		connections.add(new PortConnection(this, flipFlop.getPort(DFlipFlop.PORT_ENABLE), "Enable", 2, 4));
@@ -80,7 +84,6 @@ public class DFlipFlopPeer extends ComponentPeer<DFlipFlop> {
 		graphics.fillText("0", x + width - 13, y + height - 4);
 		
 		graphics.setStroke(Color.BLACK);
-		graphics.strokeLine(x, y + height * 0.25 - 5, x + 6, y + height * 0.25);
-		graphics.strokeLine(x + 6, y + height * 0.25, x, y + height * 0.25 + 5);
+		GuiUtils.drawClockInput(graphics, clockConnection, Direction.WEST);
 	}
 }

@@ -65,7 +65,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_ADDRESS), "Address", 0, 2));
-		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_ENABLE), "Enable", 3, getHeight()));
+		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_ENABLE), "Enable", 4, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(ROM.PORT_DATA), "Data", getWidth(), 2));
 		
 		init(ram, properties, connections);
@@ -130,6 +130,8 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		int y = getScreenY();
 		int width = getScreenWidth();
 		int height = getScreenHeight();
+		
+		graphics.setFont(GuiUtils.getFont(11, true));
 
 		String text = "ROM";
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), text);
@@ -137,15 +139,20 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		graphics.fillText(text,
 		                  x + (width - bounds.getWidth()) * 0.5,
 		                  y + (height + bounds.getHeight()) * 0.2);
-
-		graphics.setFont(GuiUtils.getFont(11));
+		
 		// Draw address
 		text = "A: " + address;
-		double addrY = y + bounds.getHeight() + 15;
-		graphics.fillText(text, x + 10, addrY);
-
+		double addrY = y + bounds.getHeight() + 12;
+		graphics.fillText(text, x + 13, addrY);
+		
 		// Draw data afterward
 		bounds = GuiUtils.getBounds(graphics.getFont(), text);
-		graphics.fillText("D: " + value, x + 10, addrY + bounds.getHeight());
+		graphics.fillText("D: " + value, x + 13, addrY + bounds.getHeight());
+		
+		graphics.setFill(Color.GRAY);
+		graphics.setFont(GuiUtils.getFont(10));
+		graphics.fillText("A", x + 3, y + height * 0.5 - 1);
+		graphics.fillText("D", x + width - 9, y + height * 0.5 - 1);
+		graphics.fillText("en", x + width * 0.5 - 11.5, y + height - 3.5);
 	}
 }

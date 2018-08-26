@@ -49,7 +49,7 @@ public class GuiUtils {
 		
 		@Override
 		public boolean equals(Object other) {
-			if(other == null || !(other instanceof FontInfo)) {
+			if(!(other instanceof FontInfo)) {
 				return false;
 			}
 			
@@ -170,6 +170,33 @@ public class GuiUtils {
 				i += sub.length();
 				graphics.fillText(sub, x + 1, y + bounds.getHeight() * 0.75 * row + 1);
 			}
+		}
+	}
+	
+	/**
+	 * Draws a clock input (triangle symbol) facing the southern border
+	 */
+	public static void drawClockInput(GraphicsContext graphics, Connection connection, Direction direction) {
+		double x = connection.getScreenX() + connection.getScreenWidth() * 0.5;
+		double y = connection.getScreenY() + connection.getScreenWidth() * 0.5;
+		
+		switch(direction) {
+			case NORTH:
+				graphics.strokeLine(x - 5, y, x, y + 6);
+				graphics.strokeLine(x, y + 6, x + 5, y);
+				break;
+			case SOUTH:
+				graphics.strokeLine(x - 5, y, x, y - 6);
+				graphics.strokeLine(x, y - 6, x + 5, y);
+				break;
+			case EAST:
+				graphics.strokeLine(x, y - 5, x - 6, y);
+				graphics.strokeLine(x - 6, y, x, y + 5);
+				break;
+			case WEST:
+				graphics.strokeLine(x, y - 5, x + 6, y);
+				graphics.strokeLine(x + 6, y, x, y + 5);
+				break;
 		}
 	}
 	

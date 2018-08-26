@@ -8,12 +8,14 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
+import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.arithmetic.Negator;
 import com.ra4king.circuitsim.simulator.components.arithmetic.RandomGenerator;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
@@ -23,10 +25,11 @@ import javafx.util.Pair;
 public class RandomGeneratorPeer extends ComponentPeer<RandomGenerator> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Arithmetic", "Random Generator"),
-		                     null, //new Image(RandomGeneratorPeer.class.getResourceAsStream("/resources/Negator
-		                     // .png")),
+		                     new Image(RandomGeneratorPeer.class.getResourceAsStream("/resources/RandomGenerator.png")),
 		                     new Properties());
 	}
+	
+	private final PortConnection clockConnection;
 	
 	public RandomGeneratorPeer(Properties props, int x, int y) {
 		super(x, y, 4, 4);
@@ -38,10 +41,12 @@ public class RandomGeneratorPeer extends ComponentPeer<RandomGenerator> {
 		properties.mergeIfExists(props);
 		
 		RandomGenerator randomGenerator = new RandomGenerator(properties.getValue(Properties.LABEL),
-		                                              properties.getValue(Properties.BITSIZE));
+		                                                      properties.getValue(Properties.BITSIZE));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, randomGenerator.getPort(RandomGenerator.PORT_CLK), "Clock", 2, 4));
+		connections.add(
+			clockConnection
+				= new PortConnection(this, randomGenerator.getPort(RandomGenerator.PORT_CLK), "Clock", 2, 4));
 		connections.add(new PortConnection(this, randomGenerator.getPort(Negator.PORT_OUT), "Out", 4, 2));
 		
 		init(randomGenerator, properties, connections);
@@ -63,12 +68,7 @@ public class RandomGeneratorPeer extends ComponentPeer<RandomGenerator> {
 		                  getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
 		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 		
-		int x = getScreenX();
-		int y = getScreenY();
-		int width = getScreenWidth();
-		int height = getScreenHeight();
 		graphics.setStroke(Color.BLACK);
-		graphics.strokeLine(x + width * 0.5 - 5, y + height, x + width * 0.5, y + height - 6);
-		graphics.strokeLine(x + width * 0.5, y + height - 6, x + width * 0.5 + 5, y + height);
+		GuiUtils.drawClockInput(graphics, clockConnection, Direction.SOUTH);
 	}
 }

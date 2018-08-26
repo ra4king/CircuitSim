@@ -9,6 +9,7 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
+import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.WireValue.State;
@@ -31,6 +32,8 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		                     new Properties());
 	}
 	
+	private final PortConnection clockConnection;
+	
 	public RegisterPeer(Properties props, int x, int y) {
 		super(x, y, 4, 4);
 		
@@ -46,7 +49,8 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), "In", 0, 2));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_ENABLE), "Enable", 0, 3));
-		connections.add(new PortConnection(this, register.getPort(Register.PORT_CLK), "Clock", 1, getHeight()));
+		connections.add(
+			clockConnection = new PortConnection(this, register.getPort(Register.PORT_CLK), "Clock", 1, getHeight()));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_ZERO), "Clear", 3, getHeight()));
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_OUT), "Out", getWidth(), 2));
 		
@@ -149,7 +153,6 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		graphics.fillText("0", x + width - 13, y + height - 4);
 		
 		graphics.setStroke(Color.BLACK);
-		graphics.strokeLine(x + width * 0.25 - 5, y + height, x + width * 0.25, y + height - 6);
-		graphics.strokeLine(x + width * 0.25, y + height - 6, x + width * 0.25 + 5, y + height);
+		GuiUtils.drawClockInput(graphics, clockConnection, Direction.SOUTH);
 	}
 }

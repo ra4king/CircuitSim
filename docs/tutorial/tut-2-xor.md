@@ -30,9 +30,9 @@ The symbols for the various logic gates used are labeled.
 
 ![pt-0-circuit-diagram]
 
-### Part 1: Adding Pins 
+### Part 1: Adding Pins
 
-This will be a 1-bit XOR, so we'll need two 1-bit inputs 
+This will be a 1-bit XOR, so we'll need two 1-bit inputs
 (for `a` and `b`), and a single 1-bit output.
 
 Go ahead and place the 2 inputs and 1 output now. Make sure
@@ -46,7 +46,7 @@ for your XOR.
 Lets add some labels to our inputs and outputs to make
 this subcircuit a bit more clear.
 
-Click on a pin. The attribute table for the pin should 
+Click on a pin. The attribute table for the pin should
 pop up in the bottom left corner of your screen.
 
 Here you can change the bit width of the pin, change its
@@ -84,10 +84,10 @@ Click on the Text tool (T in the toolbar), and then click
 anywhere on the canvas to place a text box.
 
 With text box selected, enter some text. I chose "XOR circuit
-created with CircuitSim" but you can write anything you want. 
+created with CircuitSim" but you can write anything you want.
 As long as the text box is selected, you can edit/add/delete text.
 
-Deselect the text box once you are done. You can deselect by 
+Deselect the text box once you are done. You can deselect by
 clicking anywhere else on the canvas.
 
 ![pt-5-text-added]
@@ -109,10 +109,10 @@ to "xor" in the screenshot below.
 
 ### Part 7: Saving Circuits
 
-Now let's save our circuit. 
+Now let's save our circuit.
 
 Remeber to always save frequently. While working on larger projects,
-it would be a good idea to use version control software (CircuitSim 
+it would be a good idea to use version control software (CircuitSim
 saves circuits as JSON, so any standard VCS should work fine).
 
 Also make sure to test previous saves to ensure that they work. You
@@ -152,6 +152,11 @@ count and power consumption.
 
 This kind of optimization isn't possible if you view a logic gate
 as a monolithic entity that can't be broken down.
+
+Previous tutorial: [Tutorial: 1: My First Circuit]({{ site.baseurl }}/tutorial/tut-1-beginner)
+
+Next tutorial: [Tutorial: 3: Creating a circuit with Tunnels and Splitters]({{ site.baseurl }}/tutorial/tut-3-tunnels-splitters)
+
 
 
 [pt-0-circuit-diagram]: img/tut-2-pt-0-circuit-diagram.PNG "XOR circuit diagram"

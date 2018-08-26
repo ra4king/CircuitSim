@@ -654,12 +654,12 @@ public class Properties {
 			});
 			return button;
 		}
-
+		
 		private void copyMemoryValues(List<MemoryLine> dest, List<MemoryLine> src) {
 			for(int i = 0; i < src.size(); i++) {
 				MemoryLine srcLine = src.get(i);
 				MemoryLine tableLine = dest.get(i);
-
+				
 				for(int j = 0; j < srcLine.values.size() && j < tableLine.values.size(); j++) {
 					tableLine.values.get(j).set(srcLine.values.get(j).get());
 				}
@@ -683,8 +683,8 @@ public class Properties {
 			address.setSortable(false);
 			address.setEditable(false);
 			address.setCellValueFactory(
-					param -> new SimpleStringProperty(String.format("%0" + (1 + (addressBits - 1) / 4) + "x",
-					                                                param.getValue().address)));
+				param -> new SimpleStringProperty(
+					String.format("%0" + (1 + (addressBits - 1) / 4) + "x", param.getValue().address)));
 			tableView.getColumns().add(address);
 			
 			int columns = Math.min(1 << addressBits, 16);
@@ -727,7 +727,7 @@ public class Properties {
 						copyMemoryValues(lines, parse(contents));
 					} catch(Exception exc) {
 						exc.printStackTrace();
-						new Alert(AlertType.ERROR, "Could not open file").showAndWait();
+						new Alert(AlertType.ERROR, "Could not open file: " + exc.getMessage()).showAndWait();
 					}
 				}
 			});
@@ -743,19 +743,22 @@ public class Properties {
 						Files.write(selectedFile.toPath(), strings);
 					} catch(Exception exc) {
 						exc.printStackTrace();
-						new Alert(AlertType.ERROR, "Could not open file").showAndWait();
+						new Alert(AlertType.ERROR, "Could not open file: " + exc.getMessage()).showAndWait();
 					}
 				}
 			});
+			Button clearButton = new Button("Clear contents");
+			clearButton.setOnAction(event -> lines.forEach(line -> line.values.forEach(value -> value.setValue("0"))));
+			
 			memoryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
-				if (keyEvent.isShortcutDown() && keyEvent.getCode() == KeyCode.V) {
+				if(keyEvent.isShortcutDown() && keyEvent.getCode() == KeyCode.V) {
 					String clipboard = Clipboard.getSystemClipboard().getString();
-					if (clipboard != null) {
+					if(clipboard != null) {
 						try {
 							copyMemoryValues(lines, parse(clipboard));
-						} catch (Exception exc) {
+						} catch(Exception exc) {
 							exc.printStackTrace();
-							new Alert(AlertType.ERROR, "Invalid clipboard data").showAndWait();
+							new Alert(AlertType.ERROR, "Invalid clipboard data: " + exc.getMessage()).showAndWait();
 						}
 					}
 				}
@@ -764,7 +767,7 @@ public class Properties {
 			VBox.setVgrow(tableView, Priority.ALWAYS);
 			Platform.runLater(tableView::refresh);
 			
-			memoryStage.setScene(new Scene(new VBox(new HBox(loadButton, saveButton), tableView)));
+			memoryStage.setScene(new Scene(new VBox(new HBox(loadButton, saveButton, clearButton), tableView)));
 			memoryStage.sizeToScene();
 			memoryStage.showAndWait();
 		}

@@ -31,7 +31,7 @@ There are two other components to the CircuitSim window that might be useful
 - toolbar - has some commonly used components, and menus to change the global bit size and scale.
 We won't be changing the global bit size for this tutorial, but you may want to change the scale
 if components on the canvas are too small.
-- menu - pretty self explanatory. 
+- menu - pretty self explanatory.
 
 That's a lot of information, let's make it more concrete by creating a basic circuit.
 
@@ -39,21 +39,21 @@ That's a lot of information, let's make it more concrete by creating a basic cir
 
 ### Part 2: Adding Pins
 
-All circuits should have an `input pin` and `output pin` 
+All circuits should have an `input pin` and `output pin`
 
-- `input pin` allows you to interact 
+- `input pin` allows you to interact
 with the circuit you create. When creating circuits with multiple sub-circuits, the
 `input pin` also allows other circuits to interact with it. Think of the input as the "parameters"
 to a function, where the function is your circuit.
-- `output pin` is where you feed the result of your circuit. When creating sub-circuits, 
-the output `output pin` allows other circuits to get the result of your computation. Think of the 
+- `output pin` is where you feed the result of your circuit. When creating sub-circuits,
+the output `output pin` allows other circuits to get the result of your computation. Think of the
 output as the "return value" of your circuit.
 
 Now lets add a single `input pin` and a single `output pin` to our circuit.
 
 Click on the `input pin` button in the `wiring` tab of the `explorer pane`.
-Click anywhere on the canvas to drop the `input pin` there. Note that you can 
-also move the `input pin` by clicking and dragging it, delete the pin by 
+Click anywhere on the canvas to drop the `input pin` there. Note that you can
+also move the `input pin` by clicking and dragging it, delete the pin by
 hitting the delete key, or change some of the pin's settings by changing
 a value in the attribute table.
 
@@ -69,7 +69,7 @@ This is expected, because it currently has no value (it's unitialized).
 ### Part 3: Adding Wires
 
 Lets add a wire connecting the `input pin` to the `output pin`. This way,
-whatever value is given to the input will the passed to the output. 
+whatever value is given to the input will the passed to the output.
 If the input is `0`, then the output will also be `0`.
 
 To add a wire, click on the link (the little nub) attached to the `input pin` and drag your
@@ -92,7 +92,7 @@ on the pin in `Click Mode`.
 
 Click on the `Click Mode` button in the toolbar. Next, click on your
 `input pin`. Notice how the values of both the `input pin` and `output pin`
-change to `1`. 
+change to `1`.
 
 Also note that in `Click Mode`, you can examine the value on any wire by
 clicking on it.
@@ -104,6 +104,8 @@ After changing the `input pin` to `1`, CircuitSim should look like this:
 ![pt-1-test-circuit-2]
 
 You should now have a basic understanding of how to create circuits in CircuitSim
+
+Next tutorial: [Tutorial: 2: Creating an XOR Circuit]({{ site.baseurl }}/tutorial/tut-2-xor)
 
 
 [pt-1-empty-circuitsim]: img/tut-1-pt-1-empty-circuitsim.PNG "empty CircuitSim window"

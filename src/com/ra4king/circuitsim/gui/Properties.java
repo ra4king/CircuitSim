@@ -21,6 +21,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -29,11 +30,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
@@ -309,7 +312,7 @@ public class Properties {
 		public final T value;
 		
 		public Property(Property<T> property) {
-			this(property.name, property.validator, property.value);
+			this(property.name, property.display, property.validator, property.value);
 		}
 		
 		public Property(Property<T> property, T value) {
@@ -448,7 +451,7 @@ public class Properties {
 			valueList.getSelectionModel()
 			         .selectedItemProperty()
 			         .addListener((observable, oldValue, newValue) -> {
-				         if(oldValue == null || !newValue.equals(oldValue)) {
+				         if(!newValue.equals(oldValue)) {
 					         try {
 						         onAction.accept(parse(newValue));
 					         } catch(Exception exc) {
@@ -595,23 +598,29 @@ public class Properties {
 		
 		@Override
 		public List<MemoryLine> parse(String contents) {
+			return parse(parsePartial(contents), null);
+		}
+		
+		private int[] parsePartial(String contents) {
 			int[] values = new int[1 << addressBits];
+			
 			Scanner scanner = new Scanner(contents);
-			for(int i = 0; i < values.length && scanner.hasNext(); i++) {
+			int length;
+			for(length = 0; length < values.length && scanner.hasNext(); length++) {
 				String piece = scanner.next();
 				if(piece.matches("^\\d+-[\\da-fA-F]+$")) {
 					String[] split = piece.split("-");
 					int count = Integer.parseInt(split[0]);
 					int val = parseValue(split[1]);
-					for(int j = 0; j < count && i < values.length; j++, i++) {
-						values[i] = val;
+					for(int j = 0; j < count && length < values.length; j++, length++) {
+						values[length] = val;
 					}
-					i--; // to account for extra increment
+					length--; // to account for extra increment
 				} else {
-					values[i] = parseValue(piece);
+					values[length] = parseValue(piece);
 				}
 			}
-			return parse(values, null);
+			return Arrays.copyOf(values, length);
 		}
 		
 		@Override
@@ -679,7 +688,7 @@ public class Properties {
 			JavaFXCompatibilityWrapper.tableDisableColumnReordering(tableView);
 			
 			TableColumn<MemoryLine, String> address = new TableColumn<>("Address");
-			address.setStyle("-fx-alignment: CENTER-RIGHT;");
+			address.setStyle("-fx-alignment: CENTER-RIGHT; -fx-background-color: lightgray;");
 			address.setSortable(false);
 			address.setEditable(false);
 			address.setCellValueFactory(
@@ -696,19 +705,78 @@ public class Properties {
 				column.setSortable(false);
 				column.setEditable(true);
 				column.setCellValueFactory(param -> param.getValue().get(j));
-				column.setCellFactory(TextFieldTableCell.forTableColumn());
-				column.setOnEditCommit(t -> {
-					try {
-						String newValue = parseValue(parseValue(t.getNewValue()));
-						t.getTableView().getItems().get(t.getTablePosition().getRow()).values.get(j).set(newValue);
-					} catch(IllegalArgumentException exc) {
-						// ignore
-					}
-					
-					// refresh the column
-					column.setVisible(false);
-					column.setVisible(true);
-				});
+				column.setCellFactory(c ->
+					new TableCell<MemoryLine, String>() {
+						private TextField textField;
+						private String oldText;
+						
+						@Override
+						public void startEdit() {
+							oldText = getText();
+							
+							super.startEdit();
+							
+							setText(null);
+							
+							textField = new TextField(oldText);
+							textField.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+								if (event.getCode() == KeyCode.ESCAPE) {
+									textField.setText(oldText);
+								}
+								if (event.getCode() == KeyCode.ENTER) {
+									cancelEdit();
+								}
+							});
+							textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+								if(!newValue) {
+									cancelEdit();
+								}
+							});
+							
+							setGraphic(textField);
+							textField.selectAll();
+							textField.requestFocus();
+						}
+						
+						@Override
+						protected void updateItem(String item, boolean empty) {
+							super.updateItem(item, empty);
+							
+							if (item == null) {
+								if( textField != null) {
+									updateText(textField.getText());
+								} else {
+									setText(null);
+								}
+							} else {
+								updateText(item);
+							}
+							
+							setGraphic(null);
+						}
+						
+						@Override
+						public void cancelEdit() {
+							super.cancelEdit();
+							updateText(textField.getText());
+							setGraphic(null);
+						}
+						
+						private void updateText(String newText) {
+							String newValue;
+							try {
+								newValue = parseValue(parseValue(newText));
+							} catch(SimulationException exc) {
+								newValue = oldText;
+							}
+							
+							setText(newValue);
+							
+							if (getTableRow() != null) {
+								lines.get(getTableRow().getIndex()).values.get(j).set(newValue);
+							}
+						}
+					});
 				
 				tableView.getColumns().add(column);
 			}
@@ -751,16 +819,77 @@ public class Properties {
 			clearButton.setOnAction(event -> lines.forEach(line -> line.values.forEach(value -> value.setValue("0"))));
 			
 			memoryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
-				if(keyEvent.isShortcutDown() && keyEvent.getCode() == KeyCode.V) {
-					String clipboard = Clipboard.getSystemClipboard().getString();
-					if(clipboard != null) {
-						try {
-							copyMemoryValues(lines, parse(clipboard));
-						} catch(Exception exc) {
-							exc.printStackTrace();
-							new Alert(AlertType.ERROR, "Invalid clipboard data: " + exc.getMessage()).showAndWait();
+				if(keyEvent.isShortcutDown()) {
+					if(keyEvent.getCode() == KeyCode.C) {
+						ClipboardContent content = new ClipboardContent();
+						
+						StringBuilder ramContent = new StringBuilder();
+						for(TablePosition selectedCell : tableView.getSelectionModel().getSelectedCells()) {
+							if (selectedCell.getColumn() > 0) {
+								ramContent.append(lines.get(selectedCell.getRow()).values.get(
+									selectedCell.getColumn() - 1).get()).append(" ");
+							}
+						}
+						
+						content.putString(ramContent.toString());
+						Clipboard.getSystemClipboard().setContent(content);
+					} else if(keyEvent.getCode() == KeyCode.V) {
+						String clipboard = Clipboard.getSystemClipboard().getString();
+						if(clipboard != null) {
+							try {
+								ObservableList<TablePosition> selectedCells =
+									tableView.getSelectionModel().getSelectedCells();
+								
+								int[] values = parsePartial(clipboard);
+								
+								if(selectedCells.size() <= 1) {
+									TablePosition selectedCell =
+										selectedCells.isEmpty() ? null : selectedCells.get(0);
+									int row = selectedCell == null ? 0 : selectedCell.getRow();
+									int col = selectedCell == null ? 0 : selectedCell.getColumn() - 1;
+									
+									if(col >= 0) {
+										for(int value : values) {
+											lines.get(row).get(col).set(parseValue(value));
+											
+											col++;
+											
+											if(col == lines.get(0).values.size() - 1) {
+												col = 0;
+												row++;
+												
+												if(row == lines.size()) {
+													break;
+												}
+											}
+										}
+									}
+								} else {
+									for(int i = 0; i < selectedCells.size() && i < values.length; i++) {
+										TablePosition selectedCell = selectedCells.get(i);
+										if(selectedCell.getColumn() > 0) {
+											lines.get(selectedCell.getRow()).values
+												.get(selectedCell.getColumn() - 1).set(parseValue(values[i]));
+										}
+									}
+								}
+							} catch(Exception exc) {
+								exc.printStackTrace();
+								new Alert(AlertType.ERROR, "Invalid clipboard data: " + exc.getMessage()).showAndWait();
+							}
 						}
 					}
+				} else if(keyEvent.getCode() == KeyCode.DELETE || keyEvent.getCode() == KeyCode.BACK_SPACE) {
+					for(TablePosition selectedCell : tableView.getSelectionModel().getSelectedCells()) {
+						if(selectedCell.getColumn() > 0) {
+							lines.get(selectedCell.getRow()).values
+								.get(selectedCell.getColumn() - 1).set(parseValue(0));
+						}
+					}
+				} else if(tableView.getEditingCell() == null &&
+					          (keyEvent.getCode().isLetterKey() || keyEvent.getCode().isDigitKey())) {
+					TablePosition focusedCellPosition = tableView.getFocusModel().getFocusedCell();
+					tableView.edit(focusedCellPosition.getRow(), focusedCellPosition.getTableColumn());
 				}
 			});
 			

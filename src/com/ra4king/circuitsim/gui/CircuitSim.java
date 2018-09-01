@@ -639,8 +639,8 @@ public class CircuitSim extends Application {
 					name.setMaxWidth(Double.MAX_VALUE);
 					name.setMinHeight(30);
 					name.setBackground(
-						new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY
-						                                                      : Color.WHITE, null, null)));
+						new Background(
+							new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY : Color.WHITE, null, null)));
 					
 					Node node =
 						property.validator.createGui(
@@ -830,6 +830,10 @@ public class CircuitSim extends Application {
 	
 	void renameCircuit(Tab tab, String newName) {
 		runFxSync(() -> {
+			if (circuitManagers.containsKey(newName)) {
+				throw new IllegalArgumentException("Name already exists");
+			}
+			
 			String oldName = tab.getText();
 			
 			Pair<ComponentLauncherInfo, CircuitManager> removed = circuitManagers.remove(oldName);
@@ -1502,6 +1506,10 @@ public class CircuitSim extends Application {
 						int totalComponents = 0;
 						
 						for(CircuitInfo circuit : circuitFile.circuits) {
+							if (circuitManagers.containsKey(circuit.name)) {
+								throw new IllegalStateException("Duplicate circuit names not allowed.");
+							}
+							
 							createCircuit(circuit.name);
 							
 							if(circuit.components == null) {

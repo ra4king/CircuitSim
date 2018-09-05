@@ -85,6 +85,7 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState state) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));
 		
 		int x = getScreenX();

@@ -830,7 +830,7 @@ public class CircuitSim extends Application {
 	
 	void renameCircuit(Tab tab, String newName) {
 		runFxSync(() -> {
-			if (circuitManagers.containsKey(newName)) {
+			if(circuitManagers.containsKey(newName)) {
 				throw new IllegalArgumentException("Name already exists");
 			}
 			
@@ -1456,7 +1456,9 @@ public class CircuitSim extends Application {
 				FileChooser fileChooser = new FileChooser();
 				fileChooser.setTitle("Choose sim file");
 				fileChooser.setInitialDirectory(initialDirectory);
-				fileChooser.getExtensionFilters().add(new ExtensionFilter("Circuit Sim file", "*.sim"));
+				fileChooser.getExtensionFilters()
+				           .addAll(new ExtensionFilter("Circuit Sim file", "*.sim"),
+				                   new ExtensionFilter("All files", "*"));
 				f = fileChooser.showOpenDialog(stage);
 			}
 			
@@ -1506,7 +1508,7 @@ public class CircuitSim extends Application {
 						int totalComponents = 0;
 						
 						for(CircuitInfo circuit : circuitFile.circuits) {
-							if (circuitManagers.containsKey(circuit.name)) {
+							if(circuitManagers.containsKey(circuit.name)) {
 								throw new IllegalStateException("Duplicate circuit names not allowed.");
 							}
 							
@@ -1749,9 +1751,9 @@ public class CircuitSim extends Application {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.initOwner(stage);
 			alert.initModality(Modality.WINDOW_MODAL);
-			alert.setTitle("Error saving circuit");
+			alert.setTitle("Error");
 			alert.setHeaderText("Error saving circuit.");
-			alert.setContentText("Error when saving the circuits: " + exc.getMessage());
+			alert.setContentText("Error when saving the circuit: " + exc.getMessage());
 			alert.showAndWait();
 		}
 	}

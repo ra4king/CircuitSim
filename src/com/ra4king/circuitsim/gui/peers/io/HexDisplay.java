@@ -66,6 +66,8 @@ public class HexDisplay extends ComponentPeer<Component> {
 	}
 	
 	private void drawDigit(GraphicsContext graphics, int num) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
+
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = getScreenWidth();

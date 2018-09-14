@@ -71,16 +71,20 @@ public class RAMPeer extends ComponentPeer<RAM> {
 			PropertyMemoryValidator memoryValidator =
 				new PropertyMemoryValidator(getComponent().getAddressBits(), getComponent().getDataBits());
 			
-			CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
-			List<MemoryLine> memory =
-				memoryValidator.parse(getComponent().getMemoryContents(currentState),
-				                      (address, value) -> getComponent().store(currentState, address, value));
-			
-			BiConsumer<Integer, Integer> listener;
-			getComponent().addMemoryListener(listener = (address, data) -> {
+			List<MemoryLine> memory = new ArrayList<>();
+			BiConsumer<Integer, Integer> listener = (address, data) -> {
 				int index = address / 16;
 				MemoryLine line = memory.get(index);
 				line.values.get(address - index * 16).setValue(memoryValidator.parseValue(data));
+			};
+			
+			// Internal state can change in between and data can get out of sync
+			circuit.getSimulatorWindow().getSimulator().runSync(() -> {
+				CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
+				memory.addAll(
+					memoryValidator.parse(getComponent().getMemoryContents(currentState),
+					                      (address, value) -> getComponent().store(currentState, address, value)));
+				getComponent().addMemoryListener(listener);
 			});
 			
 			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), memory);
@@ -136,7 +140,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		// Draw data afterward
 		bounds = GuiUtils.getBounds(graphics.getFont(), text);
 		graphics.fillText("D: " + value, x + 13, addrY + bounds.getHeight());
-
+		
 		graphics.setFill(Color.GRAY);
 		graphics.setFont(GuiUtils.getFont(10));
 		graphics.fillText("A", x + 3, y + height * 0.5 - 1);

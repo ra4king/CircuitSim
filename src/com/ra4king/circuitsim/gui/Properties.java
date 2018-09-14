@@ -96,6 +96,10 @@ public class Properties {
 		setProperty(property, true);
 	}
 	
+	public void clearProperty(String name) {
+		properties.remove(name);
+	}
+	
 	private <T> void setProperty(Property<T> property, boolean overwriteValue) {
 		if(!properties.containsKey(property.name)) {
 			properties.put(property.name, property);
@@ -175,9 +179,6 @@ public class Properties {
 		return v1 == null ? v2 : v1;
 	}
 	
-	/**
-	 * if add is false, it will ignore missing properties
-	 */
 	public Properties mergeIfExists(Properties other) {
 		other.forEach(this::updateIfExists);
 		return this;

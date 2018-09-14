@@ -352,7 +352,7 @@ public class LinkWires {
 		
 		@Override
 		public int hashCode() {
-			return getX() ^ getY() ^ (horizontal ? 1 : 0) ^ length;
+			return getX() ^ (getY() << 10) ^ (horizontal ? 1 << 20 : 0) ^ (length << 21);
 		}
 		
 		@Override

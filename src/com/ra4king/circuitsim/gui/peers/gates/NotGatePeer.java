@@ -37,9 +37,7 @@ public class NotGatePeer extends GatePeer<NotGate> {
 	}
 	
 	@Override
-	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		super.paint(graphics, circuitState);
-		
+	public void paintGate(GraphicsContext graphics, CircuitState circuitState) {
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = 3 * GuiUtils.BLOCK_SIZE;

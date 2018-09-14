@@ -41,9 +41,7 @@ public class NandGatePeer extends GatePeer<NandGate> {
 	}
 	
 	@Override
-	public void paint(GraphicsContext graphics, CircuitState circuitState) {
-		super.paint(graphics, circuitState);
-		
+	public void paintGate(GraphicsContext graphics, CircuitState circuitState) {
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = 4 * GuiUtils.BLOCK_SIZE;

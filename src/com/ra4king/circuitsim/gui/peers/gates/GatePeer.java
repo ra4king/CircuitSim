@@ -35,50 +35,52 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		ensureProperties(properties);
 		properties.mergeIfExists(props);
 		
-		int limit = -1;
-		for(int i = 0; ; i++) {
-			String propName = "Negate " + i;
+		int negationCounts = 0;
+		while(true) {
+			String propName = "Negate " + negationCounts++;
 			
-			if(!props.containsProperty(propName)) {
-				if(limit == -1) {
-					limit = i;
-					i--;
-					continue;
+			if(props.containsProperty(propName)) {
+				boolean negate;
+				Object value = props.getValue(propName);
+				if(value instanceof Boolean) {
+					negate = (Boolean)value;
+				} else {
+					negate = value.equals("Yes");
 				}
 				
-				break;
-			}
-			
-			Object value = props.getValue(propName);
-			boolean negate;
-			if(value instanceof Boolean) {
-				negate = (Boolean)value;
+				properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, negate));
 			} else {
-				negate = value.equals("Yes");
-			}
-			
-			properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, negate));
-			
-			if(negate) {
-				hasNegatedInput = true;
-				setWidth(width + 1);
+				break;
 			}
 		}
 		
 		T gate = buildGate(properties);
 		int gateNum = gate.getNumInputs();
 		
-		for(int i = 0; i < gateNum; i++) {
+		for(int i = 0; i < Math.max(gateNum, negationCounts); i++) {
 			String propName = "Negate " + i;
 			
-			if(!properties.containsProperty(propName)) {
-				properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, false));
-			}
-			
-			if(i == 0) {
-				properties.getProperty(propName).display += " Top/Left";
-			} else if(i == gateNum - 1) {
-				properties.getProperty(propName).display += " Bottom/Right";
+			if(i < gateNum) {
+				boolean negate = false;
+				
+				if(!properties.containsProperty(propName)) {
+					properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, false));
+				} else {
+					negate = properties.<Boolean>getProperty(propName).value;
+				}
+				
+				if(i == 0) {
+					properties.getProperty(propName).display += " Top/Left";
+				} else if(i == gateNum - 1) {
+					properties.getProperty(propName).display += " Bottom/Right";
+				}
+				
+				if(negate && !hasNegatedInput) {
+					hasNegatedInput = true;
+					setWidth(width + 1);
+				}
+			} else {
+				properties.clearProperty(propName);
 			}
 		}
 		
@@ -94,8 +96,8 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 				for(int i = 0; i < gateNum; i++) {
 					int add = (gateNum % 2 == 0 && i >= gateNum / 2) ? 3 : 2;
 					connections.add(
-							new PortConnection(this, gate.getPort(i),
-							                   inputOffset, i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0)));
+						new PortConnection(this, gate.getPort(i),
+						                   inputOffset, i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0)));
 				}
 				
 				connections.add(new PortConnection(this, gate.getPort(gateNum),
@@ -107,8 +109,8 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 				for(int i = 0; i < gateNum; i++) {
 					int add = (gateNum % 2 == 0 && i >= gateNum / 2) ? 3 : 2;
 					connections.add(
-							new PortConnection(this, gate.getPort(i),
-							                   i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0), inputOffset));
+						new PortConnection(this, gate.getPort(i),
+						                   i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0), inputOffset));
 				}
 				
 				connections.add(new PortConnection(this, gate.getPort(gateNum),
@@ -134,7 +136,7 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 	public abstract T buildGate(Properties properties);
 	
 	@Override
-	public void paint(GraphicsContext graphics, CircuitState circuitState) {
+	public final void paint(GraphicsContext graphics, CircuitState circuitState) {
 		graphics.setFill(Color.WHITE);
 		graphics.setStroke(Color.BLACK);
 		
@@ -168,5 +170,9 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		if(hasNegatedInput) {
 			graphics.translate(GuiUtils.BLOCK_SIZE, 0);
 		}
+		
+		paintGate(graphics, circuitState);
 	}
+	
+	public abstract void paintGate(GraphicsContext graphics, CircuitState circuitState);
 }

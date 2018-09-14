@@ -1748,6 +1748,8 @@ public class CircuitSim extends Application {
 		try {
 			saveCircuits();
 		} catch(Exception exc) {
+			exc.printStackTrace();
+			
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.initOwner(stage);
 			alert.initModality(Modality.WINDOW_MODAL);

@@ -89,6 +89,8 @@ public class Button extends ComponentPeer<Component> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState state) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
+
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = getScreenWidth();

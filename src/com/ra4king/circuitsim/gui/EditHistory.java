@@ -2,12 +2,10 @@ package com.ra4king.circuitsim.gui;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.ra4king.circuitsim.gui.LinkWires.Wire;
 
@@ -276,8 +274,9 @@ public class EditHistory {
 		
 		if(groupDepth == 0) {
 			if(groups == null) throw new IllegalStateException("This can't be null?!");
+			if(groups.size() != 1) throw new IllegalStateException("There should only be a single group left");
 			
-			List<Edit> edits = groups.stream().flatMap(Collection::stream).collect(Collectors.toList());
+			List<Edit> edits = groups.get(0);
 			if(!edits.isEmpty()) {
 				editStack.push(edits);
 				if(editStack.size() > MAX_HISTORY) {
@@ -286,6 +285,9 @@ public class EditHistory {
 			}
 			
 			groups = null;
+		} else {
+			groups.get(groupDepth - 1).addAll(groups.get(groupDepth));
+			groups.remove(groupDepth);
 		}
 	}
 	

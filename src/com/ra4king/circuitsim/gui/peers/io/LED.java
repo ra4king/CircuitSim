@@ -70,6 +70,8 @@ public class LED extends ComponentPeer<Component> {
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState state) {
+		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
+
 		State bit = state.getLastReceived(getComponent().getPort(0)).getBit(0);
 		
 		graphics.setFill(bit == State.ONE ? onColor : offColor);

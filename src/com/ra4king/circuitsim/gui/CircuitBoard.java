@@ -505,9 +505,7 @@ public class CircuitBoard {
 			return null;
 		}
 		
-		if(addMoveAction) {
-			editHistory.disable();
-		} else {
+		if(!addMoveAction) {
 			editHistory.beginGroup();
 		}
 		
@@ -549,9 +547,6 @@ public class CircuitBoard {
 		elements.addAll(moveElements);
 		elements.addAll(wiresToAdd);
 		
-		Set<ComponentPeer<?>> componentsMoved = new LinkedHashSet<>();
-		Set<Wire> wiresAdded = new LinkedHashSet<>();
-		
 		Set<Wire> selectedWires = new HashSet<>();
 		
 		RuntimeException toThrow = null;
@@ -560,28 +555,36 @@ public class CircuitBoard {
 				ComponentPeer<?> component = (ComponentPeer<?>)element;
 				
 				try {
+					editHistory.beginGroup();
+					editHistory.addAction(EditAction.MOVE_ELEMENT, circuitManager, component, moveDeltaX, moveDeltaY);
 					addComponent(component, true);
-					componentsMoved.add(component);
 				} catch(RuntimeException exc) {
+					editHistory.clearGroup();
 					toThrow = exc;
+				} finally {
+					editHistory.endGroup();
 				}
 			} else if(element instanceof Wire) {
 				Wire wire = (Wire)element;
 				try {
-					wiresAdded.addAll(addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal()));
+					editHistory.beginGroup();
+					addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
 					
 					if(!cannotMoveHere) {
 						// Make a copy of the wire for later use
 						if(!wiresToAdd.contains(wire)) {
 							selectedWires.add(new Wire(null, wire));
+							
+							// Things break in undo/redo if we don't reset wires back
+							wire.setX(wire.getX() - moveDeltaX);
+							wire.setY(wire.getY() - moveDeltaY);
 						}
-						
-						// Things break in undo/redo if we don't reset wires back
-						wire.setX(wire.getX() - moveDeltaX);
-						wire.setY(wire.getY() - moveDeltaY);
 					}
 				} catch(RuntimeException exc) {
+					editHistory.clearGroup();
 					toThrow = exc;
+				} finally {
+					editHistory.endGroup();
 				}
 			}
 		}
@@ -597,15 +600,8 @@ public class CircuitBoard {
 				}
 			}
 			
-			if(addMoveAction) {
-				editHistory.enable();
-				if(moveDeltaX != 0 || moveDeltaY != 0) {
-					editHistory.beginGroup();
-					editHistory.addAction(EditAction.MOVE_ELEMENTS, circuitManager,
-					                      componentsMoved, moveDeltaX, moveDeltaY,
-					                      wiresAdded, wiresRemoved);
-					editHistory.endGroup();
-				}
+			if(addMoveAction && moveDeltaX == 0 && moveDeltaY == 0) {
+				editHistory.clearGroup();
 			}
 			
 			newSelectedElements = new HashSet<>();
@@ -633,7 +629,6 @@ public class CircuitBoard {
 			newSelectedElements = null;
 			
 			if(addMoveAction) {
-				editHistory.enable();
 				editHistory.clearGroup();
 			}
 		}
@@ -859,7 +854,7 @@ public class CircuitBoard {
 	}
 	
 	// Pair<Added, Removed>
-	public Set<Wire> addWire(int x, int y, int length, boolean horizontal) {
+	public void addWire(int x, int y, int length, boolean horizontal) {
 		if(x < 0 || y < 0 || (horizontal && x + length < 0) || (!horizontal && y + length < 0)) {
 			throw new SimulationException("Wire cannot go into negative space.");
 		}
@@ -957,8 +952,6 @@ public class CircuitBoard {
 			rejoinWires();
 			
 			updateBadLinks();
-			
-			return wiresAdded;
 		} finally {
 			editHistory.endGroup();
 		}
@@ -982,24 +975,18 @@ public class CircuitBoard {
 		return null;
 	}
 	
-	private Set<Wire> splitWire(Wire wire, Connection connection) {
+	private void splitWire(Wire wire, Connection connection) {
 		LinkWires links = wire.getLinkWires();
 		removeWire(wire);
-		
-		Set<Wire> wiresAdded = new HashSet<>();
 		
 		int len = connection.getX() == wire.getX() ? connection.getY() - wire.getY()
 		                                           : connection.getX() - wire.getX();
 		Wire wire1 = new Wire(links, wire.getX(), wire.getY(), len, wire.isHorizontal());
-		wiresAdded.add(wire1);
 		addWire(links, wire1);
 		
 		Wire wire2 = new Wire(links, connection.getX(), connection.getY(), wire.getLength() - len,
 		                      wire.isHorizontal());
-		wiresAdded.add(wire2);
 		addWire(links, wire2);
-		
-		return wiresAdded;
 	}
 	
 	private void addWire(LinkWires linkWires, Wire wire) {
@@ -1135,7 +1122,7 @@ public class CircuitBoard {
 	
 	public Set<Connection> getConnections(int x, int y) {
 		Pair<Integer, Integer> pair = new Pair<>(x, y);
-		return connectionsMap.containsKey(pair) ? connectionsMap.get(pair) : Collections.emptySet();
+		return connectionsMap.getOrDefault(pair, Collections.emptySet());
 	}
 	
 	public void paint(GraphicsContext graphics, LinkWires highlightLinkWires) {

@@ -201,6 +201,7 @@ public class LinkWires {
 		if(!ports.contains(port)) {
 			if(invalidPorts.remove(port)) {
 				port.setLinkWires(null);
+				port.getPort().getLink().unlinkPort(port.getPort());
 			}
 			
 			return;

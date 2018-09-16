@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import java.util.Set;
 
 import com.ra4king.circuitsim.gui.LinkWires.Wire;
 
@@ -104,57 +103,21 @@ public class EditHistory {
 				                                                                 (ComponentPeer<?>)params[0]));
 			}
 		},
-		MOVE_ELEMENTS {
+		MOVE_ELEMENT {
 			protected void redo(CircuitManager manager, Object[] params) {
-				@SuppressWarnings("unchecked")
-				Set<GuiElement> elements = (Set<GuiElement>)params[0];
+				GuiElement element = (GuiElement)params[0];
 				int dx = (int)params[1];
 				int dy = (int)params[2];
-				@SuppressWarnings("unchecked")
-				Set<Wire> wiresToAdd = (Set<Wire>)params[3];
-				@SuppressWarnings("unchecked")
-				Set<Wire> wiresToRemove = (Set<Wire>)params[4];
-				
-				manager.mayThrow(
-					() -> manager
-						      .getCircuitBoard()
-						      .removeElements(wiresToRemove));
-				
-				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements));
-				manager.getCircuitBoard().moveElements(dx, dy, false);
-				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
-				
-				wiresToAdd.forEach(w ->
-					                   manager.mayThrow(
-						                   () -> manager
-							                         .getCircuitBoard()
-							                         .addWire(w.getX(), w.getY(), w.getLength(), w.isHorizontal())));
+				element.setX(element.getX() + dx);
+				element.setY(element.getY() + dy);
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
-				@SuppressWarnings("unchecked")
-				Set<GuiElement> elements = (Set<GuiElement>)params[0];
-				int dx = -(int)params[1];
-				int dy = -(int)params[2];
-				@SuppressWarnings("unchecked")
-				Set<Wire> wiresToRemove = (Set<Wire>)params[3];
-				@SuppressWarnings("unchecked")
-				Set<Wire> wiresToAdd = (Set<Wire>)params[4];
-				
-				manager.mayThrow(
-					() -> manager
-						      .getCircuitBoard()
-						      .removeElements(wiresToRemove));
-				
-				manager.mayThrow(() -> manager.getCircuitBoard().initMove(elements));
-				manager.getCircuitBoard().moveElements(dx, dy, false);
-				manager.mayThrow(() -> manager.getCircuitBoard().finalizeMove());
-				
-				wiresToAdd.forEach(w ->
-					                   manager.mayThrow(
-						                   () -> manager
-							                         .getCircuitBoard()
-							                         .addWire(w.getX(), w.getY(), w.getLength(), w.isHorizontal())));
+				GuiElement element = (GuiElement)params[0];
+				int dx = (int)params[1];
+				int dy = (int)params[2];
+				element.setX(element.getX() - dx);
+				element.setY(element.getY() - dy);
 			}
 		},
 		REMOVE_COMPONENT {

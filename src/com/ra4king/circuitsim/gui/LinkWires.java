@@ -243,7 +243,11 @@ public class LinkWires {
 		private List<Connection> connections = new ArrayList<>();
 		
 		public Wire(Wire wire) {
-			this(wire.linkWires, wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
+			this(wire.linkWires, wire);
+		}
+		
+		public Wire(LinkWires linkWires, Wire wire) {
+			this(linkWires, wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
 		}
 		
 		public Wire(LinkWires linkWires, int startX, int startY, int length, boolean horizontal) {
@@ -352,7 +356,7 @@ public class LinkWires {
 		
 		@Override
 		public int hashCode() {
-			return getX() ^ (getY() << 10) ^ (horizontal ? 1 << 20 : 0) ^ (length << 21);
+			return getX() ^ (getY() << 7) ^ (horizontal ? 1 << 14 : 0) ^ (length << 15);
 		}
 		
 		@Override

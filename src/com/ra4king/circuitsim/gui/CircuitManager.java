@@ -304,22 +304,21 @@ public class CircuitManager {
 		
 		if(properties != null && !properties.isEmpty() && !selectedElements.isEmpty()) {
 			Map<ComponentPeer<?>, ComponentPeer<?>> newComponents =
-					selectedElements
-							.stream()
-							.filter(element -> element instanceof ComponentPeer<?>)
-							.map(element -> (ComponentPeer<?>)element)
-							.collect(Collectors.toMap(
-									component -> component,
-									component -> (ComponentPeer<?>)ComponentManager
-											                               .forClass(component.getClass())
-											                               .createComponent(
-													                               new Properties(component
-															                                              .getProperties())
-															
-															
-															                               .mergeIfExists(properties),
-													                               component.getX(),
-													                               component.getY())));
+				selectedElements
+					.stream()
+					.filter(element -> element instanceof ComponentPeer<?>)
+					.map(element -> (ComponentPeer<?>)element)
+					.collect(
+						Collectors.toMap(
+							component -> component,
+							component ->
+								(ComponentPeer<?>)
+									ComponentManager
+										.forClass(component.getClass())
+										.createComponent(
+											new Properties(component.getProperties()).mergeIfExists(properties),
+											component.getX(),
+											component.getY())));
 			
 			simulatorWindow.getEditHistory().beginGroup();
 			newComponents.forEach((oldComponent, newComponent) ->
@@ -903,7 +902,12 @@ public class CircuitManager {
 			case ELEMENT_SELECTED:
 			case ELEMENT_DRAGGED:
 				resetLastPressed();
-				mayThrow(circuitBoard::finalizeMove);
+				mayThrow(() -> {
+					Set<GuiElement> newElements = circuitBoard.finalizeMove();
+					if(newElements != null) {
+						setSelectedElements(newElements);
+					}
+				});
 				currentState = SelectingState.IDLE;
 				break;
 			

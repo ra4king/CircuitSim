@@ -2,10 +2,12 @@ package com.ra4king.circuitsim.gui;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.ra4king.circuitsim.gui.LinkWires.Wire;
 
@@ -253,16 +255,18 @@ public class EditHistory {
 	}
 	
 	private int groupDepth = 0;
-	private List<Edit> currentGroup;
+	private List<List<Edit>> groups;
 	
 	public void beginGroup() {
 		groupDepth++;
 		
-		if(currentGroup == null) {
+		if(groups == null) {
 			if(groupDepth != 1) throw new IllegalStateException("How the hell did this happen??");
 			
-			currentGroup = new ArrayList<>();
+			groups = new ArrayList<>();
 		}
+		
+		groups.add(new ArrayList<>());
 	}
 	
 	public void endGroup() {
@@ -271,23 +275,31 @@ public class EditHistory {
 		groupDepth--;
 		
 		if(groupDepth == 0) {
-			if(currentGroup == null) throw new IllegalStateException("This can't be null?!");
+			if(groups == null) throw new IllegalStateException("This can't be null?!");
 			
-			if(!currentGroup.isEmpty()) {
-				editStack.push(currentGroup);
+			List<Edit> edits = groups.stream().flatMap(Collection::stream).collect(Collectors.toList());
+			if(!edits.isEmpty()) {
+				editStack.push(edits);
 				if(editStack.size() > MAX_HISTORY) {
 					editStack.removeLast();
 				}
 			}
 			
-			currentGroup = null;
+			groups = null;
 		}
+	}
+	
+	public void clearGroup() {
+		if(groups == null) throw new IllegalStateException("No group started");
+		
+		groups.get(groupDepth - 1).clear();
+		groups.subList(groupDepth, groups.size()).clear();
 	}
 	
 	public void addAction(EditAction action, CircuitManager manager, Object... params) {
 		if(disableDepth == 0) {
 			beginGroup();
-			currentGroup.add(new Edit(action, manager, params));
+			groups.get(groupDepth - 1).add(new Edit(action, manager, params));
 			endGroup();
 			
 			redoStack.clear();
@@ -297,7 +309,7 @@ public class EditHistory {
 	}
 	
 	public int editStackSize() {
-		return editStack.size() + (currentGroup == null || currentGroup.isEmpty() ? 0 : 1);
+		return editStack.size() + (groups == null || groups.isEmpty() ? 0 : 1);
 	}
 	
 	public int redoStackSize() {

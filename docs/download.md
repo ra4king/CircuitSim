@@ -11,6 +11,17 @@ Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 Changes
 -------
 
+Version 1.8.0 changelog:
+- Revamp ROM/RAM component look: now showing the current address and value
+- Revamp ROM/RAM memory editor: no need to double click to start typing, no need to hit enter to commit, full copy/paste support
+- Add RandomGenerator component
+- Add copy/cut/paste to context menu in circuit editor
+- Display missing label names in certain components
+- Add All Files option in Load File dialog
+- Fixed bug with gates where downsizing the number of inputs kept the extra Negate options
+- Huge improvement and bug-fixes to wire behavior when moving components and with undo/redo
+
+
 Version 1.7.4 changelog:
 - Fix several bugs with wire creation when dragging components
 - Give an option to send an error report upon unexpected errors

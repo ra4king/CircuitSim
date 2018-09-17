@@ -1,7 +1,7 @@
 CircuitSim v1.8.0
 =================
 
-Site: https://ra4king.github.io/CircuitSim
+Site and download links: https://ra4king.github.io/CircuitSim
 
 Basic circuit simulator with many built-in components. Check out `src/com/ra4king/circuitsim/simulator/components`
 for examples of how Components are written. Their GUI counterparts are in `src/com/ra4king/circuitsim/gui/peers`.
@@ -28,13 +28,13 @@ Changelog
 1.8.0
 -----
 - Revamp ROM/RAM component look: now showing the current address and value
-- Revamp ROM/RAM memory editor: no need to double click to start typing, no need to hit enter to commit, full copy/paste support
+- Revamp ROM/RAM memory editor: no need to double click to start typing, no need to hit enter to commit, full multi-cell copy/paste support
+- Huge improvement and bug-fixes to wire behavior when moving components and with undo/redo
 - Add RandomGenerator component
 - Add copy/cut/paste to context menu in circuit editor
 - Display missing label names in certain components
 - Add All Files option in Load File dialog
 - Fixed bug with gates where downsizing the number of inputs kept the extra Negate options
-- Huge improvement and bug-fixes to wire behavior when moving components and with undo/redo
 
 
 1.7.4

@@ -8,27 +8,30 @@ Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 
 [Click here to download CircuitSim!]
 
-Changes
--------
+Changelog
+=========
 
-Version 1.8.0 changelog:
+1.8.0
+-----
 - Revamp ROM/RAM component look: now showing the current address and value
-- Revamp ROM/RAM memory editor: no need to double click to start typing, no need to hit enter to commit, full copy/paste support
+- Revamp ROM/RAM memory editor: no need to double click to start typing, no need to hit enter to commit, full multi-cell copy/paste support
+- Huge improvement and bug-fixes to wire behavior when moving components and with undo/redo
 - Add RandomGenerator component
 - Add copy/cut/paste to context menu in circuit editor
 - Display missing label names in certain components
 - Add All Files option in Load File dialog
 - Fixed bug with gates where downsizing the number of inputs kept the extra Negate options
-- Huge improvement and bug-fixes to wire behavior when moving components and with undo/redo
 
 
-Version 1.7.4 changelog:
+1.7.4
+-----
 - Fix several bugs with wire creation when dragging components
 - Give an option to send an error report upon unexpected errors
 - Minor bug fixes
 
 
-Version 1.7.3 changelog:
+1.7.3
+-----
 - Fix blue wire issues with Tunnels and subcircuits
 - Highlight wires when clicking on them
 - Ctrl+scroll now zooms in/out
@@ -37,14 +40,16 @@ Version 1.7.3 changelog:
 - Improved error handling
 
 
-Version 1.7.2 changelog:
+1.7.2
+-----
 - Add Probe component, which lets you observe values on wires without resorting to output pins
 - Improve behavior multi-component selection when holding down control by disabling drag-less wire creation when control is held down
 - Copy doesn't do anything when nothing is selected instead of emptying the clipboard
 - Other minor bugs fixed
 
 
-Version 1.7.1 changelog:
+1.7.1
+-----
 - Squashed tunnel bugs: now short-circuits should propagate properly across them and tunnels should work properly
 - Added comparison type to Comparator: now you can do both 2's complement and unsigned comparison
 - Draw magnifying glass to subcircuit components when hovering over them to indicate ability to view internal state
@@ -52,7 +57,8 @@ Version 1.7.1 changelog:
 - Other minor bugs fixed
 
 
-Version 1.7.0 changelog:
+1.7.0
+-----
 - Big thanks to Cem Gokmen for helping with the Mac issues and Austin Adams for gradle-ifying the repo!
 - Now supporting both Java 8 and 9 - thanks to Austin Adams for figuring out how to create a multi-release Jar.
 - Huge rendering performance improvements, especially for Mac
@@ -64,25 +70,29 @@ Version 1.7.0 changelog:
 - Many minor bug fixes and improvements
 
 
-Version 1.6.2 changelog:
+1.6.2
+-----
 - Fixed exceptions being thrown when using Tunnels
 - Now you don't have hit enter to update a text or value property, someone complained that it was annoying. The component is automatically updated when you unfocus from the text input.
 - Multi-bit wires with a floating bit (X) now show up as dark blue instead of black
 - Button now has directions
 
 
-Version 1.6.1 changelog:
+1.6.1
+-----
 - Improved behavior when dragging components to also delete wires whenever they overlap existing ones
 - Huge performance increases with subcircuits and tunnels. Bad designs will still be very slow to run the autograder in.
 - Now showing Help dialog on first run.
 
 
-Version 1.6.0 changelog:
+1.6.0
+-----
 - Added creation of new wires when dragging components. This allows maintaining existing connections when dragging components to new locations.
 - Hold CTRL before beginning the drag to disable this.
 - Fixed file load issue where an error was thrown if the folder doesn't exist anymore.
 - Fixed issues with dragging + keyboard shortcuts
 - Fixed an undo bug when updating components
+
 
 [Java 8u152]: http://java.sun.com/
 [Click here to download CircuitSim!]: https://www.roiatalla.com/public/CircuitSim/

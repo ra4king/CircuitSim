@@ -183,7 +183,6 @@ public class CircuitBoard {
 		
 		try {
 			editHistory.beginGroup();
-			editHistory.addAction(EditAction.ADD_COMPONENT, circuitManager, component);
 			
 			if(splitWires) {
 				Set<Wire> toReAdd = new HashSet<>();
@@ -215,6 +214,8 @@ public class CircuitBoard {
 				
 				rejoinWires();
 			}
+			
+			editHistory.addAction(EditAction.ADD_COMPONENT, circuitManager, component);
 			
 			updateBadLinks();
 		} finally {

@@ -143,7 +143,6 @@ public class CircuitSim extends Application {
 	private boolean openWindow = true;
 	
 	private Simulator simulator;
-	private Exception lastException;
 	private CheckMenuItem simulationEnabled;
 	
 	private MenuItem undo, redo;
@@ -183,6 +182,10 @@ public class CircuitSim extends Application {
 	
 	private EditHistory editHistory;
 	private int savedEditStackSize;
+	
+	private Exception lastException;
+	private long lastExceptionTime;
+	private static final long SHOW_ERROR_DURATION = 3000;
 	
 	private volatile boolean needsRepaint = true;
 	
@@ -403,12 +406,11 @@ public class CircuitSim extends Application {
 			if(isSimulationEnabled() && simulator.hasLinksToUpdate()) {
 				needsRepaint = true;
 				simulator.stepAll();
-				lastException = null;
 			}
 		} catch(SimulationException exc) {
-			lastException = exc;
+			setLastException(exc);
 		} catch(Exception exc) {
-			lastException = exc;
+			setLastException(exc);
 			getDebugUtil().logException(exc);
 		}
 	}
@@ -416,11 +418,20 @@ public class CircuitSim extends Application {
 	private String getCurrentError() {
 		CircuitManager manager = getCurrentCircuit();
 		
-		Exception exc = lastException != null ? lastException
-		                                      : manager != null ? manager.getCurrentError() : null;
+		if(lastException != null && SHOW_ERROR_DURATION < System.currentTimeMillis() - lastExceptionTime) {
+			lastException = null;
+		}
+		
+		Exception exc =
+			lastException != null ? lastException : manager != null ? manager.getCurrentError() : null;
 		
 		return exc == null || exc.getMessage() == null
 		       ? "" : (exc instanceof ShortCircuitException ? "Short circuit detected" : exc.getMessage());
+	}
+	
+	private void setLastException(Exception lastException) {
+		this.lastException = lastException;
+		this.lastExceptionTime = System.currentTimeMillis();
 	}
 	
 	private int getCurrentClockSpeed() {
@@ -806,7 +817,15 @@ public class CircuitSim extends Application {
 		return (props, x, y) -> {
 			Properties properties = new Properties(props);
 			properties.parseAndSetValue(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(this), name);
-			return ComponentManager.forClass(SubcircuitPeer.class).createComponent(properties, x, y);
+			try {
+				return ComponentManager.forClass(SubcircuitPeer.class).createComponent(properties, x, y);
+			} catch(SimulationException exc) {
+				throw new SimulationException(
+					"Error creating subcircuit for circuit '" + name + "': " + exc.getMessage());
+			} catch(Exception exc) {
+				throw new RuntimeException(
+					"Error creating subcircuit for circuit '" + name + "': " + exc.getMessage());
+			}
 		};
 	}
 	
@@ -1091,6 +1110,7 @@ public class CircuitSim extends Application {
 				content.put(copyDataFormat, data);
 				clipboard.setContent(content);
 			} catch(Exception exc) {
+				setLastException(exc);
 				getDebugUtil().logException("Error while copying", exc);
 			}
 		}
@@ -1158,7 +1178,11 @@ public class CircuitSim extends Application {
 									}
 									
 									elementsCreated.add(created);
+								} catch(SimulationException exc) {
+									exc.printStackTrace();
+									setLastException(exc);
 								} catch(Exception exc) {
+									setLastException(exc);
 									getDebugUtil().logException("Error loading component " + component.name, exc);
 								}
 							}
@@ -1168,8 +1192,8 @@ public class CircuitSim extends Application {
 						
 						editHistory.disable();
 						elementsCreated.forEach(
-							element -> manager.getCircuitBoard()
-							                  .addComponent((ComponentPeer<?>)element, false));
+							element -> manager.mayThrow(
+								() -> manager.getCircuitBoard().addComponent((ComponentPeer<?>)element, false)));
 						manager.getCircuitBoard().removeElements(elementsCreated, false);
 						editHistory.enable();
 						
@@ -1187,6 +1211,7 @@ public class CircuitSim extends Application {
 					}
 				}
 			} catch(Exception exc) {
+				setLastException(exc);
 				getDebugUtil().logException("Error while pasting", exc);
 			} finally {
 				editHistory.endGroup();
@@ -2261,9 +2286,8 @@ public class CircuitSim extends Application {
 		stepSimulation.setOnAction(event -> {
 			try {
 				simulator.step();
-				lastException = null;
 			} catch(Exception exc) {
-				lastException = exc;
+				setLastException(exc);
 			} finally {
 				needsRepaint = true;
 			}

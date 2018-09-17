@@ -14,6 +14,7 @@ import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.Property;
 import com.ra4king.circuitsim.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsim.simulator.CircuitState;
+import com.ra4king.circuitsim.simulator.SimulationException;
 import com.ra4king.circuitsim.simulator.components.Subcircuit;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -38,6 +39,9 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 		properties.setProperty(subcircuitProperty);
 		
 		CircuitManager subcircuitManager = subcircuitProperty.value;
+		if (subcircuitManager == null) {
+			throw new SimulationException("Circuit does not exist");
+		}
 		Subcircuit subcircuit = new Subcircuit(properties.getValue(Properties.LABEL), subcircuitManager.getCircuit());
 		
 		List<PortConnection> connections = new ArrayList<>();

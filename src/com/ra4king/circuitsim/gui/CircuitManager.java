@@ -83,7 +83,7 @@ public class CircuitManager {
 	private Set<GuiElement> selectedElements = new HashSet<>();
 	
 	private Exception lastException;
-	private long lastErrorTime;
+	private long lastExceptionTime;
 	private static final long SHOW_ERROR_DURATION = 3000;
 	
 	private boolean needsRepaint;
@@ -214,7 +214,7 @@ public class CircuitManager {
 	}
 	
 	Exception getCurrentError() {
-		if(lastException != null && SHOW_ERROR_DURATION < System.currentTimeMillis() - lastErrorTime) {
+		if(lastException != null && SHOW_ERROR_DURATION < System.currentTimeMillis() - lastExceptionTime) {
 			lastException = null;
 		}
 		
@@ -543,19 +543,19 @@ public class CircuitManager {
 		try {
 			runnable.run();
 			
-			if(lastException != null && SHOW_ERROR_DURATION < System.currentTimeMillis() - lastErrorTime) {
+			if(lastException != null && SHOW_ERROR_DURATION < System.currentTimeMillis() - lastExceptionTime) {
 				lastException = null;
 			}
 			
 			return false;
 		} catch(SimulationException exc) {
 			lastException = exc;
-			lastErrorTime = System.currentTimeMillis();
+			lastExceptionTime = System.currentTimeMillis();
 			return true;
 		} catch(Exception exc) {
 			getSimulatorWindow().getDebugUtil().logException(exc);
 			lastException = exc;
-			lastErrorTime = System.currentTimeMillis();
+			lastExceptionTime = System.currentTimeMillis();
 			return true;
 		}
 	}

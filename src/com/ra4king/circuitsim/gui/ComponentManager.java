@@ -44,6 +44,7 @@ import com.ra4king.circuitsim.gui.peers.wiring.Probe;
 import com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.TransistorPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.Tunnel;
+import com.ra4king.circuitsim.simulator.SimulationException;
 
 import javafx.scene.image.Image;
 import javafx.util.Pair;
@@ -102,6 +103,10 @@ public class ComponentManager {
 			} catch(NoSuchMethodException exc) {
 				throw new RuntimeException("Must have constructor taking (Properties props, int x, int y)");
 			} catch(InvocationTargetException exc) {
+				if(exc.getTargetException() instanceof SimulationException) {
+					throw (SimulationException)exc.getTargetException();
+				}
+				
 				throw new RuntimeException(exc.getTargetException());
 			} catch(RuntimeException exc) {
 				throw exc;

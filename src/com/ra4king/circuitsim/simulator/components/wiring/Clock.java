@@ -38,8 +38,7 @@ public class Clock extends Component {
 			WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 			clocks.forEach((clock, o) -> {
 				if(clock.getCircuit() != null) {
-					clock.getCircuit().getCircuitStates()
-					     .forEach(state -> state.pushValue(clock.getPort(PORT), clockValue));
+					clock.getCircuit().forEachState(state -> state.pushValue(clock.getPort(PORT), clockValue));
 				}
 			});
 			clockChangeListeners.forEach((listener, o) -> listener.valueChanged(clockValue));

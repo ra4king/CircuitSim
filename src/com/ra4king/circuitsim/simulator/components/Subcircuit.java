@@ -105,7 +105,7 @@ public class Subcircuit extends Component {
 		}
 		
 		if(oldState != null) {
-			getCircuit().getCircuitStates().remove(oldState);
+			getCircuit().removeState(oldState);
 		}
 	}
 	
@@ -117,7 +117,7 @@ public class Subcircuit extends Component {
 	public void uninit(CircuitState circuitState) {
 		CircuitState subcircuitState = (CircuitState)circuitState.getComponentProperty(this);
 		subcircuit.getComponents().forEach(component -> component.uninit(subcircuitState));
-		subcircuit.getCircuitStates().remove(subcircuitState);
+		subcircuit.removeState(subcircuitState);
 		if(pinListeners.containsKey(subcircuitState)) {
 			Map<Pin, PinChangeListener> listeners = pinListeners.get(subcircuitState);
 			pins.forEach(pin -> {
@@ -139,8 +139,10 @@ public class Subcircuit extends Component {
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		CircuitState subcircuitState = (CircuitState)state.getComponentProperty(this);
-		if(pins.get(portIndex).isInput()) {
-			subcircuitState.pushValue(pins.get(portIndex).getPort(0), value);
+		Pin pin = pins.get(portIndex);
+		// Sometimes we get updates for pins that were just removed
+		if(pin.isInput() && pin.getCircuit() != null) {
+			subcircuitState.pushValue(pin.getPort(0), value);
 		}
 	}
 }

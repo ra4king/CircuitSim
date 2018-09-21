@@ -88,7 +88,7 @@ public class Port {
 				throw new IllegalArgumentException("Links have different bit sizes.");
 			}
 			
-			circuit.getCircuitStates().forEach(state -> state.link(this, port.getLink()));
+			circuit.forEachState(state -> state.link(this, port.getLink()));
 			
 			Set<Port> portParticipants = port.getLink().participants;
 			participants.addAll(portParticipants);
@@ -115,7 +115,7 @@ public class Port {
 			port.link = new Link(bitSize);
 			port.link.participants.add(port);
 			
-			circuit.getCircuitStates().forEach(state -> state.unlink(this, port));
+			circuit.forEachState(state -> state.unlink(this, port));
 			
 			return this;
 		}

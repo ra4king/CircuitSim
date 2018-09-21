@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import com.ra4king.circuitsim.simulator.Port.Link;
 
@@ -43,7 +44,7 @@ public class Simulator {
 	
 	/**
 	 * Allows execution of code that is synchronized with the Simulator
-	 *
+	 * <p>
 	 * Similar to but more efficient than <code>synchronized(simulator) { runnable.run(); }</code>
 	 *
 	 * @param runnable The block of code to run synchronously
@@ -86,8 +87,7 @@ public class Simulator {
 	 * Resets all CircuitStates of all attached Circuits.
 	 */
 	public void reset() {
-		runSync(() -> circuits.stream().flatMap(
-				circuit -> circuit.getCircuitStates().stream()).forEach(CircuitState::reset));
+		runSync(() -> circuits.forEach(circuit -> circuit.forEachState(CircuitState::reset)));
 	}
 	
 	public Set<Circuit> getCircuits() {
@@ -132,6 +132,22 @@ public class Simulator {
 		runSync(() -> linksToUpdate.add(new Pair<>(state, link)));
 	}
 	
+	/**
+	 * Removes the CircuitState from the processing queue.
+	 */
+	void circuitStateRemoved(CircuitState circuitState) {
+		runSync(() -> linksToUpdate.removeAll(
+			linksToUpdate.stream().filter(pair -> pair.getKey() == circuitState).collect(Collectors.toList())));
+	}
+	
+	/**
+	 * Removes the Link from the processing queue.
+	 */
+	void linkRemoved(Link link) {
+		runSync(() -> linksToUpdate.removeAll(
+			linksToUpdate.stream().filter(pair -> pair.getValue() == link).collect(Collectors.toList())));
+	}
+	
 	private boolean stepping = false;
 	
 	/**
@@ -160,9 +176,8 @@ public class Simulator {
 					CircuitState state = pair.getKey();
 					Link link = pair.getValue();
 					
-					// The Link or CircuitState have been removed
-					if(link.getCircuit() == null ||
-						   !state.getCircuit().getCircuitStates().contains(state)) {
+					// The Link may have been removed
+					if(link.getCircuit() == null) {
 						return;
 					}
 					

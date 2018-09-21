@@ -101,9 +101,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 						MemoryLine line = lines.get(index);
 						line.values.get(address - index * 16).setValue(memoryValidator.parseValue(value));
 						
-						for(CircuitState state : circuit.getCircuit().getCircuitStates()) {
-							getComponent().valueChanged(state, null, 0);
-						}
+						circuit.getCircuit().forEachState(state -> getComponent().valueChanged(state, null, 0));
 					}));
 			});
 			

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Consumer;
 
 /**
  * @author Roi Atalla
@@ -99,7 +100,7 @@ public class Circuit {
 	 */
 	public <T extends Component> void updateComponent(T oldComponent, T newComponent, Runnable inBetween) {
 		simulator.runSync(() -> {
-			states.forEach(state -> state.ensureUnlinked(oldComponent));
+			states.forEach(state -> state.ensureUnlinked(oldComponent, false));
 			
 			components.remove(oldComponent);
 			states.forEach(state -> {
@@ -149,7 +150,11 @@ public class Circuit {
 	 */
 	public void removeComponent(Component component) {
 		simulator.runSync(() -> {
-			states.forEach(state -> state.ensureUnlinked(component));
+			if(!components.contains(component)) {
+				return;
+			}
+			
+			states.forEach(state -> state.ensureUnlinked(component, true));
 			
 			components.remove(component);
 			states.forEach(state -> {
@@ -197,8 +202,19 @@ public class Circuit {
 		return topLevelState;
 	}
 	
-	public Set<CircuitState> getCircuitStates() {
-		return states;
+	public void addState(CircuitState state) {
+		states.add(state);
+	}
+	
+	public void removeState(CircuitState state) {
+		simulator.runSync(() -> {
+			states.remove(state);
+			simulator.circuitStateRemoved(state);
+		});
+	}
+	
+	public void forEachState(Consumer<CircuitState> consumer) {
+		states.forEach(consumer);
 	}
 	
 	public void addListener(CircuitChangeListener listener) {

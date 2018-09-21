@@ -31,7 +31,7 @@ public class CircuitState {
 			this.circuit = circuit;
 			this.componentProperties = new HashMap<>();
 			this.linkStates = new HashMap<>();
-			circuit.getCircuitStates().add(this);
+			circuit.addState(this);
 		});
 	}
 	
@@ -188,12 +188,17 @@ public class CircuitState {
 		});
 	}
 	
-	void ensureUnlinked(Component component) {
+	void ensureUnlinked(Component component, boolean removeLinks) {
 		for(int i = 0; i < component.getNumPorts(); i++) {
 			Port port = component.getPort(i);
 			Link link = port.getLink();
 			if(link != null && linkStates.containsKey(link) && linkStates.get(link).participants.size() > 1) {
 				throw new RuntimeException("Must unlink port before removing it.");
+			}
+			
+			if(removeLinks) {
+				linkStates.remove(link);
+				circuit.getSimulator().linkRemoved(link);
 			}
 		}
 	}
@@ -351,6 +356,7 @@ public class CircuitState {
 			participants.forEach((port, info) -> info.lastMerged.setAllBits(State.X));
 			
 			linkStates.remove(other.link);
+			getCircuit().getSimulator().linkRemoved(other.link);
 			
 			getCircuit().getSimulator().valueChanged(CircuitState.this, link);
 		}
@@ -380,6 +386,7 @@ public class CircuitState {
 			
 			if(participants.isEmpty()) {
 				linkStates.remove(link);
+				getCircuit().getSimulator().linkRemoved(link);
 			} else {
 				getCircuit().getSimulator().valueChanged(CircuitState.this, link);
 			}

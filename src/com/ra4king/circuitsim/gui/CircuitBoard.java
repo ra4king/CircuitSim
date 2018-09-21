@@ -87,7 +87,7 @@ public class CircuitBoard {
 	
 	@Override
 	public String toString() {
-		return "CircuitBoard child of " + circuitManager;
+		return "CircuitBoard of " + circuitManager;
 	}
 	
 	public void destroy() {
@@ -1012,68 +1012,75 @@ public class CircuitBoard {
 	}
 	
 	private void rejoinWires() {
+		editHistory.disable();
+		
 		boolean changed = false;
 		
-		for(LinkWires linkWires : links) {
-			Set<Wire> removed = new HashSet<>();
-			for(Wire wire : new HashSet<>(linkWires.getWires())) {
-				if(removed.contains(wire)) continue;
-				
-				Connection start = wire.getStartConnection();
-				Connection end = wire.getEndConnection();
-				
-				int x = wire.getX();
-				int y = wire.getY();
-				int length = wire.getLength();
-				
-				Set<Connection> startConns = getConnections(start.getX(), start.getY());
-				if(startConns != null && startConns.size() == 2) {
-					List<Wire> startWires = startConns.stream()
-					                                  .filter(conn -> conn != start && conn instanceof WireConnection)
-					                                  .map(conn -> (Wire)conn.getParent())
-					                                  .filter(w -> w.isHorizontal() == wire.isHorizontal())
-					                                  .collect(Collectors.toList());
+		try {
+			for(LinkWires linkWires : links) {
+				Set<Wire> removed = new HashSet<>();
+				for(Wire wire : new HashSet<>(linkWires.getWires())) {
+					if(removed.contains(wire)) continue;
 					
-					if(startWires.size() == 1) {
-						Wire startWire = startWires.get(0);
-						length += startWire.getLength();
-						
-						if(startWire.getX() < x) {
-							x = startWire.getX();
-						}
-						if(startWire.getY() < y) {
-							y = startWire.getY();
-						}
-						
-						removeWire(startWire);
-						removed.add(startWire);
-					}
-				}
-				
-				Set<Connection> endConns = getConnections(end.getX(), end.getY());
-				if(endConns != null && endConns.size() == 2) {
-					List<Wire> endWires = endConns.stream()
-					                              .filter(conn -> conn != end && conn instanceof WireConnection)
-					                              .map(conn -> (Wire)conn.getParent())
-					                              .filter(w -> w.isHorizontal() == wire.isHorizontal())
-					                              .collect(Collectors.toList());
+					Connection start = wire.getStartConnection();
+					Connection end = wire.getEndConnection();
 					
-					if(endWires.size() == 1) {
-						Wire endWire = endWires.get(0);
-						length += endWire.getLength();
+					int x = wire.getX();
+					int y = wire.getY();
+					int length = wire.getLength();
+					
+					Set<Connection> startConns = getConnections(start.getX(), start.getY());
+					if(startConns != null && startConns.size() == 2) {
+						List<Wire> startWires = startConns.stream()
+						                                  .filter(
+							                                  conn -> conn != start && conn instanceof WireConnection)
+						                                  .map(conn -> (Wire)conn.getParent())
+						                                  .filter(w -> w.isHorizontal() == wire.isHorizontal())
+						                                  .collect(Collectors.toList());
 						
-						removeWire(endWire);
-						removed.add(endWire);
+						if(startWires.size() == 1) {
+							Wire startWire = startWires.get(0);
+							length += startWire.getLength();
+							
+							if(startWire.getX() < x) {
+								x = startWire.getX();
+							}
+							if(startWire.getY() < y) {
+								y = startWire.getY();
+							}
+							
+							removeWire(startWire);
+							removed.add(startWire);
+						}
 					}
-				}
-				
-				if(length != wire.getLength()) {
-					removeWire(wire);
-					removed.add(wire);
-					addWire(linkWires, new Wire(linkWires, x, y, length, wire.isHorizontal()));
-					changed = true;
+					
+					Set<Connection> endConns = getConnections(end.getX(), end.getY());
+					if(endConns != null && endConns.size() == 2) {
+						List<Wire> endWires = endConns.stream()
+						                              .filter(conn -> conn != end && conn instanceof WireConnection)
+						                              .map(conn -> (Wire)conn.getParent())
+						                              .filter(w -> w.isHorizontal() == wire.isHorizontal())
+						                              .collect(Collectors.toList());
+						
+						if(endWires.size() == 1) {
+							Wire endWire = endWires.get(0);
+							length += endWire.getLength();
+							
+							removeWire(endWire);
+							removed.add(endWire);
+						}
+					}
+					
+					if(length != wire.getLength()) {
+						removeWire(wire);
+						removed.add(wire);
+						addWire(linkWires, new Wire(linkWires, x, y, length, wire.isHorizontal()));
+						changed = true;
+					}
 				}
 			}
+		} finally {
+			editHistory.enable();
 		}
 		
 		if(changed) {
@@ -1082,6 +1089,10 @@ public class CircuitBoard {
 	}
 	
 	private void removeComponent(ComponentPeer<?> component) {
+		if(!components.contains(component)) {
+			return;
+		}
+		
 		for(Connection connection : component.getConnections()) {
 			removeConnection(connection);
 			

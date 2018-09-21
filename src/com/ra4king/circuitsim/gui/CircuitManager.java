@@ -153,7 +153,7 @@ public class CircuitManager {
 	
 	@Override
 	public String toString() {
-		return "CircuitManager " + getName();
+		return "CircuitManager of " + getName();
 	}
 	
 	private void resetLastPressed() {

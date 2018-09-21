@@ -1210,6 +1210,9 @@ public class CircuitSim extends Application {
 						break;
 					}
 				}
+			} catch(SimulationException exc) {
+				exc.printStackTrace();
+				setLastException(exc);
 			} catch(Exception exc) {
 				setLastException(exc);
 				getDebugUtil().logException("Error while pasting", exc);

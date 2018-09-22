@@ -623,7 +623,7 @@ public class CircuitSim extends Application {
 		if(componentPeer.getClass() == SubcircuitPeer.class) {
 			name = componentPeer.getProperties().getProperty(SubcircuitPeer.SUBCIRCUIT).getStringValue();
 		} else {
-			ComponentLauncherInfo info = componentManager.get(componentPeer.getClass());
+			ComponentLauncherInfo info = componentManager.get(componentPeer.getClass(), componentPeer.getProperties());
 			name = info.name.getValue();
 		}
 		setProperties(name, componentPeer.getProperties());
@@ -1165,7 +1165,7 @@ public class CircuitSim extends Application {
 										creator = getSubcircuitPeerCreator(
 											properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
 									} else {
-										creator = componentManager.get(clazz).creator;
+										creator = componentManager.get(clazz, properties).creator;
 									}
 									
 									ComponentPeer<?> created = creator.createComponent(properties,
@@ -1580,7 +1580,7 @@ public class CircuitSim extends Application {
 									creator = getSubcircuitPeerCreator(
 										properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
 								} else {
-									creator = componentManager.get(clazz).creator;
+									creator = componentManager.get(clazz, properties).creator;
 								}
 								
 								runnables.add(() -> {

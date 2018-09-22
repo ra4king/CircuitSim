@@ -76,8 +76,11 @@ public class ComponentManager {
 		
 		@Override
 		public int hashCode() {
-			return clazz.hashCode() ^ name.hashCode() ^ (image == null ? 0 : image.hashCode())
-					       ^ properties.hashCode() ^ creator.hashCode();
+			return clazz.hashCode()
+				       ^ name.hashCode()
+				       ^ (image == null ? 0 : image.hashCode())
+				       ^ properties.hashCode()
+				       ^ creator.hashCode();
 		}
 		
 		@Override
@@ -131,11 +134,21 @@ public class ComponentManager {
 		throw new IllegalArgumentException("Component not registered: " + name);
 	}
 	
-	public ComponentLauncherInfo get(Class<? extends ComponentPeer> clazz) {
+	public ComponentLauncherInfo get(Class<? extends ComponentPeer> clazz, Properties properties) {
+		ComponentLauncherInfo firstComponent = null;
+		
 		for(ComponentLauncherInfo component : components) {
 			if(component.clazz == clazz) {
-				return component;
+				firstComponent = component;
+				
+				if(properties.intersect(component.properties).equals(component.properties)) {
+					return component;
+				}
 			}
+		}
+		
+		if(firstComponent != null) {
+			return firstComponent;
 		}
 		
 		throw new IllegalArgumentException("Component not registered: " + clazz);
@@ -164,7 +177,7 @@ public class ComponentManager {
 			              });
 		} catch(NoSuchMethodException exc) {
 			throw new RuntimeException("Must implement: public static void installComponent" +
-					                           "(ComponentManagerInterface): " + clazz);
+				                           "(ComponentManagerInterface): " + clazz);
 		} catch(RuntimeException exc) {
 			throw exc;
 		} catch(Exception exc) {

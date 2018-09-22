@@ -332,19 +332,19 @@ public class Properties {
 		}
 		
 		public String getStringValue() {
-			return validator.toString(value);
+			return validator == null ? (String)value : validator.toString(value);
 		}
 		
 		@Override
 		public int hashCode() {
-			return (name.hashCode() << 13) ^ validator.hashCode() ^ value.hashCode();
+			return Objects.hash(name, validator, value);
 		}
 		
 		@Override
 		public boolean equals(Object other) {
 			if(other instanceof Property) {
 				Property prop = (Property)other;
-				return name.equals(prop.name) && validator.equals(prop.validator) && value.equals(prop.value);
+				return name.equals(prop.name) && validator.equals(prop.validator) && Objects.equals(value, prop.value);
 			}
 			
 			return false;
@@ -714,9 +714,7 @@ public class Properties {
 						@Override
 						public void startEdit() {
 							oldText = getText();
-							
 							super.startEdit();
-							
 							setText(null);
 							
 							textField = new TextField(oldText);
@@ -817,7 +815,7 @@ public class Properties {
 				}
 			});
 			Button clearButton = new Button("Clear contents");
-			clearButton.setOnAction(event -> lines.forEach(line -> line.values.forEach(value -> value.setValue("0"))));
+			clearButton.setOnAction(event -> lines.forEach(line -> line.values.forEach(value -> value.set("0"))));
 			
 			memoryStage.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
 				if(keyEvent.isShortcutDown()) {

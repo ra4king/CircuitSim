@@ -746,59 +746,61 @@ public class CircuitSim extends Application {
 	void refreshCircuitsTab() {
 		if(loadingFile) return;
 		
-		ScrollPane pane = new ScrollPane(new GridPane());
-		pane.setFitToWidth(true);
-		
-		if(circuitButtonsTab == null) {
-			circuitButtonsTab = new Tab("Circuits");
-			circuitButtonsTab.setClosable(false);
-			circuitButtonsTab.setContent(pane);
-			buttonTabPane.getTabs().add(circuitButtonsTab);
-		} else {
-			// Clear toggle groups, as they take up memory and don't get cleared automatically
-			GridPane buttons = (GridPane)((ScrollPane)circuitButtonsTab.getContent()).getContent();
-			buttons.getChildren().forEach(node -> {
-				ToggleButton button = (ToggleButton)node;
-				button.setToggleGroup(null);
+		Platform.runLater(() -> {
+			ScrollPane pane = new ScrollPane(new GridPane());
+			pane.setFitToWidth(true);
+			
+			if(circuitButtonsTab == null) {
+				circuitButtonsTab = new Tab("Circuits");
+				circuitButtonsTab.setClosable(false);
+				circuitButtonsTab.setContent(pane);
+				buttonTabPane.getTabs().add(circuitButtonsTab);
+			} else {
+				// Clear toggle groups, as they take up memory and don't get cleared automatically
+				GridPane buttons = (GridPane)((ScrollPane)circuitButtonsTab.getContent()).getContent();
+				buttons.getChildren().forEach(node -> {
+					ToggleButton button = (ToggleButton)node;
+					button.setToggleGroup(null);
+				});
+				buttons.getChildren().clear();
+				
+				circuitButtonsTab.setContent(pane);
+			}
+			
+			// when requesting a tab to be closed, it still exists and thus its button could be created twice.
+			Set<String> seen = new HashSet<>();
+			
+			canvasTabPane.getTabs().forEach(tab -> {
+				String name = tab.getText();
+				Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
+				if(circuitPair == null || seen.contains(name)) return;
+				seen.add(name);
+				
+				ComponentPeer<?> component = circuitPair.getKey().creator.createComponent(new Properties(), 0, 0);
+				
+				Canvas icon = new Canvas(component.getScreenWidth() + 10, component.getScreenHeight() + 10);
+				GraphicsContext graphics = icon.getGraphicsContext2D();
+				graphics.translate(5, 5);
+				component.paint(icon.getGraphicsContext2D(), null);
+				component.getConnections().forEach(connection -> connection.paint(icon.getGraphicsContext2D(), null));
+				
+				ToggleButton toggleButton = new ToggleButton(circuitPair.getKey().name.getValue(), icon);
+				toggleButton.setAlignment(Pos.CENTER_LEFT);
+				toggleButton.setToggleGroup(buttonsToggleGroup);
+				toggleButton.setMinHeight(30);
+				toggleButton.setMaxWidth(Double.MAX_VALUE);
+				toggleButton.setOnAction(e -> {
+					if(toggleButton.isSelected()) {
+						modifiedSelection(circuitPair.getKey());
+					} else {
+						modifiedSelection(null);
+					}
+				});
+				GridPane.setHgrow(toggleButton, Priority.ALWAYS);
+				
+				GridPane buttons = (GridPane)pane.getContent();
+				buttons.addRow(buttons.getChildren().size(), toggleButton);
 			});
-			buttons.getChildren().clear();
-			
-			circuitButtonsTab.setContent(pane);
-		}
-		
-		// when requesting a tab to be closed, it still exists and thus its button could be created twice.
-		Set<String> seen = new HashSet<>();
-		
-		canvasTabPane.getTabs().forEach(tab -> {
-			String name = tab.getText();
-			Pair<ComponentLauncherInfo, CircuitManager> circuitPair = circuitManagers.get(name);
-			if(circuitPair == null || seen.contains(name)) return;
-			seen.add(name);
-			
-			ComponentPeer<?> component = circuitPair.getKey().creator.createComponent(new Properties(), 0, 0);
-			
-			Canvas icon = new Canvas(component.getScreenWidth() + 10, component.getScreenHeight() + 10);
-			GraphicsContext graphics = icon.getGraphicsContext2D();
-			graphics.translate(5, 5);
-			component.paint(icon.getGraphicsContext2D(), null);
-			component.getConnections().forEach(connection -> connection.paint(icon.getGraphicsContext2D(), null));
-			
-			ToggleButton toggleButton = new ToggleButton(circuitPair.getKey().name.getValue(), icon);
-			toggleButton.setAlignment(Pos.CENTER_LEFT);
-			toggleButton.setToggleGroup(buttonsToggleGroup);
-			toggleButton.setMinHeight(30);
-			toggleButton.setMaxWidth(Double.MAX_VALUE);
-			toggleButton.setOnAction(e -> {
-				if(toggleButton.isSelected()) {
-					modifiedSelection(circuitPair.getKey());
-				} else {
-					modifiedSelection(null);
-				}
-			});
-			GridPane.setHgrow(toggleButton, Priority.ALWAYS);
-			
-			GridPane buttons = (GridPane)pane.getContent();
-			buttons.addRow(buttons.getChildren().size(), toggleButton);
 		});
 	}
 	

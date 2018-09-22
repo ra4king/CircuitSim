@@ -286,19 +286,27 @@ public class EditHistory {
 			return null;
 		}
 		
-		disable();
-		
 		List<Edit> popped = editStack.pop();
 		redoStack.push(popped);
 		
-		for(int i = popped.size() - 1; i >= 0; i--) {
-			Edit edit = popped.get(i);
-			
-			edit.action.undo(edit.circuitManager, edit.params);
-			editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
-		}
+		List<CircuitManager> circuitManagers = new ArrayList<>();
 		
-		enable();
+		try {
+			disable();
+			
+			for(int i = popped.size() - 1; i >= 0; i--) {
+				Edit edit = popped.get(i);
+				
+				circuitManagers.add(edit.circuitManager);
+				edit.circuitManager.getCircuitBoard().disableRejoinWires();
+				
+				edit.action.undo(edit.circuitManager, edit.params);
+				editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
+			}
+		} finally {
+			enable();
+			circuitManagers.forEach(circuitManager -> circuitManager.getCircuitBoard().enableRejoinWires());
+		}
 		
 		return popped.get(0).circuitManager;
 	}
@@ -308,20 +316,28 @@ public class EditHistory {
 			return null;
 		}
 		
-		disable();
-		
 		List<Edit> popped = redoStack.pop();
 		editStack.push(popped);
 		if(editStack.size() > MAX_HISTORY) {
 			editStack.removeLast();
 		}
 		
-		for(Edit edit : popped) {
-			edit.action.redo(edit.circuitManager, edit.params);
-			editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
-		}
+		List<CircuitManager> circuitManagers = new ArrayList<>();
 		
-		enable();
+		try {
+			disable();
+			
+			for(Edit edit : popped) {
+				circuitManagers.add(edit.circuitManager);
+				edit.circuitManager.getCircuitBoard().disableRejoinWires();
+				
+				edit.action.redo(edit.circuitManager, edit.params);
+				editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
+			}
+		} finally {
+			enable();
+			circuitManagers.forEach(circuitManager -> circuitManager.getCircuitBoard().enableRejoinWires());
+		}
 		
 		return popped.get(0).circuitManager;
 	}

@@ -182,7 +182,7 @@ public class CircuitBoard {
 		}
 		
 		try {
-			editHistory.beginGroup();
+			editHistory.disable();
 			
 			if(splitWires) {
 				Set<Wire> toReAdd = new HashSet<>();
@@ -215,12 +215,12 @@ public class CircuitBoard {
 				rejoinWires();
 			}
 			
-			editHistory.addAction(EditAction.ADD_COMPONENT, circuitManager, component);
-			
 			updateBadLinks();
 		} finally {
-			editHistory.endGroup();
+			editHistory.enable();
 		}
+		
+		editHistory.addAction(EditAction.ADD_COMPONENT, circuitManager, component);
 	}
 	
 	public void updateComponent(ComponentPeer<?> oldComponent, ComponentPeer<?> newComponent) {
@@ -1011,7 +1011,23 @@ public class CircuitBoard {
 		editHistory.addAction(EditAction.REMOVE_WIRE, circuitManager, new Wire(null, wire));
 	}
 	
+	// For EditHistory usage, so rejoinWires will only need to be called once.
+	private boolean rejoinWiresEnabled = true;
+	
+	void disableRejoinWires() {
+		rejoinWiresEnabled = false;
+	}
+	
+	void enableRejoinWires() {
+		rejoinWiresEnabled = true;
+		rejoinWires();
+	}
+	
 	private void rejoinWires() {
+		if(!rejoinWiresEnabled) {
+			return;
+		}
+		
 		editHistory.disable();
 		
 		try {

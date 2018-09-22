@@ -1014,12 +1014,13 @@ public class CircuitBoard {
 	private void rejoinWires() {
 		editHistory.disable();
 		
-		boolean changed = false;
-		
 		try {
 			for(LinkWires linkWires : links) {
 				Set<Wire> removed = new HashSet<>();
-				for(Wire wire : new HashSet<>(linkWires.getWires())) {
+				ArrayList<Wire> wires = new ArrayList<>(linkWires.getWires());
+				for(int i = 0; i < wires.size(); i++) {
+					Wire wire = wires.get(i);
+					
 					if(removed.contains(wire)) continue;
 					
 					Connection start = wire.getStartConnection();
@@ -1074,17 +1075,14 @@ public class CircuitBoard {
 					if(length != wire.getLength()) {
 						removeWire(wire);
 						removed.add(wire);
-						addWire(linkWires, new Wire(linkWires, x, y, length, wire.isHorizontal()));
-						changed = true;
+						Wire newWire = new Wire(linkWires, x, y, length, wire.isHorizontal());
+						addWire(linkWires, newWire);
+						wires.add(newWire);
 					}
 				}
 			}
 		} finally {
 			editHistory.enable();
-		}
-		
-		if(changed) {
-			rejoinWires();
 		}
 	}
 	

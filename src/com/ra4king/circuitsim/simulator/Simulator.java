@@ -133,14 +133,6 @@ public class Simulator {
 	}
 	
 	/**
-	 * Removes the CircuitState from the processing queue.
-	 */
-	void circuitStateRemoved(CircuitState circuitState) {
-		runSync(() -> linksToUpdate.removeAll(
-			linksToUpdate.stream().filter(pair -> pair.getKey() == circuitState).collect(Collectors.toList())));
-	}
-	
-	/**
 	 * Removes the Link from the processing queue.
 	 */
 	void linkRemoved(Link link) {
@@ -176,8 +168,8 @@ public class Simulator {
 					CircuitState state = pair.getKey();
 					Link link = pair.getValue();
 					
-					// The Link may have been removed
-					if(link.getCircuit() == null) {
+					// The Link or CircuitState may have been removed
+					if(link.getCircuit() == null || !state.getCircuit().containsState(state)) {
 						return;
 					}
 					

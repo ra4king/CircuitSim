@@ -206,11 +206,12 @@ public class Circuit {
 		states.add(state);
 	}
 	
+	public boolean containsState(CircuitState state) {
+		return states.contains(state);
+	}
+	
 	public void removeState(CircuitState state) {
-		simulator.runSync(() -> {
-			states.remove(state);
-			simulator.circuitStateRemoved(state);
-		});
+		states.remove(state);
 	}
 	
 	public void forEachState(Consumer<CircuitState> consumer) {

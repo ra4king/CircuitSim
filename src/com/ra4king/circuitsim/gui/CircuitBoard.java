@@ -230,7 +230,7 @@ public class CircuitBoard {
 			try {
 				editHistory.disable();
 				
-				removeComponent(oldComponent);
+				removeComponent(oldComponent, true);
 				
 				try {
 					circuit.updateComponent(oldComponent.getComponent(), newComponent.getComponent(),
@@ -686,7 +686,7 @@ public class CircuitBoard {
 					iterator.remove();
 					
 					if(element instanceof ComponentPeer<?>) {
-						removeComponent((ComponentPeer<?>)element);
+						removeComponent((ComponentPeer<?>)element, removeFromCircuit);
 						if(removeFromCircuit) {
 							circuit.removeComponent(((ComponentPeer<?>)element).getComponent());
 						}
@@ -1116,7 +1116,7 @@ public class CircuitBoard {
 		}
 	}
 	
-	private void removeComponent(ComponentPeer<?> component) {
+	private void removeComponent(ComponentPeer<?> component, boolean removeFromComponentsList) {
 		if(!components.contains(component)) {
 			return;
 		}
@@ -1135,7 +1135,10 @@ public class CircuitBoard {
 			}
 		}
 		
-		components.remove(component);
+		if(removeFromComponentsList) {
+			components.remove(component);
+		}
+		
 		editHistory.addAction(EditAction.REMOVE_COMPONENT, circuitManager, component);
 	}
 	
@@ -1168,7 +1171,11 @@ public class CircuitBoard {
 	public void paint(GraphicsContext graphics, LinkWires highlightLinkWires) {
 		CircuitState currentState = new CircuitState(this.currentState);
 		
-		components.forEach(component -> paintComponent(graphics, currentState, component));
+		components.forEach(component -> {
+			if(moveElements == null || !moveElements.contains(component)) {
+				paintComponent(graphics, currentState, component);
+			}
+		});
 		
 		for(LinkWires linkWires : links) {
 			for(Wire wire : linkWires.getWires()) {

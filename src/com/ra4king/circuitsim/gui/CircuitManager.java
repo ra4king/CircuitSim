@@ -321,8 +321,11 @@ public class CircuitManager {
 											component.getY())));
 			
 			simulatorWindow.getEditHistory().beginGroup();
-			newComponents.forEach((oldComponent, newComponent) ->
-					                      mayThrow(() -> circuitBoard.updateComponent(oldComponent, newComponent)));
+			simulatorWindow.getSimulator().runSync(
+				() ->
+					newComponents.forEach(
+						(oldComponent, newComponent) ->
+							mayThrow(() -> circuitBoard.updateComponent(oldComponent, newComponent))));
 			simulatorWindow.getEditHistory().endGroup();
 			
 			setSelectedElements(Stream.concat(
@@ -389,18 +392,20 @@ public class CircuitManager {
 			graphics.save();
 			graphics.setStroke(Color.RED);
 			
-			for(Pair<CircuitState, Link> linkToUpdate : simulatorWindow.getSimulator().getLinksToUpdate()) {
-				for(Port port : linkToUpdate.getValue().getParticipants()) {
-					Optional<PortConnection> connection =
+			simulatorWindow.getSimulator().runSync(() -> {
+				for(Pair<CircuitState, Link> linkToUpdate : simulatorWindow.getSimulator().getLinksToUpdate()) {
+					for(Port port : linkToUpdate.getValue().getParticipants()) {
+						Optional<PortConnection> connection =
 							circuitBoard.getComponents().stream()
 							            .flatMap(c -> c.getConnections().stream())
 							            .filter(p -> p.getPort() == port).findFirst();
-					if(connection.isPresent()) {
-						PortConnection portConn = connection.get();
-						graphics.strokeOval(portConn.getScreenX() - 2, portConn.getScreenY() - 2, 10, 10);
+						if(connection.isPresent()) {
+							PortConnection portConn = connection.get();
+							graphics.strokeOval(portConn.getScreenX() - 2, portConn.getScreenY() - 2, 10, 10);
+						}
 					}
 				}
-			}
+			});
 			
 			graphics.restore();
 		}

@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -268,7 +267,7 @@ public class CircuitSim extends Application {
 		circuitManagers = new HashMap<>();
 		Clock.addChangeListener(simulator, value -> runSim());
 		
-		editHistory = new EditHistory();
+		editHistory = new EditHistory(this);
 		editHistory.addListener((action, manager, params) -> {
 			updateTitle();
 			circuitManagers.values().stream().map(Pair::getValue).forEach(this::updateCanvasSize);
@@ -1190,24 +1189,27 @@ public class CircuitSim extends Application {
 							}
 						}
 						
-						manager.getCircuitBoard().finalizeMove();
-						
-						editHistory.disable();
-						elementsCreated.forEach(
-							element -> manager.mayThrow(
-								() -> manager.getCircuitBoard().addComponent((ComponentPeer<?>)element, false)));
-						manager.getCircuitBoard().removeElements(elementsCreated, false);
-						editHistory.enable();
-						
-						for(CircuitInfo circuit : parsed.circuits) {
-							for(WireInfo wire : circuit.wires) {
-								elementsCreated.add(
-									new Wire(null, wire.x + i, wire.y + i, wire.length, wire.isHorizontal));
+						int offset = i;
+						simulator.runSync(() -> {
+							manager.getCircuitBoard().finalizeMove();
+							
+							editHistory.disable();
+							elementsCreated.forEach(
+								element -> manager.mayThrow(
+									() -> manager.getCircuitBoard().addComponent((ComponentPeer<?>)element, false)));
+							manager.getCircuitBoard().removeElements(elementsCreated, false);
+							editHistory.enable();
+							
+							for(CircuitInfo circuit : parsed.circuits) {
+								for(WireInfo wire : circuit.wires) {
+									elementsCreated.add(
+										new Wire(null, wire.x + offset, wire.y + offset, wire.length, wire.isHorizontal));
+								}
 							}
-						}
-						
-						manager.setSelectedElements(elementsCreated);
-						manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false));
+							
+							manager.setSelectedElements(elementsCreated);
+							manager.mayThrow(() -> manager.getCircuitBoard().initMove(elementsCreated, false));
+						});
 						
 						break;
 					}
@@ -1231,13 +1233,7 @@ public class CircuitSim extends Application {
 		if(checkingForUpdate.compareAndSet(false, true)) {
 			Thread versionCheckThread = new Thread(() -> {
 				try {
-					URL url;
-					try {
-						url = new URL("https://www.roiatalla.com/public/CircuitSim/version.txt");
-					} catch(MalformedURLException exc) {
-						getDebugUtil().logException(exc);
-						return;
-					}
+					URL url = new URL("https://www.roiatalla.com/public/CircuitSim/version.txt");
 					
 					String remoteVersion;
 					
@@ -1325,6 +1321,8 @@ public class CircuitSim extends Application {
 							alert.show();
 						});
 					}
+				} catch(Exception exc) {
+					exc.printStackTrace();
 				} finally {
 					checkingForUpdate.set(false);
 				}
@@ -1517,11 +1515,6 @@ public class CircuitSim extends Application {
 							throw new NullPointerException("File missing circuits");
 						}
 						
-						Platform.runLater(() -> {
-							bar.setProgress(0.1);
-							dialog.setContentText("Creating circuits...");
-						});
-						
 						clearCircuits();
 						
 						if(circuitFile.libraryPaths != null) {
@@ -1534,6 +1527,11 @@ public class CircuitSim extends Application {
 								}
 							}
 						}
+						
+						Platform.runLater(() -> {
+							bar.setProgress(0.1);
+							dialog.setContentText("Creating circuits...");
+						});
 						
 						int totalComponents = 0;
 						

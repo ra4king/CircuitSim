@@ -174,6 +174,8 @@ public class EditHistory {
 		void edit(EditAction action, CircuitManager manager, Object[] params);
 	}
 	
+	private CircuitSim circuitSim;
+	
 	private Deque<List<Edit>> editStack;
 	private Deque<List<Edit>> redoStack;
 	
@@ -181,7 +183,9 @@ public class EditHistory {
 	
 	private List<EditListener> editListeners;
 	
-	public EditHistory() {
+	public EditHistory(CircuitSim circuitSim) {
+		this.circuitSim = circuitSim;
+		
 		editStack = new ArrayDeque<>();
 		redoStack = new ArrayDeque<>();
 		
@@ -289,24 +293,26 @@ public class EditHistory {
 		List<Edit> popped = editStack.pop();
 		redoStack.push(popped);
 		
-		List<CircuitManager> circuitManagers = new ArrayList<>();
-		
-		try {
-			disable();
+		circuitSim.getSimulator().runSync(() -> {
+			List<CircuitManager> circuitManagers = new ArrayList<>();
 			
-			for(int i = popped.size() - 1; i >= 0; i--) {
-				Edit edit = popped.get(i);
+			try {
+				disable();
 				
-				circuitManagers.add(edit.circuitManager);
-				edit.circuitManager.getCircuitBoard().disableRejoinWires();
-				
-				edit.action.undo(edit.circuitManager, edit.params);
-				editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
+				for(int i = popped.size() - 1; i >= 0; i--) {
+					Edit edit = popped.get(i);
+					
+					circuitManagers.add(edit.circuitManager);
+					edit.circuitManager.getCircuitBoard().disableRejoinWires();
+					
+					edit.action.undo(edit.circuitManager, edit.params);
+					editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
+				}
+			} finally {
+				enable();
+				circuitManagers.forEach(circuitManager -> circuitManager.getCircuitBoard().enableRejoinWires());
 			}
-		} finally {
-			enable();
-			circuitManagers.forEach(circuitManager -> circuitManager.getCircuitBoard().enableRejoinWires());
-		}
+		});
 		
 		return popped.get(0).circuitManager;
 	}
@@ -322,22 +328,24 @@ public class EditHistory {
 			editStack.removeLast();
 		}
 		
-		List<CircuitManager> circuitManagers = new ArrayList<>();
-		
-		try {
-			disable();
+		circuitSim.getSimulator().runSync(() -> {
+			List<CircuitManager> circuitManagers = new ArrayList<>();
 			
-			for(Edit edit : popped) {
-				circuitManagers.add(edit.circuitManager);
-				edit.circuitManager.getCircuitBoard().disableRejoinWires();
+			try {
+				disable();
 				
-				edit.action.redo(edit.circuitManager, edit.params);
-				editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
+				for(Edit edit : popped) {
+					circuitManagers.add(edit.circuitManager);
+					edit.circuitManager.getCircuitBoard().disableRejoinWires();
+					
+					edit.action.redo(edit.circuitManager, edit.params);
+					editListeners.forEach(listener -> listener.edit(edit.action, edit.circuitManager, edit.params));
+				}
+			} finally {
+				enable();
+				circuitManagers.forEach(circuitManager -> circuitManager.getCircuitBoard().enableRejoinWires());
 			}
-		} finally {
-			enable();
-			circuitManagers.forEach(circuitManager -> circuitManager.getCircuitBoard().enableRejoinWires());
-		}
+		});
 		
 		return popped.get(0).circuitManager;
 	}

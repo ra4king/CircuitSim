@@ -50,6 +50,9 @@ dependencies {
     // just saying that the Java 9 specific classes "depend on" the main
     // ones.
     java9Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
+    
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.+'
 }
 
 compileJava {

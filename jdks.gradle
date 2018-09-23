@@ -1,11 +1,11 @@
 // Taken from: https://github.com/melix/mrjar-gradle/
 // But can't use their strategy of passing --release to the compiler
-// because we're trying to get around incompatibilties in the standard
+// because we're trying to get around incompatibilities in the standard
 // library, not the language. Telling the compiler to produce java 8
 // bytecode won't magically give us access to packages we can't even
 // access in java 9 javafx
 
-String compat(String src) {
+static String compat(String src) {
     if (src.contains('.')) {
         src.substring(src.lastIndexOf('.')+1)
     } else {

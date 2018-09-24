@@ -2375,7 +2375,7 @@ public class CircuitSim extends Application {
 				       + "click.\n\n";
 			msg += "• Holding Ctrl while selecting components and wires will include them in the selection group.\n\n";
 			msg += "• Holding Ctrl while dragging components will disable preserving connections.\n\n";
-			msg += "• Holding Ctrl while placing a new component will keep the component selected.\n\n";
+			msg += "• [NEW] Holding Ctrl while placing a new component will keep the component selected.\n\n";
 			
 			alert.setContentText(msg);
 			alert.show();

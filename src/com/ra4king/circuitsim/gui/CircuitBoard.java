@@ -287,6 +287,10 @@ public class CircuitBoard {
 	}
 	
 	public void moveElements(int dx, int dy, boolean extendWires) {
+		if(moveDeltaX == dx && moveDeltaY == dy) {
+			return;
+		}
+		
 		for(GuiElement element : moveElements) {
 			element.setX(element.getX() + (-moveDeltaX + dx));
 			element.setY(element.getY() + (-moveDeltaY + dy));

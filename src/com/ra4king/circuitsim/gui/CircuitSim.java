@@ -2371,10 +2371,11 @@ public class CircuitSim extends Application {
 			msg += "• Double clicking on a subcircuit will automatically go to its circuit tab as a child state.\n\n";
 			msg += "• Holding Shift will enable Click Mode which will click through to components.\n\n";
 			msg += "• Holding Shift after dragging a new wire will delete existing wires.\n\n";
-			msg += "• Holding Ctrl before dragging a new wire allows release of the mouse, and continuing the wire on "
+			msg += "• Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on "
 				       + "click.\n\n";
-			msg += "• Holding Ctrl while selecting components will include them in the selection group.\n\n";
+			msg += "• Holding Ctrl while selecting components and wires will include them in the selection group.\n\n";
 			msg += "• Holding Ctrl while dragging components will disable preserving connections.\n\n";
+			msg += "• Holding Ctrl while placing a new component will keep the component selected.\n\n";
 			
 			alert.setContentText(msg);
 			alert.show();

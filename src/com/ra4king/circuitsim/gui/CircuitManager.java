@@ -782,6 +782,17 @@ public class CircuitManager {
 		}
 	}
 	
+	private void updatePotentialComponent() {
+		if(potentialComponent != null) {
+			potentialComponent.setX(GuiUtils.getCircuitCoord(
+				lastMousePosition.getX()) - potentialComponent.getWidth() / 2);
+			potentialComponent.setY(GuiUtils.getCircuitCoord(
+				lastMousePosition.getY()) - potentialComponent.getHeight() / 2);
+			
+			setNeedsRepaint();
+		}
+	}
+	
 	public void mousePressed(MouseEvent e) {
 		if(menu != null) {
 			menu.hide();
@@ -882,12 +893,15 @@ public class CircuitManager {
 				                                                                 potentialComponent.getY());
 				
 				mayThrow(() -> circuitBoard.addComponent(newComponent));
-				reset();
-				if(circuitBoard.getComponents().contains(newComponent)) {
-					setSelectedElements(Collections.singleton(newComponent));
-				}
 				
-				currentState = SelectingState.ELEMENT_SELECTED;
+				if(!isCtrlDown) {
+					reset();
+					if(circuitBoard.getComponents().contains(newComponent)) {
+						setSelectedElements(Collections.singleton(newComponent));
+					}
+					
+					currentState = SelectingState.ELEMENT_SELECTED;
+				}
 				break;
 		}
 		
@@ -937,8 +951,11 @@ public class CircuitManager {
 				break;
 			}
 			
-			case HIGHLIGHT_DRAGGED:
 			case PLACING_COMPONENT:
+				if(isCtrlDown) {
+					break;
+				}
+			case HIGHLIGHT_DRAGGED:
 				currentState = SelectingState.IDLE;
 				break;
 		}
@@ -987,8 +1004,12 @@ public class CircuitManager {
 					break;
 				}
 			
-			case ELEMENT_DRAGGED:
 			case PLACING_COMPONENT:
+				if(isCtrlDown) {
+					updatePotentialComponent();
+					break;
+				}
+			case ELEMENT_DRAGGED:
 				int dx = GuiUtils.getCircuitCoord(lastMousePosition.getX() - lastMousePressed.getX());
 				int dy = GuiUtils.getCircuitCoord(lastMousePosition.getY() - lastMousePressed.getY());
 				
@@ -1026,14 +1047,7 @@ public class CircuitManager {
 			setNeedsRepaint();
 		}
 		
-		if(potentialComponent != null) {
-			potentialComponent.setX(GuiUtils.getCircuitCoord(
-					lastMousePosition.getX()) - potentialComponent.getWidth() / 2);
-			potentialComponent.setY(GuiUtils.getCircuitCoord(
-					lastMousePosition.getY()) - potentialComponent.getHeight() / 2);
-			
-			setNeedsRepaint();
-		}
+		updatePotentialComponent();
 		
 		checkStartConnection();
 		checkEndConnection(prevMousePosition);

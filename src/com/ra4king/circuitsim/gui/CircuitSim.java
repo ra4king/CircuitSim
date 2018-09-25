@@ -474,11 +474,9 @@ public class CircuitSim extends Application {
 	}
 
     public Map<String, CircuitManager> getCircuitManagers() {
-		return circuitManagers.keySet().stream()
-		                      .collect(Collectors.toMap(name -> name,
-		                                                name -> circuitManagers.get(name).getValue(),
-		                                                (v1, v2) -> v1,
-		                                                LinkedHashMap::new));
+		return circuitManagers.entrySet().stream()
+		                      .collect(Collectors.toMap(entry -> entry.getKey(),
+		                                                entry -> entry.getValue().getValue()));
     }
 	
 	public CircuitManager getCircuitManager(String name) {

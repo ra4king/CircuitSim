@@ -134,6 +134,10 @@ public class FileFormat {
 	}
 	
 	public static CircuitFile parse(String contents) {
-		return GSON.fromJson(contents, CircuitFile.class);
+		CircuitFile savedFile = GSON.fromJson(contents, CircuitFile.class);
+        if (savedFile.saveHistory == null) {
+            throw new NullPointerException("File is corrupted; it contains no save history");
+        }
+        return savedFile;
 	}
 }

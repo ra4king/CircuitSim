@@ -18,6 +18,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -188,6 +189,8 @@ public class CircuitSim extends Application {
 	
 	private volatile boolean needsRepaint = true;
 	
+    private List<String> saveHistory;
+
 	/**
 	 * Throws an exception if instantiated directly
 	 */
@@ -1110,7 +1113,7 @@ public class CircuitSim extends Application {
 			try {
 				String data = FileFormat.stringify(
 					new CircuitFile(0, 0, null, Collections.singletonList(
-						new CircuitInfo("Copy", components, wires))));
+						new CircuitInfo("Copy", components, wires)), new LinkedList<String>()));
 				
 				Clipboard clipboard = Clipboard.getSystemClipboard();
 				ClipboardContent content = new ClipboardContent();
@@ -1516,6 +1519,8 @@ public class CircuitSim extends Application {
 						editHistory.disable();
 						
 						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
+
+                        this.saveHistory = circuitFile.saveHistory;
 						
 						if(circuitFile.circuits == null) {
 							throw new NullPointerException("File missing circuits");
@@ -1852,10 +1857,16 @@ public class CircuitSim extends Application {
 				});
 				
 				try {
+
+                    if (this.saveHistory == null) {
+                        this.saveHistory = new LinkedList<String>();
+                    }
+
 					FileFormat.save(f, new CircuitFile(bitSizeSelect.getSelectionModel().getSelectedItem(),
 					                                   getCurrentClockSpeed(),
 					                                   libraryPaths,
-					                                   circuits));
+					                                   circuits,
+                                                       saveHistory));
 					savedEditStackSize = editHistory.editStackSize();
 					saveFile = f;
 					

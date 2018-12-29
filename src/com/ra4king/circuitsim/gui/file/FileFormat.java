@@ -56,13 +56,20 @@ public class FileFormat {
 		public final int clockSpeed;
 		public final List<String> libraryPaths;
 		public final List<CircuitInfo> circuits;
+        public final List<String> saveHistory;
 		
-		public CircuitFile(int globalBitSize, int clockSpeed, List<String> libraryPaths, List<CircuitInfo> circuits) {
+		public CircuitFile(int globalBitSize, int clockSpeed, List<String> libraryPaths, List<CircuitInfo> circuits,
+                           List<String> saveHistory) {
 			this.globalBitSize = globalBitSize;
 			this.clockSpeed = clockSpeed;
 			this.libraryPaths = libraryPaths;
 			this.circuits = circuits;
+            this.saveHistory = saveHistory;
 		}
+
+        public void addTimeStamp() {
+            // TODO
+        }
 	}
 	
 	public static class CircuitInfo {
@@ -114,6 +121,7 @@ public class FileFormat {
 	}
 	
 	public static void save(File file, CircuitFile circuitFile) throws IOException {
+        circuitFile.addTimeStamp();
 		writeFile(file, stringify(circuitFile));
 	}
 	

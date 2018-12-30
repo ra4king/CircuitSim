@@ -70,6 +70,11 @@ public class FileFormat {
         public void addTimeStamp() {
             // TODO
         }
+
+        public boolean saveHistoryIsValid() {
+            // TODO
+            return true;
+        }
 	}
 	
 	public static class CircuitInfo {
@@ -130,14 +135,15 @@ public class FileFormat {
 	}
 	
 	public static CircuitFile load(File file) throws IOException {
-		return parse(readFile(file));
+		CircuitFile savedFile = parse(readFile(file));
+        if (savedFile.saveHistory == null || !savedFile.saveHistoryIsValid()) {
+            throw new NullPointerException("File is corrupted. Contact Course Staff for Assistance.");
+        }
+        return savedFile;
 	}
 	
 	public static CircuitFile parse(String contents) {
 		CircuitFile savedFile = GSON.fromJson(contents, CircuitFile.class);
-        if (savedFile.saveHistory == null) {
-            throw new NullPointerException("File is corrupted; it contains no save history");
-        }
         return savedFile;
 	}
 }

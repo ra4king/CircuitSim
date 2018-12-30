@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +50,45 @@ public class FileFormat {
 			writer.write('\n');
 		}
 	}
+
+    private static class SaveHistoryBlock {
+        private String previousHash;
+        private String currentHash;
+        private String timeStamp;
+
+        private SaveHistoryBlock(String stringifiedBlock) {
+            String decodedBlock = new String(Base64.getDecoder().decode(stringifiedBlock.getBytes()));
+            String[] fields = decodedBlock.split("\t");
+            System.out.println(decodedBlock);
+            if (fields.length != 3) {
+                throw new NullPointerException("File is corrupted. Contact Course Staff for Assistance.");
+            } else {
+                this.previousHash = fields[0];
+                this.currentHash = fields[1];
+                this.timeStamp = fields[2];
+            }
+        }
+
+        private SaveHistoryBlock(String previousHash, String currentHash) {
+            this.previousHash = previousHash;
+            this.currentHash = currentHash;
+            this.timeStamp = "" + System.currentTimeMillis();
+        }
+
+        private String stringify() {
+            return Base64.getEncoder().encodeToString(
+                    String.format("%s\t%s\t%s", previousHash, currentHash, timeStamp).getBytes());
+        }
+    }
+
+    public static String getLastHash(List<String> saveHistory) {
+        if (saveHistory.size() == 0) {
+            return "";
+        } else {
+            SaveHistoryBlock tailBlock = new SaveHistoryBlock(saveHistory.get(saveHistory.size() - 1));
+            return tailBlock.currentHash;
+        }
+    }
 	
 	public static class CircuitFile {
 		private final String version = CircuitSim.VERSION;
@@ -67,12 +108,39 @@ public class FileFormat {
             this.saveHistory = saveHistory;
 		}
 
-        public void addTimeStamp() {
-            // TODO
+
+        private String hash() {
+            // Previous save's hash is factored into this since the fileData will include the saveHistory
+            String fileData = FileFormat.stringify(this);
+            // Shamelessly stolen from:
+            // https://medium.com/programmers-blockchain/create-simple-blockchain-java-tutorial-from-scratch-6eeed3cb03fa
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                //Applies sha256 to our fileData,
+                byte[] hash = digest.digest(fileData.getBytes("UTF-8"));
+                StringBuffer hexString = new StringBuffer(); // This will contain hash as hexidecimal
+                for (int i = 0; i < hash.length; i++) {
+                    String hex = Integer.toHexString(0xff & hash[i]);
+                    if(hex.length() == 1) hexString.append('0');
+                    hexString.append(hex);
+                }
+                return hexString.toString();
+            }
+            catch(Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public void addSaveHistoryBlock() {
+            String previousHash = FileFormat.getLastHash(saveHistory);
+            SaveHistoryBlock newBlock = new SaveHistoryBlock(previousHash, hash());
+            saveHistory.add(newBlock.stringify());
         }
 
         public boolean saveHistoryIsValid() {
-            // TODO
+            if (saveHistory == null || saveHistory.size() < 1) {
+                return false;
+            }
             return true;
         }
 	}
@@ -126,7 +194,7 @@ public class FileFormat {
 	}
 	
 	public static void save(File file, CircuitFile circuitFile) throws IOException {
-        circuitFile.addTimeStamp();
+        circuitFile.addSaveHistoryBlock();
 		writeFile(file, stringify(circuitFile));
 	}
 	
@@ -136,7 +204,7 @@ public class FileFormat {
 	
 	public static CircuitFile load(File file) throws IOException {
 		CircuitFile savedFile = parse(readFile(file));
-        if (savedFile.saveHistory == null || !savedFile.saveHistoryIsValid()) {
+        if (!savedFile.saveHistoryIsValid()) {
             throw new NullPointerException("File is corrupted. Contact Course Staff for Assistance.");
         }
         return savedFile;

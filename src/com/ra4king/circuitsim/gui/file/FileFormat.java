@@ -51,33 +51,56 @@ public class FileFormat {
 		}
 	}
 
+    private static String sha256ify(String input) {
+        // Shamelessly stolen from:
+        // https://medium.com/programmers-blockchain/create-simple-blockchain-java-tutorial-from-scratch-6eeed3cb03fa
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            //Applies sha256 to our input,
+            byte[] hash = digest.digest(input.getBytes("UTF-8"));
+            StringBuffer hexString = new StringBuffer(); // This will contain hash as hexidecimal
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if(hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static class SaveHistoryBlock {
-        private String previousHash;
         private String currentHash;
+        private String previousHash;
+        private String fileDataHash;
         private String timeStamp;
 
         private SaveHistoryBlock(String stringifiedBlock) {
             String decodedBlock = new String(Base64.getDecoder().decode(stringifiedBlock.getBytes()));
             String[] fields = decodedBlock.split("\t");
             System.out.println(decodedBlock);
-            if (fields.length != 3) {
+            if (fields.length != 4) {
                 throw new NullPointerException("File is corrupted. Contact Course Staff for Assistance.");
             } else {
                 this.previousHash = fields[0];
                 this.currentHash = fields[1];
                 this.timeStamp = fields[2];
+                this.fileDataHash = fields[3];
             }
         }
 
-        private SaveHistoryBlock(String previousHash, String currentHash) {
+        private SaveHistoryBlock(String previousHash, String fileDataHash) {
             this.previousHash = previousHash;
-            this.currentHash = currentHash;
+            this.fileDataHash = fileDataHash;
             this.timeStamp = "" + System.currentTimeMillis();
+            this.currentHash = FileFormat.sha256ify(previousHash + fileDataHash + timeStamp);
         }
 
         private String stringify() {
             return Base64.getEncoder().encodeToString(
-                    String.format("%s\t%s\t%s", previousHash, currentHash, timeStamp).getBytes());
+                    String.format("%s\t%s\t%s\t%s", previousHash, currentHash, timeStamp, fileDataHash).getBytes());
         }
     }
 
@@ -112,23 +135,7 @@ public class FileFormat {
         private String hash() {
             // Previous save's hash is factored into this since the fileData will include the saveHistory
             String fileData = FileFormat.stringify(this);
-            // Shamelessly stolen from:
-            // https://medium.com/programmers-blockchain/create-simple-blockchain-java-tutorial-from-scratch-6eeed3cb03fa
-            try {
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
-                //Applies sha256 to our fileData,
-                byte[] hash = digest.digest(fileData.getBytes("UTF-8"));
-                StringBuffer hexString = new StringBuffer(); // This will contain hash as hexidecimal
-                for (int i = 0; i < hash.length; i++) {
-                    String hex = Integer.toHexString(0xff & hash[i]);
-                    if(hex.length() == 1) hexString.append('0');
-                    hexString.append(hex);
-                }
-                return hexString.toString();
-            }
-            catch(Exception e) {
-                throw new RuntimeException(e);
-            }
+            return FileFormat.sha256ify(fileData);
         }
 
         public void addSaveHistoryBlock() {

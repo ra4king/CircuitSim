@@ -190,6 +190,7 @@ public class CircuitSim extends Application {
 	private volatile boolean needsRepaint = true;
 	
     private List<String> saveHistory;
+    private List<String> copiedBlocks;
 
 	/**
 	 * Throws an exception if instantiated directly
@@ -1111,9 +1112,15 @@ public class CircuitSim extends Application {
 				                      .collect(Collectors.toSet());
 			
 			try {
+                if (saveHistory == null) {
+                    saveHistory = new LinkedList<String>();
+                }
+                if (copiedBlocks == null) {
+                    copiedBlocks = new LinkedList<String>();
+                }
 				String data = FileFormat.stringify(
 					new CircuitFile(0, 0, null, Collections.singletonList(
-						new CircuitInfo("Copy", components, wires)), new LinkedList<String>()));
+						new CircuitInfo("Copy", components, wires)), saveHistory, copiedBlocks));
 				
 				Clipboard clipboard = Clipboard.getSystemClipboard();
 				ClipboardContent content = new ClipboardContent();
@@ -1151,6 +1158,19 @@ public class CircuitSim extends Application {
 				editHistory.beginGroup();
 				
 				CircuitFile parsed = FileFormat.parse(data);
+
+                if (this.saveHistory == null) {
+                    this.saveHistory = new LinkedList<String>();
+                }
+
+                if (this.copiedBlocks == null) {
+                    this.copiedBlocks = new LinkedList<String>();
+                }
+
+                if (parsed.saveHistory != null && !parsed.saveHistory.isEmpty()
+                    && !this.saveHistory.contains(parsed.saveHistory.get(parsed.saveHistory.size() - 1)))  {
+                    this.copiedBlocks.add(parsed.saveHistory.get(parsed.saveHistory.size() - 1));
+                }
 				
 				CircuitManager manager = getCurrentCircuit();
 				if(manager != null) {
@@ -1862,11 +1882,17 @@ public class CircuitSim extends Application {
                         this.saveHistory = new LinkedList<String>();
                     }
 
+                    if (this.copiedBlocks == null) {
+                        this.copiedBlocks = new LinkedList<String>();
+                    }
+
 					FileFormat.save(f, new CircuitFile(bitSizeSelect.getSelectionModel().getSelectedItem(),
 					                                   getCurrentClockSpeed(),
 					                                   libraryPaths,
 					                                   circuits,
-                                                       saveHistory));
+                                                       saveHistory,
+                                                       copiedBlocks));
+                    copiedBlocks.clear();
 					savedEditStackSize = editHistory.editStackSize();
 					saveFile = f;
 					

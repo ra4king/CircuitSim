@@ -76,31 +76,42 @@ public class FileFormat {
         private String previousHash;
         private String fileDataHash;
         private String timeStamp;
+        private String copiedBlocks;
 
         private SaveHistoryBlock(String stringifiedBlock) {
             String decodedBlock = new String(Base64.getDecoder().decode(stringifiedBlock.getBytes()));
             String[] fields = decodedBlock.split("\t");
-            System.out.println(decodedBlock);
-            if (fields.length != 4) {
+            if (fields.length < 4) {
                 throw new NullPointerException("File is corrupted. Contact Course Staff for Assistance.");
             } else {
                 this.previousHash = fields[0];
                 this.currentHash = fields[1];
                 this.timeStamp = fields[2];
                 this.fileDataHash = fields[3];
+                this.copiedBlocks = "";
+                for (int i = 4; i < fields.length; i++) {
+                    this.copiedBlocks += "\t" + fields[i];
+                }
             }
         }
 
-        private SaveHistoryBlock(String previousHash, String fileDataHash) {
+        private SaveHistoryBlock(String previousHash, String fileDataHash, List<String> copiedBlocks) {
             this.previousHash = previousHash;
             this.fileDataHash = fileDataHash;
             this.timeStamp = "" + System.currentTimeMillis();
-            this.currentHash = FileFormat.sha256ify(previousHash + fileDataHash + timeStamp);
+            this.copiedBlocks = "";
+            for (String hash : copiedBlocks) {
+                this.copiedBlocks += "\t" + hash;
+            }
+            this.currentHash = FileFormat.sha256ify(previousHash + fileDataHash + timeStamp + this.copiedBlocks);
         }
 
         private String stringify() {
-            return Base64.getEncoder().encodeToString(
-                    String.format("%s\t%s\t%s\t%s", previousHash, currentHash, timeStamp, fileDataHash).getBytes());
+            // Lack of a tab between fileDataHash and copiedBlocks is intentional. copiedBlocks starts with a tab.
+            String stringifiedBlock = Base64.getEncoder().encodeToString(
+                    String.format("%s\t%s\t%s\t%s%s", previousHash, currentHash, timeStamp, fileDataHash,
+                                                      copiedBlocks).getBytes());
+            return stringifiedBlock;
         }
     }
 
@@ -121,14 +132,16 @@ public class FileFormat {
 		public final List<String> libraryPaths;
 		public final List<CircuitInfo> circuits;
         public final List<String> saveHistory;
+        private List<String> copiedBlocks;
 		
 		public CircuitFile(int globalBitSize, int clockSpeed, List<String> libraryPaths, List<CircuitInfo> circuits,
-                           List<String> saveHistory) {
+                           List<String> saveHistory, List<String> copiedBlocks) {
 			this.globalBitSize = globalBitSize;
 			this.clockSpeed = clockSpeed;
 			this.libraryPaths = libraryPaths;
 			this.circuits = circuits;
             this.saveHistory = saveHistory;
+            this.copiedBlocks = copiedBlocks;
 		}
 
 
@@ -140,15 +153,21 @@ public class FileFormat {
 
         public void addSaveHistoryBlock() {
             String previousHash = FileFormat.getLastHash(saveHistory);
-            SaveHistoryBlock newBlock = new SaveHistoryBlock(previousHash, hash());
+            SaveHistoryBlock newBlock = new SaveHistoryBlock(previousHash, hash(), copiedBlocks);
             saveHistory.add(newBlock.stringify());
+            this.copiedBlocks = null;
         }
 
         public boolean saveHistoryIsValid() {
+            // TODO
             if (saveHistory == null || saveHistory.size() < 1) {
                 return false;
             }
             return true;
+        }
+
+        public List<String> getCopiedBlocks() {
+            return this.copiedBlocks;
         }
 	}
 	

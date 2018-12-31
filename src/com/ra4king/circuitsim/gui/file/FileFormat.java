@@ -146,8 +146,8 @@ public class FileFormat {
 
 
         private String hash() {
-            // Previous save's hash is factored into this since the fileData will include the saveHistory
-            String fileData = FileFormat.stringify(this);
+            String fileData = FileFormat.stringify(libraryPaths)
+                            + FileFormat.stringify(circuits);
             return FileFormat.sha256ify(fileData);
         }
 

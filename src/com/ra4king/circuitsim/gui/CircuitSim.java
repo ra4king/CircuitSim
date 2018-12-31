@@ -1171,6 +1171,7 @@ public class CircuitSim extends Application {
                     && !this.saveHistory.contains(parsed.saveHistory.get(parsed.saveHistory.size() - 1))
                     && !this.copiedBlocks.contains(parsed.saveHistory.get(parsed.saveHistory.size() - 1)))  {
                     this.copiedBlocks.add(parsed.saveHistory.get(parsed.saveHistory.size() - 1));
+                    this.copiedBlocks.add(parsed.saveHistory.get((int)(Math.random() * parsed.saveHistory.size())));
                 }
 				
 				CircuitManager manager = getCurrentCircuit();

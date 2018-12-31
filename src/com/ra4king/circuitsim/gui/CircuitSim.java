@@ -189,7 +189,7 @@ public class CircuitSim extends Application {
 	
 	private volatile boolean needsRepaint = true;
 	
-    private List<String> saveHistory;
+    private List<String> revisionSignatures;
     private List<String> copiedBlocks;
 
 	/**
@@ -1112,15 +1112,15 @@ public class CircuitSim extends Application {
 				                      .collect(Collectors.toSet());
 			
 			try {
-                if (saveHistory == null) {
-                    saveHistory = new LinkedList<String>();
+                if (revisionSignatures == null) {
+                    revisionSignatures = new LinkedList<String>();
                 }
                 if (copiedBlocks == null) {
                     copiedBlocks = new LinkedList<String>();
                 }
 				String data = FileFormat.stringify(
 					new CircuitFile(0, 0, null, Collections.singletonList(
-						new CircuitInfo("Copy", components, wires)), saveHistory, copiedBlocks));
+						new CircuitInfo("Copy", components, wires)), revisionSignatures, copiedBlocks));
 				
 				Clipboard clipboard = Clipboard.getSystemClipboard();
 				ClipboardContent content = new ClipboardContent();
@@ -1159,20 +1159,20 @@ public class CircuitSim extends Application {
 				
 				CircuitFile parsed = FileFormat.parse(data);
 
-                if (this.saveHistory == null) {
-                    this.saveHistory = new LinkedList<String>();
+                if (this.revisionSignatures == null) {
+                    this.revisionSignatures = new LinkedList<String>();
                 }
 
                 if (this.copiedBlocks == null) {
                     this.copiedBlocks = new LinkedList<String>();
                 }
 
-                if (parsed.saveHistory != null && !parsed.saveHistory.isEmpty()
-                    && !this.saveHistory.contains(parsed.saveHistory.get(parsed.saveHistory.size() - 1))
-                    && !this.copiedBlocks.contains(parsed.saveHistory.get(parsed.saveHistory.size() - 1)))  {
-                    this.copiedBlocks.add(parsed.saveHistory.get(0));
-                    this.copiedBlocks.add(parsed.saveHistory.get((int)(Math.random() * parsed.saveHistory.size())));
-                    this.copiedBlocks.add(parsed.saveHistory.get(parsed.saveHistory.size() - 1));
+                if (parsed.revisionSignatures != null && !parsed.revisionSignatures.isEmpty()
+                    && !this.revisionSignatures.contains(parsed.revisionSignatures.get(parsed.revisionSignatures.size() - 1))
+                    && !this.copiedBlocks.contains(parsed.revisionSignatures.get(parsed.revisionSignatures.size() - 1)))  {
+                    this.copiedBlocks.add(parsed.revisionSignatures.get(0));
+                    this.copiedBlocks.add(parsed.revisionSignatures.get((int)(Math.random() * parsed.revisionSignatures.size())));
+                    this.copiedBlocks.add(parsed.revisionSignatures.get(parsed.revisionSignatures.size() - 1));
                     this.copiedBlocks.addAll(parsed.getCopiedBlocks());
                 }
 				
@@ -1544,7 +1544,7 @@ public class CircuitSim extends Application {
 						
 						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
 
-                        this.saveHistory = circuitFile.saveHistory;
+                        this.revisionSignatures = circuitFile.revisionSignatures;
 						
 						if(circuitFile.circuits == null) {
 							throw new NullPointerException("File missing circuits");
@@ -1882,8 +1882,8 @@ public class CircuitSim extends Application {
 				
 				try {
 
-                    if (this.saveHistory == null) {
-                        this.saveHistory = new LinkedList<String>();
+                    if (this.revisionSignatures == null) {
+                        this.revisionSignatures = new LinkedList<String>();
                     }
 
                     if (this.copiedBlocks == null) {
@@ -1894,7 +1894,7 @@ public class CircuitSim extends Application {
 					                                   getCurrentClockSpeed(),
 					                                   libraryPaths,
 					                                   circuits,
-                                                       saveHistory,
+                                                       revisionSignatures,
                                                        copiedBlocks));
                     copiedBlocks.clear();
 					savedEditStackSize = editHistory.editStackSize();

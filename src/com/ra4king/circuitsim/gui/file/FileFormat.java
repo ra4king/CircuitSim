@@ -115,7 +115,7 @@ public class FileFormat {
         }
     }
 
-    public static String getLastHash(List<String> saveHistory) {
+    private static String getLastHash(List<String> saveHistory) {
         if (saveHistory.size() == 0) {
             return "";
         } else {
@@ -123,7 +123,7 @@ public class FileFormat {
             return tailBlock.currentHash;
         }
     }
-	
+
 	public static class CircuitFile {
 		private final String version = CircuitSim.VERSION;
 		
@@ -146,14 +146,15 @@ public class FileFormat {
 
 
         private String hash() {
-            String fileData = FileFormat.stringify(libraryPaths)
-                            + FileFormat.stringify(circuits);
+            String fileData = GSON.toJson(libraryPaths)
+                            + GSON.toJson(circuits);
             return FileFormat.sha256ify(fileData);
         }
 
         public void addSaveHistoryBlock() {
+            String currentFileDataHash = hash();
             String previousHash = FileFormat.getLastHash(saveHistory);
-            SaveHistoryBlock newBlock = new SaveHistoryBlock(previousHash, hash(), copiedBlocks);
+            SaveHistoryBlock newBlock = new SaveHistoryBlock(previousHash, currentFileDataHash, copiedBlocks);
             saveHistory.add(newBlock.stringify());
             this.copiedBlocks = null;
         }

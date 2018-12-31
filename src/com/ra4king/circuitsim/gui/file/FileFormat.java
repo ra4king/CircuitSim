@@ -103,7 +103,11 @@ public class FileFormat {
             for (String hash : copiedBlocks) {
                 this.copiedBlocks += "\t" + hash;
             }
-            this.currentHash = FileFormat.sha256ify(previousHash + fileDataHash + timeStamp + this.copiedBlocks);
+            this.currentHash = this.hash();
+        }
+
+        private String hash() {
+            return FileFormat.sha256ify(previousHash + fileDataHash + timeStamp + this.copiedBlocks);
         }
 
         private String stringify() {
@@ -160,11 +164,24 @@ public class FileFormat {
         }
 
         public boolean saveHistoryIsValid() {
-            // TODO
             if (saveHistory == null || saveHistory.size() < 1) {
                 return false;
             }
-            return true;
+            String expectedFileDataHash = this.hash();
+            SaveHistoryBlock lastBlock = new SaveHistoryBlock(this.saveHistory.get(this.saveHistory.size() - 1));
+            String actualFileDataHash = lastBlock.fileDataHash;
+            if (!actualFileDataHash.equals(expectedFileDataHash) || !lastBlock.currentHash.equals(lastBlock.hash())) {
+                return false;
+            }
+            String[] blocks = this.saveHistory.toArray(new String[]{});
+            for (int i = blocks.length - 1; i > 0; i--) {
+                SaveHistoryBlock block = new SaveHistoryBlock(blocks[i]);
+                SaveHistoryBlock prevBlock = new SaveHistoryBlock(blocks[i - 1]);
+                if (!block.currentHash.equals(block.hash()) || !block.previousHash.equals(prevBlock.currentHash)) {
+                    return false;
+                }
+            }
+            return new SaveHistoryBlock(blocks[0]).previousHash.equals("");
         }
 
         public List<String> getCopiedBlocks() {

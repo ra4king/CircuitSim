@@ -89,10 +89,11 @@ public class ROMPeer extends ComponentPeer<ROM> {
 			Property<List<MemoryLine>> property = getProperties().getProperty(contentsProperty.name);
 			PropertyMemoryValidator memoryValidator = (PropertyMemoryValidator)property.validator;
 			
-			List<MemoryLine> lines = new ArrayList<>();
+			List<MemoryLine> lines = property.value;
 			
 			circuit.getSimulatorWindow().getSimulator().runSync(() -> {
 				int[] memory = getComponent().getMemory();
+				lines.clear();
 				lines.addAll(
 					memoryValidator.parse(memory, (address, value) -> {
 						memory[address] = value;

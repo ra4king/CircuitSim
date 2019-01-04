@@ -259,6 +259,5 @@ public class FileFormat {
 	
 	public static CircuitFile parse(String contents) {
 		return GSON.fromJson(contents, CircuitFile.class);
-		return savedFile;
 	}
 }

@@ -1,5 +1,5 @@
 {
-  "version": "1.5",
+  "version": "1.8.1",
   "globalBitSize": 1,
   "clockSpeed": 16384,
   "circuits": [
@@ -8,131 +8,14 @@
       "components": [
         {
           "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
-          "x": 37,
-          "y": 39,
+          "x": 8,
+          "y": 32,
           "properties": {
             "Label location": "WEST",
-            "Label": "Clear",
+            "Label": "Enable",
             "Is input?": "Yes",
             "Direction": "NORTH",
             "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.NorGatePeer",
-          "x": 56,
-          "y": 21,
-          "properties": {
-            "Negate 1": "No",
-            "Label location": "NORTH",
-            "Negate 0": "No",
-            "Number of Inputs": "2",
-            "Label": "",
-            "Direction": "EAST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
-          "x": 49,
-          "y": 12,
-          "properties": {
-            "Negate 1": "No",
-            "Label location": "NORTH",
-            "Negate 0": "Yes",
-            "Number of Inputs": "2",
-            "Label": "",
-            "Direction": "EAST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
-          "x": 5,
-          "y": 8,
-          "properties": {
-            "Label location": "WEST",
-            "Label": "CLK",
-            "Is input?": "Yes",
-            "Direction": "EAST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
-          "x": 5,
-          "y": 12,
-          "properties": {
-            "Label location": "WEST",
-            "Label": "Data",
-            "Is input?": "Yes",
-            "Direction": "EAST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
-          "x": 19,
-          "y": 12,
-          "properties": {
-            "Negate 1": "Yes",
-            "Label location": "NORTH",
-            "Negate 0": "Yes",
-            "Number of Inputs": "2",
-            "Label": "",
-            "Direction": "EAST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
-          "x": 40,
-          "y": 26,
-          "properties": {
-            "Negate 1": "No",
-            "Label location": "NORTH",
-            "Negate 0": "No",
-            "Negate 2": "No",
-            "Number of Inputs": "3",
-            "Label": "",
-            "Direction": "EAST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.NorGatePeer",
-          "x": 26,
-          "y": 21,
-          "properties": {
-            "Negate 1": "No",
-            "Label location": "NORTH",
-            "Negate 0": "No",
-            "Number of Inputs": "2",
-            "Label": "",
-            "Direction": "EAST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
-          "x": 19,
-          "y": 22,
-          "properties": {
-            "Negate 1": "No",
-            "Label location": "NORTH",
-            "Negate 0": "Yes",
-            "Number of Inputs": "2",
-            "Label": "",
-            "Direction": "EAST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.misc.Text",
-          "x": 33,
-          "y": 7,
-          "properties": {
-            "Text": "D Flip-Flop"
           }
         },
         {
@@ -162,11 +45,11 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
-          "x": 40,
-          "y": 15,
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NorGatePeer",
+          "x": 26,
+          "y": 21,
           "properties": {
-            "Negate 1": "Yes",
+            "Negate 1": "No",
             "Label location": "NORTH",
             "Negate 0": "No",
             "Number of Inputs": "2",
@@ -190,21 +73,9 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
-          "x": 72,
-          "y": 14,
-          "properties": {
-            "Label location": "EAST",
-            "Label": "Q",
-            "Is input?": "No",
-            "Direction": "WEST",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
-          "x": 11,
-          "y": 25,
+          "name": "com.ra4king.circuitsim.gui.peers.gates.NorGatePeer",
+          "x": 56,
+          "y": 21,
           "properties": {
             "Negate 1": "No",
             "Label location": "NORTH",
@@ -216,21 +87,65 @@
           }
         },
         {
-          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
-          "x": 72,
-          "y": 22,
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
+          "x": 19,
+          "y": 12,
           "properties": {
-            "Label location": "EAST",
-            "Label": "Q\u0027",
-            "Is input?": "No",
-            "Direction": "WEST",
+            "Negate 1": "Yes",
+            "Label location": "NORTH",
+            "Negate 0": "Yes",
+            "Number of Inputs": "2",
+            "Label": "",
+            "Direction": "EAST",
             "Bitsize": "1"
           }
         },
         {
-          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
-          "x": 34,
-          "y": 14,
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
+          "x": 19,
+          "y": 22,
+          "properties": {
+            "Negate 1": "No",
+            "Label location": "NORTH",
+            "Negate 0": "Yes",
+            "Number of Inputs": "2",
+            "Label": "",
+            "Direction": "EAST",
+            "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
+          "x": 40,
+          "y": 15,
+          "properties": {
+            "Negate 1": "Yes",
+            "Label location": "NORTH",
+            "Negate 0": "No",
+            "Number of Inputs": "2",
+            "Label": "",
+            "Direction": "EAST",
+            "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
+          "x": 49,
+          "y": 12,
+          "properties": {
+            "Negate 1": "No",
+            "Label location": "NORTH",
+            "Negate 0": "Yes",
+            "Number of Inputs": "2",
+            "Label": "",
+            "Direction": "EAST",
+            "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.gates.AndGatePeer",
+          "x": 11,
+          "y": 25,
           "properties": {
             "Negate 1": "No",
             "Label location": "NORTH",
@@ -256,328 +171,107 @@
           }
         },
         {
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
+          "x": 34,
+          "y": 14,
+          "properties": {
+            "Negate 1": "No",
+            "Label location": "NORTH",
+            "Negate 0": "No",
+            "Number of Inputs": "2",
+            "Label": "",
+            "Direction": "EAST",
+            "Bitsize": "1"
+          }
+        },
+        {
           "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
-          "x": 8,
-          "y": 32,
+          "x": 37,
+          "y": 39,
           "properties": {
             "Label location": "WEST",
-            "Label": "Enable",
+            "Label": "Clear",
             "Is input?": "Yes",
             "Direction": "NORTH",
             "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
+          "x": 5,
+          "y": 8,
+          "properties": {
+            "Label location": "WEST",
+            "Label": "CLK",
+            "Is input?": "Yes",
+            "Direction": "EAST",
+            "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
+          "x": 72,
+          "y": 22,
+          "properties": {
+            "Label location": "EAST",
+            "Label": "Q\u0027",
+            "Is input?": "No",
+            "Direction": "WEST",
+            "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
+          "x": 72,
+          "y": 14,
+          "properties": {
+            "Label location": "EAST",
+            "Label": "Q",
+            "Is input?": "No",
+            "Direction": "WEST",
+            "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.wiring.PinPeer",
+          "x": 5,
+          "y": 12,
+          "properties": {
+            "Label location": "WEST",
+            "Label": "Data",
+            "Is input?": "Yes",
+            "Direction": "EAST",
+            "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.gates.OrGatePeer",
+          "x": 40,
+          "y": 26,
+          "properties": {
+            "Negate 1": "No",
+            "Label location": "NORTH",
+            "Negate 0": "No",
+            "Negate 2": "No",
+            "Number of Inputs": "3",
+            "Label": "",
+            "Direction": "EAST",
+            "Bitsize": "1"
+          }
+        },
+        {
+          "name": "com.ra4king.circuitsim.gui.peers.misc.Text",
+          "x": 33,
+          "y": 7,
+          "properties": {
+            "Text": "D Flip-Flop"
           }
         }
       ],
       "wires": [
         {
-          "x": 30,
-          "y": 15,
-          "length": 1,
-          "isHorizontal": true
-        },
-        {
-          "x": 44,
-          "y": 28,
-          "length": 4,
-          "isHorizontal": true
-        },
-        {
-          "x": 31,
-          "y": 15,
-          "length": 3,
-          "isHorizontal": true
-        },
-        {
-          "x": 48,
-          "y": 15,
-          "length": 8,
-          "isHorizontal": false
-        },
-        {
-          "x": 9,
-          "y": 28,
-          "length": 4,
-          "isHorizontal": false
-        },
-        {
-          "x": 16,
-          "y": 25,
-          "length": 3,
-          "isHorizontal": true
-        },
-        {
-          "x": 38,
-          "y": 29,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 48,
-          "y": 23,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 16,
-          "y": 13,
-          "length": 3,
-          "isHorizontal": true
-        },
-        {
-          "x": 24,
-          "y": 14,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 38,
-          "y": 16,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 55,
-          "y": 20,
-          "length": 6,
-          "isHorizontal": true
-        },
-        {
-          "x": 31,
-          "y": 15,
-          "length": 3,
-          "isHorizontal": false
-        },
-        {
-          "x": 18,
-          "y": 23,
-          "length": 1,
-          "isHorizontal": true
-        },
-        {
-          "x": 47,
-          "y": 25,
-          "length": 3,
-          "isHorizontal": true
-        },
-        {
-          "x": 48,
-          "y": 15,
-          "length": 1,
-          "isHorizontal": true
-        },
-        {
-          "x": 48,
-          "y": 23,
-          "length": 5,
-          "isHorizontal": false
-        },
-        {
-          "x": 47,
-          "y": 13,
-          "length": 4,
-          "isHorizontal": false
-        },
-        {
-          "x": 18,
-          "y": 27,
-          "length": 22,
-          "isHorizontal": true
-        },
-        {
-          "x": 61,
-          "y": 20,
-          "length": 3,
-          "isHorizontal": false
-        },
-        {
-          "x": 30,
-          "y": 23,
-          "length": 1,
-          "isHorizontal": true
-        },
-        {
-          "x": 54,
-          "y": 14,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 34,
-          "y": 28,
-          "length": 6,
-          "isHorizontal": true
-        },
-        {
-          "x": 60,
-          "y": 15,
-          "length": 4,
-          "isHorizontal": true
-        },
-        {
-          "x": 45,
-          "y": 17,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 24,
-          "y": 18,
-          "length": 7,
-          "isHorizontal": true
-        },
-        {
-          "x": 34,
-          "y": 17,
-          "length": 11,
-          "isHorizontal": false
-        },
-        {
-          "x": 18,
-          "y": 15,
-          "length": 8,
-          "isHorizontal": false
-        },
-        {
-          "x": 9,
-          "y": 9,
-          "length": 17,
-          "isHorizontal": false
-        },
-        {
-          "x": 55,
-          "y": 16,
-          "length": 1,
-          "isHorizontal": true
-        },
-        {
-          "x": 60,
-          "y": 23,
-          "length": 1,
-          "isHorizontal": true
-        },
-        {
-          "x": 25,
-          "y": 20,
-          "length": 6,
-          "isHorizontal": true
-        },
-        {
-          "x": 24,
-          "y": 22,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 29,
-          "y": 28,
-          "length": 5,
-          "isHorizontal": true
-        },
-        {
-          "x": 9,
-          "y": 28,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 38,
-          "y": 18,
-          "length": 11,
-          "isHorizontal": false
-        },
-        {
-          "x": 64,
-          "y": 15,
-          "length": 8,
-          "isHorizontal": true
-        },
-        {
-          "x": 54,
-          "y": 18,
-          "length": 10,
-          "isHorizontal": true
-        },
-        {
-          "x": 47,
-          "y": 13,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 47,
-          "y": 17,
-          "length": 8,
-          "isHorizontal": false
-        },
-        {
-          "x": 25,
-          "y": 16,
-          "length": 4,
-          "isHorizontal": false
-        },
-        {
-          "x": 24,
-          "y": 24,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 15,
-          "y": 27,
-          "length": 3,
-          "isHorizontal": true
-        },
-        {
-          "x": 55,
-          "y": 16,
-          "length": 4,
-          "isHorizontal": false
-        },
-        {
-          "x": 29,
-          "y": 28,
-          "length": 11,
-          "isHorizontal": false
-        },
-        {
           "x": 7,
           "y": 9,
-          "length": 2,
-          "isHorizontal": true
-        },
-        {
-          "x": 61,
-          "y": 23,
-          "length": 11,
-          "isHorizontal": true
-        },
-        {
-          "x": 25,
-          "y": 16,
-          "length": 1,
-          "isHorizontal": true
-        },
-        {
-          "x": 18,
-          "y": 15,
-          "length": 1,
-          "isHorizontal": true
-        },
-        {
-          "x": 54,
-          "y": 18,
-          "length": 4,
-          "isHorizontal": false
-        },
-        {
-          "x": 18,
-          "y": 23,
-          "length": 4,
-          "isHorizontal": false
-        },
-        {
-          "x": 9,
-          "y": 26,
           "length": 2,
           "isHorizontal": true
         },
@@ -588,10 +282,40 @@
           "isHorizontal": true
         },
         {
-          "x": 24,
-          "y": 18,
+          "x": 9,
+          "y": 9,
+          "length": 17,
+          "isHorizontal": false
+        },
+        {
+          "x": 9,
+          "y": 26,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 9,
+          "y": 28,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 9,
+          "y": 28,
           "length": 4,
           "isHorizontal": false
+        },
+        {
+          "x": 15,
+          "y": 27,
+          "length": 3,
+          "isHorizontal": true
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "length": 3,
+          "isHorizontal": true
         },
         {
           "x": 16,
@@ -600,19 +324,121 @@
           "isHorizontal": false
         },
         {
-          "x": 38,
-          "y": 29,
-          "length": 10,
+          "x": 16,
+          "y": 25,
+          "length": 3,
+          "isHorizontal": true
+        },
+        {
+          "x": 18,
+          "y": 15,
+          "length": 1,
+          "isHorizontal": true
+        },
+        {
+          "x": 18,
+          "y": 15,
+          "length": 8,
           "isHorizontal": false
         },
         {
-          "x": 54,
+          "x": 18,
+          "y": 23,
+          "length": 1,
+          "isHorizontal": true
+        },
+        {
+          "x": 18,
+          "y": 23,
+          "length": 4,
+          "isHorizontal": false
+        },
+        {
+          "x": 18,
+          "y": 27,
+          "length": 22,
+          "isHorizontal": true
+        },
+        {
+          "x": 24,
+          "y": 14,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 24,
+          "y": 18,
+          "length": 4,
+          "isHorizontal": false
+        },
+        {
+          "x": 24,
+          "y": 18,
+          "length": 7,
+          "isHorizontal": true
+        },
+        {
+          "x": 24,
+          "y": 22,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 24,
           "y": 24,
           "length": 2,
           "isHorizontal": true
         },
         {
-          "x": 64,
+          "x": 25,
+          "y": 16,
+          "length": 1,
+          "isHorizontal": true
+        },
+        {
+          "x": 25,
+          "y": 16,
+          "length": 4,
+          "isHorizontal": false
+        },
+        {
+          "x": 25,
+          "y": 20,
+          "length": 6,
+          "isHorizontal": true
+        },
+        {
+          "x": 29,
+          "y": 28,
+          "length": 5,
+          "isHorizontal": true
+        },
+        {
+          "x": 29,
+          "y": 28,
+          "length": 11,
+          "isHorizontal": false
+        },
+        {
+          "x": 30,
+          "y": 15,
+          "length": 1,
+          "isHorizontal": true
+        },
+        {
+          "x": 30,
+          "y": 23,
+          "length": 1,
+          "isHorizontal": true
+        },
+        {
+          "x": 31,
+          "y": 15,
+          "length": 3,
+          "isHorizontal": true
+        },
+        {
+          "x": 31,
           "y": 15,
           "length": 3,
           "isHorizontal": false
@@ -624,15 +450,189 @@
           "isHorizontal": false
         },
         {
+          "x": 34,
+          "y": 17,
+          "length": 11,
+          "isHorizontal": false
+        },
+        {
+          "x": 34,
+          "y": 28,
+          "length": 6,
+          "isHorizontal": true
+        },
+        {
+          "x": 38,
+          "y": 16,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
           "x": 38,
           "y": 18,
           "length": 2,
           "isHorizontal": true
         },
         {
+          "x": 38,
+          "y": 18,
+          "length": 11,
+          "isHorizontal": false
+        },
+        {
+          "x": 38,
+          "y": 29,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 38,
+          "y": 29,
+          "length": 10,
+          "isHorizontal": false
+        },
+        {
+          "x": 44,
+          "y": 28,
+          "length": 4,
+          "isHorizontal": true
+        },
+        {
+          "x": 45,
+          "y": 17,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 47,
+          "y": 13,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 47,
+          "y": 13,
+          "length": 4,
+          "isHorizontal": false
+        },
+        {
+          "x": 47,
+          "y": 17,
+          "length": 8,
+          "isHorizontal": false
+        },
+        {
+          "x": 47,
+          "y": 25,
+          "length": 3,
+          "isHorizontal": true
+        },
+        {
+          "x": 48,
+          "y": 15,
+          "length": 1,
+          "isHorizontal": true
+        },
+        {
+          "x": 48,
+          "y": 15,
+          "length": 8,
+          "isHorizontal": false
+        },
+        {
+          "x": 48,
+          "y": 23,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 48,
+          "y": 23,
+          "length": 5,
+          "isHorizontal": false
+        },
+        {
+          "x": 54,
+          "y": 14,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 54,
+          "y": 18,
+          "length": 4,
+          "isHorizontal": false
+        },
+        {
+          "x": 54,
+          "y": 18,
+          "length": 10,
+          "isHorizontal": true
+        },
+        {
           "x": 54,
           "y": 22,
           "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 54,
+          "y": 24,
+          "length": 2,
+          "isHorizontal": true
+        },
+        {
+          "x": 55,
+          "y": 16,
+          "length": 1,
+          "isHorizontal": true
+        },
+        {
+          "x": 55,
+          "y": 16,
+          "length": 4,
+          "isHorizontal": false
+        },
+        {
+          "x": 55,
+          "y": 20,
+          "length": 6,
+          "isHorizontal": true
+        },
+        {
+          "x": 60,
+          "y": 15,
+          "length": 4,
+          "isHorizontal": true
+        },
+        {
+          "x": 60,
+          "y": 23,
+          "length": 1,
+          "isHorizontal": true
+        },
+        {
+          "x": 61,
+          "y": 20,
+          "length": 3,
+          "isHorizontal": false
+        },
+        {
+          "x": 61,
+          "y": 23,
+          "length": 11,
+          "isHorizontal": true
+        },
+        {
+          "x": 64,
+          "y": 15,
+          "length": 3,
+          "isHorizontal": false
+        },
+        {
+          "x": 64,
+          "y": 15,
+          "length": 8,
           "isHorizontal": true
         }
       ]

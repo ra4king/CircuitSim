@@ -50,31 +50,52 @@ public class SubcircuitPeer extends ComponentPeer<Subcircuit> {
 				                 .getComponents().stream()
 				                 .filter(componentPeer -> componentPeer instanceof PinPeer)
 				                 .map(componentPeer -> (PinPeer)componentPeer)
-				                 .sorted((o1, o2) -> {
-					                 int diff = o1.getX() - o2.getX();
-					                 if(diff == 0) {
-						                 return o1.getY() - o2.getY();
-					                 }
-					                 return diff;
-				                 })
 				                 .collect(Collectors.toList());
 		
 		List<PinPeer> eastPins =
-				pins.stream()
-				    .filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.EAST)
-				    .collect(Collectors.toList());
+			pins.stream()
+				.filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.EAST)
+				.sorted((o1, o2) -> {
+					int diff = o1.getY() - o2.getY();
+					if(diff == 0) {
+						return o1.getX() - o2.getX();
+					}
+					return diff;
+				})
+				.collect(Collectors.toList());
 		List<PinPeer> westPins =
-				pins.stream()
-				    .filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.WEST)
-				    .collect(Collectors.toList());
+			pins.stream()
+				.filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.WEST)
+				.sorted((o1, o2) -> {
+					int diff = o1.getY() - o2.getY();
+					if(diff == 0) {
+						return o1.getX() - o2.getX();
+					}
+					return diff;
+				})
+				.collect(Collectors.toList());
 		List<PinPeer> northPins =
-				pins.stream()
-				    .filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.NORTH)
-				    .collect(Collectors.toList());
+			pins.stream()
+				.filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.NORTH)
+				.sorted((o1, o2) -> {
+					int diff = o1.getX() - o2.getX();
+					if(diff == 0) {
+						return o1.getY() - o2.getY();
+					}
+					return diff;
+				})
+				.collect(Collectors.toList());
 		List<PinPeer> southPins =
-				pins.stream()
-				    .filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.SOUTH)
-				    .collect(Collectors.toList());
+			pins.stream()
+				.filter(pin -> pin.getProperties().getValue(Properties.DIRECTION) == Direction.SOUTH)
+				.sorted((o1, o2) -> {
+					int diff = o1.getX() - o2.getX();
+					if(diff == 0) {
+						return o1.getY() - o2.getY();
+					}
+					return diff;
+				})
+				.collect(Collectors.toList());
 		
 		if(pins.size() != subcircuit.getNumPorts()) {
 			throw new IllegalStateException("Pin count and ports count don't match? " + pins.size() + " vs " +

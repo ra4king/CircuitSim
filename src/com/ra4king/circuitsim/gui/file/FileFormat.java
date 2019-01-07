@@ -9,7 +9,7 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -67,10 +67,10 @@ public class FileFormat {
 	
 	public static class CircuitInfo {
 		public final String name;
-		public final Set<ComponentInfo> components;
-		public final Set<WireInfo> wires;
+		public final List<ComponentInfo> components;
+		public final List<WireInfo> wires;
 		
-		public CircuitInfo(String name, Set<ComponentInfo> components, Set<WireInfo> wires) {
+		public CircuitInfo(String name, List<ComponentInfo> components, List<WireInfo> wires) {
 			this.name = name;
 			this.components = components;
 			this.wires = wires;
@@ -97,6 +97,22 @@ public class FileFormat {
 			this.properties = new HashMap<>();
 			properties.forEach(prop -> this.properties.put(prop.name, prop.getStringValue()));
 		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(name, x, y, properties);
+		}
+		
+		@Override
+		public boolean equals(Object other) {
+			if(other instanceof ComponentInfo) {
+				ComponentInfo otherComp = (ComponentInfo)other;
+				return name.equals(otherComp.name) && x == otherComp.x
+					       && y == otherComp.y && properties.equals(otherComp.properties);
+			}
+			
+			return false;
+		}
 	}
 	
 	public static class WireInfo {
@@ -110,6 +126,22 @@ public class FileFormat {
 			this.y = y;
 			this.length = length;
 			this.isHorizontal = isHorizontal;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(x, y, length, isHorizontal);
+		}
+		
+		@Override
+		public boolean equals(Object other) {
+			if(other instanceof WireInfo) {
+				WireInfo otherWire = (WireInfo)other;
+				return x == otherWire.x && y == otherWire.y
+					       && length == otherWire.length && isHorizontal == otherWire.isHorizontal;
+			}
+			
+			return false;
 		}
 	}
 	

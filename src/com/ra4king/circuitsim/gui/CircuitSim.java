@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -472,12 +473,11 @@ public class CircuitSim extends Application {
 		
 		return null;
 	}
-
-    public Map<String, CircuitManager> getCircuitManagers() {
+	
+	public Map<String, CircuitManager> getCircuitManagers() {
 		return circuitManagers.entrySet().stream()
-		                      .collect(Collectors.toMap(entry -> entry.getKey(),
-		                                                entry -> entry.getValue().getValue()));
-    }
+		                      .collect(Collectors.toMap(Entry::getKey, entry -> entry.getValue().getValue()));
+	}
 	
 	public CircuitManager getCircuitManager(String name) {
 		return circuitManagers.containsKey(name) ? circuitManagers.get(name).getValue() : null;
@@ -825,13 +825,13 @@ public class CircuitSim extends Application {
 			Properties properties = new Properties(props);
 			properties.parseAndSetValue(SubcircuitPeer.SUBCIRCUIT, new PropertyCircuitValidator(this), name);
 			try {
-				return ComponentManager.forClass(SubcircuitPeer.class).createComponent(properties, x, y);
+				return new SubcircuitPeer(properties, x, y);
 			} catch(SimulationException exc) {
 				throw new SimulationException(
-					"Error creating subcircuit for circuit '" + name + "': " + exc.getMessage());
+					"Error creating subcircuit for circuit '" + name + "'", exc);
 			} catch(Exception exc) {
 				throw new RuntimeException(
-					"Error creating subcircuit for circuit '" + name + "': " + exc.getMessage());
+					"Error creating subcircuit for circuit '" + name + "':", exc);
 			}
 		};
 	}
@@ -1088,7 +1088,7 @@ public class CircuitSim extends Application {
 				return;
 			}
 			
-			Set<ComponentInfo> components =
+			List<ComponentInfo> components =
 				selectedElements
 					.stream()
 					.filter(element -> element instanceof ComponentPeer<?>)
@@ -1096,16 +1096,16 @@ public class CircuitSim extends Application {
 					.map(component ->
 						     new ComponentInfo(component.getClass().getName(),
 						                       component.getX(), component.getY(),
-						                       component.getProperties())).collect(
-					Collectors.toSet());
+						                       component.getProperties()))
+					.collect(Collectors.toList());
 			
-			Set<WireInfo> wires = selectedElements
-				                      .stream()
-				                      .filter(element -> element instanceof Wire)
-				                      .map(element -> (Wire)element)
-				                      .map(wire -> new WireInfo(wire.getX(), wire.getY(),
-				                                                wire.getLength(), wire.isHorizontal()))
-				                      .collect(Collectors.toSet());
+			List<WireInfo> wires = selectedElements
+				                       .stream()
+				                       .filter(element -> element instanceof Wire)
+				                       .map(element -> (Wire)element)
+				                       .map(wire -> new WireInfo(wire.getX(), wire.getY(),
+				                                                 wire.getLength(), wire.isHorizontal()))
+				                       .collect(Collectors.toList());
 			
 			try {
 				String data = FileFormat.stringify(
@@ -1209,7 +1209,11 @@ public class CircuitSim extends Application {
 							for(CircuitInfo circuit : parsed.circuits) {
 								for(WireInfo wire : circuit.wires) {
 									elementsCreated.add(
-										new Wire(null, wire.x + offset, wire.y + offset, wire.length, wire.isHorizontal));
+										new Wire(null,
+										         wire.x + offset,
+										         wire.y + offset,
+										         wire.length,
+										         wire.isHorizontal));
 								}
 							}
 							
@@ -1831,22 +1835,24 @@ public class CircuitSim extends Application {
 					
 					CircuitManager manager = circuitManagers.get(name).getValue();
 					
-					Set<ComponentInfo> components =
+					List<ComponentInfo> components =
 						manager.getCircuitBoard()
 						       .getComponents().stream()
 						       .map(component -> new ComponentInfo(component.getClass().getName(),
 						                                           component.getX(),
 						                                           component.getY(),
 						                                           component.getProperties()))
-						       .collect(Collectors.toSet());
-					Set<WireInfo> wires = manager.getCircuitBoard()
-					                             .getLinks().stream()
-					                             .flatMap(linkWires -> linkWires.getWires().stream())
-					                             .map(wire -> new WireInfo(wire.getX(),
-					                                                       wire.getY(),
-					                                                       wire.getLength(),
-					                                                       wire.isHorizontal()))
-					                             .collect(Collectors.toSet());
+						       .sorted(Comparator.comparingInt(Object::hashCode))
+						       .collect(Collectors.toList());
+					List<WireInfo> wires = manager.getCircuitBoard()
+					                              .getLinks().stream()
+					                              .flatMap(linkWires -> linkWires.getWires().stream())
+					                              .map(wire -> new WireInfo(wire.getX(),
+					                                                        wire.getY(),
+					                                                        wire.getLength(),
+					                                                        wire.isHorizontal()))
+					                              .sorted(Comparator.comparingInt(Object::hashCode))
+					                              .collect(Collectors.toList());
 					
 					circuits.add(new CircuitInfo(name, components, wires));
 				});

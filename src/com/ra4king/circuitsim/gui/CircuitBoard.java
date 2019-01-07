@@ -166,7 +166,7 @@ public class CircuitBoard {
 		addComponent(component, true);
 	}
 	
-	void addComponent(ComponentPeer<?> component, boolean splitWires) {
+	synchronized void addComponent(ComponentPeer<?> component, boolean splitWires) {
 		if(!isValidLocation(component)) {
 			throw new SimulationException("Cannot place component here.");
 		}
@@ -536,7 +536,8 @@ public class CircuitBoard {
 		boolean cannotMoveHere = false;
 		
 		for(GuiElement element : moveElements) {
-			if(element instanceof ComponentPeer<?> && !isValidLocation((ComponentPeer<?>)element)) {
+			if((element instanceof ComponentPeer<?> && !isValidLocation((ComponentPeer<?>)element)) ||
+				   (element instanceof Wire && (element.getX() < 0 || element.getY() < 0))) {
 				for(GuiElement element1 : moveElements) {
 					element1.setX(element1.getX() - moveDeltaX);
 					element1.setY(element1.getY() - moveDeltaY);
@@ -661,7 +662,7 @@ public class CircuitBoard {
 		updateBadLinks();
 		
 		if(cannotMoveHere) {
-			throw new SimulationException("Cannot move components here.");
+			throw new SimulationException("Cannot move components/wires here.");
 		}
 		
 		if(!toThrow.isEmpty()) {
@@ -675,7 +676,7 @@ public class CircuitBoard {
 		removeElements(elements, true);
 	}
 	
-	void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) {
+	synchronized void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) {
 		circuit.getSimulator().runSync(() -> {
 			try {
 				editHistory.beginGroup();
@@ -871,7 +872,7 @@ public class CircuitBoard {
 		}
 	}
 	
-	public void addWire(int x, int y, int length, boolean horizontal) {
+	public synchronized void addWire(int x, int y, int length, boolean horizontal) {
 		if(x < 0 || y < 0 || (horizontal && x + length < 0) || (!horizontal && y + length < 0)) {
 			throw new SimulationException("Wire cannot go into negative space.");
 		}
@@ -1041,7 +1042,7 @@ public class CircuitBoard {
 		rejoinWires();
 	}
 	
-	private void rejoinWires() {
+	private synchronized void rejoinWires() {
 		if(!rejoinWiresEnabled) {
 			return;
 		}

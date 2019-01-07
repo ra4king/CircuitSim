@@ -4,7 +4,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.ra4king.circuitsim.gui.LinkWires.Wire;
 
@@ -294,7 +296,7 @@ public class EditHistory {
 		redoStack.push(popped);
 		
 		circuitSim.getSimulator().runSync(() -> {
-			List<CircuitManager> circuitManagers = new ArrayList<>();
+			Set<CircuitManager> circuitManagers = new HashSet<>();
 			
 			try {
 				disable();
@@ -329,7 +331,7 @@ public class EditHistory {
 		}
 		
 		circuitSim.getSimulator().runSync(() -> {
-			List<CircuitManager> circuitManagers = new ArrayList<>();
+			Set<CircuitManager> circuitManagers = new HashSet<>();
 			
 			try {
 				disable();

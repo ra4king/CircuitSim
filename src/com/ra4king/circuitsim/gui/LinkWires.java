@@ -47,17 +47,15 @@ public class LinkWires {
 		return ports.size() > 0 ? ports.iterator().next().getPort().getLink() : null;
 	}
 	
-	public void addWire(Wire wire) {
+	public synchronized void addWire(Wire wire) {
 		wire.setLinkWires(this);
 		wires.add(wire);
 	}
 	
-	public void removeWire(Wire wire) {
+	public synchronized void removeWire(Wire wire) {
 		if(wires.contains(wire)) {
 			wire.setLinkWires(null);
 			wires.remove(wire);
-		} else {
-			throw new IllegalStateException("Wire isn't even in here");
 		}
 	}
 	
@@ -117,38 +115,27 @@ public class LinkWires {
 		return newLinkWires;
 	}
 	
+	private static boolean connsEqual(Connection conn1, Connection conn2) {
+		return conn1.getX() == conn2.getX() && conn1.getY() == conn2.getY();
+	}
+	
 	private LinkWires findAttachedConnections(Wire wire) {
 		LinkWires linkWires = new LinkWires();
 		
-		Connection start = wire.getConnections().get(0);
-		Connection end = wire.getConnections().get(wire.getConnections().size() - 1);
+		Connection start = wire.getStartConnection();
+		Connection end = wire.getEndConnection();
 		for(Iterator<Wire> iter = wires.iterator(); iter.hasNext(); ) {
 			Wire w = iter.next();
 			
-			boolean added = false;
+			Connection wStart = w.getStartConnection();
+			Connection wEnd = w.getEndConnection();
 			
-			for(Connection c : w.getConnections()) {
-				if((c.getX() == start.getX() && c.getY() == start.getY()) ||
-						   (c.getX() == end.getX() && c.getY() == end.getY())) {
-					linkWires.addWire(w);
-					iter.remove();
-					added = true;
-					break;
-				}
-			}
-			
-			if(!added) {
-				Connection wStart = w.getConnections().get(0);
-				Connection wEnd = w.getConnections().get(w.getConnections().size() - 1);
-				
-				for(Connection c : wire.getConnections()) {
-					if((c.getX() == wStart.getX() && c.getY() == wStart.getY()) ||
-							   (c.getX() == wEnd.getX() && c.getY() == wEnd.getY())) {
-						linkWires.addWire(w);
-						iter.remove();
-						break;
-					}
-				}
+			if(connsEqual(start, wStart)
+				   || connsEqual(start, wEnd)
+				   || connsEqual(end, wStart)
+				   || connsEqual(end, wEnd)) {
+				linkWires.addWire(w);
+				iter.remove();
 			}
 		}
 		

@@ -11,6 +11,17 @@ Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 Changelog
 =========
 
+1.8.1
+-----
+- Significant performance and memory usage improvements
+- Holding CTRL will keep a component selected after placing it
+- Circuit file generation is now deterministic
+- Fix subcircuit pin count mismatch errors
+- Fix display of Output pin, where it used to be printed as Input pin
+- Fix saving ROM contents after being broken in 1.8.0
+- (Breaking change) Fix subcircuit pin ordering on the east and west side by sorting by Y instead of X
+
+
 1.8.0
 -----
 - Revamp ROM/RAM component look: now showing the current address and value

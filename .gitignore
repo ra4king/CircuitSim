@@ -1,7 +1,6 @@
 /.idea/
 /out/
 /misc/
-/release/
 *.iml
 
 # Created by https://www.gitignore.io/api/java,gradle

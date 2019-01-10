@@ -956,18 +956,6 @@
         },
         {
           "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
-          "x": 35,
-          "y": 72,
-          "properties": {
-            "Label location": "WEST",
-            "Label": "",
-            "Value": "1",
-            "Direction": "SOUTH",
-            "Bitsize": "1"
-          }
-        },
-        {
-          "name": "com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer",
           "x": 7,
           "y": 48,
           "properties": {
@@ -985,7 +973,7 @@
           "properties": {
             "Label location": "WEST",
             "Label": "",
-            "Value": "0",
+            "Value": "1",
             "Direction": "EAST",
             "Bitsize": "32"
           }

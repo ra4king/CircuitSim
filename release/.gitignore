@@ -1,0 +1,8 @@
+*
+!.gitignore
+!build.sh
+!create_exe.xml
+!icon.icns
+!icon.ico
+!jar2app.py
+!linux_stub.sh

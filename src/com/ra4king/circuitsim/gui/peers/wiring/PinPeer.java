@@ -48,11 +48,9 @@ public class PinPeer extends ComponentPeer<Pin> {
 	public PinPeer(Properties props, int x, int y) {
 		super(x, y, 0, 0);
 		
-		Object value = props.getValue(IS_INPUT.name);
+		Object value = props.getValueOrDefault(IS_INPUT, false);
 		boolean isInput;
-		if(value == null) {
-			isInput = false;
-		} else if(value instanceof String) {
+		if(value instanceof String) {
 			isInput = Boolean.parseBoolean((String)value);
 		} else {
 			isInput = (Boolean)value;

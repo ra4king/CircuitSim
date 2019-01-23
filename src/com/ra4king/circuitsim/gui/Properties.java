@@ -851,9 +851,7 @@ public class Properties {
 										for(int value : values) {
 											lines.get(row).get(col).set(parseValue(value));
 											
-											col++;
-											
-											if(col == lines.get(0).values.size() - 1) {
+											if(++col == lines.get(0).values.size()) {
 												col = 0;
 												row++;
 												

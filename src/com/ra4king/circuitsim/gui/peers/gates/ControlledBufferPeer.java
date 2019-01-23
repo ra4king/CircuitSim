@@ -32,7 +32,7 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
-//		properties.ensureProperty(Properties.LABEL_LOCATION);
+		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);

@@ -1,4 +1,6 @@
 *
+!jar2app_basefiles
+!jar2app_basefiles/*
 !.gitignore
 !build.sh
 !create_exe.xml

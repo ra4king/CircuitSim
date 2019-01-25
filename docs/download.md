@@ -11,6 +11,13 @@ Recommended: [Java 8u152] installed. Minimum: Java 8u40 installed.
 Changelog
 =========
 
+1.8.2
+=====
+- Hotfix for issue with buffer component where setting a label causes a NullPointerException
+- Hotfix for issue with memory editor for both RAM and ROM components where pasting 16 or more values causes it to skip a column every 16th value
+- Improve error message window to include "Save and Exit" 
+
+
 1.8.1
 -----
 - Significant performance and memory usage improvements

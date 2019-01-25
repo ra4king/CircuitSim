@@ -57,7 +57,7 @@ public class DebugUtil {
 					alert.getDialogPane().setContent(textArea);
 					
 					alert.getButtonTypes().clear();
-					alert.getButtonTypes().add(new ButtonType("Exit", ButtonData.APPLY));
+					alert.getButtonTypes().add(new ButtonType("Save and Exit", ButtonData.APPLY));
 					alert.getButtonTypes().add(new ButtonType("Send Error Report", ButtonData.YES));
 					alert.getButtonTypes().add(new ButtonType("Cancel", ButtonData.CANCEL_CLOSE));
 					Optional<ButtonType> buttonType = alert.showAndWait();
@@ -66,7 +66,13 @@ public class DebugUtil {
 						if(buttonType.get().getButtonData() == ButtonData.YES) {
 							sendErrorReport(message + "\n" + errorMessage);
 						} else if(buttonType.get().getButtonData() == ButtonData.APPLY) {
-							System.exit(0);
+							try {
+								simulatorWindow.saveCircuits();
+							} catch(Exception exc) {
+								exc.printStackTrace();
+							}
+							
+							simulatorWindow.closeWindow();
 						}
 					}
 				} finally {

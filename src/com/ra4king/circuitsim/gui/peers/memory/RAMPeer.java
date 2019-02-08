@@ -12,6 +12,7 @@ import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
+import com.ra4king.circuitsim.gui.Properties.Property;
 import com.ra4king.circuitsim.gui.Properties.MemoryLine;
 import com.ra4king.circuitsim.gui.Properties.PropertyMemoryValidator;
 import com.ra4king.circuitsim.simulator.CircuitState;
@@ -29,10 +30,13 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class RAMPeer extends ComponentPeer<RAM> {
+
+	public static final Property<Boolean> SEPARATE_LOAD_STORE_PORTS = new Property<>("Separate Load and Store Ports?", Properties.YESNO_VALIDATOR, false);
+
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Memory", "RAM"),
 		                     new Image(RAMPeer.class.getResourceAsStream("/resources/RAM.png")),
-		                     new Properties());
+		                     new Properties(new Property<>(SEPARATE_LOAD_STORE_PORTS, false)));
 	}
 	
 	private final PortConnection clockConnection;
@@ -40,17 +44,27 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	public RAMPeer(Properties props, int x, int y) {
 		super(x, y, 9, 5);
 		
+		Object value = props.getValueOrDefault(SEPARATE_LOAD_STORE_PORTS, false);
+		boolean separateLoadStore;
+		if(value instanceof String) {
+			separateLoadStore = Boolean.parseBoolean((String)value);
+		} else {
+			separateLoadStore = (Boolean)value;
+		}
+
+
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.ADDRESS_BITS);
+		properties.ensureProperty(SEPARATE_LOAD_STORE_PORTS);
 		properties.mergeIfExists(props);
 		
 		int addressBits = properties.getValue(Properties.ADDRESS_BITS);
 		int dataBits = properties.getValue(Properties.BITSIZE);
 		
-		RAM ram = new RAM(properties.getValue(Properties.LABEL), dataBits, addressBits);
+		RAM ram = new RAM(properties.getValue(Properties.LABEL), dataBits, addressBits, separateLoadStore);
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), "Address", 0, 2));
@@ -60,9 +74,18 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), "Load", 5, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), "Clear", 6, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA), "Data", getWidth(), 2));
-		
+		if (separateLoadStore) {
+			connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA_IN), "Data Input", 0, 4));
+			connections.add(new PortConnection(this, ram.getPort(RAM.PORT_STORE), "Store", 7, getHeight()));
+		}
+
 		init(ram, properties, connections);
 	}
+
+	public boolean isSeparateLoadStore() {
+		return getComponent().isSeparateLoadStore();
+	}
+	
 	
 	@Override
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
@@ -148,5 +171,10 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		graphics.fillText("en", x + width * 0.5 - 11.5, y + height - 3.5);
 		graphics.fillText("L", x + width * 0.5 + 2, y + height - 3.5);
 		graphics.fillText("0", x + width * 0.5 + 11.5, y + height - 3.5);
+		
+		if (isSeparateLoadStore()) {
+			graphics.fillText("Din", x + 3, y + height * 0.5 + 20);
+			graphics.fillText("St", x + width * 0.5 + 20, y + height - 3.5);
+		}
 	}
 }

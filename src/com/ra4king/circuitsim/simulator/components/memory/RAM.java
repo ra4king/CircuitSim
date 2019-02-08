@@ -19,12 +19,16 @@ public class RAM extends Component {
 	public static final int PORT_LOAD = 3;
 	public static final int PORT_CLEAR = 4;
 	public static final int PORT_DATA = 5;
-	
+	//additional ports for separate load/store ports
+	public static final int PORT_DATA_IN = 6;
+	public static final int PORT_STORE = 7;
+
 	private final int addressBits;
 	private final int dataBits;
+	private final boolean isSeparateLoadStore;
 	
-	public RAM(String name, int bitSize, int addressBits) {
-		super(name, new int[] { addressBits, 1, 1, 1, 1, bitSize });
+	public RAM(String name, int bitSize, int addressBits, boolean isSeparateLoadStore) {
+		super(name, new int[] { addressBits, 1, 1, 1, 1, 1, 1, bitSize });
 		
 		if(addressBits > 16 || addressBits <= 0) {
 			throw new IllegalArgumentException("Address bits cannot be more than 16 bits.");
@@ -32,6 +36,7 @@ public class RAM extends Component {
 		
 		this.addressBits = addressBits;
 		this.dataBits = bitSize;
+		this.isSeparateLoadStore = isSeparateLoadStore;
 	}
 	
 	public int getAddressBits() {
@@ -40,6 +45,10 @@ public class RAM extends Component {
 	
 	public int getDataBits() {
 		return dataBits;
+	}
+
+	public boolean isSeparateLoadStore() {
+		return isSeparateLoadStore;
 	}
 	
 	private List<BiConsumer<Integer, Integer>> listeners = new ArrayList<>();

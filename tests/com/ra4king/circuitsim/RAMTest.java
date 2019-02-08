@@ -14,7 +14,7 @@ public class RAMTest {
 		Simulator sim = new Simulator();
 		
 		Circuit circuit = new Circuit("RAM Test", sim);
-		RAM ram = circuit.addComponent(new RAM("", 8, 8));
+		RAM ram = circuit.addComponent(new RAM("", 8, 8, false));
 		Pin address = circuit.addComponent(new Pin("Address", 8, true));
 		Pin clk = circuit.addComponent(new Pin("clk", 1, true));
 		Pin data = circuit.addComponent(new Pin("data", 8, false));

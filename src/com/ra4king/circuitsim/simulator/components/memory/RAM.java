@@ -99,7 +99,7 @@ public class RAM extends Component {
 		boolean load = state.getLastReceived(getPort(PORT_LOAD)).getBit(0) != State.ZERO;
 		boolean clear = state.getLastReceived(getPort(PORT_CLEAR)).getBit(0) == State.ONE;
 		
-		boolean store = isSeparateLoadStore && state.getLastReceived(getPort(PORT_STORE)).getBit(0) != State.ZERO;
+		boolean store = state.getLastReceived(getPort(PORT_STORE)).getBit(0) != State.ZERO;
 
 		WireValue address = state.getLastReceived(getPort(PORT_ADDRESS));
 		
@@ -115,7 +115,7 @@ public class RAM extends Component {
 				}
 				break;
 			case PORT_CLK:
-				if((!load || store) && value.getBit(0) == State.ONE && address.isValidValue()) {
+				if(((!isSeparateLoadStore && !load) || (isSeparateLoadStore && store)) && value.getBit(0) == State.ONE && address.isValidValue()) {
 					int data_port_num = (isSeparateLoadStore) ? PORT_DATA_IN : PORT_DATA;
 					WireValue lastReceived = state.getLastReceived(getPort(data_port_num));
 					if(lastReceived.isValidValue()) {

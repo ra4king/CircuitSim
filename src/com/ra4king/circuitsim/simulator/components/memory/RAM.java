@@ -28,7 +28,7 @@ public class RAM extends Component {
 	private final boolean isSeparateLoadStore;
 	
 	public RAM(String name, int bitSize, int addressBits, boolean isSeparateLoadStore) {
-		super(name, getRAMPortBitsArray(bitSize, addressBits, isSeparateLoadStore));
+		super(name, getPortBits(bitSize, addressBits, isSeparateLoadStore));
 		
 		if(addressBits > 16 || addressBits <= 0) {
 			throw new IllegalArgumentException("Address bits cannot be more than 16 bits.");
@@ -39,14 +39,9 @@ public class RAM extends Component {
 		this.isSeparateLoadStore = isSeparateLoadStore;
 	}
 
-	private static int[] getRAMPortBitsArray(int bitSize, int addressBits, boolean isSeparateLoadStore) {
-		int[] portBits;
-		if (isSeparateLoadStore) {
-			portBits = new int[] { addressBits, 1, 1, 1, 1, bitSize, bitSize, 1 };
-		} else {
-			portBits = new int[] { addressBits, 1, 1, 1, 1, bitSize };
-		}
-		return portBits;
+	private static int[] getPortBits(int bitSize, int addressBits, boolean isSeparateLoadStore) {
+	   return isSeparateLoadStore ? new int[] { addressBits, 1, 1, 1, 1, bitSize, bitSize, 1 }
+	                              : new int[] { addressBits, 1, 1, 1, 1, bitSize };
 	}
 	
 	public int getAddressBits() {

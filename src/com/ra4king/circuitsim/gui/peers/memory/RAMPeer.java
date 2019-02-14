@@ -36,7 +36,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Memory", "RAM"),
 		                     new Image(RAMPeer.class.getResourceAsStream("/resources/RAM.png")),
-		                     new Properties(new Property<>(SEPARATE_LOAD_STORE_PORTS, false)));
+		                     new Properties(new Property<>(SEPARATE_LOAD_STORE_PORTS)));
 	}
 	
 	private final PortConnection clockConnection;
@@ -44,15 +44,6 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	public RAMPeer(Properties props, int x, int y) {
 		super(x, y, 9, 5);
 		
-		Object value = props.getValueOrDefault(SEPARATE_LOAD_STORE_PORTS, false);
-		boolean separateLoadStore;
-		if(value instanceof String) {
-			separateLoadStore = Boolean.parseBoolean((String)value);
-		} else {
-			separateLoadStore = (Boolean)value;
-		}
-
-
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.LABEL_LOCATION);
@@ -63,6 +54,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		
 		int addressBits = properties.getValue(Properties.ADDRESS_BITS);
 		int dataBits = properties.getValue(Properties.BITSIZE);
+		boolean separateLoadStore = properties.getValue(SEPARATE_LOAD_STORE_PORTS);
 		
 		RAM ram = new RAM(properties.getValue(Properties.LABEL), dataBits, addressBits, separateLoadStore);
 		

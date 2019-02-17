@@ -22,10 +22,12 @@ public class RAM extends Component {
 	//additional ports for separate load/store ports
 	public static final int PORT_DATA_IN = 6;
 	public static final int PORT_STORE = 7;
-
+	
 	private final int addressBits;
 	private final int dataBits;
 	private final boolean isSeparateLoadStore;
+	
+	private final WireValue noValue;
 	
 	public RAM(String name, int bitSize, int addressBits, boolean isSeparateLoadStore) {
 		super(name, getPortBits(bitSize, addressBits, isSeparateLoadStore));
@@ -37,11 +39,13 @@ public class RAM extends Component {
 		this.addressBits = addressBits;
 		this.dataBits = bitSize;
 		this.isSeparateLoadStore = isSeparateLoadStore;
+		
+		this.noValue = new WireValue(dataBits);
 	}
-
+	
 	private static int[] getPortBits(int bitSize, int addressBits, boolean isSeparateLoadStore) {
-	   return isSeparateLoadStore ? new int[] { addressBits, 1, 1, 1, 1, bitSize, bitSize, 1 }
-	                              : new int[] { addressBits, 1, 1, 1, 1, bitSize };
+		return isSeparateLoadStore ? new int[] { addressBits, 1, 1, 1, 1, bitSize, bitSize, 1 }
+		                           : new int[] { addressBits, 1, 1, 1, 1, bitSize };
 	}
 	
 	public int getAddressBits() {
@@ -51,7 +55,7 @@ public class RAM extends Component {
 	public int getDataBits() {
 		return dataBits;
 	}
-
+	
 	public boolean isSeparateLoadStore() {
 		return isSeparateLoadStore;
 	}
@@ -101,18 +105,18 @@ public class RAM extends Component {
 		int[] memory = getMemoryContents(state);
 		
 		boolean enabled = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO;
-		boolean load = state.getLastReceived(getPort(PORT_LOAD)).getBit(0) != State.ZERO;
 		boolean clear = state.getLastReceived(getPort(PORT_CLEAR)).getBit(0) == State.ONE;
+		boolean load = state.getLastReceived(getPort(PORT_LOAD)).getBit(0) == State.ONE;
+		boolean store =
+			isSeparateLoadStore ? state.getLastReceived(getPort(PORT_STORE)).getBit(0) == State.ONE : !load;
 		
-		boolean store = isSeparateLoadStore && state.getLastReceived(getPort(PORT_STORE)).getBit(0) != State.ZERO;
-
 		WireValue address = state.getLastReceived(getPort(PORT_ADDRESS));
 		
 		switch(portIndex) {
 			case PORT_ENABLE:
 			case PORT_LOAD:
 				if(!enabled || !load) {
-					state.pushValue(getPort(PORT_DATA), new WireValue(dataBits));
+					state.pushValue(getPort(PORT_DATA), noValue);
 				}
 			case PORT_ADDRESS:
 				if(enabled && load && address.isValidValue()) {
@@ -120,8 +124,9 @@ public class RAM extends Component {
 				}
 				break;
 			case PORT_CLK:
-				if(((!isSeparateLoadStore && !load) || (isSeparateLoadStore && store)) && value.getBit(0) == State.ONE && address.isValidValue()) {
-					WireValue lastReceived = state.getLastReceived(getPort((isSeparateLoadStore) ? PORT_DATA_IN : PORT_DATA));
+				if(store && value.getBit(0) == State.ONE && address.isValidValue()) {
+					WireValue lastReceived =
+						state.getLastReceived(getPort(isSeparateLoadStore ? PORT_DATA_IN : PORT_DATA));
 					if(lastReceived.isValidValue()) {
 						store(state, address.getValue(), lastReceived.getValue());
 					} else {

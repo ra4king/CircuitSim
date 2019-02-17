@@ -1534,6 +1534,8 @@ public class CircuitSim extends Application {
 									Platform.runLater(
 										() -> dialog.setContentText("Loading library " + libraryFile.getName()));
 									runFxSync(() -> loadLibrary(libraryFile));
+								} else {
+									throw new IllegalArgumentException("Library does not exist: " + libraryPath);
 								}
 							}
 						}
@@ -1575,31 +1577,41 @@ public class CircuitSim extends Application {
 							CircuitManager manager = getCircuitManager(circuit.name);
 							
 							for(ComponentInfo component : circuit.components) {
-								@SuppressWarnings("unchecked")
-								Class<? extends ComponentPeer<?>> clazz =
-									(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
-								
-								Properties properties = new Properties();
-								if(component.properties != null) {
-									component.properties.forEach(
-										(key, value) -> properties.setProperty(new Property<>(key, null, value)));
-								}
-								
-								ComponentCreator<?> creator;
-								if(clazz == SubcircuitPeer.class) {
-									creator = getSubcircuitPeerCreator(
-										properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
-								} else {
-									creator = componentManager.get(clazz, properties).creator;
-								}
-								
-								runnables.add(() -> {
-									manager.mayThrow(
-										() -> manager.getCircuitBoard().addComponent(
-											creator.createComponent(properties, component.x, component.y)));
-									bar.setProgress(bar.getProgress() + increment);
+								try {
+									@SuppressWarnings("unchecked")
+									Class<? extends ComponentPeer<?>> clazz =
+										(Class<? extends ComponentPeer<?>>)Class.forName(component.name);
+									
+									Properties properties = new Properties();
+									if(component.properties != null) {
+										component.properties.forEach(
+											(key, value) -> properties.setProperty(new Property<>(key, null, value)));
+									}
+									
+									ComponentCreator<?> creator;
+									if(clazz == SubcircuitPeer.class) {
+										creator = getSubcircuitPeerCreator(
+											properties.getValueOrDefault(SubcircuitPeer.SUBCIRCUIT, ""));
+									} else {
+										creator = componentManager.get(clazz, properties).creator;
+									}
+									
+									runnables.add(() -> {
+										manager.mayThrow(
+											() -> manager.getCircuitBoard().addComponent(
+												creator.createComponent(properties, component.x, component.y)));
+										bar.setProgress(bar.getProgress() + increment);
+										latch.countDown();
+									});
+								} catch(SimulationException exc) {
+									exc.printStackTrace();
+									excThrown = exc;
 									latch.countDown();
-								});
+								} catch(Exception exc) {
+									excThrown = exc;
+									getDebugUtil().logException("Error loading component " + component.name, exc);
+									latch.countDown();
+								}
 							}
 							
 							for(WireInfo wire : circuit.wires) {
@@ -1625,8 +1637,11 @@ public class CircuitSim extends Application {
 								for(int i = 0; i < left; i++) {
 									Runnable r = runnables.poll();
 									Platform.runLater(() -> {
-										r.run();
-										l.countDown();
+										try {
+											r.run();
+										} finally {
+											l.countDown();
+										}
 									});
 								}
 								

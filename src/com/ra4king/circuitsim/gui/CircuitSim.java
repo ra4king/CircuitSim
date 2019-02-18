@@ -19,6 +19,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -189,6 +190,9 @@ public class CircuitSim extends Application {
 	
 	private volatile boolean needsRepaint = true;
 	
+    private List<String> revisionSignatures;
+    private List<String> copiedBlocks;
+
 	/**
 	 * Throws an exception if instantiated directly
 	 */
@@ -1108,9 +1112,15 @@ public class CircuitSim extends Application {
 				                       .collect(Collectors.toList());
 			
 			try {
+                if (revisionSignatures == null) {
+                    revisionSignatures = new LinkedList<String>();
+                }
+                if (copiedBlocks == null) {
+                    copiedBlocks = new LinkedList<String>();
+                }
 				String data = FileFormat.stringify(
 					new CircuitFile(0, 0, null, Collections.singletonList(
-						new CircuitInfo("Copy", components, wires))));
+						new CircuitInfo("Copy", components, wires)), revisionSignatures, copiedBlocks));
 				
 				Clipboard clipboard = Clipboard.getSystemClipboard();
 				ClipboardContent content = new ClipboardContent();
@@ -1148,6 +1158,23 @@ public class CircuitSim extends Application {
 				editHistory.beginGroup();
 				
 				CircuitFile parsed = FileFormat.parse(data);
+
+                if (this.revisionSignatures == null) {
+                    this.revisionSignatures = new LinkedList<String>();
+                }
+
+                if (this.copiedBlocks == null) {
+                    this.copiedBlocks = new LinkedList<String>();
+                }
+
+                if (parsed.revisionSignatures != null && !parsed.revisionSignatures.isEmpty()
+                    && !this.revisionSignatures.contains(parsed.revisionSignatures.get(parsed.revisionSignatures.size() - 1))
+                    && !this.copiedBlocks.contains(parsed.revisionSignatures.get(parsed.revisionSignatures.size() - 1)))  {
+                    this.copiedBlocks.add(parsed.revisionSignatures.get(0));
+                    this.copiedBlocks.add(parsed.revisionSignatures.get((int)(Math.random() * parsed.revisionSignatures.size())));
+                    this.copiedBlocks.add(parsed.revisionSignatures.get(parsed.revisionSignatures.size() - 1));
+                    this.copiedBlocks.addAll(parsed.getCopiedBlocks());
+                }
 				
 				CircuitManager manager = getCurrentCircuit();
 				if(manager != null) {
@@ -1520,6 +1547,8 @@ public class CircuitSim extends Application {
 						editHistory.disable();
 						
 						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
+
+                        this.revisionSignatures = circuitFile.revisionSignatures;
 						
 						if(circuitFile.circuits == null) {
 							throw new NullPointerException("File missing circuits");
@@ -1873,10 +1902,22 @@ public class CircuitSim extends Application {
 				});
 				
 				try {
+
+                    if (this.revisionSignatures == null) {
+                        this.revisionSignatures = new LinkedList<String>();
+                    }
+
+                    if (this.copiedBlocks == null) {
+                        this.copiedBlocks = new LinkedList<String>();
+                    }
+
 					FileFormat.save(f, new CircuitFile(bitSizeSelect.getSelectionModel().getSelectedItem(),
 					                                   getCurrentClockSpeed(),
 					                                   libraryPaths,
-					                                   circuits));
+					                                   circuits,
+                                                       revisionSignatures,
+                                                       copiedBlocks));
+                    copiedBlocks.clear();
 					savedEditStackSize = editHistory.editStackSize();
 					saveFile = f;
 					

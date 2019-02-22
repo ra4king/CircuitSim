@@ -265,9 +265,14 @@ public class Properties {
 	public static final Property<Integer> SELECTOR_BITS;
 	public static final Property<Direction> DIRECTION;
 	public static final Property<Boolean> SELECTOR_LOCATION;
+	public static final Property<Base> BASE;
 	
 	public enum Direction {
 		NORTH, SOUTH, EAST, WEST
+	}
+
+	public enum Base {
+		BINARY, HEXADECIMAL
 	}
 	
 	static {
@@ -304,6 +309,8 @@ public class Properties {
 		SELECTOR_BITS = new Property<>("Selector bits", new PropertyListValidator<>(selBits), 1);
 		
 		SELECTOR_LOCATION = new Property<>("Selector location", LOCATION_VALIDATOR, false);
+
+		BASE = new Property<>("Base", new PropertyListValidator<>(Base.values()), Base.BINARY);
 	}
 	
 	public static class Property<T> {

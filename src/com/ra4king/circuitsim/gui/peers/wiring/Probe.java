@@ -59,6 +59,11 @@ public class Probe extends ComponentPeer<Component> {
 				setWidth(Math.max(2, (int) (bitSize / 4)));
 				setHeight(2);
 				break;
+			case DECIMAL:
+				// 3.322 ~ log_2(10)
+				setWidth(Math.max(2, (int) Math.ceil(bizeSize / 3.322)));
+				setHeight(2);
+				break;
 		}
 		
 		List<PortConnection> connections = new ArrayList<>();
@@ -95,6 +100,9 @@ public class Probe extends ComponentPeer<Component> {
 				break;
 			case HEXADECIMAL:
 				valStr = value.toHexString();
+				break;
+			case DECIMAL:
+				valStr = String.valueOf(value.getValue());
 				break;
 		}
 

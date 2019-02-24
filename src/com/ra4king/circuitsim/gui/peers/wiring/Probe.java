@@ -64,8 +64,7 @@ public class Probe extends ComponentPeer<Component> {
 				int width = Math.max(2, (int) Math.ceil(bitSize / 3.322));
 				width += bitSize == 32 ? 1 : 0;
 				setWidth(width);
-				int height = width > 8 ? 3 : 2;
-				setHeight(height);
+				setHeight(2);
 				break;
 		}
 		
@@ -121,6 +120,10 @@ public class Probe extends ComponentPeer<Component> {
 		graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 20, 20);
 		
 		graphics.setFill(Color.BLACK);
-		GuiUtils.drawValue(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		if (getProperties().getValue(Properties.BASE) == Properties.Base.DECIMAL) {
+			GuiUtils.drawValueOneLine(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		} else {
+			GuiUtils.drawValue(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		}
 	}
 }

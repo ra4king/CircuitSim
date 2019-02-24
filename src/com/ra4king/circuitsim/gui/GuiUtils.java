@@ -172,6 +172,16 @@ public class GuiUtils {
 			}
 		}
 	}
+
+	public static void drawValueOneLine(GraphicsContext graphics, String string, int x, int y, int width) {
+		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string, false);
+
+		if(string.length() == 1) {
+			graphics.fillText(string, x + (width - bounds.getWidth()) * 0.5, y + bounds.getHeight() * 0.75 + 1);
+		} else {
+			graphics.fillText(string, x + 1, y + bounds.getHeight() * 0.75 + 1);
+		}
+	}
 	
 	/**
 	 * Draws a clock input (triangle symbol) facing the southern border

@@ -63,8 +63,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 				int width = Math.max(2, (int) Math.ceil(bitSize / 3.322));
 				width += bitSize == 32 ? 1 : 0;
 				setWidth(width);
-				int height = width > 8 ? 3 : 2;
-				setHeight(height);
+				setHeight(2);
 				break;
 		}
 		
@@ -118,7 +117,11 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		} else {
 			GuiUtils.setBitColor(graphics, value.getBit(0));
 		}
-		
-		GuiUtils.drawValue(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+
+		if (getProperties().getValue(Properties.BASE) == Properties.Base.DECIMAL) {
+			GuiUtils.drawValueOneLine(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		} else {
+			GuiUtils.drawValue(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		}
 	}
 }

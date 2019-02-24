@@ -9,7 +9,7 @@ import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
-import com.ra4king.Circuitsim.gui.Properties.Base;
+import com.ra4king.circuitsim.gui.Properties.Base;
 import com.ra4king.circuitsim.gui.Properties.Property;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
@@ -56,12 +56,14 @@ public class Probe extends ComponentPeer<Component> {
 				setHeight((int)Math.round((1 + (bitSize - 1) / 8) * 1.5));
 				break;
 			case HEXADECIMAL:
-				setWidth(Math.max(2, (int) (bitSize / 4)));
+				setWidth(Math.max(2, 1 + (bitSize - 1) / 4));
 				setHeight(2);
 				break;
 			case DECIMAL:
 				// 3.322 ~ log_2(10)
-				setWidth(Math.max(2, (int) Math.ceil(bizeSize / 3.322)));
+				int width = Math.max(2, (int) Math.ceil(bitSize / 3.322));
+				width += bitSize == 32 ? 1 : 0;
+				setWidth(width);
 				setHeight(2);
 				break;
 		}
@@ -93,7 +95,7 @@ public class Probe extends ComponentPeer<Component> {
 		Port port = getComponent().getPort(0);
 
 		WireValue value = circuitState.getLastReceived(port);
-		String valStr;
+		String valStr = "";
 		switch(getProperties().getValue(Properties.BASE)) {
 			case BINARY:
 				valStr = value.toString();
@@ -102,7 +104,7 @@ public class Probe extends ComponentPeer<Component> {
 				valStr = value.toHexString();
 				break;
 			case DECIMAL:
-				valStr = String.valueOf(value.getValue());
+				valStr = value.toDecString();
 				break;
 		}
 

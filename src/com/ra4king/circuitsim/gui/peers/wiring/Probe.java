@@ -64,7 +64,8 @@ public class Probe extends ComponentPeer<Component> {
 				int width = Math.max(2, (int) Math.ceil(bitSize / 3.322));
 				width += bitSize == 32 ? 1 : 0;
 				setWidth(width);
-				setHeight(2);
+				int height = width > 8 ? 3 : 2;
+				setHeight(height);
 				break;
 		}
 		

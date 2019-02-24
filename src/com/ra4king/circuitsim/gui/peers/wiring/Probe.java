@@ -9,6 +9,7 @@ import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
+import com.ra4king.circuitsim.gui.Properties.Base;
 import com.ra4king.circuitsim.gui.Properties.Property;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
@@ -38,6 +39,7 @@ public class Probe extends ComponentPeer<Component> {
 		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
+		properties.ensureProperty(Properties.BASE);
 		properties.mergeIfExists(props);
 		
 		int bitSize = properties.getValue(Properties.BITSIZE);
@@ -47,9 +49,24 @@ public class Probe extends ComponentPeer<Component> {
 			@Override
 			public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
 		};
-		
-		setWidth(Math.max(2, Math.min(8, bitSize)));
-		setHeight((int)Math.round((1 + (bitSize - 1) / 8) * 1.5));
+
+		switch(properties.getValue(Properties.BASE)) {
+			case BINARY:
+				setWidth(Math.max(2, Math.min(8, bitSize)));
+				setHeight((int)Math.round((1 + (bitSize - 1) / 8) * 1.5));
+				break;
+			case HEXADECIMAL:
+				setWidth(Math.max(2, 1 + (bitSize - 1) / 4));
+				setHeight(2);
+				break;
+			case DECIMAL:
+				// 3.322 ~ log_2(10)
+				int width = Math.max(2, (int) Math.ceil(bitSize / 3.322));
+				width += bitSize == 32 ? 1 : 0;
+				setWidth(width);
+				setHeight(2);
+				break;
+		}
 		
 		List<PortConnection> connections = new ArrayList<>();
 		switch(properties.getValue(Properties.DIRECTION)) {
@@ -76,7 +93,21 @@ public class Probe extends ComponentPeer<Component> {
 		
 		graphics.setFont(GuiUtils.getFont(16));
 		Port port = getComponent().getPort(0);
+
 		WireValue value = circuitState.getLastReceived(port);
+		String valStr = "";
+		switch(getProperties().getValue(Properties.BASE)) {
+			case BINARY:
+				valStr = value.toString();
+				break;
+			case HEXADECIMAL:
+				valStr = value.toHexString();
+				break;
+			case DECIMAL:
+				valStr = value.toDecString();
+				break;
+		}
+
 		if(circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {
@@ -89,6 +120,10 @@ public class Probe extends ComponentPeer<Component> {
 		graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 20, 20);
 		
 		graphics.setFill(Color.BLACK);
-		GuiUtils.drawValue(graphics, value.toString(), getScreenX(), getScreenY(), getScreenWidth());
+		if (getProperties().getValue(Properties.BASE) == Properties.Base.DECIMAL) {
+			GuiUtils.drawValueOneLine(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		} else {
+			GuiUtils.drawValue(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		}
 	}
 }

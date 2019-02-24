@@ -40,16 +40,34 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
+		properties.ensureProperty(Properties.BASE);
 		properties.ensureProperty(VALUE);
 		properties.mergeIfExists(props);
 		
 		Constant constant = new Constant(properties.getValue(Properties.LABEL),
 		                                 properties.getValue(Properties.BITSIZE),
 		                                 properties.getValue(VALUE));
-		setWidth(Math.max(2, Math.min(8, constant.getBitSize())));
-		setHeight((int)Math.round((1 + (constant.getBitSize() - 1) / 8) * 1.5));
+
+		int bitSize = constant.getBitSize();
+		switch(properties.getValue(Properties.BASE)) {
+			case BINARY:
+				setWidth(Math.max(2, Math.min(8, bitSize)));
+				setHeight((int)Math.round((1 + (bitSize - 1) / 8) * 1.5));
+				break;
+			case HEXADECIMAL:
+				setWidth(Math.max(2, 1 + (bitSize - 1) / 4));
+				setHeight(2);
+				break;
+			case DECIMAL:
+				// 3.322 ~ log_2(10)
+				int width = Math.max(2, (int) Math.ceil(bitSize / 3.322));
+				width += bitSize == 32 ? 1 : 0;
+				setWidth(width);
+				setHeight(2);
+				break;
+		}
 		
-		value = WireValue.of(constant.getValue(), constant.getBitSize());
+		value = WireValue.of(constant.getValue(), bitSize);
 		
 		List<PortConnection> connections = new ArrayList<>();
 		switch(properties.getValue(Properties.DIRECTION)) {
@@ -80,13 +98,30 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		
 		graphics.fillRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 10, 10);
 		graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 10, 10);
+
+		String valStr = "";
+		switch(getProperties().getValue(Properties.BASE)) {
+			case BINARY:
+				valStr = value.toString();
+				break;
+			case HEXADECIMAL:
+				valStr = value.toHexString();
+				break;
+			case DECIMAL:
+				valStr = value.toDecString();
+				break;
+		}
 		
 		if(value.getBitSize() > 1) {
 			graphics.setFill(Color.BLACK);
 		} else {
 			GuiUtils.setBitColor(graphics, value.getBit(0));
 		}
-		
-		GuiUtils.drawValue(graphics, value.toString(), getScreenX(), getScreenY(), getScreenWidth());
+
+		if (getProperties().getValue(Properties.BASE) == Properties.Base.DECIMAL) {
+			GuiUtils.drawValueOneLine(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		} else {
+			GuiUtils.drawValue(graphics, valStr, getScreenX(), getScreenY(), getScreenWidth());
+		}
 	}
 }

@@ -168,6 +168,26 @@ public class WireValue {
 		return value;
 	}
 
+	/**
+	 * Converts the value held on this wire to a decimal string.
+	 *
+	 * @return a decimal string if all bits are defined, otherwise
+	 *         getBitSize() 'x's
+	 */
+	public String toDecString() {
+		String value;
+		int decDigits = (int) Math.ceil(getBitSize() / 3.322);
+		if(isValidValue()) {
+			value = String.format("%0" + decDigits + "d", getValue());
+		} else {
+			value = "";
+			for(int i = 0; i < decDigits; i++) {
+				value += "x";
+			}
+		}
+		return value;
+	}
+
 	@Override
 	public boolean equals(Object other) {
 		if(other instanceof WireValue) {

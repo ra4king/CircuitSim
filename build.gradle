@@ -1,92 +1,37 @@
-apply plugin: 'java'
+// Based on:
+// https://github.com/beryx-gist/badass-jlink-example-log4j2-javafx
+//
+// The jlink task will produce build/image/bin/CircuitSim (a shell script)
+// The jlinkZip task will produce build/CircuitSim.zip
+//
+// More info: https://badass-jlink-plugin.beryx.org/releases/latest/
 
-compileJava.options.encoding = 'UTF-8'
-
-// Use the mrjar gradle plugin copied from
-// https://github.com/melix/mrjar-gradle/
-apply from: 'jdks.gradle'
-
-def mainClassName = 'com.ra4king.circuitsim.gui.CircuitSim'
-
-// Tell gradle to look for source code and resources in `/src/', not
-// `/src/java/main/'.
-// https://docs.gradle.org/current/userguide/java_plugin.html#sec:working_with_java_source_sets
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src']
-        }
-        resources {
-            srcDirs = ['src']
-        }
-    }
-    test {
-        java {
-            srcDirs = ['tests']
-        }
-    }
-    java9 {
-        java {
-            srcDirs = ['src9']
-        }
-    }
+plugins {
+    id 'java-library'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'org.beryx.jlink' version '2.17.0'
 }
 
-
-// In this section you declare where to find the dependencies of your project
 repositories {
     mavenCentral()
 }
 
-// In this section you declare the dependencies for your production and test code
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.2'
-    // This is only necessary because in real life, we have dependencies
-    // between classes and what you're likely to want to do, is to
-    // provide a JDK 9 specific class, which depends on common classes
-    // of the main source set. In other words, you want to override some
-    // specific classes, but they still have dependencies onto other
-    // classes. We want to avoid recompiling all those classes, so we're
-    // just saying that the Java 9 specific classes "depend on" the main
-    // ones.
-    java9Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
-    
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.+'
+    api 'com.google.code.gson:gson:2.8.6'
 }
 
-compileJava {
-   sourceCompatibility = 8
-   targetCompatibility = 8
+javafx {
+    version = '13'
+    modules = ['javafx.controls']
 }
 
-compileJava9Java {
-   sourceCompatibility = 9
-   targetCompatibility = 9
-}
+mainClassName = 'circuitsim/com.ra4king.circuitsim.gui.CircuitSim'
 
-jar {
-    into('META-INF/versions/9') {
-        from sourceSets.java9.output
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    imageZip = file("$buildDir/CircuitSim.zip")
+    launcher {
+        name = 'CircuitSim'
     }
-    manifest {
-        attributes(
-            'Multi-Release': 'true',
-            'Main-Class': mainClassName
-        )
-    }
-
-    // Bundle dependencies with jar
-    // See: http://stackoverflow.com/a/4894308
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
-
-// Can't use the run task in the application plugin because it doesn't
-// build the multi-platform jar — it just runs the class directly
-task run(type: JavaExec) {
-    dependsOn jar
-    classpath files(jar.archivePath)
-    main = mainClassName
 }

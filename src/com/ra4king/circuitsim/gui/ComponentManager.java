@@ -134,7 +134,9 @@ public class ComponentManager {
 		throw new IllegalArgumentException("Component not registered: " + name);
 	}
 	
-	public ComponentLauncherInfo get(Class<? extends ComponentPeer> clazz, Properties properties) {
+	@SuppressWarnings("rawtypes") // To be able to use getClass(), ComponentPeer cannot be parameterized.
+	public ComponentLauncherInfo get(Class<? extends ComponentPeer> clazz, Properties properties)
+		throws SimulationException {
 		ComponentLauncherInfo firstComponent = null;
 		
 		for(ComponentLauncherInfo component : components) {
@@ -151,7 +153,7 @@ public class ComponentManager {
 			return firstComponent;
 		}
 		
-		throw new IllegalArgumentException("Component not registered: " + clazz);
+		throw new SimulationException("Component not registered: " + clazz);
 	}
 	
 	public void forEach(Consumer<ComponentLauncherInfo> consumer) {

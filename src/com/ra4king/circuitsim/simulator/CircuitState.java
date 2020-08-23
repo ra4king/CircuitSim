@@ -55,10 +55,6 @@ public class CircuitState {
 		return circuit;
 	}
 	
-	public Map<Component, Object> getComponentProperties() {
-		return componentProperties;
-	}
-	
 	public Object getComponentProperty(Component component) {
 		return componentProperties.get(component);
 	}
@@ -152,13 +148,13 @@ public class CircuitState {
 		LinkState linkState = get(link);
 		
 		linkState.participants.forEach((port, info) -> {
-			WireValue lastMerged = info.lastMerged;
+			WireValue lastPropagated = info.lastPropagated;
 			WireValue lastPushed = info.lastPushed;
 			
-			if(!lastMerged.equals(lastPushed)) {
+			if(!lastPropagated.equals(lastPushed)) {
 				linkState.cachedMergedValue = null;
 				linkState.isShortCircuited = null;
-				lastMerged.set(lastPushed);
+				lastPropagated.set(lastPushed);
 			}
 		});
 		
@@ -211,7 +207,7 @@ public class CircuitState {
 		
 		class PortStateInfo {
 			WireValue lastPushed;
-			WireValue lastMerged;
+			WireValue lastPropagated;
 			WireValue lastReceived;
 			
 			PortStateInfo() {
@@ -222,13 +218,13 @@ public class CircuitState {
 			
 			PortStateInfo(PortStateInfo info) {
 				this(new WireValue(info.lastPushed),
-				     new WireValue(info.lastMerged),
+				     new WireValue(info.lastPropagated),
 				     new WireValue(info.lastReceived));
 			}
 			
-			PortStateInfo(WireValue lastPushed, WireValue lastMerged, WireValue lastReceived) {
+			PortStateInfo(WireValue lastPushed, WireValue lastPropagated, WireValue lastReceived) {
 				this.lastPushed = lastPushed;
-				this.lastMerged = lastMerged;
+				this.lastPropagated = lastPropagated;
 				this.lastReceived = lastReceived;
 			}
 		}
@@ -249,10 +245,6 @@ public class CircuitState {
 			return participants.get(port).lastPushed;
 		}
 		
-		WireValue getLastMerged(Port port) {
-			return participants.get(port).lastMerged;
-		}
-		
 		WireValue getLastReceived(Port port) {
 			return participants.get(port).lastReceived;
 		}
@@ -261,7 +253,7 @@ public class CircuitState {
 			WireValue newValue = new WireValue(link.getBitSize());
 			participants.forEach((p, info) -> {
 				if(p != port) {
-					newValue.merge(info.lastMerged);
+					newValue.merge(info.lastPropagated);
 				}
 			});
 			return newValue;
@@ -271,7 +263,7 @@ public class CircuitState {
 			if(cachedMergedValue != null) return cachedMergedValue;
 			
 			WireValue newValue = new WireValue(link.getBitSize());
-			participants.values().forEach(info -> newValue.merge(info.lastMerged));
+			participants.values().forEach(info -> newValue.merge(info.lastPropagated));
 			
 			cachedMergedValue = new WireValue(newValue);
 			isShortCircuited = null;
@@ -353,7 +345,7 @@ public class CircuitState {
 			
 			cachedMergedValue = null;
 			isShortCircuited = null;
-			participants.forEach((port, info) -> info.lastMerged.setAllBits(State.X));
+			participants.forEach((port, info) -> info.lastPropagated.setAllBits(State.X));
 			
 			linkStates.remove(other.link);
 			getCircuit().getSimulator().linkRemoved(other.link);

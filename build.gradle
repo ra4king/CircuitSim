@@ -1,92 +1,74 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
 
-compileJava.options.encoding = 'UTF-8'
-
-// Use the mrjar gradle plugin copied from
-// https://github.com/melix/mrjar-gradle/
-apply from: 'jdks.gradle'
-
-def mainClassName = 'com.ra4king.circuitsim.gui.CircuitSim'
-
-// Tell gradle to look for source code and resources in `/src/', not
-// `/src/java/main/'.
-// https://docs.gradle.org/current/userguide/java_plugin.html#sec:working_with_java_source_sets
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src']
-        }
-        resources {
-            srcDirs = ['src']
-        }
-    }
-    test {
-        java {
-            srcDirs = ['tests']
-        }
-    }
-    java9 {
-        java {
-            srcDirs = ['src9']
-        }
-    }
+    // Apply the application plugin to add support for building a Java application
+    id 'application'
 }
 
+// Define the main class for the application
+mainClassName = 'com.ra4king.circuitsim.gui.CircuitSimRunner'
+group 'CircuitSim'
+version '1.8.2'
+
+ext.moduleName = 'Project.com.ra4king.circuitsim.gui'
+sourceCompatibility = JavaVersion.VERSION_14
 
 // In this section you declare where to find the dependencies of your project
 repositories {
+    // Use mavenCentral for resolving dependencies
     mavenCentral()
 }
 
-// In this section you declare the dependencies for your production and test code
+def currentOS = org.gradle.internal.os.OperatingSystem.current()
+def platform
+if (currentOS.isWindows()) {
+    platform = 'win'
+} else if (currentOS.isLinux()) {
+    platform = 'linux'
+} else if (currentOS.isMacOsX()) {
+    platform = 'mac'
+}
+
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.6'
-    // This is only necessary because in real life, we have dependencies
-    // between classes and what you're likely to want to do, is to
-    // provide a JDK 9 specific class, which depends on common classes
-    // of the main source set. In other words, you want to override some
-    // specific classes, but they still have dependencies onto other
-    // classes. We want to avoid recompiling all those classes, so we're
-    // just saying that the Java 9 specific classes "depend on" the main
-    // ones.
-    java9Implementation files(sourceSets.main.output.classesDirs) { builtBy compileJava }
-    
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.+'
-}
+    // This dependency is used by the application.
+    implementation 'com.google.code.gson:gson:2.8.6'
 
-compileJava {
-   sourceCompatibility = 8
-   targetCompatibility = 8
-}
-
-compileJava9Java {
-   sourceCompatibility = 9
-   targetCompatibility = 9
+    implementation "org.openjfx:javafx-base:14.0.2.1:${platform}"
+    implementation "org.openjfx:javafx-controls:14.0.2.1:${platform}"
+    implementation "org.openjfx:javafx-graphics:14.0.2.1:${platform}"
 }
 
 jar {
-    into('META-INF/versions/9') {
-        from sourceSets.java9.output
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    into 'resources', {
+        from 'resources'
     }
+    inputs.property("moduleName", moduleName)
     manifest {
         attributes(
-            'Multi-Release': 'true',
-            'Main-Class': mainClassName
+                'Automatic-Module-Name': moduleName,
+                'Main-Class': mainClassName
         )
     }
-
-    // Bundle dependencies with jar
-    // See: http://stackoverflow.com/a/4894308
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
-// Can't use the run task in the application plugin because it doesn't
-// build the multi-platform jar — it just runs the class directly
-task run(type: JavaExec) {
-    dependsOn jar
-    classpath files(jar.archivePath)
-    main = mainClassName
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-modules', 'javafx.controls',
+                '-Xlint:unchecked'
+        ]
+        classpath = files()
+    }
+}
+
+task createJar(type: Copy) {
+    dependsOn 'jar'
+    into "$buildDir/libs"
+    from configurations.runtime
 }

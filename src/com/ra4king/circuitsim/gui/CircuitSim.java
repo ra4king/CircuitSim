@@ -10,7 +10,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +18,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -154,7 +154,7 @@ public class CircuitSim extends Application {
 	private boolean clickedDirectly;
 	
 	private ComponentManager componentManager;
-	private List<String> libraryPaths;
+	private Set<String> libraryPaths;
 	
 	private TabPane buttonTabPane;
 	private ToggleGroup buttonsToggleGroup;
@@ -920,58 +920,60 @@ public class CircuitSim extends Application {
 	 * if Component == null, the circuit was deleted
 	 */
 	void circuitModified(Circuit circuit, Component component, boolean added) {
-		if(component == null || component instanceof Pin) {
-			refreshCircuitsTab();
-			
-			circuitManagers.values().forEach(componentPair -> {
-				for(ComponentPeer<?> componentPeer :
-					new HashSet<>(componentPair.getValue().getCircuitBoard().getComponents())) {
-					
-					if(componentPeer.getClass() == SubcircuitPeer.class) {
-						SubcircuitPeer peer = (SubcircuitPeer)componentPeer;
-						if(peer.getComponent().getSubcircuit() == circuit) {
-							CircuitNode node =
-								getSubcircuitStates(peer.getComponent(),
-								                    componentPair.getValue().getCircuitBoard().getCurrentState());
-							
-							componentPair.getValue().getSelectedElements().remove(peer);
-							
-							if(component == null) {
-								componentPair.getValue().mayThrow(
-									() -> componentPair.getValue()
-									                   .getCircuitBoard()
-									                   .removeElements(Collections.singleton(peer)));
+		simulator.runSync(() -> {
+			if(component == null || component instanceof Pin) {
+				refreshCircuitsTab();
+				
+				circuitManagers.values().forEach(componentPair -> {
+					for(ComponentPeer<?> componentPeer :
+						new HashSet<>(componentPair.getValue().getCircuitBoard().getComponents())) {
+						
+						if(componentPeer.getClass() == SubcircuitPeer.class) {
+							SubcircuitPeer peer = (SubcircuitPeer)componentPeer;
+							if(peer.getComponent().getSubcircuit() == circuit) {
+								CircuitNode node =
+									getSubcircuitStates(peer.getComponent(),
+									                    componentPair.getValue().getCircuitBoard().getCurrentState());
 								
-								resetSubcircuitStates(node);
-							} else {
-								SubcircuitPeer newSubcircuit =
-									new SubcircuitPeer(componentPeer.getProperties(),
-									                   componentPeer.getX(),
-									                   componentPeer.getY());
+								componentPair.getValue().getSelectedElements().remove(peer);
 								
-								editHistory.disable();
-								componentPair.getValue().mayThrow(
-									() -> componentPair.getValue()
-									                   .getCircuitBoard()
-									                   .updateComponent(peer, newSubcircuit));
-								editHistory.enable();
-								
-								node.subcircuit = newSubcircuit.getComponent();
-								updateSubcircuitStates(node, componentPair.getValue()
-								                                          .getCircuitBoard()
-								                                          .getCurrentState());
+								if(component == null) {
+									componentPair.getValue().mayThrow(
+										() -> componentPair.getValue()
+										                   .getCircuitBoard()
+										                   .removeElements(Collections.singleton(peer)));
+									
+									resetSubcircuitStates(node);
+								} else {
+									SubcircuitPeer newSubcircuit =
+										new SubcircuitPeer(componentPeer.getProperties(),
+										                   componentPeer.getX(),
+										                   componentPeer.getY());
+									
+									editHistory.disable();
+									componentPair.getValue().mayThrow(
+										() -> componentPair.getValue()
+										                   .getCircuitBoard()
+										                   .updateComponent(peer, newSubcircuit));
+									editHistory.enable();
+									
+									node.subcircuit = newSubcircuit.getComponent();
+									updateSubcircuitStates(node, componentPair.getValue()
+									                                          .getCircuitBoard()
+									                                          .getCurrentState());
+								}
 							}
 						}
 					}
-				}
-			});
-		} else if(component instanceof Subcircuit && !added) {
-			Subcircuit subcircuit = (Subcircuit)component;
-			
-			CircuitNode node =
-				getSubcircuitStates(subcircuit, getCircuitManager(circuit).getCircuitBoard().getCurrentState());
-			resetSubcircuitStates(node);
-		}
+				});
+			} else if(component instanceof Subcircuit && !added) {
+				Subcircuit subcircuit = (Subcircuit)component;
+				
+				CircuitNode node =
+					getSubcircuitStates(subcircuit, getCircuitManager(circuit).getCircuitBoard().getCurrentState());
+				resetSubcircuitStates(node);
+			}
+		});
 	}
 	
 	private class CircuitNode {
@@ -1355,7 +1357,7 @@ public class CircuitSim extends Application {
 				List<String> lines = Files.readAllLines(file.toPath());
 				for(String line : lines) {
 					line = line.trim();
-					if(line.charAt(0) == '#') continue;
+					if(line.isEmpty() || line.charAt(0) == '#') continue;
 					
 					int comment = line.indexOf('#');
 					if(comment != -1) {
@@ -1370,10 +1372,18 @@ public class CircuitSim extends Application {
 					
 					switch(key) {
 						case "WindowX":
-							stage.setX(Integer.parseInt(value) + (newWindow ? 20 : 0));
+							try {
+								stage.setX(Integer.parseInt(value) + (newWindow ? 20 : 0));
+							} catch(NumberFormatException exc) {
+								// ignore
+							}
 							break;
 						case "WindowY":
-							stage.setY(Integer.parseInt(value) + (newWindow ? 20 : 0));
+							try {
+								stage.setY(Integer.parseInt(value) + (newWindow ? 20 : 0));
+							} catch(NumberFormatException exc) {
+								// ignore
+							}
 							break;
 						case "WindowWidth":
 							stage.setWidth(Integer.parseInt(value));
@@ -1762,17 +1772,11 @@ public class CircuitSim extends Application {
 			}
 			
 			if(libraryPaths == null) {
-				libraryPaths = new ArrayList<>();
+				libraryPaths = new LinkedHashSet<>();
 			}
 			
-			Path currDir = Paths.get(System.getProperty("user.dir"));
-			Path libraryDir = file.toPath().toAbsolutePath();
-			
-			Path relativePath = currDir.relativize(libraryDir);
-			String relative = relativePath.toString();
-			if(!libraryPaths.contains(relative)) {
-				libraryPaths.add(relative);
-			}
+			Path libraryPath = file.toPath().toAbsolutePath();
+			libraryPaths.add(libraryPath.toString());
 			
 			refreshComponentsTabs.run();
 		} catch(Exception exc) {

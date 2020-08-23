@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -54,10 +55,10 @@ public class FileFormat {
 		
 		public final int globalBitSize;
 		public final int clockSpeed;
-		public final List<String> libraryPaths;
+		public final Set<String> libraryPaths;
 		public final List<CircuitInfo> circuits;
 		
-		public CircuitFile(int globalBitSize, int clockSpeed, List<String> libraryPaths, List<CircuitInfo> circuits) {
+		public CircuitFile(int globalBitSize, int clockSpeed, Set<String> libraryPaths, List<CircuitInfo> circuits) {
 			this.globalBitSize = globalBitSize;
 			this.clockSpeed = clockSpeed;
 			this.libraryPaths = libraryPaths;

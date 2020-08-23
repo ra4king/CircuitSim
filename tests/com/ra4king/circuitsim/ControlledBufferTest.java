@@ -9,8 +9,6 @@ import com.ra4king.circuitsim.simulator.components.gates.OrGate;
 import com.ra4king.circuitsim.simulator.components.gates.XorGate;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin;
 
-import javafx.util.Pair;
-
 /**
  * @author Roi Atalla
  */
@@ -47,7 +45,7 @@ public class ControlledBufferTest {
 		bufferC.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
 		out.addChangeListener(
-				new Pair<>(circuit.getTopLevelState(), (pin, state, value) -> System.out.println(value)));
+			circuit.getTopLevelState(), (pin, state, value) -> System.out.println(value));
 		
 		System.out.println("Selecting 1:");
 		inA.setValue(circuit.getTopLevelState(), WireValue.of(5, 4));

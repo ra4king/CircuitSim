@@ -8,8 +8,6 @@ import com.ra4king.circuitsim.simulator.components.memory.Register;
 import com.ra4king.circuitsim.simulator.components.wiring.Clock;
 import com.ra4king.circuitsim.simulator.components.wiring.Pin;
 
-import javafx.util.Pair;
-
 /**
  * @author Roi Atalla
  */
@@ -32,13 +30,13 @@ public class ClockTest {
 		adder.getPort(Adder.PORT_CARRY_IN).linkPort(cin.getPort(Pin.PORT));
 		
 		out.addChangeListener(
-				new Pair<>(circuit.getTopLevelState(), (pin, state, value) -> {
-					int v = value.getValue();
-					if(v % 100000 == 0) {
-						System.out.println(
-								value + " - " + value.getValue() + " - " + Clock.getLastTickCount(simulator) + " Hz");
-					}
-				}));
+			circuit.getTopLevelState(), (pin, state, value) -> {
+				int v = value.getValue();
+				if(v % 100000 == 0) {
+					System.out.println(
+						value + " - " + value.getValue() + " - " + Clock.getLastTickCount(simulator) + " Hz");
+				}
+			});
 		
 		din.setValue(circuit.getTopLevelState(), WireValue.of(1, 32));
 		cin.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));

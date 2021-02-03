@@ -2135,9 +2135,9 @@ public class CircuitSim extends Application {
 			}
 		});
 		
-		MenuItem load = new MenuItem("Load");
-		load.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
-		load.setOnAction(event -> {
+		MenuItem open = new MenuItem("Open");
+		open.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN));
+		open.setOnAction(event -> {
 			if (checkUnsavedChanges()) {
 				return;
 			}
@@ -2279,7 +2279,7 @@ public class CircuitSim extends Application {
 			.addAll(newInstance,
 			        clear,
 			        new SeparatorMenuItem(),
-			        load,
+			        open,
 			        save,
 			        saveAs,
 			        print,

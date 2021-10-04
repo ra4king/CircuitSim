@@ -2364,16 +2364,16 @@ public class CircuitSim extends Application {
 		
 		clockEnabled = new CheckMenuItem("Clock Enabled");
 		clockEnabled.setAccelerator(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN));
+		// clockEnabled.selectedProperty().bindBidirectional(Clock.clockEnabledProperty(simulator));
 		clockEnabled.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			tickClock.setDisable(newValue);
-			
-			if(newValue) {
-				Clock.startClock(simulator, getCurrentClockSpeed());
-			} else {
-				Clock.stopClock(simulator);
-			}
+			Clock.clockEnabledProperty(simulator).set(new Clock.EnabledInfo(newValue, getCurrentClockSpeed()));
 		});
-		
+
+		Clock.clockEnabledProperty(simulator).addListener((observable, oldValue, newValue) -> {
+			clockEnabled.setSelected(newValue.getEnabled());
+		});
+
 		frequenciesMenu = new Menu("Frequency");
 		ToggleGroup freqToggleGroup = new ToggleGroup();
 		for(int i = 0; i <= 14; i++) {

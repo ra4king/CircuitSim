@@ -137,7 +137,7 @@ public class Simulator {
 		                           .collect(Collectors.toList())
 		                           .forEach(linksToUpdate::remove));
 	}
-	
+
 	private boolean stepping = false;
 	
 	/**

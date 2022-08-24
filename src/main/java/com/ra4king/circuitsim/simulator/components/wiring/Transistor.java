@@ -105,23 +105,26 @@ public class Transistor extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_DRAIN) {
+		if (portIndex == PORT_DRAIN) {
 			return;
 		}
 		
-		State sourceBit = state.getLastReceived(getPort(PORT_SOURCE)).getBit(0);
-
-		if (isPType && sourceBit == State.ZERO) {
-			throw new SimulationException("P-type transistor must not be connected to ground!");
-		}
-
 		State enableBit = isPType ? State.ZERO : State.ONE;
+		State sourceBit = state.getLastReceived(getPort(PORT_SOURCE)).getBit(0);
 		boolean nTypeOk = isPType || sourceBit != State.ONE;
+		boolean pTypeOk = !isPType || sourceBit != State.ZERO;
 
-		if(nTypeOk && state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
+		if (pTypeOk && nTypeOk && state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
 			state.pushValue(getPort(PORT_DRAIN), new WireValue(sourceBit));
 		} else {
 			state.pushValue(getPort(PORT_DRAIN), X_VALUE);
+
+			if (!nTypeOk) {
+				throw new SimulationException("N-type transistor must not be connected to logic-level high!");
+			}
+			if (!pTypeOk) {
+				throw new SimulationException("P-type transistor must not be connected to ground!");
+			}
 		}
 	}
 }

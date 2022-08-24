@@ -121,12 +121,6 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		
 		graphics.setLineWidth(1);
 		
-		graphics.beginPath();
-		graphics.moveTo(x + width * 0.5 - 1.5, y + yOff + m * (height * 0.7 + 3));
-		graphics.lineTo(x + width * 0.5 + 3.0, y + yOff + m * (height * 0.7 + 5));
-		graphics.lineTo(x + width * 0.5 - 1.5, y + yOff + m * (height * 0.7 + 7));
-		graphics.stroke();
-		
 		if(getProperties().getValue(TRANSISTOR_TYPE_PROPERTY)) {
 			graphics.strokeOval(x + width * 0.5 - 3, y + (gateLoc ? 3 : height - 9), 6, 6);
 		} else {

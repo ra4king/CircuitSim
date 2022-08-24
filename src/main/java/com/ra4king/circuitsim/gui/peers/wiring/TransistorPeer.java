@@ -48,58 +48,47 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.LABEL_LOCATION);
-		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(TRANSISTOR_TYPE_PROPERTY);
 		properties.ensureProperty(GATE_LOCATION_PROPERTY);
 		properties.mergeIfExists(props);
 		
-		Transistor transistor = new Transistor(properties.getValue(Properties.LABEL),
-		                                       properties.getValue(TRANSISTOR_TYPE_PROPERTY));
+		boolean isPType = properties.getValue(TRANSISTOR_TYPE_PROPERTY);
+		Transistor transistor = new Transistor(properties.getValue(Properties.LABEL), isPType);
 		
 		List<PortConnection> connections = new ArrayList<>();
 		
-		int yOff = 0;
-		switch(properties.getValue(Properties.DIRECTION)) {
-			case EAST:
-			case NORTH:
-				yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? 0 : getHeight();
-				break;
-			case WEST:
-			case SOUTH:
-				yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? getHeight() : 0;
-				break;
+		int yOff;
+		if (isPType) {
+			yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? getHeight() : 0;
+		} else {
+			yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? 0 : getHeight();
 		}
 		
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_IN), "Input",
+		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_SOURCE), "Source",
 		                                   0, getHeight() - yOff));
 		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_GATE), "Gate",
 		                                   getWidth() / 2, yOff));
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_OUT), "Output",
+		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_DRAIN), "Drain",
 		                                   getWidth(), getHeight() - yOff));
 		
-		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
-		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		GuiUtils.rotatePorts(connections, Direction.EAST, isPType? Properties.Direction.SOUTH : Properties.Direction.NORTH);
+		GuiUtils.rotateElementSize(this, Direction.EAST, isPType? Properties.Direction.SOUTH : Properties.Direction.NORTH);
 		
 		init(transistor, properties, connections);
 	}
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState state) {
+		boolean isPType = getProperties().getValue(TRANSISTOR_TYPE_PROPERTY);
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
-		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));
+		GuiUtils.rotateGraphics(this, graphics, isPType? Properties.Direction.SOUTH : Properties.Direction.NORTH);
 		
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = getScreenWidth() > getScreenHeight() ? getScreenWidth() : getScreenHeight();
 		int height = getScreenWidth() > getScreenHeight() ? getScreenHeight() : getScreenWidth();
 		
-		boolean gateLoc = getProperties().getValue(GATE_LOCATION_PROPERTY);
-		switch(getProperties().getValue(Properties.DIRECTION)) {
-			case WEST:
-			case SOUTH:
-				gateLoc = !gateLoc;
-				break;
-		}
+		boolean gateLoc = isPType ^ getProperties().getValue(GATE_LOCATION_PROPERTY);
 		
 		int yOff = gateLoc ? 0 : height;
 		int m = gateLoc ? 1 : -1;

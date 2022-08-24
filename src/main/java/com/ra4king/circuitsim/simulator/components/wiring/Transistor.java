@@ -87,30 +87,30 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
  * </blockquote>
  */
 public class Transistor extends Component {
-	public static final int PORT_IN = 0;
+	public static final int PORT_SOURCE = 0;
 	public static final int PORT_GATE = 1;
-	public static final int PORT_OUT = 2;
-
+	public static final int PORT_DRAIN = 2;
+	
 	private static final WireValue X_VALUE = new WireValue(1);
-
+	
 	private State enableBit;
-
+	
 	public Transistor(String name, boolean isPType) {
 		super(name, new int[] { 1, 1, 1 });
-
+		
 		enableBit = isPType ? State.ZERO : State.ONE;
 	}
-
+	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT) {
+		if(portIndex == PORT_DRAIN) {
 			return;
 		}
 		
 		if(state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
-			state.pushValue(getPort(PORT_OUT), state.getLastReceived(getPort(PORT_IN)));
+			state.pushValue(getPort(PORT_DRAIN), state.getLastReceived(getPort(PORT_SOURCE)));
 		} else {
-			state.pushValue(getPort(PORT_OUT), X_VALUE);
+			state.pushValue(getPort(PORT_DRAIN), X_VALUE);
 		}
 	}
 }

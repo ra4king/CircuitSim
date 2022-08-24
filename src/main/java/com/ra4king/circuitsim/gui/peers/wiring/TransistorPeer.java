@@ -95,7 +95,7 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		int yOff = gateLoc ? 0 : height;
 		int m = gateLoc ? 1 : -1;
 		
-		graphics.setStroke(Color.BLACK);
+		graphics.setStroke(getColor());
 		graphics.setLineWidth(2);
 		
 		graphics.beginPath();
@@ -117,6 +117,10 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		} else {
 			graphics.strokeLine(x + width * 0.5, y + yOff, x + width * 0.5, y + height * 0.5);
 		}
+	}
+
+	private Color getColor() {
+		return getComponent().getIllegallyWired()? Color.RED : Color.BLACK;
 	}
 
 	// Follow the Patt & Patel convention in which P-type transistors point

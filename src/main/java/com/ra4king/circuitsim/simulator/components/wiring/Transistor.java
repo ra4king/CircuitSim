@@ -95,12 +95,18 @@ public class Transistor extends Component {
 	
 	private static final WireValue X_VALUE = new WireValue(1);
 	
+	private boolean isIllegallyWired;
 	private boolean isPType;
 	
 	public Transistor(String name, boolean isPType) {
 		super(name, new int[] { 1, 1, 1 });
 
+		this.isIllegallyWired = false;
 		this.isPType = isPType;
+	}
+
+	public boolean getIllegallyWired() {
+		return this.isIllegallyWired;
 	}
 	
 	@Override
@@ -113,6 +119,7 @@ public class Transistor extends Component {
 		State sourceBit = state.getLastReceived(getPort(PORT_SOURCE)).getBit(0);
 		boolean nTypeOk = isPType || sourceBit != State.ONE;
 		boolean pTypeOk = !isPType || sourceBit != State.ZERO;
+		this.isIllegallyWired = !nTypeOk || !pTypeOk;
 
 		if (pTypeOk && nTypeOk && state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
 			state.pushValue(getPort(PORT_DRAIN), new WireValue(sourceBit));

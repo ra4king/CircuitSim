@@ -2,6 +2,7 @@ package com.ra4king.circuitsim.simulator.components.wiring;
 
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
+import com.ra4king.circuitsim.simulator.SimulationException;
 import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.WireValue.State;
 
@@ -93,12 +94,12 @@ public class Transistor extends Component {
 	
 	private static final WireValue X_VALUE = new WireValue(1);
 	
-	private State enableBit;
+	private boolean isPType;
 	
 	public Transistor(String name, boolean isPType) {
 		super(name, new int[] { 1, 1, 1 });
-		
-		enableBit = isPType ? State.ZERO : State.ONE;
+
+		this.isPType = isPType;
 	}
 	
 	@Override
@@ -107,8 +108,17 @@ public class Transistor extends Component {
 			return;
 		}
 		
-		if(state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
-			state.pushValue(getPort(PORT_DRAIN), state.getLastReceived(getPort(PORT_SOURCE)));
+		State sourceBit = state.getLastReceived(getPort(PORT_SOURCE)).getBit(0);
+
+		if (isPType && sourceBit == State.ZERO) {
+			throw new SimulationException("P-type transistor must not be connected to ground!");
+		}
+
+		State enableBit = isPType ? State.ZERO : State.ONE;
+		boolean nTypeOk = isPType || sourceBit != State.ONE;
+
+		if(nTypeOk && state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
+			state.pushValue(getPort(PORT_DRAIN), new WireValue(sourceBit));
 		} else {
 			state.pushValue(getPort(PORT_DRAIN), X_VALUE);
 		}

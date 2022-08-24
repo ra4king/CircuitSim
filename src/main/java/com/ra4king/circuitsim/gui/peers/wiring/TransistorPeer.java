@@ -57,8 +57,9 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		
+		Direction direction = effectiveDirection(isPType);
 		int yOff;
-		if (isPType) {
+		if (direction == Direction.SOUTH) {
 			yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? getHeight() : 0;
 		} else {
 			yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? 0 : getHeight();
@@ -71,8 +72,8 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_DRAIN), "Drain",
 		                                   getWidth(), getHeight() - yOff));
 		
-		GuiUtils.rotatePorts(connections, Direction.EAST, isPType? Properties.Direction.SOUTH : Properties.Direction.NORTH);
-		GuiUtils.rotateElementSize(this, Direction.EAST, isPType? Properties.Direction.SOUTH : Properties.Direction.NORTH);
+		GuiUtils.rotatePorts(connections, Direction.EAST, direction);
+		GuiUtils.rotateElementSize(this, Direction.EAST, direction);
 		
 		init(transistor, properties, connections);
 	}
@@ -80,15 +81,16 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState state) {
 		boolean isPType = getProperties().getValue(TRANSISTOR_TYPE_PROPERTY);
+		Direction direction = effectiveDirection(isPType);
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
-		GuiUtils.rotateGraphics(this, graphics, isPType? Properties.Direction.SOUTH : Properties.Direction.NORTH);
+		GuiUtils.rotateGraphics(this, graphics, direction);
 		
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = getScreenWidth() > getScreenHeight() ? getScreenWidth() : getScreenHeight();
 		int height = getScreenWidth() > getScreenHeight() ? getScreenHeight() : getScreenWidth();
 		
-		boolean gateLoc = isPType ^ getProperties().getValue(GATE_LOCATION_PROPERTY);
+		boolean gateLoc = (direction == Direction.SOUTH) ^ getProperties().getValue(GATE_LOCATION_PROPERTY);
 		
 		int yOff = gateLoc ? 0 : height;
 		int m = gateLoc ? 1 : -1;
@@ -115,5 +117,11 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		} else {
 			graphics.strokeLine(x + width * 0.5, y + yOff, x + width * 0.5, y + height * 0.5);
 		}
+	}
+
+	// Follow the Patt & Patel convention in which P-type transistors point
+	// downward and N-type transistors point upward
+	private Direction effectiveDirection(boolean isPType) {
+		return isPType? Direction.SOUTH : Direction.NORTH;
 	}
 }

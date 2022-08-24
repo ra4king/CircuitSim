@@ -9,9 +9,35 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
 /**
  * @author Roi Atalla, Austin Adams, and Tom Conte
  *
- * Abridged related email thread explaining the behavior of Transistors:
+ * Abridged related email thread explaining the behavior of Transistors (read
+ * top-to-bottom):
  *
  * <blockquote>
+ * From: Adams, Austin J
+ * Sent: Tuesday, December 11, 2018 2:14:58 PM
+ * To: Conte, Thomas
+ * Subject: Connecting a P-type to ground
+ * <p>
+ * How should a GUI digital circuit simulator like Brandonsim respond to a
+ * P-type transistor being connected to ground,  or a N-type being connected to
+ * power? In class you said "physics" but I'm still curious.
+ * <hr>
+ * From: Conte, Thomas
+ * Sent: Tuesday, December 11, 2018 2:59:29 PM
+ * To: Adams, Austin J
+ * Subject: RE: Connecting a P-type to ground
+ * <p>
+ * In what context do you want it to behave?
+ * Brandonsim is a logic level simulator, correct?
+ * <hr>
+ * From: Adams, Austin J
+ * Sent: Tuesday, December 11, 2018 3:01:21 PM
+ * To: Conte, Thomas
+ * Subject: Re: Connecting a P-type to ground
+ * <p>
+ * Yeah, but we have them create NAND/NOR/NOT gates in it with transistors
+ * (using constant 0 as ground and constant 1 as power).
+ * <hr>
  * From: Conte, Thomas
  * Sent: Tuesday, December 11, 2018 3:44 PM
  * To: Adams, Austin J
@@ -60,31 +86,6 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
  * in between, it will provide a short circuit and go "poof". <strong>What you
  * can do is enforce the rule for N-types hooked to VDD are always off and just
  * throw an error for P-types that are not hooked to VDD.</strong> [emphasis added]
- * <hr>
- * From: Adams, Austin J
- * Sent: Tuesday, December 11, 2018 3:01:21 PM
- * To: Conte, Thomas
- * Subject: Re: Connecting a P-type to ground
- * <p>
- * Yeah, but we have them create NAND/NOR/NOT gates in it with transistors
- * (using constant 0 as ground and constant 1 as power).
- * <hr>
- * From: Conte, Thomas
- * Sent: Tuesday, December 11, 2018 2:59:29 PM
- * To: Adams, Austin J
- * Subject: RE: Connecting a P-type to ground
- * <p>
- * In what context do you want it to behave?
- * Brandonsim is a logic level simulator, correct?
- * <hr>
- * From: Adams, Austin J
- * Sent: Tuesday, December 11, 2018 2:14:58 PM
- * To: Conte, Thomas
- * Subject: Connecting a P-type to ground
- * <p>
- * How should a GUI digital circuit simulator like Brandonsim respond to a
- * P-type transistor being connected to ground,  or a N-type being connected to
- * power? In class you said "physics" but I'm still curious.
  * </blockquote>
  */
 public class Transistor extends Component {

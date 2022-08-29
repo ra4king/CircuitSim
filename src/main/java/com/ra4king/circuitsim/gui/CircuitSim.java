@@ -127,6 +127,7 @@ import javafx.util.Pair;
  */
 public class CircuitSim extends Application {
 	public static final String VERSION = "1.8.3";
+	public static final String VERSION_TAG_LINE = "CircuitSim v" + VERSION + ", created by Roi Atalla © 2022";
 	
 	private static boolean mainCalled = false;
 	private static AtomicBoolean versionChecked = new AtomicBoolean(false);
@@ -2400,7 +2401,7 @@ public class CircuitSim extends Application {
 			alert.initOwner(stage);
 			alert.initModality(Modality.NONE);
 			alert.setTitle("Help");
-			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2022");
+			alert.setHeaderText(VERSION_TAG_LINE);
 
 			String msg = "";
 			msg += "- [New in 1.8.3] RAM now has the option to have separate load/store ports.\n\n";
@@ -2429,7 +2430,7 @@ public class CircuitSim extends Application {
 			alert.initOwner(stage);
 			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("About");
-			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2018");
+			alert.setHeaderText(VERSION_TAG_LINE);
 			alert.setContentText("Third party tools:\n• GSON by Google");
 			alert.show();
 		});

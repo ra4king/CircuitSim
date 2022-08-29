@@ -30,5 +30,5 @@ python jar2app.py $JAR $OUT/$NAME -n "CircuitSim $VERSION" -i icon.icns -b com.r
 
 # Windows
 echo Creating Windows release
-"C:\Program Files (x86)\Launch4j\launch4jc.exe" create_exe.xml >> build.log
-mv $OUT/CircuitSim.exe $OUT/$NAME.exe
+$JAVA_HOME/bin/jpackage @circuitsim-windows-jpackage.txt --app-version $VERSION
+mv "$OUT/CircuitSim-$VERSION.exe" "$OUT/$NAME.exe"

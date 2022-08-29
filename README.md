@@ -1,4 +1,4 @@
-CircuitSim v1.8.2
+CircuitSim v1.8.3
 =================
 
 Site and download links: https://ra4king.github.io/CircuitSim
@@ -12,27 +12,29 @@ Screenshot
 Building
 ========
 
-The gradle script produces a [multi-release jar][1] to resolve
-incompatibilities between JavaFX 8 and 9, so you need to install both
-Java 8 and Java 9 to build. For example:
+The provided gradle scripts can be used to easily build a JAR file. Just run `/.gradlew jar` on Linux
+or `/.gradlew.bat jar` on Windows!
 
-    $ export JAVA_8_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-    $ export JAVA_9_HOME=/usr/lib/jvm/java-9-openjdk-amd64/
-	$ ./gradlew jar
-	
-It is recommended to run with JVM option -Xmx250M to limit the heap size to 250MB.
-
-[1]: http://openjdk.java.net/jeps/238
+The release directory contains a `build.sh` script that automatically builds the JAR, and generates an executable image
+for Windows, Mac, and Linux.
 
 Changelog
 =========
 
+1.8.3
+=====
+
+- RAM now has the option to have separate load/store ports.
+- The transistor has been updated with a more accurate version. This is backwards compatible by deprecating the old
+  transistor and replacing it with a new component.
+
 1.8.2
 =====
-- Hotfix for issue with buffer component where setting a label causes a NullPointerException
-- Hotfix for issue with memory editor for both RAM and ROM components where pasting 16 or more values causes it to skip a column every 16th value
-- Improve error message window to include "Save and Exit" 
 
+- Hotfix for issue with buffer component where setting a label causes a NullPointerException
+- Hotfix for issue with memory editor for both RAM and ROM components where pasting 16 or more values causes it to skip
+  a column every 16th value
+- Improve error message window to include "Save and Exit"
 
 1.8.1
 -----

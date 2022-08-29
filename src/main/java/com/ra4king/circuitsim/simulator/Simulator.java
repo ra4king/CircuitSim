@@ -221,7 +221,7 @@ public class Simulator {
 					lastShortCircuit = exc;
 				} catch (RuntimeException exc) {
 					// ignore until all updates are done
-					lastException = null;
+					lastException = exc;
 				}
 			}
 

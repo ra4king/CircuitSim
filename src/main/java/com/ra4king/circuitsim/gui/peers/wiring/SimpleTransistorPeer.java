@@ -84,20 +84,20 @@ public class SimpleTransistorPeer extends ComponentPeer<SimpleTransistor> {
 		Direction direction = effectiveDirection(isPType);
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, direction);
-		
+
 		int x = getScreenX();
 		int y = getScreenY();
-		int width = getScreenWidth() > getScreenHeight() ? getScreenWidth() : getScreenHeight();
-		int height = getScreenWidth() > getScreenHeight() ? getScreenHeight() : getScreenWidth();
-		
+		int width = Math.max(getScreenWidth(), getScreenHeight());
+		int height = Math.min(getScreenWidth(), getScreenHeight());
+
 		boolean gateLoc = (direction == Direction.SOUTH) ^ getProperties().getValue(GATE_LOCATION_PROPERTY);
-		
+
 		int yOff = gateLoc ? 0 : height;
 		int m = gateLoc ? 1 : -1;
-		
+
 		graphics.setStroke(getColor());
 		graphics.setLineWidth(2);
-		
+
 		graphics.beginPath();
 		graphics.moveTo(x, y + height - yOff);
 		graphics.lineTo(x + width / 3.0, y + height - yOff);

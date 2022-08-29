@@ -13,7 +13,7 @@ import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.Property;
 import com.ra4king.circuitsim.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsim.simulator.CircuitState;
-import com.ra4king.circuitsim.simulator.components.wiring.Transistor;
+import com.ra4king.circuitsim.simulator.components.wiring.SimpleTransistor;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -23,13 +23,11 @@ import javafx.util.Pair;
 /**
  * @author Roi Atalla
  */
-public class TransistorPeer extends ComponentPeer<Transistor> {
+public class SimpleTransistorPeer extends ComponentPeer<SimpleTransistor> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Wiring", "Transistor (Deprecated)"),
-		                     new Image(TransistorPeer.class.getResourceAsStream("/images/Transistor.png")),
-		                     new Properties(),
-		                     // Deprecated
-		                     false);
+		manager.addComponent(new Pair<>("Wiring", "Transistor"),
+		                     new Image(TransistorPeer.class.getResourceAsStream("/images/SimpleTransistor.png")),
+		                     new Properties());
 	}
 	
 	private static final Property<Boolean> TRANSISTOR_TYPE_PROPERTY;
@@ -44,69 +42,60 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		GATE_LOCATION_PROPERTY = new Property<>("Gate Location", Properties.LOCATION_VALIDATOR, true);
 	}
 	
-	public TransistorPeer(Properties props, int x, int y) {
+	public SimpleTransistorPeer(Properties props, int x, int y) {
 		super(x, y, 4, 2);
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.LABEL_LOCATION);
-		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(TRANSISTOR_TYPE_PROPERTY);
 		properties.ensureProperty(GATE_LOCATION_PROPERTY);
 		properties.mergeIfExists(props);
 		
-		Transistor transistor = new Transistor(properties.getValue(Properties.LABEL),
-		                                       properties.getValue(TRANSISTOR_TYPE_PROPERTY));
+		boolean isPType = properties.getValue(TRANSISTOR_TYPE_PROPERTY);
+		SimpleTransistor transistor = new SimpleTransistor(properties.getValue(Properties.LABEL), isPType);
 		
 		List<PortConnection> connections = new ArrayList<>();
 		
-		int yOff = 0;
-		switch(properties.getValue(Properties.DIRECTION)) {
-			case EAST:
-			case NORTH:
-				yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? 0 : getHeight();
-				break;
-			case WEST:
-			case SOUTH:
-				yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? getHeight() : 0;
-				break;
+		Direction direction = effectiveDirection(isPType);
+		int yOff;
+		if (direction == Direction.SOUTH) {
+			yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? getHeight() : 0;
+		} else {
+			yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? 0 : getHeight();
 		}
 		
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_IN), "Input",
+		connections.add(new PortConnection(this, transistor.getPort(SimpleTransistor.PORT_SOURCE), "Source",
 		                                   0, getHeight() - yOff));
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_GATE), "Gate",
+		connections.add(new PortConnection(this, transistor.getPort(SimpleTransistor.PORT_GATE), "Gate",
 		                                   getWidth() / 2, yOff));
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_OUT), "Output",
+		connections.add(new PortConnection(this, transistor.getPort(SimpleTransistor.PORT_DRAIN), "Drain",
 		                                   getWidth(), getHeight() - yOff));
 		
-		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
-		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
+		GuiUtils.rotatePorts(connections, Direction.EAST, direction);
+		GuiUtils.rotateElementSize(this, Direction.EAST, direction);
 		
 		init(transistor, properties, connections);
 	}
 	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState state) {
+		boolean isPType = getProperties().getValue(TRANSISTOR_TYPE_PROPERTY);
+		Direction direction = effectiveDirection(isPType);
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
-		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));
+		GuiUtils.rotateGraphics(this, graphics, direction);
 		
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = getScreenWidth() > getScreenHeight() ? getScreenWidth() : getScreenHeight();
 		int height = getScreenWidth() > getScreenHeight() ? getScreenHeight() : getScreenWidth();
 		
-		boolean gateLoc = getProperties().getValue(GATE_LOCATION_PROPERTY);
-		switch(getProperties().getValue(Properties.DIRECTION)) {
-			case WEST:
-			case SOUTH:
-				gateLoc = !gateLoc;
-				break;
-		}
+		boolean gateLoc = (direction == Direction.SOUTH) ^ getProperties().getValue(GATE_LOCATION_PROPERTY);
 		
 		int yOff = gateLoc ? 0 : height;
 		int m = gateLoc ? 1 : -1;
 		
-		graphics.setStroke(Color.BLACK);
+		graphics.setStroke(getColor());
 		graphics.setLineWidth(2);
 		
 		graphics.beginPath();
@@ -123,16 +112,20 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		
 		graphics.setLineWidth(1);
 		
-		graphics.beginPath();
-		graphics.moveTo(x + width * 0.5 - 1.5, y + yOff + m * (height * 0.7 + 3));
-		graphics.lineTo(x + width * 0.5 + 3.0, y + yOff + m * (height * 0.7 + 5));
-		graphics.lineTo(x + width * 0.5 - 1.5, y + yOff + m * (height * 0.7 + 7));
-		graphics.stroke();
-		
 		if(getProperties().getValue(TRANSISTOR_TYPE_PROPERTY)) {
 			graphics.strokeOval(x + width * 0.5 - 3, y + (gateLoc ? 3 : height - 9), 6, 6);
 		} else {
 			graphics.strokeLine(x + width * 0.5, y + yOff, x + width * 0.5, y + height * 0.5);
 		}
+	}
+
+	private Color getColor() {
+		return getComponent().getIllegallyWired()? Color.RED : Color.BLACK;
+	}
+
+	// Follow the Patt & Patel convention in which P-type transistors point
+	// downward and N-type transistors point upward
+	private Direction effectiveDirection(boolean isPType) {
+		return isPType? Direction.SOUTH : Direction.NORTH;
 	}
 }

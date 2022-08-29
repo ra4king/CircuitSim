@@ -841,6 +841,7 @@ public class CircuitSim extends Application {
 		                                 new Pair<>("Circuits", name),
 		                                 null,
 		                                 new Properties(),
+		                                 true,
 		                                 getSubcircuitPeerCreator(name));
 	}
 	
@@ -2126,6 +2127,10 @@ public class CircuitSim extends Application {
 			buttonTabs.clear();
 			
 			componentManager.forEach(componentInfo -> {
+				if(!componentInfo.showInComponentsList) {
+					return;
+				}
+
 				Tab tab;
 				if(buttonTabs.containsKey(componentInfo.name.getKey())) {
 					tab = buttonTabs.get(componentInfo.name.getKey());

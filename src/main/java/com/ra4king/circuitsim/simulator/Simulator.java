@@ -1,6 +1,5 @@
 package com.ra4king.circuitsim.simulator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -17,19 +16,17 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class Simulator {
-	private Set<Circuit> circuits;
-	private Collection<Pair<CircuitState, Link>> linksToUpdate, temp, shortCircuited;
-	private ShortCircuitException lastShortCircuit;
+	private final Set<Circuit> circuits;
+	private Collection<Pair<CircuitState, Link>> linksToUpdate, temp;
 	private final Set<Collection<Pair<CircuitState, Link>>> history;
-	
+
 	// Create a Lock with a fair policy
 	private final ReentrantLock lock = new ReentrantLock(true);
-	
+
 	public Simulator() {
 		circuits = new HashSet<>();
 		linksToUpdate = new LinkedHashSet<>();
 		temp = new LinkedHashSet<>();
-		shortCircuited = new ArrayList<>();
 		history = new HashSet<>();
 	}
 	
@@ -78,7 +75,6 @@ public class Simulator {
 			circuits.clear();
 			linksToUpdate.clear();
 			temp.clear();
-			shortCircuited.clear();
 			history.clear();
 		});
 	}
@@ -153,39 +149,40 @@ public class Simulator {
 			
 			try {
 				stepping = true;
-				
+
 				Collection<Pair<CircuitState, Link>> tmp = linksToUpdate;
 				linksToUpdate = temp;
 				temp = tmp;
-				
-				temp.addAll(shortCircuited);
-				
+
 				linksToUpdate.clear();
-				shortCircuited.clear();
-				lastShortCircuit = null;
-				
-				temp.forEach(pair -> {
+				RuntimeException lastException = null;
+				ShortCircuitException lastShortCircuit = null;
+
+				for (Pair<CircuitState, Link> pair : temp) {
 					CircuitState state = pair.getKey();
 					Link link = pair.getValue();
-					
+
 					// The Link or CircuitState may have been removed
-					if(link.getCircuit() == null || !state.getCircuit().containsState(state)) {
+					if (link.getCircuit() == null || !state.getCircuit().containsState(state)) {
 						return;
 					}
 					
 					try {
 						state.propagateSignal(link);
-					} catch(ShortCircuitException exc) {
-						shortCircuited.add(pair);
+					} catch (ShortCircuitException exc) {
 						lastShortCircuit = exc;
+					} catch (RuntimeException exc) {
+						exc.printStackTrace();
+						lastException = exc;
 					}
-				});
-				
-				if(lastShortCircuit != null && linksToUpdate.isEmpty()) {
+				}
+
+				if (lastException != null) {
+					throw lastException;
+				}
+				if (lastShortCircuit != null) {
 					throw lastShortCircuit;
 				}
-				
-				linksToUpdate.addAll(shortCircuited);
 			} finally {
 				stepping = false;
 			}
@@ -197,24 +194,42 @@ public class Simulator {
 	 */
 	public void stepAll() {
 		runSync(() -> {
-			if(stepping) {
+			if (stepping) {
 				return;
 			}
-			
+
 			history.clear();
-			
+
 			int repeatCount = 0;
-			
-			while(!linksToUpdate.isEmpty()) {
-				if(history.contains(linksToUpdate)) {
-					if(++repeatCount == 10) { // since short circuits are retried, it looks like they're oscillating
+
+			RuntimeException lastException = null;
+			ShortCircuitException lastShortCircuit = null;
+
+			while (!linksToUpdate.isEmpty()) {
+				if (history.contains(linksToUpdate)) {
+					if (++repeatCount == 10) { // since short circuits are retried, it looks like they're oscillating
 						throw new OscillationException();
 					}
 				}
-				
+
 				history.add(new LinkedHashSet<>(linksToUpdate));
-				
-				step();
+
+				try {
+					step();
+				} catch (ShortCircuitException exc) {
+					// ignore until all updates are done
+					lastShortCircuit = exc;
+				} catch (RuntimeException exc) {
+					// ignore until all updates are done
+					lastException = null;
+				}
+			}
+
+			if (lastException != null) {
+				throw lastException;
+			}
+			if (lastShortCircuit != null) {
+				throw lastShortCircuit;
 			}
 		});
 	}

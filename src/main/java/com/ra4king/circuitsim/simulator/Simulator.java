@@ -17,7 +17,7 @@ import javafx.util.Pair;
  */
 public class Simulator {
 	private final Set<Circuit> circuits;
-	private Collection<Pair<CircuitState, Link>> linksToUpdate, temp;
+	private Set<Pair<CircuitState, Link>> linksToUpdate, temp;
 	private final Set<Collection<Pair<CircuitState, Link>>> history;
 
 	// Create a Lock with a fair policy
@@ -132,8 +132,10 @@ public class Simulator {
 	 * Removes the Link from the processing queue.
 	 */
 	void linkRemoved(Link link) {
-		runSync(() -> linksToUpdate.removeAll(
-			linksToUpdate.stream().filter(pair -> pair.getValue() == link).collect(Collectors.toList())));
+		runSync(() -> linksToUpdate.stream()
+		                           .filter(pair -> pair.getValue() == link)
+		                           .collect(Collectors.toList())
+		                           .forEach(linksToUpdate::remove));
 	}
 	
 	private boolean stepping = false;
@@ -150,11 +152,11 @@ public class Simulator {
 			try {
 				stepping = true;
 
-				Collection<Pair<CircuitState, Link>> tmp = linksToUpdate;
+				Set<Pair<CircuitState, Link>> tmp = linksToUpdate;
 				linksToUpdate = temp;
+				linksToUpdate.clear();
 				temp = tmp;
 
-				linksToUpdate.clear();
 				RuntimeException lastException = null;
 				ShortCircuitException lastShortCircuit = null;
 
@@ -164,7 +166,7 @@ public class Simulator {
 
 					// The Link or CircuitState may have been removed
 					if (link.getCircuit() == null || !state.getCircuit().containsState(state)) {
-						return;
+						continue;
 					}
 					
 					try {

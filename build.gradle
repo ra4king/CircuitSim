@@ -8,7 +8,6 @@ plugins {
 // Define the main class for the application
 mainClassName = 'com.ra4king.circuitsim.gui.CircuitSimRunner'
 group 'CircuitSim'
-version '1.8.2'
 
 ext.moduleName = 'Project.com.ra4king.circuitsim.gui'
 sourceCompatibility = JavaVersion.VERSION_14
@@ -70,5 +69,5 @@ compileJava {
 task createJar(type: Copy) {
     dependsOn 'jar'
     into "$buildDir/libs"
-    from configurations.runtime
+    from configurations.runtimeClasspath
 }

@@ -42,6 +42,7 @@ import com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.Probe;
 import com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer;
+import com.ra4king.circuitsim.gui.peers.wiring.SimpleTransistorPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.TransistorPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.Tunnel;
 import com.ra4king.circuitsim.simulator.SimulationException;
@@ -60,17 +61,20 @@ public class ComponentManager {
 		public final Pair<String, String> name;
 		public final Image image;
 		public final Properties properties;
+		public final boolean showInComponentsList;
 		public final ComponentCreator<?> creator;
 		
 		ComponentLauncherInfo(Class<? extends ComponentPeer<?>> clazz,
 		                      Pair<String, String> name,
 		                      Image image,
 		                      Properties properties,
+		                      boolean showInComponentsList,
 		                      ComponentCreator<?> creator) {
 			this.clazz = clazz;
 			this.name = name;
 			this.image = image;
 			this.properties = properties;
+			this.showInComponentsList = showInComponentsList;
 			this.creator = creator;
 		}
 		
@@ -95,7 +99,11 @@ public class ComponentManager {
 	}
 	
 	public interface ComponentManagerInterface {
-		void addComponent(Pair<String, String> name, Image image, Properties defaultProperties);
+		void addComponent(Pair<String, String> name, Image image, Properties defaultProperties, boolean showInComponentsList);
+
+		default void addComponent(Pair<String, String> name, Image image, Properties defaultProperties) {
+			addComponent(name, image, defaultProperties, true);
+		}
 	}
 	
 	static <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
@@ -166,13 +174,13 @@ public class ComponentManager {
 			
 			Method method = clazz.getMethod("installComponent", ComponentManagerInterface.class);
 			method.invoke(null,
-			              (ComponentManagerInterface)(name, image, defaultProperties) -> {
+			              (ComponentManagerInterface)(name, image, defaultProperties, showInComponentsList) -> {
 				              if(name == null || defaultProperties == null) {
 					              throw new NullPointerException("Name and Properties cannot be null.");
 				              }
 				
-				              ComponentLauncherInfo info = new ComponentLauncherInfo(clazz, name, image,
-				                                                                     defaultProperties, creator);
+				              ComponentLauncherInfo info = new ComponentLauncherInfo(clazz, name, image, defaultProperties,
+				                                                                     showInComponentsList, creator);
 				              if(!components.contains(info)) {
 					              components.add(info);
 				              }
@@ -194,6 +202,7 @@ public class ComponentManager {
 		register(ClockPeer.class);
 		register(SplitterPeer.class);
 		register(Tunnel.class);
+		register(SimpleTransistorPeer.class);
 		register(TransistorPeer.class);
 		
 		register(AndGatePeer.class);

@@ -126,7 +126,8 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.8.2";
+	public static final String VERSION = "1.8.3";
+	public static final String VERSION_TAG_LINE = "CircuitSim v" + VERSION + ", created by Roi Atalla © 2022";
 	
 	private static boolean mainCalled = false;
 	private static AtomicBoolean versionChecked = new AtomicBoolean(false);
@@ -841,6 +842,7 @@ public class CircuitSim extends Application {
 		                                 new Pair<>("Circuits", name),
 		                                 null,
 		                                 new Properties(),
+		                                 true,
 		                                 getSubcircuitPeerCreator(name));
 	}
 	
@@ -2126,6 +2128,10 @@ public class CircuitSim extends Application {
 			buttonTabs.clear();
 			
 			componentManager.forEach(componentInfo -> {
+				if(!componentInfo.showInComponentsList) {
+					return;
+				}
+
 				Tab tab;
 				if(buttonTabs.containsKey(componentInfo.name.getKey())) {
 					tab = buttonTabs.get(componentInfo.name.getKey());
@@ -2395,24 +2401,26 @@ public class CircuitSim extends Application {
 			alert.initOwner(stage);
 			alert.initModality(Modality.NONE);
 			alert.setTitle("Help");
-			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2018");
-			
+			alert.setHeaderText(VERSION_TAG_LINE);
+
 			String msg = "";
-			msg += "• Right clicking works! Try it on components, subcircuits, and circuit tabs.\n\n";
-			msg += "• Double clicking on a subcircuit will automatically go to its circuit tab as a child state.\n\n";
-			msg += "• Holding Shift will enable Click Mode which will click through to components.\n\n";
-			msg += "• Holding Shift after dragging a new wire will delete existing wires.\n\n";
-			msg += "• Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on "
-				       + "click.\n\n";
-			msg += "• Holding Ctrl while selecting components and wires will include them in the selection group.\n\n";
-			msg += "• Holding Ctrl while dragging components will disable preserving connections.\n\n";
-			msg += "• Holding Ctrl while placing a new component will keep the component selected.\n\n";
-			
+			msg += "- [New in 1.8.3] RAM now has the option to have separate load/store ports.\n\n";
+			msg += "- [New in 1.8.3] The transistor has been updated with a more accurate version.\n\n";
+			msg += "- Right clicking works! Try it on components, subcircuits, and circuit tabs.\n\n";
+			msg += "- Double clicking on a subcircuit will automatically go to its circuit tab as a child state.\n\n";
+			msg += "- Holding Shift will enable Click Mode which will click through to components.\n\n";
+			msg += "- Holding Shift after dragging a new wire will delete existing wires.\n\n";
+			msg += "- Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on" +
+			       " " + "click.\n\n";
+			msg += "- Holding Ctrl while selecting components and wires will include them in the selection group.\n\n";
+			msg += "- Holding Ctrl while dragging components will disable preserving connections.\n\n";
+			msg += "- Holding Ctrl while placing a new component will keep the component selected.\n\n";
+
 			alert.setContentText(msg);
 			alert.show();
 			alert.setResizable(true);
-			alert.setWidth(600);
-			alert.setHeight(440);
+			alert.setWidth(650);
+			alert.setHeight(550);
 		});
 		MenuItem checkUpdate = new MenuItem("Check for update");
 		checkUpdate.setOnAction(event -> checkForUpdate(true));
@@ -2422,7 +2430,7 @@ public class CircuitSim extends Application {
 			alert.initOwner(stage);
 			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("About");
-			alert.setHeaderText("CircuitSim v" + VERSION + ", created by Roi Atalla © 2018");
+			alert.setHeaderText(VERSION_TAG_LINE);
 			alert.setContentText("Third party tools:\n• GSON by Google");
 			alert.show();
 		});

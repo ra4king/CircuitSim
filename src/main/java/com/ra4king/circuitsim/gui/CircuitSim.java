@@ -2364,7 +2364,6 @@ public class CircuitSim extends Application {
 		
 		clockEnabled = new CheckMenuItem("Clock Enabled");
 		clockEnabled.setAccelerator(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN));
-		// clockEnabled.selectedProperty().bindBidirectional(Clock.clockEnabledProperty(simulator));
 		clockEnabled.selectedProperty().addListener((observable, oldValue, newValue) -> {
 			tickClock.setDisable(newValue);
 			Clock.clockEnabledProperty(simulator).set(new Clock.EnabledInfo(newValue, getCurrentClockSpeed()));

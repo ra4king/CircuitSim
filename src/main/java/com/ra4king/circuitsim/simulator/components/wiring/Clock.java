@@ -1,6 +1,7 @@
 package com.ra4king.circuitsim.simulator.components.wiring;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.ra4king.circuitsim.simulator.Circuit;
@@ -50,6 +51,11 @@ public class Clock extends Component {
 
 			return enabled == e.enabled && hertz == e.hertz;
 		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(enabled, hertz);
+		}
 	}
 
 	private static class ClockInfo {
@@ -57,8 +63,8 @@ public class Clock extends Component {
 		private final Map<ClockChangeListener, Object> clockChangeListeners = new ConcurrentHashMap<>();
 
 		private Thread currentClock;
-		private final SimpleObjectProperty<Clock.EnabledInfo> clockEnabled
-            = new SimpleObjectProperty<>(new Clock.EnabledInfo(false, 0));
+		private final SimpleObjectProperty<Clock.EnabledInfo> clockEnabled = new SimpleObjectProperty<>(
+				new Clock.EnabledInfo(false, 0));
 		private boolean clock;
 
 		private long lastTickTime;
@@ -79,7 +85,7 @@ public class Clock extends Component {
 
 		void reset() {
 			stopClock();
-			if(clock) {
+			if (clock) {
 				tick();
 			}
 		}
@@ -88,7 +94,7 @@ public class Clock extends Component {
 			clock = !clock;
 			WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 			clocks.forEach((clock, o) -> {
-				if(clock.getCircuit() != null) {
+				if (clock.getCircuit() != null) {
 					clock.getCircuit().forEachState(state -> state.pushValue(clock.getPort(PORT), clockValue));
 				}
 			});
@@ -99,15 +105,15 @@ public class Clock extends Component {
 			lastTickTime = lastPrintTime = System.nanoTime();
 			lastTickCount = tickCount = 0;
 
-			final long nanosPerTick = (long)(1e9 / (2L * hertz));
+			final long nanosPerTick = (long) (1e9 / (2L * hertz));
 
 			stopClock();
 			Thread clockThread = new Thread(() -> {
 				Thread thread = currentClock;
 
-				while(thread != null && !thread.isInterrupted()) {
+				while (thread != null && !thread.isInterrupted()) {
 					long now = System.nanoTime();
-					if(now - lastPrintTime >= 1e9) {
+					if (now - lastPrintTime >= 1e9) {
 						lastTickCount = tickCount;
 						tickCount = 0;
 						lastPrintTime = now;
@@ -120,10 +126,10 @@ public class Clock extends Component {
 					lastTickTime += nanosPerTick;
 
 					long diff = lastTickTime - System.nanoTime();
-					if(diff >= 1e6 || (tickCount >> 1) >= hertz) {
+					if (diff >= 1e6 || (tickCount >> 1) >= hertz) {
 						try {
-							Thread.sleep(Math.max(1, (long)(diff / 1e6)));
-						} catch(InterruptedException exc) {
+							Thread.sleep(Math.max(1, (long) (diff / 1e6)));
+						} catch (InterruptedException exc) {
 							break;
 						}
 					}
@@ -138,16 +144,16 @@ public class Clock extends Component {
 		}
 
 		void stopClock() {
-			if(currentClock != null) {
+			if (currentClock != null) {
 				Thread clockThread = currentClock;
 
 				currentClock.interrupt();
 				currentClock = null;
 				lastTickCount = 0;
 
-//				while(clockThread.isAlive()) {
-//					Thread.yield();
-//				}
+				// while(clockThread.isAlive()) {
+				// Thread.yield();
+				// }
 			}
 		}
 	}
@@ -165,14 +171,14 @@ public class Clock extends Component {
 		Circuit old = getCircuit();
 		super.setCircuit(circuit);
 
-		if(old != null) {
+		if (old != null) {
 			ClockInfo clock = simulatorClocks.get(old.getSimulator());
-			if(clock != null) {
+			if (clock != null) {
 				clock.clocks.remove(this);
 			}
 		}
 
-		if(circuit != null) {
+		if (circuit != null) {
 			ClockInfo clock = get(circuit.getSimulator());
 			clock.clocks.put(this, this);
 		}
@@ -185,7 +191,8 @@ public class Clock extends Component {
 	}
 
 	@Override
-	public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
+	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
+	}
 
 	private static ClockInfo get(Simulator simulator) {
 		return simulatorClocks.computeIfAbsent(simulator, s -> new ClockInfo());
@@ -214,7 +221,7 @@ public class Clock extends Component {
 	public static void startClock(Simulator simulator, int hertz) {
 		ClockInfo clock = get(simulator);
 		clock.clockEnabled.set(new Clock.EnabledInfo(true, hertz));
-//		clock.startClock(hertz);
+		// clock.startClock(hertz);
 	}
 
 	public static boolean isRunning(Simulator simulator) {
@@ -230,7 +237,7 @@ public class Clock extends Component {
 	public static void stopClock(Simulator simulator) {
 		ClockInfo clock = get(simulator);
 		clock.clockEnabled.set(new Clock.EnabledInfo(false, 0));
-//		clock.stopClock();
+		// clock.stopClock();
 	}
 
 	public static void addChangeListener(Simulator simulator, ClockChangeListener listener) {

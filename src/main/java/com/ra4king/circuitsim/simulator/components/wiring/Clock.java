@@ -77,14 +77,14 @@ public class Clock extends Component {
 				if (newValue.enabled) {
 					startClock(newValue.getHertz());
 				} else {
-					stopClock();
+					stopClock(false);
 				}
 			};
 			clockEnabled.addListener(clockEnabledListener);
 		}
 
 		void reset() {
-			stopClock();
+			stopClock(true);
 			if (clock) {
 				tick();
 			}
@@ -107,7 +107,7 @@ public class Clock extends Component {
 
 			final long nanosPerTick = (long) (1e9 / (2L * hertz));
 
-			stopClock();
+			stopClock(true);
 			Thread clockThread = new Thread(() -> {
 				Thread thread = currentClock;
 
@@ -143,7 +143,7 @@ public class Clock extends Component {
 			clockThread.start();
 		}
 
-		void stopClock() {
+		void stopClock(boolean shouldYield) {
 			if (currentClock != null) {
 				Thread clockThread = currentClock;
 
@@ -151,9 +151,9 @@ public class Clock extends Component {
 				currentClock = null;
 				lastTickCount = 0;
 
-				// while(clockThread.isAlive()) {
-				// Thread.yield();
-				// }
+				while(clockThread.isAlive() && shouldYield) {
+					Thread.yield();
+				}
 			}
 		}
 	}
@@ -221,7 +221,6 @@ public class Clock extends Component {
 	public static void startClock(Simulator simulator, int hertz) {
 		ClockInfo clock = get(simulator);
 		clock.clockEnabled.set(new Clock.EnabledInfo(true, hertz));
-		// clock.startClock(hertz);
 	}
 
 	public static boolean isRunning(Simulator simulator) {
@@ -237,7 +236,6 @@ public class Clock extends Component {
 	public static void stopClock(Simulator simulator) {
 		ClockInfo clock = get(simulator);
 		clock.clockEnabled.set(new Clock.EnabledInfo(false, 0));
-		// clock.stopClock();
 	}
 
 	public static void addChangeListener(Simulator simulator, ClockChangeListener listener) {

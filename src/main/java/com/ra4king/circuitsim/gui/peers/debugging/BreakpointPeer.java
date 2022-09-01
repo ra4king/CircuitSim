@@ -24,43 +24,43 @@ import javafx.util.Pair;
  */
 public class BreakpointPeer extends ComponentPeer<Breakpoint> {
 	private static final Property<Integer> VALUE = new Property<>("Value", Properties.INTEGER_VALIDATOR, 0);
-
+	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Debugging", "Breakpoint"),
 				new Image(BreakpointPeer.class.getResourceAsStream("/images/Breakpoint.png")),
 				new Properties());
 	}
-
+	
 	public BreakpointPeer(Properties props, int x, int y) {
 		super(x, y, 4, 4);
-
+		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(VALUE);
 		properties.mergeIfExists(props);
-
+		
 		Breakpoint breakpoint = new Breakpoint(properties.getValue(Properties.LABEL),
 				properties.getValue(Properties.BITSIZE),
 				properties.getValue(VALUE));
-
+		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, breakpoint.getPort(Breakpoint.PORT_ENABLE), "ENABLE", 0, 1));
 		connections.add(new PortConnection(this, breakpoint.getPort(Breakpoint.PORT_DATA), "DATA", 2, getHeight()));
-
+		
 		init(breakpoint, properties, connections);
 	}
-
+	
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
-
+		
 		graphics.setFill(Color.WHITE);
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::fillRect, this);
 		GuiUtils.drawShape(graphics::strokeRect, this);
-
+		
 		graphics.setFont(GuiUtils.getFont(16, true));
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "BP");
 		graphics.setFill(Color.BLACK);

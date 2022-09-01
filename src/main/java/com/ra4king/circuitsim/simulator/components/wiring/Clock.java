@@ -111,7 +111,7 @@ public class Clock extends Component {
 			Thread clockThread = new Thread(() -> {
 				Thread thread = currentClock;
 				
-				while (thread != null && !thread.isInterrupted()) {
+				while(thread != null && !thread.isInterrupted()) {
 					long now = System.nanoTime();
 					if(now - lastPrintTime >= 1e9) {
 						lastTickCount = tickCount;
@@ -151,7 +151,7 @@ public class Clock extends Component {
 				currentClock = null;
 				lastTickCount = 0;
 				
-				while (clockThread.isAlive() && shouldYield) {
+				while(clockThread.isAlive() && shouldYield) {
 					Thread.yield();
 				}
 			}

@@ -39,11 +39,11 @@ public class Clock extends Component {
 		
 		@Override
 		public boolean equals(Object o) {
-			if (o == this) {
+			if(o == this) {
 				return true;
 			}
 			
-			if (!(o instanceof EnabledInfo)) {
+			if(!(o instanceof EnabledInfo)) {
 				return false;
 			}
 			
@@ -74,7 +74,7 @@ public class Clock extends Component {
 		
 		private ClockInfo() {
 			ChangeListener<EnabledInfo> clockEnabledListener = (obs, oldValue, newValue) -> {
-				if (newValue.enabled) {
+				if(newValue.enabled) {
 					startClock(newValue.getHertz());
 				} else {
 					stopClock(false);
@@ -85,7 +85,7 @@ public class Clock extends Component {
 		
 		void reset() {
 			stopClock(true);
-			if (clock) {
+			if(clock) {
 				tick();
 			}
 		}
@@ -94,7 +94,7 @@ public class Clock extends Component {
 			clock = !clock;
 			WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 			clocks.forEach((clock, o) -> {
-				if (clock.getCircuit() != null) {
+				if(clock.getCircuit() != null) {
 					clock.getCircuit().forEachState(state -> state.pushValue(clock.getPort(PORT), clockValue));
 				}
 			});
@@ -113,7 +113,7 @@ public class Clock extends Component {
 				
 				while (thread != null && !thread.isInterrupted()) {
 					long now = System.nanoTime();
-					if (now - lastPrintTime >= 1e9) {
+					if(now - lastPrintTime >= 1e9) {
 						lastTickCount = tickCount;
 						tickCount = 0;
 						lastPrintTime = now;
@@ -126,7 +126,7 @@ public class Clock extends Component {
 					lastTickTime += nanosPerTick;
 					
 					long diff = lastTickTime - System.nanoTime();
-					if (diff >= 1e6 || (tickCount >> 1) >= hertz) {
+					if(diff >= 1e6 || (tickCount >> 1) >= hertz) {
 						try {
 							Thread.sleep(Math.max(1, (long) (diff / 1e6)));
 						} catch (InterruptedException exc) {
@@ -144,7 +144,7 @@ public class Clock extends Component {
 		}
 		
 		void stopClock(boolean shouldYield) {
-			if (currentClock != null) {
+			if(currentClock != null) {
 				Thread clockThread = currentClock;
 				
 				currentClock.interrupt();
@@ -171,14 +171,14 @@ public class Clock extends Component {
 		Circuit old = getCircuit();
 		super.setCircuit(circuit);
 		
-		if (old != null) {
+		if(old != null) {
 			ClockInfo clock = simulatorClocks.get(old.getSimulator());
-			if (clock != null) {
+			if(clock != null) {
 				clock.clocks.remove(this);
 			}
 		}
 		
-		if (circuit != null) {
+		if(circuit != null) {
 			ClockInfo clock = get(circuit.getSimulator());
 			clock.clocks.put(this, this);
 		}
@@ -191,8 +191,7 @@ public class Clock extends Component {
 	}
 	
 	@Override
-	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-	}
+	public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
 	
 	private static ClockInfo get(Simulator simulator) {
 		return simulatorClocks.computeIfAbsent(simulator, s -> new ClockInfo());

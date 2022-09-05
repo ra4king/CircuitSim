@@ -18,15 +18,17 @@ import javafx.util.Pair;
 public class Simulator {
 	private final Set<Circuit> circuits;
 	private Set<Pair<CircuitState, Link>> linksToUpdate, temp;
+	private final Set<Pair<CircuitState, Link>> lastShortCircuitedLinks;
 	private final Set<Collection<Pair<CircuitState, Link>>> history;
-
+	
 	// Create a Lock with a fair policy
 	private final ReentrantLock lock = new ReentrantLock(true);
-
+	
 	public Simulator() {
 		circuits = new HashSet<>();
 		linksToUpdate = new LinkedHashSet<>();
 		temp = new LinkedHashSet<>();
+		lastShortCircuitedLinks = new HashSet<>();
 		history = new HashSet<>();
 	}
 	
@@ -75,6 +77,7 @@ public class Simulator {
 			circuits.clear();
 			linksToUpdate.clear();
 			temp.clear();
+			lastShortCircuitedLinks.clear();
 			history.clear();
 		});
 	}
@@ -145,25 +148,24 @@ public class Simulator {
 	 */
 	public void step() {
 		runSync(() -> {
-			if(stepping) {
+			if (stepping) {
 				return;
 			}
 			
 			try {
 				stepping = true;
-
+				
 				Set<Pair<CircuitState, Link>> tmp = linksToUpdate;
 				linksToUpdate = temp;
 				linksToUpdate.clear();
 				temp = tmp;
-
+				
 				RuntimeException lastException = null;
-				ShortCircuitException lastShortCircuit = null;
-
+				
 				for (Pair<CircuitState, Link> pair : temp) {
 					CircuitState state = pair.getKey();
 					Link link = pair.getValue();
-
+					
 					// The Link or CircuitState may have been removed
 					if (link.getCircuit() == null || !state.getCircuit().containsState(state)) {
 						continue;
@@ -172,18 +174,29 @@ public class Simulator {
 					try {
 						state.propagateSignal(link);
 					} catch (ShortCircuitException exc) {
-						lastShortCircuit = exc;
+						lastShortCircuitedLinks.add(pair);
 					} catch (RuntimeException exc) {
 						exc.printStackTrace();
 						lastException = exc;
 					}
 				}
-
+				
 				if (lastException != null) {
 					throw lastException;
 				}
-				if (lastShortCircuit != null) {
-					throw lastShortCircuit;
+				
+				// Only throw the ShortCircuitException if there's no more links to update, which means that links have
+				// reached a steady state
+				if (!lastShortCircuitedLinks.isEmpty() && linksToUpdate.isEmpty()) {
+					for (Pair<CircuitState, Link> pair : lastShortCircuitedLinks) {
+						if (pair.getKey().isShortCircuited(pair.getValue())) {
+							// Cause a ShortCircuitException to be thrown
+							pair.getKey().getMergedValue(pair.getValue());
+						}
+					}
+					
+					// No exception was thrown, so there's no more short circuits
+					lastShortCircuitedLinks.clear();
 				}
 			} finally {
 				stepping = false;
@@ -199,23 +212,23 @@ public class Simulator {
 			if (stepping) {
 				return;
 			}
-
+			
 			history.clear();
-
+			
 			int repeatCount = 0;
-
+			
 			RuntimeException lastException = null;
 			ShortCircuitException lastShortCircuit = null;
-
+			
 			while (!linksToUpdate.isEmpty()) {
 				if (history.contains(linksToUpdate)) {
 					if (++repeatCount == 10) { // since short circuits are retried, it looks like they're oscillating
 						throw new OscillationException();
 					}
 				}
-
+				
 				history.add(new LinkedHashSet<>(linksToUpdate));
-
+				
 				try {
 					step();
 				} catch (ShortCircuitException exc) {
@@ -226,7 +239,7 @@ public class Simulator {
 					lastException = exc;
 				}
 			}
-
+			
 			if (lastException != null) {
 				throw lastException;
 			}

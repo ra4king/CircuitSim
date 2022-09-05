@@ -17,7 +17,7 @@ import javafx.util.Pair;
  */
 public class Simulator {
 	private final Set<Circuit> circuits;
-	private Set<Pair<CircuitState, Link>> linksToUpdate, temp;
+	private Set<Pair<CircuitState, Link>> linksToUpdate, temp, shortCircuited;
 	private final Set<Collection<Pair<CircuitState, Link>>> history;
 
 	// Create a Lock with a fair policy
@@ -27,6 +27,7 @@ public class Simulator {
 		circuits = new HashSet<>();
 		linksToUpdate = new LinkedHashSet<>();
 		temp = new LinkedHashSet<>();
+		shortCircuited = new LinkedHashSet<>();
 		history = new HashSet<>();
 	}
 	
@@ -75,6 +76,7 @@ public class Simulator {
 			circuits.clear();
 			linksToUpdate.clear();
 			temp.clear();
+                        shortCircuited.clear();
 			history.clear();
 		});
 	}
@@ -155,6 +157,7 @@ public class Simulator {
 				Set<Pair<CircuitState, Link>> tmp = linksToUpdate;
 				linksToUpdate = temp;
 				linksToUpdate.clear();
+                                shortCircuited.clear();
 				temp = tmp;
 
 				RuntimeException lastException = null;
@@ -172,6 +175,7 @@ public class Simulator {
 					try {
 						state.propagateSignal(link);
 					} catch (ShortCircuitException exc) {
+                                                shortCircuited.add(pair);
 						lastShortCircuit = exc;
 					} catch (RuntimeException exc) {
 						exc.printStackTrace();
@@ -182,9 +186,10 @@ public class Simulator {
 				if (lastException != null) {
 					throw lastException;
 				}
-				if (lastShortCircuit != null) {
+				if (lastShortCircuit != null && linksToUpdate.isEmpty()) {
 					throw lastShortCircuit;
 				}
+                                linksToUpdate.addAll(shortCircuited);
 			} finally {
 				stepping = false;
 			}

@@ -36,10 +36,10 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 	private static final Property<Boolean> GATE_LOCATION_PROPERTY;
 	
 	static {
-		TRANSISTOR_TYPE_PROPERTY = new Property<>("Type",
-		                                          new PropertyListValidator<>(Arrays.asList(true, false),
-		                                                                      val -> val ? "P-Type" : "N-Type"),
-		                                          true);
+		TRANSISTOR_TYPE_PROPERTY =
+			new Property<>("Type",
+			               new PropertyListValidator<>(Arrays.asList(true, false), val -> val ? "P-Type" : "N-Type"),
+			               true);
 		
 		GATE_LOCATION_PROPERTY = new Property<>("Gate Location", Properties.LOCATION_VALIDATOR, true);
 	}
@@ -55,8 +55,9 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		properties.ensureProperty(GATE_LOCATION_PROPERTY);
 		properties.mergeIfExists(props);
 		
-		Transistor transistor = new Transistor(properties.getValue(Properties.LABEL),
-		                                       properties.getValue(TRANSISTOR_TYPE_PROPERTY));
+		Transistor
+			transistor =
+			new Transistor(properties.getValue(Properties.LABEL), properties.getValue(TRANSISTOR_TYPE_PROPERTY));
 		
 		List<PortConnection> connections = new ArrayList<>();
 		
@@ -65,8 +66,7 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 			case WEST, SOUTH -> properties.getValue(GATE_LOCATION_PROPERTY) ? getHeight() : 0;
 		};
 		
-		connections.add(new PortConnection(this,
-		                                   transistor.getPort(Transistor.PORT_IN),
+		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_IN),
 		                                   "Input",
 		                                   0,
 		                                   getHeight() - yOff));

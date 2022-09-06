@@ -113,8 +113,9 @@ public class DebugUtil {
 		
 		new Thread(() -> {
 			try {
-				HttpURLConnection httpConnection = (HttpURLConnection)new URL(
-					"https://www.roiatalla.com/circuitsimerror").openConnection();
+				HttpURLConnection
+					httpConnection =
+					(HttpURLConnection)new URL("https://www.roiatalla.com/circuitsimerror").openConnection();
 				httpConnection.setRequestMethod("POST");
 				httpConnection.setDoInput(true);
 				httpConnection.setDoOutput(true);

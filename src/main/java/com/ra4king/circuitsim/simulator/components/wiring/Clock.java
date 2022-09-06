@@ -15,8 +15,8 @@ import com.ra4king.circuitsim.simulator.WireValue;
  */
 public class Clock extends Component {
 	private static class ClockInfo {
-		private Map<Clock, Object> clocks = new ConcurrentHashMap<>();
-		private Map<ClockChangeListener, Object> clockChangeListeners = new ConcurrentHashMap<>();
+		private final Map<Clock, Object> clocks = new ConcurrentHashMap<>();
+		private final Map<ClockChangeListener, Object> clockChangeListeners = new ConcurrentHashMap<>();
 		
 		private Thread currentClock;
 		private boolean clock;
@@ -92,11 +92,12 @@ public class Clock extends Component {
 				
 				currentClock.interrupt();
 				currentClock = null;
-				lastTickCount = 0;
 				
 				while (clockThread.isAlive()) {
 					Thread.yield();
 				}
+				
+				lastTickCount = 0;
 			}
 		}
 	}

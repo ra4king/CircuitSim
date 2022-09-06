@@ -387,11 +387,7 @@ public class CircuitBoard {
 						}
 						
 						Set<Connection> connections = Stream
-							.concat(
-								connectedPorts.stream(),
-								paths
-									.stream()
-									.flatMap(w -> w.getConnections().stream()))
+							.concat(connectedPorts.stream(), paths.stream().flatMap(w -> w.getConnections().stream()))
 							.filter(c -> c.getX() == px && c.getY() == py)
 							.collect(Collectors.toSet());
 						synchronized (CircuitBoard.this) {
@@ -459,8 +455,9 @@ public class CircuitBoard {
 											toRemove.add(newWire);
 											break;
 										} else if (existing.overlaps(newWire)) {
-											Pair<Wire, Pair<Wire, Wire>> pairs = spliceOverlappingWire(newWire,
-											                                                           existing);
+											Pair<Wire, Pair<Wire, Wire>>
+												pairs =
+												spliceOverlappingWire(newWire, existing);
 											
 											toAdd.add(pairs.getKey());
 											toRemove.add(pairs.getValue().getKey());
@@ -791,7 +788,8 @@ public class CircuitBoard {
 			int withinEnd = within.getX() + within.getLength();
 			int toSpliceEnd = toSplice.getX() + toSplice.getLength();
 			if (withinEnd < toSpliceEnd) {
-				wires.add(new Wire(toSplice.getLinkWires(), withinEnd, toSplice.getY(), toSpliceEnd - withinEnd, true));
+				wires.add(new Wire(toSplice.getLinkWires(), withinEnd, toSplice.getY(), toSpliceEnd - withinEnd,
+				                   true));
 			}
 		} else {
 			if (toSplice.getY() < within.getY()) {
@@ -827,11 +825,13 @@ public class CircuitBoard {
 			Wire right = toSplice.getX() < overlap.getX() ? overlap : toSplice;
 			
 			Wire leftPiece = new Wire(left.getLinkWires(), left.getX(), left.getY(), right.getX() - left.getX(), true);
-			Wire midPiece = new Wire(right.getLinkWires(),
-			                         right.getX(),
-			                         right.getY(),
-			                         left.getX() + left.getLength() - right.getX(),
-			                         true);
+			Wire
+				midPiece =
+				new Wire(right.getLinkWires(),
+				         right.getX(),
+				         right.getY(),
+				         left.getX() + left.getLength() - right.getX(),
+				         true);
 			Wire rightPiece = new Wire(right.getLinkWires(),
 			                           left.getX() + left.getLength(),
 			                           left.getY(),
@@ -923,9 +923,9 @@ public class CircuitBoard {
 							wiresAdded.add(wire);
 						}
 						
-						Set<Connection> connections = i == length ?
-						                              getConnections(x + xOff, y + yOff) :
-						                              Collections.singleton(currConnection);
+						Set<Connection>
+							connections =
+							i == length ? getConnections(x + xOff, y + yOff) : Collections.singleton(currConnection);
 						
 						for (Connection connection : connections) {
 							GuiElement parent = connection.getParent();
@@ -1061,12 +1061,14 @@ public class CircuitBoard {
 					
 					Set<Connection> startConns = getConnections(start.getX(), start.getY());
 					if (startConns != null && startConns.size() == 2) {
-						List<Wire> startWires = startConns
-							.stream()
-							.filter(conn -> conn != start && conn instanceof WireConnection)
-							.map(conn -> (Wire)conn.getParent())
-							.filter(w -> w.isHorizontal() == wire.isHorizontal())
-							.collect(Collectors.toList());
+						List<Wire>
+							startWires =
+							startConns
+								.stream()
+								.filter(conn -> conn != start && conn instanceof WireConnection)
+								.map(conn -> (Wire)conn.getParent())
+								.filter(w -> w.isHorizontal() == wire.isHorizontal())
+								.collect(Collectors.toList());
 						
 						if (startWires.size() == 1) {
 							Wire startWire = startWires.get(0);
@@ -1086,12 +1088,14 @@ public class CircuitBoard {
 					
 					Set<Connection> endConns = getConnections(end.getX(), end.getY());
 					if (endConns != null && endConns.size() == 2) {
-						List<Wire> endWires = endConns
-							.stream()
-							.filter(conn -> conn != end && conn instanceof WireConnection)
-							.map(conn -> (Wire)conn.getParent())
-							.filter(w -> w.isHorizontal() == wire.isHorizontal())
-							.collect(Collectors.toList());
+						List<Wire>
+							endWires =
+							endConns
+								.stream()
+								.filter(conn -> conn != end && conn instanceof WireConnection)
+								.map(conn -> (Wire)conn.getParent())
+								.filter(w -> w.isHorizontal() == wire.isHorizontal())
+								.collect(Collectors.toList());
 						
 						if (endWires.size() == 1) {
 							Wire endWire = endWires.get(0);
@@ -1193,7 +1197,8 @@ public class CircuitBoard {
 					graphics.setStroke(Color.ORANGE);
 					graphics.setFill(Color.ORANGE);
 					graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-					graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()), port.getScreenX() + 10,
+					graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
+					                  port.getScreenX() + 10,
 					                  port.getScreenY() + 20);
 				});
 			}

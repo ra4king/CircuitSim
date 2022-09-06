@@ -108,8 +108,8 @@ public class FileFormat {
 		public boolean equals(Object other) {
 			if (other instanceof ComponentInfo) {
 				ComponentInfo otherComp = (ComponentInfo)other;
-				return name.equals(otherComp.name) && x == otherComp.x && y == otherComp.y && properties.equals(
-					otherComp.properties);
+				return name.equals(otherComp.name) && x == otherComp.x && y == otherComp.y &&
+				       properties.equals(otherComp.properties);
 			}
 			
 			return false;

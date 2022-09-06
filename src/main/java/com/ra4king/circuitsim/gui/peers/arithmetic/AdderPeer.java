@@ -22,9 +22,10 @@ import javafx.util.Pair;
  */
 public class AdderPeer extends ComponentPeer<Adder> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Arithmetic", "Adder"),
-		                     new Image(AdderPeer.class.getResourceAsStream("/images/Adder.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Arithmetic", "Adder"),
+			new Image(AdderPeer.class.getResourceAsStream("/images/Adder.png")),
+			new Properties());
 	}
 	
 	public AdderPeer(Properties props, int x, int y) {
@@ -60,8 +61,9 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		graphics.setFont(GuiUtils.getFont(16, true));
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "+");
 		graphics.setFill(Color.BLACK);
-		graphics.fillText("+",
-		                  getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
+		graphics.fillText(
+			"+",
+			getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+			getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 	}
 }

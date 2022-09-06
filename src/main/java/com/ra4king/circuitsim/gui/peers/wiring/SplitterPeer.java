@@ -64,10 +64,9 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 			fanOuts.add(i);
 		}
 		
-		PropertyValidator<Integer> validator = new PropertyListValidator<>(fanOuts,
-		                                                                   (value) -> value == -1 ?
-		                                                                              "None" :
-		                                                                              value.toString());
+		PropertyValidator<Integer>
+			validator =
+			new PropertyListValidator<>(fanOuts, (value) -> value == -1 ? "None" : value.toString());
 		
 		Splitter splitter;
 		

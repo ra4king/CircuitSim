@@ -33,9 +33,10 @@ public class Tunnel extends ComponentPeer<Component> {
 	private static Map<Circuit, Map<String, Set<Tunnel>>> tunnels = new HashMap<>();
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Wiring", "Tunnel"),
-		                     new Image(Tunnel.class.getResourceAsStream("/images/Tunnel.png")),
-		                     new Properties(new Property<>(Properties.DIRECTION, Direction.WEST)));
+		manager.addComponent(
+			new Pair<>("Wiring", "Tunnel"),
+			new Image(Tunnel.class.getResourceAsStream("/images/Tunnel.png")),
+			new Properties(new Property<>(Properties.DIRECTION, Direction.WEST)));
 	}
 	
 	private final Component tunnel;

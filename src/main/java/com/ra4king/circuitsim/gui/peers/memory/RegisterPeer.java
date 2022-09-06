@@ -43,8 +43,9 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
-		Register register = new Register(properties.getValue(Properties.LABEL),
-		                                 properties.getValue(Properties.BITSIZE));
+		Register
+			register =
+			new Register(properties.getValue(Properties.LABEL), properties.getValue(Properties.BITSIZE));
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, register.getPort(Register.PORT_IN), "In", 0, 2));

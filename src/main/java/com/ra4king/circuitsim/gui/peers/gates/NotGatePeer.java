@@ -16,9 +16,10 @@ import javafx.util.Pair;
  */
 public class NotGatePeer extends GatePeer<NotGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Gates", "NOT"),
-		                     new Image(NotGatePeer.class.getResourceAsStream("/images/NotGate.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Gates", "NOT"),
+			new Image(NotGatePeer.class.getResourceAsStream("/images/NotGate.png")),
+			new Properties());
 	}
 	
 	public NotGatePeer(Properties properties, int x, int y) {

@@ -126,9 +126,9 @@ public class RAM extends Component {
 				break;
 			case PORT_CLK:
 				if (store && value.getBit(0) == State.ONE && address.isValidValue()) {
-					WireValue lastReceived = state.getLastReceived(getPort(isSeparateLoadStore ?
-					                                                       PORT_DATA_IN :
-					                                                       PORT_DATA));
+					WireValue
+						lastReceived =
+						state.getLastReceived(getPort(isSeparateLoadStore ? PORT_DATA_IN : PORT_DATA));
 					if (lastReceived.isValidValue()) {
 						store(state, address.getValue(), lastReceived.getValue());
 					} else {

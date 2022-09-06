@@ -28,9 +28,10 @@ import javafx.util.Pair;
  */
 public class ROMPeer extends ComponentPeer<ROM> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Memory", "ROM"),
-		                     new Image(ROMPeer.class.getResourceAsStream("/images/ROM.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Memory", "ROM"),
+			new Image(ROMPeer.class.getResourceAsStream("/images/ROM.png")),
+			new Properties());
 	}
 	
 	private final Property<List<MemoryLine>> contentsProperty;

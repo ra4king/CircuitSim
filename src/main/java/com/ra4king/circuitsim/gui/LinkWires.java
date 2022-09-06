@@ -130,8 +130,8 @@ public class LinkWires {
 			Connection wStart = w.getStartConnection();
 			Connection wEnd = w.getEndConnection();
 			
-			if (connsEqual(start, wStart) || connsEqual(start, wEnd) || connsEqual(end, wStart) || connsEqual(end,
-			                                                                                                  wEnd)) {
+			if (connsEqual(start, wStart) || connsEqual(start, wEnd) || connsEqual(end, wStart) ||
+			    connsEqual(end, wEnd)) {
 				linkWires.addWire(w);
 				iter.remove();
 			}

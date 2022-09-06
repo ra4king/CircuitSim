@@ -40,8 +40,9 @@ public class PriorityEncoderPeer extends ComponentPeer<PriorityEncoder> {
 		properties.setValue(Properties.SELECTOR_BITS, 3);
 		properties.mergeIfExists(props);
 		
-		PriorityEncoder pEncoder = new PriorityEncoder(properties.getValue(Properties.LABEL),
-		                                               properties.getValue(Properties.SELECTOR_BITS));
+		PriorityEncoder
+			pEncoder =
+			new PriorityEncoder(properties.getValue(Properties.LABEL), properties.getValue(Properties.SELECTOR_BITS));
 		int numInputs = 1 << pEncoder.getNumSelectBits();
 		int inputSideLen = numInputs + 1;
 		setHeight(inputSideLen);

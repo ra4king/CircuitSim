@@ -30,9 +30,10 @@ public class Text extends ComponentPeer<Component> {
 	private static Image textImage;
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Misc", "Text"),
-		                     textImage = new Image(Text.class.getResourceAsStream("/images/Text.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Misc", "Text"),
+			textImage = new Image(Text.class.getResourceAsStream("/images/Text.png")),
+			new Properties());
 	}
 	
 	private static final Property<String> TEXT = new Property<>("Text", Properties.ANY_STRING_VALIDATOR, "");

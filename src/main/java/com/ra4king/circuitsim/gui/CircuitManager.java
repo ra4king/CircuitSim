@@ -326,8 +326,11 @@ public class CircuitManager {
 						                                           component.getY())));
 			
 			simulatorWindow.getEditHistory().beginGroup();
-			simulatorWindow.getSimulator().runSync(() -> newComponents.forEach((oldComponent, newComponent) -> mayThrow(
-				() -> circuitBoard.updateComponent(oldComponent, newComponent))));
+			simulatorWindow
+				.getSimulator()
+				.runSync(() -> newComponents.forEach((oldComponent, newComponent) -> mayThrow(() -> circuitBoard.updateComponent(
+					oldComponent,
+					newComponent))));
 			simulatorWindow.getEditHistory().endGroup();
 			
 			setSelectedElements(Stream
@@ -399,9 +402,14 @@ public class CircuitManager {
 			simulatorWindow.getSimulator().runSync(() -> {
 				for (Pair<CircuitState, Link> linkToUpdate : simulatorWindow.getSimulator().getLinksToUpdate()) {
 					for (Port port : linkToUpdate.getValue().getParticipants()) {
-						Optional<PortConnection> connection = circuitBoard.getComponents().stream().flatMap(c -> c
-							.getConnections()
-							.stream()).filter(p -> p.getPort() == port).findFirst();
+						Optional<PortConnection>
+							connection =
+							circuitBoard
+								.getComponents()
+								.stream()
+								.flatMap(c -> c.getConnections().stream())
+								.filter(p -> p.getPort() == port)
+								.findFirst();
 						if (connection.isPresent()) {
 							PortConnection portConn = connection.get();
 							graphics.strokeOval(portConn.getScreenX() - 2, portConn.getScreenY() - 2, 10, 10);
@@ -564,9 +572,11 @@ public class CircuitManager {
 	
 	private void handleArrowPressed(Direction direction) {
 		if (currentState == SelectingState.PLACING_COMPONENT || !getSelectedElements().isEmpty()) {
-			Properties props = new Properties(currentState == SelectingState.PLACING_COMPONENT ?
-			                                  this.potentialComponentProperties :
-			                                  getCommonSelectedProperties());
+			Properties
+				props =
+				new Properties(currentState == SelectingState.PLACING_COMPONENT ?
+				               this.potentialComponentProperties :
+				               getCommonSelectedProperties());
 			props.setValue(Properties.DIRECTION, direction);
 			modifiedSelection(componentCreator, props);
 		}
@@ -575,10 +585,8 @@ public class CircuitManager {
 	public void keyPressed(KeyEvent e) {
 		if (e.getCode() != KeyCode.SHIFT && lastPressed == null && selectedElements.size() == 1) {
 			lastPressed = selectedElements.iterator().next();
-			lastPressedConsumed = lastPressed.keyPressed(this,
-			                                             circuitBoard.getCurrentState(),
-			                                             e.getCode(),
-			                                             e.getText());
+			lastPressedConsumed =
+				lastPressed.keyPressed(this, circuitBoard.getCurrentState(), e.getCode(), e.getText());
 			lastPressedKeyCode = e.getCode();
 			setNeedsRepaint();
 		}
@@ -774,8 +782,10 @@ public class CircuitManager {
 				isDraggedHorizontally = true;
 			}
 			
-			Connection connection = circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
-			                                                    GuiUtils.getCircuitCoord(lastMousePosition.getY()));
+			Connection
+				connection =
+				circuitBoard.findConnection(GuiUtils.getCircuitCoord(lastMousePosition.getX()),
+				                            GuiUtils.getCircuitCoord(lastMousePosition.getY()));
 			
 			if (endConnection != connection) {
 				setNeedsRepaint();
@@ -809,10 +819,12 @@ public class CircuitManager {
 			return;
 		}
 		
-		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
-		                                e.getY() * simulatorWindow.getScaleFactorInverted());
-		lastMousePressed = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
-		                               e.getY() * simulatorWindow.getScaleFactorInverted());
+		lastMousePosition =
+			new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+			            e.getY() * simulatorWindow.getScaleFactorInverted());
+		lastMousePressed =
+			new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+			            e.getY() * simulatorWindow.getScaleFactorInverted());
 		
 		switch (currentState) {
 			case ELEMENT_DRAGGED:
@@ -836,11 +848,13 @@ public class CircuitManager {
 						}
 					}
 				} else {
-					Optional<GuiElement> clickedComponent = Stream
-						.concat(getSelectedElements().stream(), circuitBoard.getComponents().stream())
-						.filter(peer -> peer.containsScreenCoord((int)lastMousePressed.getX(),
-						                                         (int)lastMousePressed.getY()))
-						.findFirst();
+					Optional<GuiElement>
+						clickedComponent =
+						Stream
+							.concat(getSelectedElements().stream(), circuitBoard.getComponents().stream())
+							.filter(peer -> peer.containsScreenCoord((int)lastMousePressed.getX(),
+							                                         (int)lastMousePressed.getY()))
+							.findFirst();
 					if (clickedComponent.isPresent()) {
 						GuiElement selectedElement = clickedComponent.get();
 						
@@ -849,8 +863,7 @@ public class CircuitManager {
 							((SubcircuitPeer)selectedElement).switchToSubcircuit(this);
 						} else if (simulatorWindow.isClickMode() && lastPressed == null) {
 							lastPressed = selectedElement;
-							selectedElement.mousePressed(this,
-							                             circuitBoard.getCurrentState(),
+							selectedElement.mousePressed(this, circuitBoard.getCurrentState(),
 							                             lastMousePosition.getX() - selectedElement.getScreenX(),
 							                             lastMousePosition.getY() - selectedElement.getScreenY());
 						} else if (isCtrlDown) {
@@ -873,10 +886,10 @@ public class CircuitManager {
 			case CONNECTION_DRAGGED:
 				addCurrentWire();
 				if (isCtrlDown) {
-					Set<Connection> selectedConns = circuitBoard.getConnections(GuiUtils.getCircuitCoord(
-						                                                            lastMousePressed.getX()),
-					                                                            GuiUtils.getCircuitCoord(
-						                                                            lastMousePressed.getY()));
+					Set<Connection>
+						selectedConns =
+						circuitBoard.getConnections(GuiUtils.getCircuitCoord(lastMousePressed.getX()),
+						                            GuiUtils.getCircuitCoord(lastMousePressed.getY()));
 					if (!selectedConns.isEmpty()) {
 						startConnection = selectedConns.iterator().next();
 					}
@@ -888,9 +901,11 @@ public class CircuitManager {
 				break;
 			
 			case PLACING_COMPONENT:
-				ComponentPeer<?> newComponent = componentCreator.createComponent(potentialComponentProperties,
-				                                                                 potentialComponent.getX(),
-				                                                                 potentialComponent.getY());
+				ComponentPeer<?>
+					newComponent =
+					componentCreator.createComponent(potentialComponentProperties,
+					                                 potentialComponent.getX(),
+					                                 potentialComponent.getY());
 				
 				mayThrow(() -> circuitBoard.addComponent(newComponent));
 				
@@ -913,8 +928,9 @@ public class CircuitManager {
 			return;
 		}
 		
-		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
-		                                e.getY() * simulatorWindow.getScaleFactorInverted());
+		lastMousePosition =
+			new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+			            e.getY() * simulatorWindow.getScaleFactorInverted());
 		
 		switch (currentState) {
 			case IDLE:
@@ -931,8 +947,9 @@ public class CircuitManager {
 				break;
 			
 			case CONNECTION_SELECTED: {
-				Set<Connection> connections = circuitBoard.getConnections(startConnection.getX(),
-				                                                          startConnection.getY());
+				Set<Connection>
+					connections =
+					circuitBoard.getConnections(startConnection.getX(), startConnection.getY());
 				
 				setSelectedElements(Stream
 					                    .concat(isCtrlDown ? getSelectedElements().stream() : Stream.empty(),
@@ -972,8 +989,9 @@ public class CircuitManager {
 		}
 		
 		Point2D prevMousePosition = lastMousePosition;
-		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
-		                                e.getY() * simulatorWindow.getScaleFactorInverted());
+		lastMousePosition =
+			new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+			            e.getY() * simulatorWindow.getScaleFactorInverted());
 		
 		switch (currentState) {
 			case IDLE:
@@ -1041,8 +1059,9 @@ public class CircuitManager {
 	
 	public void mouseMoved(MouseEvent e) {
 		Point2D prevMousePosition = lastMousePosition;
-		lastMousePosition = new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
-		                                e.getY() * simulatorWindow.getScaleFactorInverted());
+		lastMousePosition =
+			new Point2D(e.getX() * simulatorWindow.getScaleFactorInverted(),
+			            e.getY() * simulatorWindow.getScaleFactorInverted());
 		
 		if (currentState != SelectingState.IDLE) {
 			setNeedsRepaint();
@@ -1060,8 +1079,7 @@ public class CircuitManager {
 				circuitBoard
 					.getComponents()
 					.stream()
-					.filter(c -> c.containsScreenCoord((int)lastMousePosition.getX(),
-					                                   (int)lastMousePosition.getY()))
+					.filter(c -> c.containsScreenCoord((int)lastMousePosition.getX(), (int)lastMousePosition.getY()))
 					.findFirst();
 			if (component.isPresent()) {
 				ComponentPeer<?> peer = component.get();

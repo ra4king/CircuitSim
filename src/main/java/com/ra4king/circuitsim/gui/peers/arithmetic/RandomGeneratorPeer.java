@@ -40,8 +40,9 @@ public class RandomGeneratorPeer extends ComponentPeer<RandomGenerator> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
-		RandomGenerator randomGenerator = new RandomGenerator(properties.getValue(Properties.LABEL),
-		                                                      properties.getValue(Properties.BITSIZE));
+		RandomGenerator
+			randomGenerator =
+			new RandomGenerator(properties.getValue(Properties.LABEL), properties.getValue(Properties.BITSIZE));
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(

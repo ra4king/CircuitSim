@@ -23,15 +23,12 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class ComparatorPeer extends ComponentPeer<Comparator> {
-	private static final Property<Boolean> USE_SIGNED_COMPARE = new Property<>("Comparison Type",
-	                                                                           new PropertyListValidator<>(Arrays.asList(
-		                                                                           true,
-		                                                                           false),
-	                                                                                                       s -> s ?
-	                                                                                                            "2's " +
-	                                                                                                            "complement" :
-	                                                                                                            "Unsigned"),
-	                                                                           true);
+	private static final Property<Boolean>
+		USE_SIGNED_COMPARE =
+		new Property<>("Comparison Type",
+		               new PropertyListValidator<>(Arrays.asList(true, false),
+		                                           s -> s ? "2's " + "complement" : "Unsigned"),
+		               true);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Arithmetic", "Comparator"),

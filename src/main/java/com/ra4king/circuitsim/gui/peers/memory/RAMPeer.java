@@ -30,14 +30,15 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class RAMPeer extends ComponentPeer<RAM> {
-	public static final Property<Boolean> SEPARATE_LOAD_STORE_PORTS = new Property<>("Separate Load/Store Ports?",
-	                                                                                 Properties.YESNO_VALIDATOR,
-	                                                                                 false);
+	public static final Property<Boolean>
+		SEPARATE_LOAD_STORE_PORTS =
+		new Property<>("Separate Load/Store Ports?", Properties.YESNO_VALIDATOR, false);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Memory", "RAM"),
-		                     new Image(RAMPeer.class.getResourceAsStream("/images/RAM.png")),
-		                     new Properties(SEPARATE_LOAD_STORE_PORTS));
+		manager.addComponent(
+			new Pair<>("Memory", "RAM"),
+			new Image(RAMPeer.class.getResourceAsStream("/images/RAM.png")),
+			new Properties(SEPARATE_LOAD_STORE_PORTS));
 	}
 	
 	private final PortConnection clockConnection;
@@ -85,8 +86,9 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		MenuItem menuItem = new MenuItem("Edit contents");
 		menuItem.setOnAction(event -> {
-			PropertyMemoryValidator memoryValidator = new PropertyMemoryValidator(getComponent().getAddressBits(),
-			                                                                      getComponent().getDataBits());
+			PropertyMemoryValidator
+				memoryValidator =
+				new PropertyMemoryValidator(getComponent().getAddressBits(), getComponent().getDataBits());
 			
 			List<MemoryLine> memory = new ArrayList<>();
 			BiConsumer<Integer, Integer> listener = (address, data) -> {

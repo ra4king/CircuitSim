@@ -58,8 +58,8 @@ public class PathFinding {
 			
 			Point current = null;
 			for (Point point : openSet) {
-				if (current == null || fScore.getOrDefault(point, Integer.MAX_VALUE) < fScore.getOrDefault(current,
-				                                                                                           Integer.MAX_VALUE)) {
+				if (current == null ||
+				    fScore.getOrDefault(point, Integer.MAX_VALUE) < fScore.getOrDefault(current, Integer.MAX_VALUE)) {
 					current = point;
 				}
 			}
@@ -90,10 +90,11 @@ public class PathFinding {
 					continue;
 				}
 				
-				LocationPreference preference = valid.isValidWireLocation(neighbor.x,
-				                                                          neighbor.y,
-				                                                          direction == Direction.RIGHT ||
-				                                                          direction == Direction.LEFT);
+				LocationPreference
+					preference =
+					valid.isValidWireLocation(neighbor.x,
+					                          neighbor.y,
+					                          direction == Direction.RIGHT || direction == Direction.LEFT);
 				
 				if (preference == LocationPreference.INVALID) {
 					continue;

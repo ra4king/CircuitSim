@@ -34,10 +34,10 @@ public class SimpleTransistorPeer extends ComponentPeer<SimpleTransistor> {
 	private static final Property<Boolean> GATE_LOCATION_PROPERTY;
 	
 	static {
-		TRANSISTOR_TYPE_PROPERTY = new Property<>("Type",
-		                                          new PropertyListValidator<>(Arrays.asList(true, false),
-		                                                                      val -> val ? "P-Type" : "N-Type"),
-		                                          true);
+		TRANSISTOR_TYPE_PROPERTY =
+			new Property<>("Type",
+			               new PropertyListValidator<>(Arrays.asList(true, false), val -> val ? "P-Type" : "N-Type"),
+			               true);
 		
 		GATE_LOCATION_PROPERTY = new Property<>("Gate Location", Properties.LOCATION_VALIDATOR, true);
 	}

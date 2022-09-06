@@ -28,8 +28,9 @@ public class Register extends Component {
 	
 	@Override
 	public void init(CircuitState circuitState, Object lastProperty) {
-		WireValue value = lastProperty == null ? WireValue.of(0, bitSize) : new WireValue((WireValue)lastProperty,
-		                                                                                  bitSize);
+		WireValue
+			value =
+			lastProperty == null ? WireValue.of(0, bitSize) : new WireValue((WireValue)lastProperty, bitSize);
 		circuitState.pushValue(getPort(PORT_OUT), value);
 		
 		circuitState.putComponentProperty(this, value);

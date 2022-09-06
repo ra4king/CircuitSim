@@ -217,8 +217,10 @@ public class CircuitState {
 			}
 			
 			PortStateInfo(PortStateInfo info) {
-				this(new WireValue(info.lastPushed), new WireValue(info.lastPropagated),
-				     new WireValue(info.lastReceived));
+				this(
+					new WireValue(info.lastPushed),
+					new WireValue(info.lastPropagated),
+					new WireValue(info.lastReceived));
 			}
 			
 			PortStateInfo(WireValue lastPushed, WireValue lastPropagated, WireValue lastReceived) {
@@ -315,9 +317,9 @@ public class CircuitState {
 				WireValue incomingValue = entry.getValue();
 				
 				try {
-					participantPort.getComponent().valueChanged(CircuitState.this,
-					                                            incomingValue,
-					                                            participantPort.getPortIndex());
+					participantPort
+						.getComponent()
+						.valueChanged(CircuitState.this, incomingValue, participantPort.getPortIndex());
 				} catch (ShortCircuitException exc) {
 					shortCircuit = exc;
 				} catch (RuntimeException exc) {

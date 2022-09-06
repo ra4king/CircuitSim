@@ -243,14 +243,10 @@ public class Properties {
 			}
 		}
 	};
-	public static final PropertyListValidator<Boolean> LOCATION_VALIDATOR =
-		new PropertyListValidator<>(Arrays.asList(true,
-	                                                                                                                  false),
-	                                                                                                    bool -> bool ?
-	                                                                                                            "Left" +
-	                                                                                                            "/Top" :
-	                                                                                                            "Right" +
-	                                                                                                            "/Down");
+	public static final PropertyListValidator<Boolean>
+		LOCATION_VALIDATOR =
+		new PropertyListValidator<>(Arrays.asList(true, false), bool -> bool ? "Left" + "/Top" : "Right" + "/Down");
+	
 	public static final PropertyValidator<Color> COLOR_VALIDATOR = new PropertyValidator<>() {
 		@Override
 		public Color parse(String value) {
@@ -281,9 +277,8 @@ public class Properties {
 	static {
 		LABEL = new Property<>("Label", ANY_STRING_VALIDATOR, "");
 		
-		LABEL_LOCATION = new Property<>("Label location",
-		                                new PropertyListValidator<>(Direction.values()),
-		                                Direction.NORTH);
+		LABEL_LOCATION =
+			new Property<>("Label location", new PropertyListValidator<>(Direction.values()), Direction.NORTH);
 		
 		List<Integer> numInputsValues = new ArrayList<>();
 		for (int i = 2; i <= 32; i++) {
@@ -826,9 +821,11 @@ public class Properties {
 						StringBuilder ramContent = new StringBuilder();
 						for (TablePosition<?, ?> selectedCell : tableView.getSelectionModel().getSelectedCells()) {
 							if (selectedCell.getColumn() > 0) {
-								ramContent.append(lines.get(selectedCell.getRow()).values
-									                  .get(selectedCell.getColumn() - 1)
-									                  .get()).append(" ");
+								ramContent
+									.append(lines.get(selectedCell.getRow()).values
+										        .get(selectedCell.getColumn() - 1)
+										        .get())
+									.append(" ");
 							}
 						}
 						

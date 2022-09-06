@@ -25,9 +25,10 @@ import javafx.util.Pair;
  */
 public class Probe extends ComponentPeer<Component> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Wiring", "Probe"),
-		                     new Image(Probe.class.getResourceAsStream("/images/Probe.png")),
-		                     new Properties(new Property<>(Properties.DIRECTION, Direction.SOUTH)));
+		manager.addComponent(
+			new Pair<>("Wiring", "Probe"),
+			new Image(Probe.class.getResourceAsStream("/images/Probe.png")),
+			new Properties(new Property<>(Properties.DIRECTION, Direction.SOUTH)));
 	}
 	
 	public Probe(Properties props, int x, int y) {

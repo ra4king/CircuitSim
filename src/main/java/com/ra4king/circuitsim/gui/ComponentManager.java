@@ -177,12 +177,9 @@ public class ComponentManager {
 					throw new NullPointerException("Name and Properties cannot be null.");
 				}
 				
-				ComponentLauncherInfo info = new ComponentLauncherInfo(clazz,
-				                                                       name,
-				                                                       image,
-				                                                       defaultProperties,
-				                                                       showInComponentsList,
-				                                                       creator);
+				ComponentLauncherInfo
+					info =
+					new ComponentLauncherInfo(clazz, name, image, defaultProperties, showInComponentsList, creator);
 				if (!components.contains(info)) {
 					components.add(info);
 				}

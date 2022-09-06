@@ -38,8 +38,9 @@ public class DecoderPeer extends ComponentPeer<Decoder> {
 		properties.ensureProperty(Properties.SELECTOR_BITS);
 		properties.mergeIfExists(props);
 		
-		Decoder decoder = new Decoder(properties.getValue(Properties.LABEL),
-		                              properties.getValue(Properties.SELECTOR_BITS));
+		Decoder
+			decoder =
+			new Decoder(properties.getValue(Properties.LABEL), properties.getValue(Properties.SELECTOR_BITS));
 		setHeight(decoder.getNumOutputs() + 2);
 		
 		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));

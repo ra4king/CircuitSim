@@ -21,12 +21,12 @@ public class Negator extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT) {
+		if (portIndex == PORT_OUT) {
 			return;
 		}
 		
 		WireValue result;
-		if(value.isValidValue()) {
+		if (value.isValidValue()) {
 			result = WireValue.of(-value.getValue(), value.getBitSize());
 		} else {
 			result = xValue;

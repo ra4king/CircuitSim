@@ -64,8 +64,8 @@ public abstract class Connection {
 	}
 	
 	public static class PortConnection extends Connection {
-		private Port port;
-		private String name;
+		private final Port port;
+		private final String name;
 		private LinkWires linkWires;
 		
 		public PortConnection(ComponentPeer<?> parent, Port port, int x, int y) {
@@ -93,7 +93,7 @@ public abstract class Connection {
 		}
 		
 		public void setLinkWires(LinkWires linkWires) {
-			if(linkWires == null) {
+			if (linkWires == null) {
 				linkWires = new LinkWires();
 				linkWires.addPort(this);
 			}

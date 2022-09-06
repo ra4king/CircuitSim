@@ -21,7 +21,7 @@ public class CircuitState {
 	 * @param circuit The Circuit which this CircuitState represents.
 	 */
 	public CircuitState(Circuit circuit) {
-		if(circuit == null) {
+		if (circuit == null) {
 			throw new NullPointerException("Circuit cannot be null.");
 		}
 		
@@ -112,19 +112,19 @@ public class CircuitState {
 			try {
 				c.uninit(this);
 				c.init(this, null);
-			} catch(Exception exc) {
+			} catch (Exception exc) {
 				// ignore
 			}
 		});
 	}
 	
 	private LinkState get(Link link) {
-		if(!linkStates.containsKey(link)) {
-			if(link.getCircuit() == null) {
+		if (!linkStates.containsKey(link)) {
+			if (link.getCircuit() == null) {
 				throw new IllegalArgumentException("Link has no circuit!");
 			}
 			
-			if(link.getCircuit() != circuit) {
+			if (link.getCircuit() != circuit) {
 				throw new IllegalArgumentException("Link not from this circuit.");
 			}
 			
@@ -151,7 +151,7 @@ public class CircuitState {
 			WireValue lastPropagated = info.lastPropagated;
 			WireValue lastPushed = info.lastPushed;
 			
-			if(!lastPropagated.equals(lastPushed)) {
+			if (!lastPropagated.equals(lastPushed)) {
 				linkState.cachedMergedValue = null;
 				linkState.isShortCircuited = null;
 				lastPropagated.set(lastPushed);
@@ -169,7 +169,7 @@ public class CircuitState {
 	 * @param value The value being pushed.
 	 */
 	public void pushValue(Port port, WireValue value) {
-		if(readOnly) {
+		if (readOnly) {
 			throw new IllegalStateException("This CircuitState is read-only");
 		}
 		
@@ -177,7 +177,7 @@ public class CircuitState {
 			LinkState linkState = get(port.getLink());
 			
 			WireValue lastPushed = linkState.getLastPushed(port);
-			if(!value.equals(lastPushed)) {
+			if (!value.equals(lastPushed)) {
 				lastPushed.set(value);
 				circuit.getSimulator().valueChanged(this, port);
 			}
@@ -185,30 +185,30 @@ public class CircuitState {
 	}
 	
 	void ensureUnlinked(Component component, boolean removeLinks) {
-		for(int i = 0; i < component.getNumPorts(); i++) {
+		for (int i = 0; i < component.getNumPorts(); i++) {
 			Port port = component.getPort(i);
 			Link link = port.getLink();
-			if(link != null && linkStates.containsKey(link) && linkStates.get(link).participants.size() > 1) {
+			if (link != null && linkStates.containsKey(link) && linkStates.get(link).participants.size() > 1) {
 				throw new RuntimeException("Must unlink port before removing it.");
 			}
 			
-			if(removeLinks) {
+			if (removeLinks) {
 				linkStates.remove(link);
 				circuit.getSimulator().linkRemoved(link);
 			}
 		}
 	}
 	
-	class LinkState {
-		final Link link;
-		final HashMap<Port, PortStateInfo> participants;
-		WireValue cachedMergedValue;
-		Boolean isShortCircuited;
+	private class LinkState {
+		private final Link link;
+		private final HashMap<Port, PortStateInfo> participants;
+		private WireValue cachedMergedValue;
+		private Boolean isShortCircuited;
 		
-		class PortStateInfo {
-			WireValue lastPushed;
-			WireValue lastPropagated;
-			WireValue lastReceived;
+		private class PortStateInfo {
+			private final WireValue lastPushed;
+			private final WireValue lastPropagated;
+			private final WireValue lastReceived;
 			
 			PortStateInfo() {
 				this(new WireValue(link.getBitSize()),
@@ -217,8 +217,7 @@ public class CircuitState {
 			}
 			
 			PortStateInfo(PortStateInfo info) {
-				this(new WireValue(info.lastPushed),
-				     new WireValue(info.lastPropagated),
+				this(new WireValue(info.lastPushed), new WireValue(info.lastPropagated),
 				     new WireValue(info.lastReceived));
 			}
 			
@@ -252,7 +251,7 @@ public class CircuitState {
 		WireValue getIncomingValue(Port port) {
 			WireValue newValue = new WireValue(link.getBitSize());
 			participants.forEach((p, info) -> {
-				if(p != port) {
+				if (p != port) {
 					newValue.merge(info.lastPropagated);
 				}
 			});
@@ -260,7 +259,9 @@ public class CircuitState {
 		}
 		
 		WireValue getMergedValue() {
-			if(cachedMergedValue != null) return cachedMergedValue;
+			if (cachedMergedValue != null) {
+				return cachedMergedValue;
+			}
 			
 			WireValue newValue = new WireValue(link.getBitSize());
 			participants.values().forEach(info -> newValue.merge(info.lastPropagated));
@@ -273,13 +274,15 @@ public class CircuitState {
 		
 		boolean isShortCircuit() {
 			try {
-				if(isShortCircuited != null) return isShortCircuited;
+				if (isShortCircuited != null) {
+					return isShortCircuited;
+				}
 				
 				getMergedValue();
 				return isShortCircuited = false;
-			} catch(ShortCircuitException exc) {
+			} catch (ShortCircuitException exc) {
 				return isShortCircuited = true;
-			} catch(Throwable t) {
+			} catch (Throwable t) {
 				return isShortCircuited = false;
 			}
 		}
@@ -289,17 +292,17 @@ public class CircuitState {
 			
 			ShortCircuitException shortCircuit = null;
 			
-			for(Port participantPort : participants.keySet()) {
+			for (Port participantPort : participants.keySet()) {
 				WireValue incomingValue;
 				try {
 					incomingValue = getIncomingValue(participantPort);
-				} catch(ShortCircuitException exc) {
+				} catch (ShortCircuitException exc) {
 					shortCircuit = exc;
 					continue;
 				}
 				
 				WireValue lastReceived = getLastReceived(participantPort);
-				if(!lastReceived.equals(incomingValue)) {
+				if (!lastReceived.equals(incomingValue)) {
 					lastReceived.set(incomingValue);
 					toNotify.put(participantPort, incomingValue);
 				}
@@ -307,7 +310,7 @@ public class CircuitState {
 			
 			RuntimeException exception = null;
 			
-			for(Entry<Port, WireValue> entry : toNotify.entrySet()) {
+			for (Entry<Port, WireValue> entry : toNotify.entrySet()) {
 				Port participantPort = entry.getKey();
 				WireValue incomingValue = entry.getValue();
 				
@@ -315,23 +318,23 @@ public class CircuitState {
 					participantPort.getComponent().valueChanged(CircuitState.this,
 					                                            incomingValue,
 					                                            participantPort.getPortIndex());
-				} catch(ShortCircuitException exc) {
+				} catch (ShortCircuitException exc) {
 					shortCircuit = exc;
-				} catch(RuntimeException exc) {
+				} catch (RuntimeException exc) {
 					exc.printStackTrace();
 					
-					if(exception == null) { // grab the first one
+					if (exception == null) { // grab the first one
 						exception = exc;
 					}
 				}
 			}
 			
 			// Component error is more important than a short circuit
-			if(exception != null) {
+			if (exception != null) {
 				throw exception;
 			}
 			
-			if(shortCircuit != null) {
+			if (shortCircuit != null) {
 				throw shortCircuit;
 			}
 			
@@ -339,7 +342,9 @@ public class CircuitState {
 		}
 		
 		void link(LinkState other) {
-			if(this == other) return;
+			if (this == other) {
+				return;
+			}
 			
 			participants.putAll(other.participants);
 			
@@ -354,36 +359,39 @@ public class CircuitState {
 		}
 		
 		void unlink(Port port) {
-			if(!participants.containsKey(port)) return;
+			if (!participants.containsKey(port)) {
+				return;
+			}
 			
 			cachedMergedValue = null;
 			isShortCircuited = null;
 			
 			PortStateInfo info = participants.remove(port);
-			get(port.getLink()).participants.put(port, new PortStateInfo(info.lastPushed,
-			                                                             new WireValue(info.lastPushed),
-			                                                             new WireValue(link.getBitSize())));
+			get(port.getLink()).participants.put(port,
+			                                     new PortStateInfo(info.lastPushed,
+			                                                       new WireValue(info.lastPushed),
+			                                                       new WireValue(link.getBitSize())));
 			
 			RuntimeException exception = null;
 			
 			WireValue newValue = new WireValue(link.getBitSize());
-			if(!info.lastReceived.equals(newValue)) {
+			if (!info.lastReceived.equals(newValue)) {
 				info.lastReceived.set(newValue);
 				try {
 					port.getComponent().valueChanged(CircuitState.this, newValue, port.getPortIndex());
-				} catch(RuntimeException exc) {
+				} catch (RuntimeException exc) {
 					exception = exc;
 				}
 			}
 			
-			if(participants.isEmpty()) {
+			if (participants.isEmpty()) {
 				linkStates.remove(link);
 				getCircuit().getSimulator().linkRemoved(link);
 			} else {
 				getCircuit().getSimulator().valueChanged(CircuitState.this, link);
 			}
 			
-			if(exception != null) {
+			if (exception != null) {
 				throw exception;
 			}
 		}

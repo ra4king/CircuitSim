@@ -49,7 +49,7 @@ public class GuiUtils {
 		
 		@Override
 		public boolean equals(Object other) {
-			if(!(other instanceof FontInfo)) {
+			if (!(other instanceof FontInfo)) {
 				return false;
 			}
 			
@@ -58,7 +58,7 @@ public class GuiUtils {
 		}
 	}
 	
-	private static Map<FontInfo, Font> fonts = new HashMap<>();
+	private static final Map<FontInfo, Font> fonts = new HashMap<>();
 	
 	public static Font getFont(int size) {
 		return getFont(size, false, false);
@@ -71,15 +71,15 @@ public class GuiUtils {
 	public static Font getFont(int size, boolean bold, boolean oblique) {
 		FontInfo info = new FontInfo(size, bold, oblique);
 		
-		if(fonts.containsKey(info)) {
+		if (fonts.containsKey(info)) {
 			return fonts.get(info);
 		} else {
 			String fontFile;
-			if(bold && oblique) {
+			if (bold && oblique) {
 				fontFile = "/fonts/DejaVuSansMono-BoldOblique.ttf";
-			} else if(bold) {
+			} else if (bold) {
 				fontFile = "/fonts/DejaVuSansMono-Bold.ttf";
-			} else if(oblique) {
+			} else if (oblique) {
 				fontFile = "/fonts/DejaVuSansMono-Oblique.ttf";
 			} else {
 				fontFile = "/fonts/DejaVuSansMono.ttf";
@@ -99,14 +99,14 @@ public class GuiUtils {
 		return getCircuitCoord(a) * BLOCK_SIZE;
 	}
 	
-	private static Map<Font, Map<String, Bounds>> boundsSeen = new HashMap<>();
+	private static final Map<Font, Map<String, Bounds>> boundsSeen = new HashMap<>();
 	
 	public static Bounds getBounds(Font font, String string) {
 		return getBounds(font, string, true);
 	}
 	
 	public static Bounds getBounds(Font font, String string, boolean save) {
-		if(save) {
+		if (save) {
 			Map<String, Bounds> strings = boundsSeen.computeIfAbsent(font, f -> new HashMap<>());
 			return strings.computeIfAbsent(string, s -> {
 				Text text = new Text(string);
@@ -129,29 +129,28 @@ public class GuiUtils {
 	}
 	
 	public static void drawName(GraphicsContext graphics, ComponentPeer<?> component, Direction direction) {
-		if(!component.getComponent().getName().isEmpty()) {
+		if (!component.getComponent().getName().isEmpty()) {
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), component.getComponent().getName());
 			
 			double x, y;
-			switch(direction) {
-				case EAST:
+			switch (direction) {
+				case EAST -> {
 					x = component.getScreenX() + component.getScreenWidth() + 5;
 					y = component.getScreenY() + (component.getScreenHeight() + bounds.getHeight()) * 0.4;
-					break;
-				case WEST:
+				}
+				case WEST -> {
 					x = component.getScreenX() - bounds.getWidth() - 3;
 					y = component.getScreenY() + (component.getScreenHeight() + bounds.getHeight()) * 0.4;
-					break;
-				case SOUTH:
+				}
+				case SOUTH -> {
 					x = component.getScreenX() + (component.getScreenWidth() - bounds.getWidth()) * 0.5;
 					y = component.getScreenY() + component.getScreenHeight() + bounds.getHeight();
-					break;
-				case NORTH:
+				}
+				case NORTH -> {
 					x = component.getScreenX() + (component.getScreenWidth() - bounds.getWidth()) * 0.5;
 					y = component.getScreenY() - 5;
-					break;
-				default:
-					throw new IllegalArgumentException("How can Direction be anything else??");
+				}
+				default -> throw new IllegalArgumentException("How can Direction be anything else??");
 			}
 			
 			graphics.setFill(Color.BLACK);
@@ -162,10 +161,10 @@ public class GuiUtils {
 	public static void drawValue(GraphicsContext graphics, String string, int x, int y, int width) {
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), string, false);
 		
-		if(string.length() == 1) {
+		if (string.length() == 1) {
 			graphics.fillText(string, x + (width - bounds.getWidth()) * 0.5, y + bounds.getHeight() * 0.75 + 1);
 		} else {
-			for(int i = 0, row = 1; i < string.length(); row++) {
+			for (int i = 0, row = 1; i < string.length(); row++) {
 				String sub = string.substring(i, i + Math.min(8, string.length() - i));
 				i += sub.length();
 				graphics.fillText(sub, x + 1, y + bounds.getHeight() * 0.75 * row + 1);
@@ -180,31 +179,31 @@ public class GuiUtils {
 		double x = connection.getScreenX() + connection.getScreenWidth() * 0.5;
 		double y = connection.getScreenY() + connection.getScreenWidth() * 0.5;
 		
-		switch(direction) {
-			case NORTH:
+		switch (direction) {
+			case NORTH -> {
 				graphics.strokeLine(x - 5, y, x, y + 6);
 				graphics.strokeLine(x, y + 6, x + 5, y);
-				break;
-			case SOUTH:
+			}
+			case SOUTH -> {
 				graphics.strokeLine(x - 5, y, x, y - 6);
 				graphics.strokeLine(x, y - 6, x + 5, y);
-				break;
-			case EAST:
+			}
+			case EAST -> {
 				graphics.strokeLine(x, y - 5, x - 6, y);
 				graphics.strokeLine(x - 6, y, x, y + 5);
-				break;
-			case WEST:
+			}
+			case WEST -> {
 				graphics.strokeLine(x, y - 5, x + 6, y);
 				graphics.strokeLine(x + 6, y, x, y + 5);
-				break;
+			}
 		}
 	}
 	
 	public static void setBitColor(GraphicsContext graphics, CircuitState circuitState, LinkWires linkWires) {
-		if(linkWires.isLinkValid()) {
+		if (linkWires.isLinkValid()) {
 			Link link = linkWires.getLink();
-			if(link != null && circuitState != null) {
-				if(circuitState.isShortCircuited(link)) {
+			if (link != null && circuitState != null) {
+				if (circuitState.isShortCircuited(link)) {
 					graphics.setStroke(Color.RED);
 					graphics.setFill(Color.RED);
 				} else {
@@ -225,9 +224,9 @@ public class GuiUtils {
 	private static final Color X_MULTIBIT_COLOR = Color.BLUE.darker();
 	
 	public static void setBitColor(GraphicsContext graphics, WireValue value) {
-		if(value.getBitSize() == 1) {
+		if (value.getBitSize() == 1) {
 			setBitColor(graphics, value.getBit(0));
-		} else if(value.isValidValue()) {
+		} else if (value.isValidValue()) {
 			graphics.setStroke(Color.BLACK);
 			graphics.setFill(Color.BLACK);
 		} else {
@@ -237,19 +236,19 @@ public class GuiUtils {
 	}
 	
 	public static void setBitColor(GraphicsContext graphics, State bitState) {
-		switch(bitState) {
-			case ONE:
+		switch (bitState) {
+			case ONE -> {
 				graphics.setStroke(ONE_COLOR);
 				graphics.setFill(ONE_COLOR);
-				break;
-			case ZERO:
+			}
+			case ZERO -> {
 				graphics.setStroke(ZERO_COLOR);
 				graphics.setFill(ZERO_COLOR);
-				break;
-			case X:
+			}
+			case X -> {
 				graphics.setStroke(X_1BIT_COLOR);
 				graphics.setFill(X_1BIT_COLOR);
-				break;
+			}
 		}
 	}
 	
@@ -258,22 +257,17 @@ public class GuiUtils {
 		int y = connection.getYOffset();
 		int width = useWidth ? connection.getParent().getWidth() : connection.getParent().getHeight();
 		
-		return new PortConnection(connection.getParent(),
-		                          connection.getPort(),
-		                          connection.getName(),
-		                          y, width - x);
+		return new PortConnection(connection.getParent(), connection.getPort(), connection.getName(), y, width - x);
 	}
 	
-	public static void rotatePorts(List<PortConnection> connections,
-	                               Direction source,
-	                               Direction destination) {
+	public static void rotatePorts(List<PortConnection> connections, Direction source, Direction destination) {
 		List<Direction> order = Arrays.asList(Direction.EAST, NORTH, Direction.WEST, Direction.SOUTH);
 		
 		Stream<PortConnection> stream = connections.stream();
 		
 		int index = order.indexOf(source);
 		boolean useWidth = true;
-		while(order.get(index++ % order.size()) != destination) {
+		while (order.get(index++ % order.size()) != destination) {
 			boolean temp = useWidth;
 			stream = stream.map(port -> rotatePortCCW(port, temp));
 			useWidth = !useWidth;
@@ -288,7 +282,7 @@ public class GuiUtils {
 		List<Direction> order = Arrays.asList(Direction.EAST, NORTH, Direction.WEST, Direction.SOUTH);
 		
 		int index = order.indexOf(source);
-		while(order.get(index++ % order.size()) != destination) {
+		while (order.get(index++ % order.size()) != destination) {
 			int width = element.getWidth();
 			int height = element.getHeight();
 			element.setWidth(height);
@@ -306,19 +300,20 @@ public class GuiUtils {
 		int height = element.getScreenHeight();
 		
 		graphics.translate(x + width * 0.5, y + height * 0.5);
-		switch(direction) {
-			case NORTH:
+		switch (direction) {
+			case NORTH -> {
 				graphics.rotate(270);
 				graphics.translate(-x - height * 0.5, -y - width * 0.5);
-				break;
-			case SOUTH:
+			}
+			case SOUTH -> {
 				graphics.rotate(90);
 				graphics.translate(-x - height * 0.5, -y - width * 0.5);
-				break;
-			case WEST:
+			}
+			case WEST -> {
 				graphics.rotate(180);
-			default:
 				graphics.translate(-x - width * 0.5, -y - height * 0.5);
+			}
+			default -> graphics.translate(-x - width * 0.5, -y - height * 0.5);
 		}
 	}
 }

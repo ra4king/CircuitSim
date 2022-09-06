@@ -33,25 +33,25 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitBoard {
-	private CircuitManager circuitManager;
-	private Circuit circuit;
+	private final CircuitManager circuitManager;
+	private final Circuit circuit;
 	private CircuitState currentState;
 	
-	private Set<ComponentPeer<?>> components;
-	private Set<LinkWires> links;
+	private final Set<ComponentPeer<?>> components;
+	private final Set<LinkWires> links;
 	private Set<LinkWires> badLinks;
 	
 	private Set<GuiElement> moveElements;
-	private Set<Connection> connectedPorts = new HashSet<>();
+	private final Set<Connection> connectedPorts = new HashSet<>();
 	
 	private Thread computeThread;
 	private MoveComputeResult moveResult;
 	private boolean addMoveAction;
 	private int moveDeltaX, moveDeltaY;
 	
-	private Map<Pair<Integer, Integer>, Set<Connection>> connectionsMap;
+	private final Map<Pair<Integer, Integer>, Set<Connection>> connectionsMap;
 	
-	private EditHistory editHistory;
+	private final EditHistory editHistory;
 	
 	private static class MoveComputeResult {
 		final Set<Wire> wiresToAdd;
@@ -93,13 +93,13 @@ public class CircuitBoard {
 	public void destroy() {
 		try {
 			removeElements(components);
-		} catch(Exception exc) {
+		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
 		
 		try {
 			removeElements(links.stream().flatMap(l -> l.getWires().stream()).collect(Collectors.toSet()));
-		} catch(Exception exc) {
+		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
 		
@@ -117,11 +117,11 @@ public class CircuitBoard {
 	}
 	
 	public void setCurrentState(CircuitState state) {
-		if(currentState == null) {
+		if (currentState == null) {
 			throw new NullPointerException("CircuitState cannot be null");
 		}
 		
-		if(state.getCircuit() != this.circuit) {
+		if (state.getCircuit() != this.circuit) {
 			throw new IllegalArgumentException("The state does not belong to this circuit.");
 		}
 		
@@ -143,8 +143,7 @@ public class CircuitBoard {
 	}
 	
 	private void updateBadLinks() {
-		if((badLinks = links.stream().filter(
-			link -> !link.isLinkValid()).collect(Collectors.toSet())).size() > 0) {
+		if ((badLinks = links.stream().filter(link -> !link.isLinkValid()).collect(Collectors.toSet())).size() > 0) {
 			lastException = badLinks.iterator().next().getLastException();
 		} else {
 			lastException = null;
@@ -152,14 +151,12 @@ public class CircuitBoard {
 	}
 	
 	public boolean isValidLocation(ComponentPeer<?> component) {
-		return component.getX() >= 0
-			       && component.getY() >= 0
-			       && Stream.concat(components.stream(),
-			                        moveElements != null
-			                        ? moveElements.stream().filter(e -> e instanceof ComponentPeer<?>)
-			                        : Stream.empty())
-			                .noneMatch(c -> c != component && c.getX() == component.getX()
-				                                && c.getY() == component.getY());
+		return component.getX() >= 0 && component.getY() >= 0 && Stream
+			.concat(components.stream(),
+			        moveElements != null ?
+			        moveElements.stream().filter(e -> e instanceof ComponentPeer<?>) :
+			        Stream.empty())
+			.noneMatch(c -> c != component && c.getX() == component.getX() && c.getY() == component.getY());
 	}
 	
 	public void addComponent(ComponentPeer<?> component) {
@@ -167,7 +164,7 @@ public class CircuitBoard {
 	}
 	
 	synchronized void addComponent(ComponentPeer<?> component, boolean splitWires) {
-		if(!isValidLocation(component)) {
+		if (!isValidLocation(component)) {
 			throw new SimulationException("Cannot place component here.");
 		}
 		
@@ -177,7 +174,7 @@ public class CircuitBoard {
 			
 			try {
 				circuit.addComponent(component.getComponent());
-			} catch(Exception exc) {
+			} catch (Exception exc) {
 				components.remove(component);
 				throw exc;
 			}
@@ -185,20 +182,20 @@ public class CircuitBoard {
 			try {
 				editHistory.disable();
 				
-				if(splitWires) {
+				if (splitWires) {
 					Set<Wire> toReAdd = new HashSet<>();
 					
-					for(Connection connection : component.getConnections()) {
+					for (PortConnection connection : component.getConnections()) {
 						Set<Connection> connections = getConnections(connection.getX(), connection.getY());
-						if(connections != null) {
-							for(Connection attached : connections) {
+						if (connections != null) {
+							for (Connection attached : connections) {
 								LinkWires linkWires = attached.getLinkWires();
-								linkWires.addPort((PortConnection)connection);
+								linkWires.addPort(connection);
 								links.add(linkWires);
 								
-								if(attached instanceof WireConnection) {
+								if (attached instanceof WireConnection) {
 									Wire wire = (Wire)attached.getParent();
-									if(attached != wire.getStartConnection() && attached != wire.getEndConnection()) {
+									if (attached != wire.getStartConnection() && attached != wire.getEndConnection()) {
 										toReAdd.add(wire);
 									}
 								}
@@ -208,7 +205,7 @@ public class CircuitBoard {
 						addConnection(connection);
 					}
 					
-					for(Wire wire : toReAdd) {
+					for (Wire wire : toReAdd) {
 						removeWire(wire);
 						addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
 					}
@@ -233,9 +230,10 @@ public class CircuitBoard {
 				removeComponent(oldComponent, true);
 				
 				try {
-					circuit.updateComponent(oldComponent.getComponent(), newComponent.getComponent(),
+					circuit.updateComponent(oldComponent.getComponent(),
+					                        newComponent.getComponent(),
 					                        () -> components.add(newComponent));
-				} catch(Exception exc) {
+				} catch (Exception exc) {
 					components.remove(newComponent);
 					throw exc;
 				}
@@ -257,10 +255,10 @@ public class CircuitBoard {
 	}
 	
 	void initMove(Set<GuiElement> elements, boolean remove) {
-		if(moveElements != null) {
+		if (moveElements != null) {
 			try {
 				finalizeMove();
-			} catch(Exception exc) {
+			} catch (Exception exc) {
 				circuitManager.getSimulatorWindow().getDebugUtil().logException(exc);
 			}
 		}
@@ -269,13 +267,13 @@ public class CircuitBoard {
 		moveElements = new LinkedHashSet<>(elements);
 		addMoveAction = remove;
 		
-		if(remove) {
-			for(GuiElement element : elements) {
-				for(Connection connection : element.getConnections()) {
-					if((connection instanceof PortConnection
-						    || connection == ((Wire)connection.getParent()).getEndConnection()
-						    || connection == ((Wire)connection.getParent()).getStartConnection())
-						   && getConnections(connection.getX(), connection.getY()).size() > 1) {
+		if (remove) {
+			for (GuiElement element : elements) {
+				for (Connection connection : element.getConnections()) {
+					if ((connection instanceof PortConnection ||
+					     connection == ((Wire)connection.getParent()).getEndConnection() ||
+					     connection == ((Wire)connection.getParent()).getStartConnection()) &&
+					    getConnections(connection.getX(), connection.getY()).size() > 1) {
 						connectedPorts.add(connection);
 					}
 				}
@@ -287,11 +285,11 @@ public class CircuitBoard {
 	}
 	
 	public void moveElements(int dx, int dy, boolean extendWires) {
-		if(moveDeltaX == dx && moveDeltaY == dy) {
+		if (moveDeltaX == dx && moveDeltaY == dy) {
 			return;
 		}
 		
-		for(GuiElement element : moveElements) {
+		for (GuiElement element : moveElements) {
 			element.setX(element.getX() + (-moveDeltaX + dx));
 			element.setY(element.getY() + (-moveDeltaY + dy));
 		}
@@ -301,21 +299,21 @@ public class CircuitBoard {
 		
 		CountDownLatch latch = new CountDownLatch(1);
 		
-		synchronized(CircuitBoard.this) {
+		synchronized (CircuitBoard.this) {
 			moveResult = null;
 			
-			if(computeThread != null) {
+			if (computeThread != null) {
 				computeThread.interrupt();
 			}
 			
-			if(!extendWires) {
+			if (!extendWires) {
 				lastException = null;
 				return;
 			}
 			
 			List<Connection> connectedPorts = new ArrayList<>(this.connectedPorts);
 			connectedPorts.sort((p1, p2) -> {
-				if(p1.getX() == p2.getX()) {
+				if (p1.getX() == p2.getX()) {
 					return dy > 0 ? p1.getY() - p2.getY() : p2.getY() - p1.getY();
 				}
 				
@@ -327,8 +325,8 @@ public class CircuitBoard {
 				
 				Set<Pair<Integer, Integer>> portsSeen = new HashSet<>();
 				
-				for(Connection connectedPort : connectedPorts) {
-					if(Thread.currentThread().isInterrupted()) {
+				for (Connection connectedPort : connectedPorts) {
+					if (Thread.currentThread().isInterrupted()) {
 						return;
 					}
 					
@@ -337,31 +335,30 @@ public class CircuitBoard {
 					int sx = x - dx;
 					int sy = y - dy;
 					
-					if(!portsSeen.add(new Pair<>(x, y))) {
+					if (!portsSeen.add(new Pair<>(x, y))) {
 						continue;
 					}
 					
 					final LinkWires linkWires;
 					
-					synchronized(CircuitBoard.this) {
+					synchronized (CircuitBoard.this) {
 						Set<Connection> otherConnections = getConnections(sx, sy);
-						if(otherConnections.isEmpty()) {
+						if (otherConnections.isEmpty()) {
 							continue;
 						}
 						
 						LinkWires lw = null;
-						for(Connection connection : otherConnections) {
-							if(connection instanceof PortConnection) {
-								if(lw != null && lw != connection.getLinkWires()) {
+						for (Connection connection : otherConnections) {
+							if (connection instanceof PortConnection) {
+								if (lw != null && lw != connection.getLinkWires()) {
 									throw new IllegalStateException("How is this remotely possible?!");
 								}
 								
 								lw = connection.getLinkWires();
-							} else if(connection instanceof WireConnection) {
+							} else if (connection instanceof WireConnection) {
 								Wire wire = (Wire)connection.getParent();
-								if(connection == wire.getStartConnection()
-									   || connection == wire.getEndConnection()) {
-									if(lw != null && lw != connection.getLinkWires()) {
+								if (connection == wire.getStartConnection() || connection == wire.getEndConnection()) {
+									if (lw != null && lw != connection.getLinkWires()) {
 										throw new IllegalStateException("How is this remotely possible?!");
 									}
 									
@@ -374,94 +371,96 @@ public class CircuitBoard {
 					}
 					
 					Set<ComponentPeer<?>> components = new HashSet<>(getComponents());
-					components.addAll(moveElements.stream()
-					                              .filter(e -> e instanceof ComponentPeer)
-					                              .map(e -> (ComponentPeer<?>)e)
-					                              .collect(Collectors.toSet()));
+					components.addAll(moveElements
+						                  .stream()
+						                  .filter(e -> e instanceof ComponentPeer)
+						                  .map(e -> (ComponentPeer<?>)e)
+						                  .collect(Collectors.toSet()));
 					
 					Pair<Set<Wire>, Set<Point>> pair = PathFinding.bestPath(sx, sy, x, y, (px, py, horizontal) -> {
-						if(px == x && py == y) {
+						if (px == x && py == y) {
 							return LocationPreference.VALID;
 						}
 						
-						if(px == sx && py == sy) {
+						if (px == sx && py == sy) {
 							return LocationPreference.VALID;
 						}
 						
-						Set<Connection> connections =
-							Stream.concat(connectedPorts.stream(),
-							              paths.stream().flatMap(w -> w.getConnections().stream()))
-							      .filter(c -> c.getX() == px && c.getY() == py)
-							      .collect(Collectors.toSet());
-						synchronized(CircuitBoard.this) {
+						Set<Connection> connections = Stream
+							.concat(
+								connectedPorts.stream(),
+								paths
+									.stream()
+									.flatMap(w -> w.getConnections().stream()))
+							.filter(c -> c.getX() == px && c.getY() == py)
+							.collect(Collectors.toSet());
+						synchronized (CircuitBoard.this) {
 							connections.addAll(getConnections(px, py));
 						}
 						
-						for(Connection connection : connections) {
-							if(connection instanceof PortConnection) {
+						for (Connection connection : connections) {
+							if (connection instanceof PortConnection) {
 								return LocationPreference.INVALID;
 							}
 							
-							if(connection.getLinkWires() == null
-								   || linkWires == null
-								   || connection.getLinkWires() == linkWires) {
+							if (connection.getLinkWires() == null || linkWires == null ||
+							    connection.getLinkWires() == linkWires) {
 								return LocationPreference.PREFER;
 							}
 							
-							if(connection instanceof WireConnection) {
+							if (connection instanceof WireConnection) {
 								Wire wire = (Wire)connection.getParent();
-								if(wire.isHorizontal() == horizontal
-									   || connection == wire.getStartConnection()
-									   || connection == wire.getEndConnection()) {
+								if (wire.isHorizontal() == horizontal || connection == wire.getStartConnection() ||
+								    connection == wire.getEndConnection()) {
 									return LocationPreference.INVALID;
 								}
 							}
 						}
 						
-						for(ComponentPeer<?> component : components) {
-							if(component.contains(px, py)) {
+						for (ComponentPeer<?> component : components) {
+							if (component.contains(px, py)) {
 								return LocationPreference.INVALID;
 							}
 						}
 						
 						return LocationPreference.VALID;
 					});
-					if(pair != null) {
+					if (pair != null) {
 						paths.addAll(pair.getKey());
 					}
 				}
 				
-				synchronized(CircuitBoard.this) {
+				synchronized (CircuitBoard.this) {
 					Set<Wire> toRemove = new HashSet<>();
 					Set<Wire> toAdd = new HashSet<>();
 					
-					for(Wire newWire : paths) {
-						if(wireAlreadyExists(newWire) != null) {
+					for (Wire newWire : paths) {
+						if (wireAlreadyExists(newWire) != null) {
 							toRemove.add(newWire);
 						} else {
 							boolean wasRemoved = false;
 							
-							for(LinkWires wires : links) {
-								for(Wire existing : wires.getWires()) {
-									if(existing.getLinkWires() == newWire.getLinkWires()
-										   && existing.isHorizontal() == newWire.isHorizontal()) {
-										if(existing.equals(newWire)) {
+							for (LinkWires wires : links) {
+								for (Wire existing : wires.getWires()) {
+									if (existing.getLinkWires() == newWire.getLinkWires() &&
+									    existing.isHorizontal() == newWire.isHorizontal()) {
+										if (existing.equals(newWire)) {
 											wasRemoved = true;
 											toRemove.add(existing);
 											break;
-										} else if(existing.isWithin(newWire)) {
+										} else if (existing.isWithin(newWire)) {
 											wasRemoved = true;
 											toAdd.addAll(spliceWire(newWire, existing));
 											toRemove.add(existing);
 											break;
-										} else if(newWire.isWithin(existing)) {
+										} else if (newWire.isWithin(existing)) {
 											wasRemoved = true;
 											toAdd.addAll(spliceWire(existing, newWire));
 											toRemove.add(newWire);
 											break;
-										} else if(existing.overlaps(newWire)) {
-											Pair<Wire, Pair<Wire, Wire>> pairs =
-												spliceOverlappingWire(newWire, existing);
+										} else if (existing.overlaps(newWire)) {
+											Pair<Wire, Pair<Wire, Wire>> pairs = spliceOverlappingWire(newWire,
+											                                                           existing);
 											
 											toAdd.add(pairs.getKey());
 											toRemove.add(pairs.getValue().getKey());
@@ -473,14 +472,14 @@ public class CircuitBoard {
 								}
 							}
 							
-							if(!wasRemoved) {
+							if (!wasRemoved) {
 								toAdd.add(newWire);
 							}
 						}
 					}
 					
 					moveResult = new MoveComputeResult(toAdd, toRemove);
-					if(computeThread == Thread.currentThread()) {
+					if (computeThread == Thread.currentThread()) {
 						computeThread = null;
 					}
 					
@@ -498,7 +497,7 @@ public class CircuitBoard {
 		
 		try {
 			latch.await(20, TimeUnit.MILLISECONDS);
-		} catch(InterruptedException e) {
+		} catch (InterruptedException e) {
 			// ignore
 		}
 	}
@@ -510,18 +509,18 @@ public class CircuitBoard {
 	 * original coordinates, thus the need for the returned set of updated wires.
 	 */
 	public Set<GuiElement> finalizeMove() {
-		if(moveElements == null) {
+		if (moveElements == null) {
 			return null;
 		}
 		
-		if(!addMoveAction) {
+		if (!addMoveAction) {
 			editHistory.beginGroup();
 		}
 		
 		MoveComputeResult result;
 		
-		synchronized(this) {
-			if(computeThread != null) {
+		synchronized (this) {
+			if (computeThread != null) {
 				computeThread.interrupt();
 				computeThread = null;
 			}
@@ -535,10 +534,10 @@ public class CircuitBoard {
 		
 		boolean cannotMoveHere = false;
 		
-		for(GuiElement element : moveElements) {
-			if((element instanceof ComponentPeer<?> && !isValidLocation((ComponentPeer<?>)element)) ||
-				   (element instanceof Wire && (element.getX() < 0 || element.getY() < 0))) {
-				for(GuiElement element1 : moveElements) {
+		for (GuiElement element : moveElements) {
+			if ((element instanceof ComponentPeer<?> && !isValidLocation((ComponentPeer<?>)element)) ||
+			    (element instanceof Wire && (element.getX() < 0 || element.getY() < 0))) {
+				for (GuiElement element1 : moveElements) {
 					element1.setX(element1.getX() - moveDeltaX);
 					element1.setY(element1.getY() - moveDeltaY);
 				}
@@ -563,31 +562,34 @@ public class CircuitBoard {
 		
 		boolean reset = cannotMoveHere;
 		circuit.getSimulator().runSync(() -> {
-			for(GuiElement element : elements) {
-				if(element instanceof ComponentPeer<?>) {
+			for (GuiElement element : elements) {
+				if (element instanceof ComponentPeer<?>) {
 					ComponentPeer<?> component = (ComponentPeer<?>)element;
 					
 					try {
 						editHistory.beginGroup();
-						editHistory.addAction(EditAction.MOVE_ELEMENT, circuitManager, component, moveDeltaX,
+						editHistory.addAction(EditAction.MOVE_ELEMENT,
+						                      circuitManager,
+						                      component,
+						                      moveDeltaX,
 						                      moveDeltaY);
 						addComponent(component, true);
-					} catch(RuntimeException exc) {
+					} catch (RuntimeException exc) {
 						editHistory.clearGroup();
 						toThrow.clear();
 						toThrow.add(exc);
 					} finally {
 						editHistory.endGroup();
 					}
-				} else if(element instanceof Wire) {
+				} else if (element instanceof Wire) {
 					Wire wire = (Wire)element;
 					try {
 						editHistory.beginGroup();
 						addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal());
 						
-						if(!reset) {
+						if (!reset) {
 							// Make a copy of the wire for later use
-							if(!wiresToAdd.contains(wire)) {
+							if (!wiresToAdd.contains(wire)) {
 								selectedWires.add(new Wire(null, wire));
 								
 								// Things break in undo/redo if we don't reset wires back
@@ -595,7 +597,7 @@ public class CircuitBoard {
 								wire.setY(wire.getY() - moveDeltaY);
 							}
 						}
-					} catch(RuntimeException exc) {
+					} catch (RuntimeException exc) {
 						editHistory.clearGroup();
 						toThrow.clear();
 						toThrow.add(exc);
@@ -608,44 +610,42 @@ public class CircuitBoard {
 		
 		Set<GuiElement> newSelectedElements;
 		
-		if(!cannotMoveHere) {
-			for(GuiElement element : elements) {
-				if(element instanceof ComponentPeer<?>) {
+		if (!cannotMoveHere) {
+			for (GuiElement element : elements) {
+				if (element instanceof ComponentPeer<?>) {
 					ComponentPeer<?> component = (ComponentPeer<?>)element;
 					// moving components doesn't actually modify the Circuit, so we must trigger the listener directly
 					circuitManager.getSimulatorWindow().circuitModified(circuit, component.getComponent(), true);
 				}
 			}
 			
-			if(addMoveAction && moveDeltaX == 0 && moveDeltaY == 0) {
+			if (addMoveAction && moveDeltaX == 0 && moveDeltaY == 0) {
 				editHistory.clearGroup();
 			}
 			
 			newSelectedElements = new HashSet<>();
 			moveElements.forEach(element -> {
-				if(element instanceof ComponentPeer) {
+				if (element instanceof ComponentPeer) {
 					newSelectedElements.add(element);
 				}
 			});
-			if(!selectedWires.isEmpty()) {
-				links.forEach(
-					linkWires ->
-						linkWires.getWires().forEach(wire -> {
-							if(selectedWires.contains(wire)) {
+			if (!selectedWires.isEmpty()) {
+				links.forEach(linkWires -> linkWires.getWires().forEach(wire -> {
+					if (selectedWires.contains(wire)) {
+						newSelectedElements.add(wire);
+					} else {
+						selectedWires.forEach(selectedWire -> {
+							if (selectedWire.overlaps(wire)) {
 								newSelectedElements.add(wire);
-							} else {
-								selectedWires.forEach(selectedWire -> {
-									if(selectedWire.overlaps(wire)) {
-										newSelectedElements.add(wire);
-									}
-								});
 							}
-						}));
+						});
+					}
+				}));
 			}
 		} else {
 			newSelectedElements = null;
 			
-			if(addMoveAction) {
+			if (addMoveAction) {
 				editHistory.clearGroup();
 			}
 		}
@@ -661,11 +661,11 @@ public class CircuitBoard {
 		
 		updateBadLinks();
 		
-		if(cannotMoveHere) {
+		if (cannotMoveHere) {
 			throw new SimulationException("Cannot move components/wires here.");
 		}
 		
-		if(!toThrow.isEmpty()) {
+		if (!toThrow.isEmpty()) {
 			throw toThrow.get(0);
 		}
 		
@@ -685,36 +685,36 @@ public class CircuitBoard {
 				
 				Set<GuiElement> elementsToRemove = new HashSet<>(elements);
 				
-				while(!elementsToRemove.isEmpty()) {
+				while (!elementsToRemove.isEmpty()) {
 					Iterator<GuiElement> iterator = elementsToRemove.iterator();
 					GuiElement element = iterator.next();
 					iterator.remove();
 					
-					if(element instanceof ComponentPeer<?>) {
+					if (element instanceof ComponentPeer<?>) {
 						removeComponent((ComponentPeer<?>)element, removeFromCircuit);
-						if(removeFromCircuit) {
+						if (removeFromCircuit) {
 							circuit.removeComponent(((ComponentPeer<?>)element).getComponent());
 						}
-					} else if(element instanceof Wire) {
+					} else if (element instanceof Wire) {
 						Wire wire = (Wire)element;
 						
 						Set<Wire> toRemove = new HashSet<>();
-						for(int i = 0; i < wire.getLength(); i++) {
+						for (int i = 0; i < wire.getLength(); i++) {
 							int x = wire.isHorizontal() ? wire.getX() + i : wire.getX();
 							int y = wire.isHorizontal() ? wire.getY() : wire.getY() + i;
-							for(Connection conn : new HashSet<>(getConnections(x, y))) {
-								if(conn instanceof WireConnection) {
+							for (Connection conn : new HashSet<>(getConnections(x, y))) {
+								if (conn instanceof WireConnection) {
 									Wire w = (Wire)conn.getParent();
-									if(w.isHorizontal() == wire.isHorizontal()) {
-										if(w.equals(wire)) {
+									if (w.isHorizontal() == wire.isHorizontal()) {
+										if (w.equals(wire)) {
 											toRemove.add(w);
 											break;
-										} else if(w.isWithin(wire)) {
+										} else if (w.isWithin(wire)) {
 											elementsToRemove.addAll(spliceWire(wire, w));
 											
 											toRemove.add(w);
 											break;
-										} else if(wire.isWithin(w)) {
+										} else if (wire.isWithin(w)) {
 											LinkWires linkWires = w.getLinkWires();
 											removeWire(w);
 											
@@ -724,7 +724,7 @@ public class CircuitBoard {
 											
 											toRemove.add(clone);
 											break;
-										} else if(w.overlaps(wire)) {
+										} else if (w.overlaps(wire)) {
 											LinkWires linkWires = w.getLinkWires();
 											removeWire(w);
 											
@@ -745,9 +745,9 @@ public class CircuitBoard {
 							w.getConnections().forEach(this::removeConnection);
 							
 							LinkWires linkWires = w.getLinkWires();
-							Set<Wire> set = wiresToRemove.containsKey(linkWires)
-							                ? wiresToRemove.get(linkWires)
-							                : new HashSet<>();
+							Set<Wire>
+								set =
+								wiresToRemove.containsKey(linkWires) ? wiresToRemove.get(linkWires) : new HashSet<>();
 							set.add(w);
 							wiresToRemove.put(linkWires, set);
 						});
@@ -758,8 +758,9 @@ public class CircuitBoard {
 					links.remove(linkWires);
 					links.addAll(linkWires.splitWires(wires));
 					
-					wires.forEach(
-						(wire) -> editHistory.addAction(EditAction.REMOVE_WIRE, circuitManager, new Wire(null, wire)));
+					wires.forEach((wire) -> editHistory.addAction(EditAction.REMOVE_WIRE,
+					                                              circuitManager,
+					                                              new Wire(null, wire)));
 				});
 				
 				rejoinWires();
@@ -772,33 +773,43 @@ public class CircuitBoard {
 	}
 	
 	private Set<Wire> spliceWire(Wire toSplice, Wire within) {
-		if(!within.isWithin(toSplice)) throw new IllegalArgumentException("toSplice must contain within");
+		if (!within.isWithin(toSplice)) {
+			throw new IllegalArgumentException("toSplice must contain within");
+		}
 		
 		Set<Wire> wires = new HashSet<>();
 		
-		if(toSplice.isHorizontal()) {
-			if(toSplice.getX() < within.getX()) {
+		if (toSplice.isHorizontal()) {
+			if (toSplice.getX() < within.getX()) {
 				wires.add(new Wire(toSplice.getLinkWires(),
-				                   toSplice.getX(), toSplice.getY(), within.getX() - toSplice.getX(), true));
+				                   toSplice.getX(),
+				                   toSplice.getY(),
+				                   within.getX() - toSplice.getX(),
+				                   true));
 			}
 			
 			int withinEnd = within.getX() + within.getLength();
 			int toSpliceEnd = toSplice.getX() + toSplice.getLength();
-			if(withinEnd < toSpliceEnd) {
-				wires.add(new Wire(toSplice.getLinkWires(),
-				                   withinEnd, toSplice.getY(), toSpliceEnd - withinEnd, true));
+			if (withinEnd < toSpliceEnd) {
+				wires.add(new Wire(toSplice.getLinkWires(), withinEnd, toSplice.getY(), toSpliceEnd - withinEnd, true));
 			}
 		} else {
-			if(toSplice.getY() < within.getY()) {
+			if (toSplice.getY() < within.getY()) {
 				wires.add(new Wire(toSplice.getLinkWires(),
-				                   toSplice.getX(), toSplice.getY(), within.getY() - toSplice.getY(), false));
+				                   toSplice.getX(),
+				                   toSplice.getY(),
+				                   within.getY() - toSplice.getY(),
+				                   false));
 			}
 			
 			int withinEnd = within.getY() + within.getLength();
 			int toSpliceEnd = toSplice.getY() + toSplice.getLength();
-			if(withinEnd < toSpliceEnd) {
+			if (withinEnd < toSpliceEnd) {
 				wires.add(new Wire(toSplice.getLinkWires(),
-				                   toSplice.getX(), withinEnd, toSpliceEnd - withinEnd, false));
+				                   toSplice.getX(),
+				                   withinEnd,
+				                   toSpliceEnd - withinEnd,
+				                   false));
 			}
 		}
 		
@@ -807,33 +818,27 @@ public class CircuitBoard {
 	
 	// returns (overlap leftover, (toSplice pieces))
 	private Pair<Wire, Pair<Wire, Wire>> spliceOverlappingWire(Wire toSplice, Wire overlap) {
-		if(!toSplice.overlaps(overlap)) throw new IllegalArgumentException("wires must overlap");
+		if (!toSplice.overlaps(overlap)) {
+			throw new IllegalArgumentException("wires must overlap");
+		}
 		
-		if(toSplice.isHorizontal()) {
+		if (toSplice.isHorizontal()) {
 			Wire left = toSplice.getX() < overlap.getX() ? toSplice : overlap;
 			Wire right = toSplice.getX() < overlap.getX() ? overlap : toSplice;
 			
-			Wire leftPiece =
-				new Wire(
-					left.getLinkWires(),
-					left.getX(),
-					left.getY(),
-					right.getX() - left.getX(),
-					true);
-			Wire midPiece =
-				new Wire(right.getLinkWires(),
-				         right.getX(),
-				         right.getY(),
-				         left.getX() + left.getLength() - right.getX(),
-				         true);
-			Wire rightPiece =
-				new Wire(right.getLinkWires(),
-				         left.getX() + left.getLength(),
-				         left.getY(),
-				         right.getX() + right.getLength() - left.getX() - left.getLength(),
-				         true);
+			Wire leftPiece = new Wire(left.getLinkWires(), left.getX(), left.getY(), right.getX() - left.getX(), true);
+			Wire midPiece = new Wire(right.getLinkWires(),
+			                         right.getX(),
+			                         right.getY(),
+			                         left.getX() + left.getLength() - right.getX(),
+			                         true);
+			Wire rightPiece = new Wire(right.getLinkWires(),
+			                           left.getX() + left.getLength(),
+			                           left.getY(),
+			                           right.getX() + right.getLength() - left.getX() - left.getLength(),
+			                           true);
 			
-			if(left == toSplice) {
+			if (left == toSplice) {
 				return new Pair<>(leftPiece, new Pair<>(midPiece, rightPiece));
 			} else {
 				return new Pair<>(rightPiece, new Pair<>(midPiece, leftPiece));
@@ -842,29 +847,17 @@ public class CircuitBoard {
 			Wire top = toSplice.getY() < overlap.getY() ? toSplice : overlap;
 			Wire bottom = toSplice.getY() < overlap.getY() ? overlap : toSplice;
 			
-			Wire topPiece =
-				new Wire(
-					top.getLinkWires(),
-					top.getX(), top.getY(),
-					bottom.getY() - top.getY(),
-					false);
-			Wire midPiece =
-				new Wire(
-					bottom.getLinkWires(),
-					bottom.getX(),
-					bottom.getY(),
-					
-					top.getY() + top.getLength() - bottom.getY(),
-					false);
-			Wire bottomPiece =
-				new Wire(
-					bottom.getLinkWires(),
-					top.getX(),
-					top.getY() + top.getLength(),
-					bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
-					false);
+			Wire topPiece = new Wire(top.getLinkWires(), top.getX(), top.getY(), bottom.getY() - top.getY(), false);
+			Wire midPiece = new Wire(bottom.getLinkWires(), bottom.getX(), bottom.getY(),
 			
-			if(top == toSplice) {
+			                         top.getY() + top.getLength() - bottom.getY(), false);
+			Wire bottomPiece = new Wire(bottom.getLinkWires(),
+			                            top.getX(),
+			                            top.getY() + top.getLength(),
+			                            bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
+			                            false);
+			
+			if (top == toSplice) {
 				return new Pair<>(topPiece, new Pair<>(midPiece, bottomPiece));
 			} else {
 				return new Pair<>(bottomPiece, new Pair<>(midPiece, topPiece));
@@ -873,11 +866,11 @@ public class CircuitBoard {
 	}
 	
 	public synchronized void addWire(int x, int y, int length, boolean horizontal) {
-		if(x < 0 || y < 0 || (horizontal && x + length < 0) || (!horizontal && y + length < 0)) {
+		if (x < 0 || y < 0 || (horizontal && x + length < 0) || (!horizontal && y + length < 0)) {
 			throw new SimulationException("Wire cannot go into negative space.");
 		}
 		
-		if(length == 0) {
+		if (length == 0) {
 			throw new SimulationException("Length cannot be 0");
 		}
 		
@@ -894,14 +887,14 @@ public class CircuitBoard {
 				
 				{
 					Set<Connection> connections = getConnections(x, y);
-					if(connections != null) {
-						for(Connection connection : connections) {
+					if (connections != null) {
+						for (Connection connection : connections) {
 							handleConnection(connection, linkWires);
 							
 							GuiElement parent = connection.getParent();
-							if(connection instanceof WireConnection) {
+							if (connection instanceof WireConnection) {
 								Wire wire = (Wire)parent;
-								if(connection != wire.getStartConnection() && connection != wire.getEndConnection()) {
+								if (connection != wire.getStartConnection() && connection != wire.getEndConnection()) {
 									toSplit.put(wire, connection);
 								}
 							}
@@ -913,32 +906,33 @@ public class CircuitBoard {
 				int lastY = y;
 				
 				int sign = length / Math.abs(length);
-				for(int i = sign; Math.abs(i) <= Math.abs(length); i += sign) {
+				for (int i = sign; Math.abs(i) <= Math.abs(length); i += sign) {
 					int xOff = horizontal ? i : 0;
 					int yOff = horizontal ? 0 : i;
 					Connection currConnection = findConnection(x + xOff, y + yOff);
 					
-					if(currConnection != null &&
-						   (i == length || currConnection instanceof PortConnection ||
-							    currConnection == ((Wire)currConnection.getParent()).getStartConnection() ||
-							    currConnection == ((Wire)currConnection.getParent()).getEndConnection())) {
-						int len = horizontal ? currConnection.getX() - lastX
-						                     : currConnection.getY() - lastY;
+					if (currConnection != null && (i == length || currConnection instanceof PortConnection ||
+					                               currConnection ==
+					                               ((Wire)currConnection.getParent()).getStartConnection() ||
+					                               currConnection ==
+					                               ((Wire)currConnection.getParent()).getEndConnection())) {
+						int len = horizontal ? currConnection.getX() - lastX : currConnection.getY() - lastY;
 						Wire wire = new Wire(linkWires, lastX, lastY, len, horizontal);
 						Wire surrounding = wireAlreadyExists(wire);
-						if(surrounding == null) {
+						if (surrounding == null) {
 							wiresAdded.add(wire);
 						}
 						
-						Set<Connection> connections = i == length ? getConnections(x + xOff, y + yOff)
-						                                          : Collections.singleton(currConnection);
+						Set<Connection> connections = i == length ?
+						                              getConnections(x + xOff, y + yOff) :
+						                              Collections.singleton(currConnection);
 						
-						for(Connection connection : connections) {
+						for (Connection connection : connections) {
 							GuiElement parent = connection.getParent();
-							if(connection instanceof WireConnection) {
+							if (connection instanceof WireConnection) {
 								Wire connWire = (Wire)parent;
-								if(connection != connWire.getStartConnection() &&
-									   connection != connWire.getEndConnection()) {
+								if (connection != connWire.getStartConnection() &&
+								    connection != connWire.getEndConnection()) {
 									toSplit.put((Wire)parent, connection);
 								}
 							}
@@ -948,12 +942,11 @@ public class CircuitBoard {
 						
 						lastX = currConnection.getX();
 						lastY = currConnection.getY();
-					} else if(i == length) {
-						int len = horizontal ? x + xOff - lastX
-						                     : y + yOff - lastY;
+					} else if (i == length) {
+						int len = horizontal ? x + xOff - lastX : y + yOff - lastY;
 						Wire wire = new Wire(linkWires, lastX, lastY, len, horizontal);
 						Wire surrounding = wireAlreadyExists(wire);
-						if(surrounding == null) {
+						if (surrounding == null) {
 							wiresAdded.add(wire);
 						}
 						
@@ -962,7 +955,7 @@ public class CircuitBoard {
 					}
 				}
 				
-				for(Wire wire : wiresAdded) {
+				for (Wire wire : wiresAdded) {
 					addWire(linkWires, wire);
 				}
 				
@@ -979,14 +972,14 @@ public class CircuitBoard {
 	
 	private Wire wireAlreadyExists(Wire wire) {
 		Set<Connection> connections = connectionsMap.get(new Pair<>(wire.getX(), wire.getY()));
-		if(connections == null || connections.isEmpty()) {
+		if (connections == null || connections.isEmpty()) {
 			return null;
 		}
 		
-		for(Connection connection : connections) {
-			if(connection instanceof WireConnection) {
+		for (Connection connection : connections) {
+			if (connection instanceof WireConnection) {
 				Wire existing = (Wire)connection.getParent();
-				if(wire.isWithin(existing)) {
+				if (wire.isWithin(existing)) {
 					return existing;
 				}
 			}
@@ -999,8 +992,7 @@ public class CircuitBoard {
 		LinkWires links = wire.getLinkWires();
 		removeWire(wire);
 		
-		int len = connection.getX() == wire.getX() ? connection.getY() - wire.getY()
-		                                           : connection.getX() - wire.getX();
+		int len = connection.getX() == wire.getX() ? connection.getY() - wire.getY() : connection.getX() - wire.getX();
 		Wire wire1 = new Wire(links, wire.getX(), wire.getY(), len, wire.isHorizontal());
 		addWire(links, wire1);
 		
@@ -1021,7 +1013,7 @@ public class CircuitBoard {
 		wire.getConnections().forEach(this::removeConnection);
 		
 		LinkWires linkWires = wire.getLinkWires();
-		if(linkWires == null) {
+		if (linkWires == null) {
 			return;
 		}
 		
@@ -1043,20 +1035,22 @@ public class CircuitBoard {
 	}
 	
 	private synchronized void rejoinWires() {
-		if(!rejoinWiresEnabled) {
+		if (!rejoinWiresEnabled) {
 			return;
 		}
 		
 		editHistory.disable();
 		
 		try {
-			for(LinkWires linkWires : links) {
+			for (LinkWires linkWires : links) {
 				Set<Wire> removed = new HashSet<>();
 				ArrayList<Wire> wires = new ArrayList<>(linkWires.getWires());
-				for(int i = 0; i < wires.size(); i++) {
+				for (int i = 0; i < wires.size(); i++) {
 					Wire wire = wires.get(i);
 					
-					if(removed.contains(wire)) continue;
+					if (removed.contains(wire)) {
+						continue;
+					}
 					
 					Connection start = wire.getStartConnection();
 					Connection end = wire.getEndConnection();
@@ -1066,22 +1060,22 @@ public class CircuitBoard {
 					int length = wire.getLength();
 					
 					Set<Connection> startConns = getConnections(start.getX(), start.getY());
-					if(startConns != null && startConns.size() == 2) {
-						List<Wire> startWires = startConns.stream()
-						                                  .filter(
-							                                  conn -> conn != start && conn instanceof WireConnection)
-						                                  .map(conn -> (Wire)conn.getParent())
-						                                  .filter(w -> w.isHorizontal() == wire.isHorizontal())
-						                                  .collect(Collectors.toList());
+					if (startConns != null && startConns.size() == 2) {
+						List<Wire> startWires = startConns
+							.stream()
+							.filter(conn -> conn != start && conn instanceof WireConnection)
+							.map(conn -> (Wire)conn.getParent())
+							.filter(w -> w.isHorizontal() == wire.isHorizontal())
+							.collect(Collectors.toList());
 						
-						if(startWires.size() == 1) {
+						if (startWires.size() == 1) {
 							Wire startWire = startWires.get(0);
 							length += startWire.getLength();
 							
-							if(startWire.getX() < x) {
+							if (startWire.getX() < x) {
 								x = startWire.getX();
 							}
-							if(startWire.getY() < y) {
+							if (startWire.getY() < y) {
 								y = startWire.getY();
 							}
 							
@@ -1091,14 +1085,15 @@ public class CircuitBoard {
 					}
 					
 					Set<Connection> endConns = getConnections(end.getX(), end.getY());
-					if(endConns != null && endConns.size() == 2) {
-						List<Wire> endWires = endConns.stream()
-						                              .filter(conn -> conn != end && conn instanceof WireConnection)
-						                              .map(conn -> (Wire)conn.getParent())
-						                              .filter(w -> w.isHorizontal() == wire.isHorizontal())
-						                              .collect(Collectors.toList());
+					if (endConns != null && endConns.size() == 2) {
+						List<Wire> endWires = endConns
+							.stream()
+							.filter(conn -> conn != end && conn instanceof WireConnection)
+							.map(conn -> (Wire)conn.getParent())
+							.filter(w -> w.isHorizontal() == wire.isHorizontal())
+							.collect(Collectors.toList());
 						
-						if(endWires.size() == 1) {
+						if (endWires.size() == 1) {
 							Wire endWire = endWires.get(0);
 							length += endWire.getLength();
 							
@@ -1107,7 +1102,7 @@ public class CircuitBoard {
 						}
 					}
 					
-					if(length != wire.getLength()) {
+					if (length != wire.getLength()) {
 						removeWire(wire);
 						removed.add(wire);
 						Wire newWire = new Wire(linkWires, x, y, length, wire.isHorizontal());
@@ -1122,25 +1117,24 @@ public class CircuitBoard {
 	}
 	
 	private void removeComponent(ComponentPeer<?> component, boolean removeFromComponentsList) {
-		if(!components.contains(component)) {
+		if (!components.contains(component)) {
 			return;
 		}
 		
-		for(Connection connection : component.getConnections()) {
+		for (PortConnection connection : component.getConnections()) {
 			removeConnection(connection);
 			
-			PortConnection portConnection = (PortConnection)connection;
-			LinkWires linkWires = portConnection.getLinkWires();
-			if(linkWires != null) {
-				linkWires.removePort(portConnection);
-				if(linkWires.isEmpty()) {
+			LinkWires linkWires = connection.getLinkWires();
+			if (linkWires != null) {
+				linkWires.removePort(connection);
+				if (linkWires.isEmpty()) {
 					linkWires.clear();
 					links.remove(linkWires);
 				}
 			}
 		}
 		
-		if(removeFromComponentsList) {
+		if (removeFromComponentsList) {
 			components.remove(component);
 		}
 		
@@ -1149,13 +1143,13 @@ public class CircuitBoard {
 	
 	private void handleConnection(Connection connection, LinkWires linkWires) {
 		LinkWires linksToMerge = connection.getLinkWires();
-		if(linksToMerge == null) {
-			if(connection instanceof PortConnection) {
+		if (linksToMerge == null) {
+			if (connection instanceof PortConnection) {
 				linkWires.addPort((PortConnection)connection);
-			} else if(connection instanceof WireConnection) {
+			} else if (connection instanceof WireConnection) {
 				linkWires.addWire((Wire)connection.getParent());
 			}
-		} else if(linkWires != linksToMerge) {
+		} else if (linkWires != linksToMerge) {
 			links.remove(linksToMerge);
 			linkWires.merge(linksToMerge);
 		}
@@ -1177,21 +1171,20 @@ public class CircuitBoard {
 		CircuitState currentState = new CircuitState(this.currentState);
 		
 		components.forEach(component -> {
-			if(moveElements == null || !moveElements.contains(component)) {
+			if (moveElements == null || !moveElements.contains(component)) {
 				paintComponent(graphics, currentState, component);
 			}
 		});
 		
-		for(LinkWires linkWires : links) {
-			for(Wire wire : linkWires.getWires()) {
+		for (LinkWires linkWires : links) {
+			for (Wire wire : linkWires.getWires()) {
 				paintWire(graphics, currentState, wire, linkWires == highlightLinkWires);
 			}
 		}
 		
-		if(badLinks != null) {
-			for(LinkWires badLink : badLinks) {
-				Stream.concat(badLink.getPorts().stream(),
-				              badLink.getInvalidPorts().stream()).forEach(port -> {
+		if (badLinks != null) {
+			for (LinkWires badLink : badLinks) {
+				Stream.concat(badLink.getPorts().stream(), badLink.getInvalidPorts().stream()).forEach(port -> {
 					graphics.setFill(Color.BLACK);
 					graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
 					                  port.getScreenX() + 11,
@@ -1200,27 +1193,26 @@ public class CircuitBoard {
 					graphics.setStroke(Color.ORANGE);
 					graphics.setFill(Color.ORANGE);
 					graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-					graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()),
-					                  port.getScreenX() + 10,
+					graphics.fillText(String.valueOf(port.getPort().getLink().getBitSize()), port.getScreenX() + 10,
 					                  port.getScreenY() + 20);
 				});
 			}
 		}
 		
-		if(moveElements != null) {
+		if (moveElements != null) {
 			graphics.save();
 			graphics.setGlobalAlpha(0.5);
 			
-			for(GuiElement element : moveElements) {
-				if(element instanceof ComponentPeer<?>) {
+			for (GuiElement element : moveElements) {
+				if (element instanceof ComponentPeer<?>) {
 					paintComponent(graphics, currentState, (ComponentPeer<?>)element);
-				} else if(element instanceof Wire) {
+				} else if (element instanceof Wire) {
 					paintWire(graphics, currentState, (Wire)element, false);
 				}
 			}
 			
 			MoveComputeResult result = this.moveResult;
-			if(result != null) {
+			if (result != null) {
 				graphics.setFill(Color.RED);
 				result.wiresToRemove.forEach(wire -> wire.paint(graphics));
 				
@@ -1237,7 +1229,7 @@ public class CircuitBoard {
 		component.paint(graphics, state);
 		graphics.restore();
 		
-		for(PortConnection connection : component.getConnections()) {
+		for (PortConnection connection : component.getConnections()) {
 			connection.paint(graphics, state);
 		}
 	}
@@ -1248,11 +1240,11 @@ public class CircuitBoard {
 		graphics.restore();
 		
 		Connection startConn = wire.getStartConnection();
-		if(getConnections(startConn.getX(), startConn.getY()).size() > 2) {
+		if (getConnections(startConn.getX(), startConn.getY()).size() > 2) {
 			startConn.paint(graphics, state);
 		}
 		Connection endConn = wire.getStartConnection();
-		if(getConnections(endConn.getX(), endConn.getY()).size() > 2) {
+		if (getConnections(endConn.getX(), endConn.getY()).size() > 2) {
 			endConn.paint(graphics, state);
 		}
 	}
@@ -1266,12 +1258,12 @@ public class CircuitBoard {
 	
 	private synchronized void removeConnection(Connection connection) {
 		Pair<Integer, Integer> pair = new Pair<>(connection.getX(), connection.getY());
-		if(!connectionsMap.containsKey(pair)) {
+		if (!connectionsMap.containsKey(pair)) {
 			return;
 		}
 		Set<Connection> set = connectionsMap.get(pair);
 		set.remove(connection);
-		if(set.isEmpty()) {
+		if (set.isEmpty()) {
 			connectionsMap.remove(pair);
 		}
 	}

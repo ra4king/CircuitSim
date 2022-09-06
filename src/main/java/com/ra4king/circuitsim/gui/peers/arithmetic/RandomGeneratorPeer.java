@@ -45,8 +45,8 @@ public class RandomGeneratorPeer extends ComponentPeer<RandomGenerator> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(
-			clockConnection
-				= new PortConnection(this, randomGenerator.getPort(RandomGenerator.PORT_CLK), "Clock", 2, 4));
+			clockConnection =
+				new PortConnection(this, randomGenerator.getPort(RandomGenerator.PORT_CLK), "Clock", 2, 4));
 		connections.add(new PortConnection(this, randomGenerator.getPort(Negator.PORT_OUT), "Out", 4, 2));
 		
 		init(randomGenerator, properties, connections);

@@ -59,62 +59,34 @@ public class RegisterPeer extends ComponentPeer<Register> {
 	
 	@Override
 	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
-		switch(keyCode) {
-			case DIGIT0:
-			case DIGIT1:
-			case DIGIT2:
-			case DIGIT3:
-			case DIGIT4:
-			case DIGIT5:
-			case DIGIT6:
-			case DIGIT7:
-			case DIGIT8:
-			case DIGIT9:
-			case NUMPAD0:
-			case NUMPAD1:
-			case NUMPAD2:
-			case NUMPAD3:
-			case NUMPAD4:
-			case NUMPAD5:
-			case NUMPAD6:
-			case NUMPAD7:
-			case NUMPAD8:
-			case NUMPAD9:
-			case A:
-			case B:
-			case C:
-			case D:
-			case E:
-			case F:
+		switch (keyCode) {
+			case DIGIT0, DIGIT1, DIGIT2, DIGIT3, DIGIT4, DIGIT5, DIGIT6, DIGIT7, DIGIT8, DIGIT9, NUMPAD0, NUMPAD1,
+				     NUMPAD2, NUMPAD3, NUMPAD4, NUMPAD5, NUMPAD6, NUMPAD7, NUMPAD8, NUMPAD9, A, B, C, D, E, F -> {
 				char c = text.charAt(0);
-				
 				int value;
-				if(c >= '0' && c <= '9') {
+				if (c >= '0' && c <= '9') {
 					value = c - '0';
 				} else {
 					value = Character.toUpperCase(c) - 'A' + 10;
 				}
-				
 				WireValue currentValue = state.getLastPushed(getComponent().getPort(Register.PORT_OUT));
 				WireValue typedValue = WireValue.of(value, Math.min(4, currentValue.getBitSize()));
-				if(typedValue.getValue() != value) {
+				if (typedValue.getValue() != value) {
 					typedValue.setAllBits(State.ZERO); // to prevent typing '9' on a 3-bit value, producing 1
 				}
-				
-				if(currentValue.getBitSize() <= 4) {
+				if (currentValue.getBitSize() <= 4) {
 					currentValue.set(typedValue);
 				} else {
-					for(int i = currentValue.getBitSize() - 1; i >= 4; i--) {
+					for (int i = currentValue.getBitSize() - 1; i >= 4; i--) {
 						currentValue.setBit(i, currentValue.getBit(i - 4));
 					}
 					
-					for(int i = 0; i < 4; i++) {
+					for (int i = 0; i < 4; i++) {
 						currentValue.setBit(i, typedValue.getBit(i));
 					}
 				}
-				
 				state.pushValue(getComponent().getPort(Register.PORT_OUT), currentValue);
-				break;
+			}
 		}
 		
 		return false;
@@ -136,8 +108,8 @@ public class RegisterPeer extends ComponentPeer<Register> {
 		
 		graphics.setFill(Color.BLACK);
 		graphics.setFont(GuiUtils.getFont(13));
-		for(int i = 0; i * 4 < value.length(); i++) {
-			int endIndex = i * 4 + 4 > value.length() ? value.length() : 4 * i + 4;
+		for (int i = 0; i * 4 < value.length(); i++) {
+			int endIndex = Math.min(i * 4 + 4, value.length());
 			String toPrint = value.substring(4 * i, endIndex);
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), toPrint, false);
 			graphics.fillText(toPrint, x + width * 0.5 - bounds.getWidth() * 0.5, y + 11 + 10 * i);

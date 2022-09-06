@@ -64,25 +64,25 @@ public class Tunnel extends ComponentPeer<Component> {
 				
 				super.setCircuit(circuit);
 				
-				if(label.isEmpty()) {
+				if (label.isEmpty()) {
 					return;
 				}
 				
-				if(circuit != null) {
+				if (circuit != null) {
 					Map<String, Set<Tunnel>> tunnelSet = tunnels.computeIfAbsent(circuit, l -> new HashMap<>());
 					Set<Tunnel> toNotify = tunnelSet.computeIfAbsent(label, c -> new HashSet<>());
 					toNotify.add(Tunnel.this);
 				} else {
 					Map<String, Set<Tunnel>> tunnelSet = tunnels.get(oldCircuit);
-					if(tunnelSet != null) {
+					if (tunnelSet != null) {
 						Set<Tunnel> toNotify = tunnelSet.get(label);
-						if(toNotify != null) {
+						if (toNotify != null) {
 							toNotify.remove(Tunnel.this);
 							
-							if(toNotify.isEmpty()) {
+							if (toNotify.isEmpty()) {
 								tunnelSet.remove(label);
 								
-								if(tunnelSet.isEmpty()) {
+								if (tunnelSet.isEmpty()) {
 									tunnels.remove(oldCircuit);
 								}
 							}
@@ -93,23 +93,23 @@ public class Tunnel extends ComponentPeer<Component> {
 			
 			@Override
 			public void init(CircuitState state, Object lastProperty) {
-				if(label.isEmpty()) {
+				if (label.isEmpty()) {
 					return;
 				}
 				
 				Map<String, Set<Tunnel>> tunnelSet = tunnels.get(getCircuit());
-				if(tunnelSet != null) {
+				if (tunnelSet != null) {
 					Set<Tunnel> toNotify = tunnelSet.get(label);
 					WireValue value = new WireValue(bitSize);
 					
-					for(Tunnel tunnel : toNotify) {
-						if(tunnel != Tunnel.this) {
+					for (Tunnel tunnel : toNotify) {
+						if (tunnel != Tunnel.this) {
 							Port port = tunnel.getComponent().getPort(0);
 							WireValue portValue = state.getLastReceived(port);
-							if(portValue.getBitSize() == value.getBitSize()) {
+							if (portValue.getBitSize() == value.getBitSize()) {
 								try {
 									value.merge(portValue);
-								} catch(Exception exc) {
+								} catch (Exception exc) {
 									return; // nothing to push, it's a short circuit
 								}
 							}
@@ -123,22 +123,22 @@ public class Tunnel extends ComponentPeer<Component> {
 			@Override
 			public void uninit(CircuitState state) {
 				Map<String, Set<Tunnel>> tunnelSet = tunnels.get(getCircuit());
-				if(tunnelSet != null) {
+				if (tunnelSet != null) {
 					Set<Tunnel> toNotify = tunnelSet.get(label);
-					if(toNotify != null) {
+					if (toNotify != null) {
 						tunnels:
-						for(Tunnel tunnel : toNotify) {
-							if(tunnel.bitSize == bitSize) {
+						for (Tunnel tunnel : toNotify) {
+							if (tunnel.bitSize == bitSize) {
 								WireValue combined = new WireValue(bitSize);
 								
-								for(Tunnel otherTunnel : toNotify) {
-									if(tunnel != otherTunnel && otherTunnel != Tunnel.this) {
+								for (Tunnel otherTunnel : toNotify) {
+									if (tunnel != otherTunnel && otherTunnel != Tunnel.this) {
 										Port port = otherTunnel.getComponent().getPort(0);
 										WireValue portValue = state.getLastReceived(port);
-										if(portValue.getBitSize() == combined.getBitSize()) {
+										if (portValue.getBitSize() == combined.getBitSize()) {
 											try {
 												combined.merge(portValue);
-											} catch(Exception exc) {
+											} catch (Exception exc) {
 												continue tunnels;
 											}
 										}
@@ -155,25 +155,25 @@ public class Tunnel extends ComponentPeer<Component> {
 			@Override
 			public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 				Map<String, Set<Tunnel>> tunnelSet = tunnels.get(getCircuit());
-				if(tunnelSet != null && tunnelSet.containsKey(label)) {
+				if (tunnelSet != null && tunnelSet.containsKey(label)) {
 					Set<Tunnel> toNotify = tunnelSet.get(label);
 					
 					tunnels:
-					for(Tunnel tunnel : toNotify) {
-						if(tunnel != Tunnel.this && tunnel.bitSize == bitSize) {
+					for (Tunnel tunnel : toNotify) {
+						if (tunnel != Tunnel.this && tunnel.bitSize == bitSize) {
 							WireValue combined = value;
 							
-							if(toNotify.size() > 2) {
+							if (toNotify.size() > 2) {
 								combined = new WireValue(bitSize);
 								
-								for(Tunnel otherTunnel : toNotify) {
-									if(tunnel != otherTunnel) {
+								for (Tunnel otherTunnel : toNotify) {
+									if (tunnel != otherTunnel) {
 										Port port = otherTunnel.getComponent().getPort(0);
 										WireValue portValue = state.getLastReceived(port);
-										if(portValue.getBitSize() == combined.getBitSize()) {
+										if (portValue.getBitSize() == combined.getBitSize()) {
 											try {
 												combined.merge(portValue);
-											} catch(Exception exc) {
+											} catch (Exception exc) {
 												continue tunnels;
 											}
 										}
@@ -189,25 +189,25 @@ public class Tunnel extends ComponentPeer<Component> {
 		};
 		
 		List<PortConnection> connections = new ArrayList<>();
-		switch(properties.getValue(Properties.DIRECTION)) {
-			case EAST:
+		switch (properties.getValue(Properties.DIRECTION)) {
+			case EAST -> {
 				setWidth(getWidth() + 2);
 				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth(), getHeight() / 2));
-				break;
-			case WEST:
+			}
+			case WEST -> {
 				setWidth(getWidth() + 2);
 				connections.add(new PortConnection(this, tunnel.getPort(0), 0, getHeight() / 2));
-				break;
-			case NORTH:
+			}
+			case NORTH -> {
 				setWidth(Math.max(((getWidth() - 1) / 2) * 2 + 2, 2));
 				setHeight(3);
 				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, 0));
-				break;
-			case SOUTH:
+			}
+			case SOUTH -> {
 				setWidth(Math.max(((getWidth() - 1) / 2) * 2 + 2, 2));
 				setHeight(3);
 				connections.add(new PortConnection(this, tunnel.getPort(0), getWidth() / 2, getHeight()));
-				break;
+			}
 		}
 		
 		init(tunnel, properties, connections);
@@ -215,9 +215,9 @@ public class Tunnel extends ComponentPeer<Component> {
 	
 	private boolean isIncompatible() {
 		Map<String, Set<Tunnel>> tunnelSet = tunnels.get(tunnel.getCircuit());
-		if(tunnelSet != null && tunnelSet.containsKey(label)) {
-			for(Tunnel tunnel : tunnelSet.get(label)) {
-				if(tunnel.bitSize != bitSize) {
+		if (tunnelSet != null && tunnelSet.containsKey(label)) {
+			for (Tunnel tunnel : tunnelSet.get(label)) {
+				if (tunnel.bitSize != bitSize) {
 					return true;
 				}
 			}
@@ -244,8 +244,8 @@ public class Tunnel extends ComponentPeer<Component> {
 		int xOff = 0;
 		int yOff = 0;
 		
-		switch(direction) {
-			case EAST:
+		switch (direction) {
+			case EAST -> {
 				xOff = -block;
 				graphics.beginPath();
 				graphics.moveTo(x + width, y + height * 0.5);
@@ -254,8 +254,8 @@ public class Tunnel extends ComponentPeer<Component> {
 				graphics.lineTo(x, y);
 				graphics.lineTo(x + width - block, y);
 				graphics.closePath();
-				break;
-			case WEST:
+			}
+			case WEST -> {
 				xOff = block;
 				graphics.beginPath();
 				graphics.moveTo(x, y + height * 0.5);
@@ -264,8 +264,8 @@ public class Tunnel extends ComponentPeer<Component> {
 				graphics.lineTo(x + width, y + height);
 				graphics.lineTo(x + block, y + height);
 				graphics.closePath();
-				break;
-			case NORTH:
+			}
+			case NORTH -> {
 				yOff = block;
 				graphics.beginPath();
 				graphics.moveTo(x + width * 0.5, y);
@@ -274,8 +274,8 @@ public class Tunnel extends ComponentPeer<Component> {
 				graphics.lineTo(x, y + height);
 				graphics.lineTo(x, y + block);
 				graphics.closePath();
-				break;
-			case SOUTH:
+			}
+			case SOUTH -> {
 				yOff = -block;
 				graphics.beginPath();
 				graphics.moveTo(x + width * 0.5, y + height);
@@ -284,34 +284,31 @@ public class Tunnel extends ComponentPeer<Component> {
 				graphics.lineTo(x + width, y);
 				graphics.lineTo(x + width, y + height - block);
 				graphics.closePath();
-				break;
+			}
 		}
 		
 		graphics.fill();
 		graphics.stroke();
 		
-		if(!label.isEmpty()) {
+		if (!label.isEmpty()) {
 			Bounds bounds = GuiUtils.getBounds(graphics.getFont(), label);
 			graphics.setFill(Color.BLACK);
-			graphics.fillText(label,
-			                  x + xOff + ((width - xOff) - bounds.getWidth()) * 0.5,
-			                  y + yOff + ((height - yOff) + bounds.getHeight()) * 0.4);
+			graphics.fillText(
+				label,
+				x + xOff + ((width - xOff) - bounds.getWidth()) * 0.5,
+				y + yOff + ((height - yOff) + bounds.getHeight()) * 0.4);
 		}
 		
-		if(isIncompatible) {
+		if (isIncompatible) {
 			PortConnection port = getConnections().get(0);
 			
 			graphics.setFill(Color.BLACK);
-			graphics.fillText(String.valueOf(bitSize),
-			                  port.getScreenX() + 11,
-			                  port.getScreenY() + 21);
+			graphics.fillText(String.valueOf(bitSize), port.getScreenX() + 11, port.getScreenY() + 21);
 			
 			graphics.setStroke(Color.ORANGE);
 			graphics.setFill(Color.ORANGE);
 			graphics.strokeOval(port.getScreenX() - 2, port.getScreenY() - 2, 10, 10);
-			graphics.fillText(String.valueOf(bitSize),
-			                  port.getScreenX() + 10,
-			                  port.getScreenY() + 20);
+			graphics.fillText(String.valueOf(bitSize), port.getScreenX() + 10, port.getScreenY() + 20);
 		}
 	}
 }

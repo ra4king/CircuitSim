@@ -29,9 +29,9 @@ public class FileFormat {
 	
 	public static String readFile(Reader reader) throws IOException {
 		StringBuilder string = new StringBuilder();
-		try(BufferedReader bufReader = new BufferedReader(reader)) {
+		try (BufferedReader bufReader = new BufferedReader(reader)) {
 			String line;
-			while((line = bufReader.readLine()) != null) {
+			while ((line = bufReader.readLine()) != null) {
 				string.append(line).append("\n");
 			}
 			
@@ -44,7 +44,7 @@ public class FileFormat {
 	}
 	
 	public static void writeFile(File file, String contents) throws IOException {
-		try(FileWriter writer = new FileWriter(file)) {
+		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(contents);
 			writer.write('\n');
 		}
@@ -106,10 +106,10 @@ public class FileFormat {
 		
 		@Override
 		public boolean equals(Object other) {
-			if(other instanceof ComponentInfo) {
+			if (other instanceof ComponentInfo) {
 				ComponentInfo otherComp = (ComponentInfo)other;
-				return name.equals(otherComp.name) && x == otherComp.x
-					       && y == otherComp.y && properties.equals(otherComp.properties);
+				return name.equals(otherComp.name) && x == otherComp.x && y == otherComp.y && properties.equals(
+					otherComp.properties);
 			}
 			
 			return false;
@@ -136,10 +136,10 @@ public class FileFormat {
 		
 		@Override
 		public boolean equals(Object other) {
-			if(other instanceof WireInfo) {
+			if (other instanceof WireInfo) {
 				WireInfo otherWire = (WireInfo)other;
-				return x == otherWire.x && y == otherWire.y
-					       && length == otherWire.length && isHorizontal == otherWire.isHorizontal;
+				return x == otherWire.x && y == otherWire.y && length == otherWire.length &&
+				       isHorizontal == otherWire.isHorizontal;
 			}
 			
 			return false;

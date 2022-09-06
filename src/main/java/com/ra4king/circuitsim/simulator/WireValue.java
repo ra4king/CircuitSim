@@ -1,5 +1,7 @@
 package com.ra4king.circuitsim.simulator;
 
+import java.util.Arrays;
+
 /**
  * @author Roi Atalla
  */
@@ -41,21 +43,21 @@ public class WireValue {
 	public WireValue(WireValue value, int newSize) {
 		bits = new State[newSize];
 		setAllBits(State.ZERO);
-		System.arraycopy(value.bits, 0, bits, 0, newSize < value.bits.length ? newSize : value.bits.length);
+		System.arraycopy(value.bits, 0, bits, 0, Math.min(newSize, value.bits.length));
 	}
 	
 	public WireValue merge(WireValue value) {
-		if(value.getBitSize() != this.getBitSize()) {
-			throw new IllegalStateException("Different size wires detected: wanted "
-					                                + this.getBitSize() + ", found " + value.getBitSize());
+		if (value.getBitSize() != this.getBitSize()) {
+			throw new IllegalArgumentException(
+				"Different size wires detected: wanted " + this.getBitSize() + ", found " + value.getBitSize());
 		}
 		
-		for(int i = 0; i < getBitSize(); i++) {
-			if(getBit(i) == State.X) {
+		for (int i = 0; i < getBitSize(); i++) {
+			if (getBit(i) == State.X) {
 				setBit(i, value.getBit(i));
-			} else if(value.getBit(i) == State.X) {
+			} else if (value.getBit(i) == State.X) {
 				setBit(i, getBit(i));
-			} else if(value.getBit(i) != getBit(i)) {
+			} else if (value.getBit(i) != getBit(i)) {
 				throw new ShortCircuitException(this, value);
 			}
 		}
@@ -65,8 +67,8 @@ public class WireValue {
 	
 	public static WireValue of(long value, int bitSize) {
 		WireValue wireValue = new WireValue(bitSize);
-		for(int i = bitSize - 1; i >= 0; i--) {
-			if((value & (1 << i)) == 0) {
+		for (int i = bitSize - 1; i >= 0; i--) {
+			if ((value & (1L << i)) == 0) {
 				wireValue.setBit(i, State.ZERO);
 			} else {
 				wireValue.setBit(i, State.ONE);
@@ -76,9 +78,7 @@ public class WireValue {
 	}
 	
 	public void setAllBits(State state) {
-		for(int i = 0; i < bits.length; i++) {
-			bits[i] = state;
-		}
+		Arrays.fill(bits, state);
 	}
 	
 	public int getBitSize() {
@@ -90,7 +90,7 @@ public class WireValue {
 		
 		bits = new State[bitSize];
 		setAllBits(State.X);
-		System.arraycopy(oldBits, 0, bits, 0, bitSize < oldBits.length ? bitSize : oldBits.length);
+		System.arraycopy(oldBits, 0, bits, 0, Math.min(bitSize, oldBits.length));
 	}
 	
 	public State getBit(int index) {
@@ -102,9 +102,9 @@ public class WireValue {
 	}
 	
 	public WireValue set(WireValue other) {
-		if(other.getBitSize() != getBitSize()) {
-			throw new IllegalArgumentException("Cannot set wire of different size bits. Wanted: " + bits.length +
-					                                   ", Found: " + other.bits.length);
+		if (other.getBitSize() != getBitSize()) {
+			throw new IllegalArgumentException(
+				"Cannot set wire of different size bits. Wanted: " + bits.length + ", Found: " + other.bits.length);
 		}
 		
 		System.arraycopy(other.bits, 0, bits, 0, bits.length);
@@ -112,12 +112,12 @@ public class WireValue {
 	}
 	
 	public WireValue slice(int offset, int length) {
-		if(offset <= 0 || offset + length > bits.length) {
+		if (offset <= 0 || offset + length > bits.length) {
 			throw new IllegalArgumentException("Incorrect offset and length: " + offset + ", " + length);
 		}
 		
 		WireValue value = new WireValue(length);
-		for(int i = offset; i < offset + length; i++) {
+		for (int i = offset; i < offset + length; i++) {
 			value.setBit(i - offset, bits[i]);
 		}
 		
@@ -125,12 +125,12 @@ public class WireValue {
 	}
 	
 	public boolean isValidValue() {
-		if(bits.length == 0) {
+		if (bits.length == 0) {
 			return false;
 		}
 		
-		for(State bit : bits) {
-			if(bit == State.X) {
+		for (State bit : bits) {
+			if (bit == State.X) {
 				return false;
 			}
 		}
@@ -140,44 +140,44 @@ public class WireValue {
 	
 	public int getValue() {
 		int value = 0;
-		for(int i = 0; i < bits.length; i++) {
-			if(bits[i] == State.X) throw new IllegalStateException("Invalid value");
+		for (int i = 0; i < bits.length; i++) {
+			if (bits[i] == State.X) {
+				throw new IllegalStateException("Invalid value");
+			}
 			
 			value |= (1 << i) * (bits[i] == State.ONE ? 1 : 0);
 		}
 		return value;
 	}
-
+	
 	/**
 	 * Converts the value held on this wire to a hex string.
 	 *
 	 * @return a lowercase hex string if all bits are defined, otherwise
-	 *         getBitSize() 'x's
+	 * getBitSize() 'x's
 	 */
 	public String toHexString() {
-		String value;
+		StringBuilder value;
 		int hexDigits = 1 + (getBitSize() - 1) / 4;
-		if(isValidValue()) {
-			value = String.format("%0" + hexDigits + "x", getValue());
+		if (isValidValue()) {
+			value = new StringBuilder(String.format("%0" + hexDigits + "x", getValue()));
 		} else {
-			value = "";
-			for(int i = 0; i < hexDigits; i++) {
-				value += "x";
-			}
+			value = new StringBuilder();
+			value.append("x".repeat(Math.max(0, hexDigits)));
 		}
-		return value;
+		return value.toString();
 	}
-
+	
 	@Override
 	public boolean equals(Object other) {
-		if(other instanceof WireValue) {
+		if (other instanceof WireValue) {
 			WireValue value = (WireValue)other;
-			if(value.getBitSize() != this.getBitSize()) {
+			if (value.getBitSize() != this.getBitSize()) {
 				return false;
 			}
 			
-			for(int i = 0; i < this.getBitSize(); i++) {
-				if(this.getBit(i) != value.getBit(i)) {
+			for (int i = 0; i < this.getBitSize(); i++) {
+				if (this.getBit(i) != value.getBit(i)) {
 					return false;
 				}
 			}
@@ -191,7 +191,7 @@ public class WireValue {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		for(int i = this.getBitSize() - 1; i >= 0; i--) {
+		for (int i = this.getBitSize() - 1; i >= 0; i--) {
 			builder.append(this.getBit(i).repr);
 		}
 		return builder.toString();

@@ -17,7 +17,8 @@ import javafx.util.Pair;
  */
 public class Simulator {
 	private final Set<Circuit> circuits;
-	private Set<Pair<CircuitState, Link>> linksToUpdate, temp;
+	private Set<Pair<CircuitState, Link>> linksToUpdate;
+	private Set<Pair<CircuitState, Link>> temp;
 	private final Set<Pair<CircuitState, Link>> lastShortCircuitedLinks;
 	private final Set<Collection<Pair<CircuitState, Link>>> history;
 	
@@ -135,10 +136,11 @@ public class Simulator {
 	 * Removes the Link from the processing queue.
 	 */
 	void linkRemoved(Link link) {
-		runSync(() -> linksToUpdate.stream()
-		                           .filter(pair -> pair.getValue() == link)
-		                           .collect(Collectors.toList())
-		                           .forEach(linksToUpdate::remove));
+		runSync(() -> linksToUpdate
+			.stream()
+			.filter(pair -> pair.getValue() == link)
+			.collect(Collectors.toList())
+			.forEach(linksToUpdate::remove));
 	}
 	
 	private boolean stepping = false;

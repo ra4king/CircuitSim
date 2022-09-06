@@ -36,10 +36,10 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 	private static final Property<Boolean> GATE_LOCATION_PROPERTY;
 	
 	static {
-		TRANSISTOR_TYPE_PROPERTY =
-				new Property<>("Type",
-				               new PropertyListValidator<>(Arrays.asList(true, false),
-				                                           val -> val ? "P-Type" : "N-Type"), true);
+		TRANSISTOR_TYPE_PROPERTY = new Property<>("Type",
+		                                          new PropertyListValidator<>(Arrays.asList(true, false),
+		                                                                      val -> val ? "P-Type" : "N-Type"),
+		                                          true);
 		
 		GATE_LOCATION_PROPERTY = new Property<>("Gate Location", Properties.LOCATION_VALIDATOR, true);
 	}
@@ -60,24 +60,26 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		
-		int yOff = 0;
-		switch(properties.getValue(Properties.DIRECTION)) {
-			case EAST:
-			case NORTH:
-				yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? 0 : getHeight();
-				break;
-			case WEST:
-			case SOUTH:
-				yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? getHeight() : 0;
-				break;
-		}
+		int yOff = switch (properties.getValue(Properties.DIRECTION)) {
+			case EAST, NORTH -> properties.getValue(GATE_LOCATION_PROPERTY) ? 0 : getHeight();
+			case WEST, SOUTH -> properties.getValue(GATE_LOCATION_PROPERTY) ? getHeight() : 0;
+		};
 		
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_IN), "Input",
-		                                   0, getHeight() - yOff));
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_GATE), "Gate",
-		                                   getWidth() / 2, yOff));
-		connections.add(new PortConnection(this, transistor.getPort(Transistor.PORT_OUT), "Output",
-		                                   getWidth(), getHeight() - yOff));
+		connections.add(new PortConnection(this,
+		                                   transistor.getPort(Transistor.PORT_IN),
+		                                   "Input",
+		                                   0,
+		                                   getHeight() - yOff));
+		connections.add(new PortConnection(this,
+		                                   transistor.getPort(Transistor.PORT_GATE),
+		                                   "Gate",
+		                                   getWidth() / 2,
+		                                   yOff));
+		connections.add(new PortConnection(this,
+		                                   transistor.getPort(Transistor.PORT_OUT),
+		                                   "Output",
+		                                   getWidth(),
+		                                   getHeight() - yOff));
 		
 		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
@@ -92,15 +94,12 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		
 		int x = getScreenX();
 		int y = getScreenY();
-		int width = getScreenWidth() > getScreenHeight() ? getScreenWidth() : getScreenHeight();
-		int height = getScreenWidth() > getScreenHeight() ? getScreenHeight() : getScreenWidth();
+		int width = Math.max(getScreenWidth(), getScreenHeight());
+		int height = Math.min(getScreenWidth(), getScreenHeight());
 		
 		boolean gateLoc = getProperties().getValue(GATE_LOCATION_PROPERTY);
-		switch(getProperties().getValue(Properties.DIRECTION)) {
-			case WEST:
-			case SOUTH:
-				gateLoc = !gateLoc;
-				break;
+		switch (getProperties().getValue(Properties.DIRECTION)) {
+			case WEST, SOUTH -> gateLoc = !gateLoc;
 		}
 		
 		int yOff = gateLoc ? 0 : height;
@@ -129,7 +128,7 @@ public class TransistorPeer extends ComponentPeer<Transistor> {
 		graphics.lineTo(x + width * 0.5 - 1.5, y + yOff + m * (height * 0.7 + 7));
 		graphics.stroke();
 		
-		if(getProperties().getValue(TRANSISTOR_TYPE_PROPERTY)) {
+		if (getProperties().getValue(TRANSISTOR_TYPE_PROPERTY)) {
 			graphics.strokeOval(x + width * 0.5 - 3, y + (gateLoc ? 3 : height - 9), 6, 6);
 		} else {
 			graphics.strokeLine(x + width * 0.5, y + yOff, x + width * 0.5, y + height * 0.5);

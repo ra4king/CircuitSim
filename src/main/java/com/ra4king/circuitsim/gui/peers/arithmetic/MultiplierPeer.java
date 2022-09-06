@@ -44,8 +44,11 @@ public class MultiplierPeer extends ComponentPeer<Multiplier> {
 		connections.add(new PortConnection(this, multiplier.getPort(Multiplier.PORT_B), "B", 0, 3));
 		connections.add(new PortConnection(this, multiplier.getPort(Multiplier.PORT_CARRY_IN), "Carry in", 2, 0));
 		connections.add(new PortConnection(this, multiplier.getPort(Multiplier.PORT_OUT_LOWER), "Out", getWidth(), 2));
-		connections.add(
-				new PortConnection(this, multiplier.getPort(Multiplier.PORT_OUT_UPPER), "Upper bits", 2, getHeight()));
+		connections.add(new PortConnection(this,
+		                                   multiplier.getPort(Multiplier.PORT_OUT_UPPER),
+		                                   "Upper bits",
+		                                   2,
+		                                   getHeight()));
 		
 		init(multiplier, properties, connections);
 	}

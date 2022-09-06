@@ -41,8 +41,8 @@ import com.ra4king.circuitsim.gui.peers.wiring.ClockPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.PinPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.Probe;
-import com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.SimpleTransistorPeer;
+import com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.TransistorPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.Tunnel;
 import com.ra4king.circuitsim.simulator.SimulationException;
@@ -54,7 +54,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class ComponentManager {
-	private List<ComponentLauncherInfo> components;
+	private final List<ComponentLauncherInfo> components;
 	
 	public static class ComponentLauncherInfo {
 		public final Class<? extends ComponentPeer<?>> clazz;
@@ -64,12 +64,13 @@ public class ComponentManager {
 		public final boolean showInComponentsList;
 		public final ComponentCreator<?> creator;
 		
-		ComponentLauncherInfo(Class<? extends ComponentPeer<?>> clazz,
-		                      Pair<String, String> name,
-		                      Image image,
-		                      Properties properties,
-		                      boolean showInComponentsList,
-		                      ComponentCreator<?> creator) {
+		ComponentLauncherInfo(
+			Class<? extends ComponentPeer<?>> clazz,
+			Pair<String, String> name,
+			Image image,
+			Properties properties,
+			boolean showInComponentsList,
+			ComponentCreator<?> creator) {
 			this.clazz = clazz;
 			this.name = name;
 			this.image = image;
@@ -80,16 +81,13 @@ public class ComponentManager {
 		
 		@Override
 		public int hashCode() {
-			return clazz.hashCode()
-				       ^ name.hashCode()
-				       ^ (image == null ? 0 : image.hashCode())
-				       ^ properties.hashCode()
-				       ^ creator.hashCode();
+			return clazz.hashCode() ^ name.hashCode() ^ (image == null ? 0 : image.hashCode()) ^ properties.hashCode() ^
+			       creator.hashCode();
 		}
 		
 		@Override
 		public boolean equals(Object other) {
-			if(!(other instanceof ComponentLauncherInfo)) {
+			if (!(other instanceof ComponentLauncherInfo)) {
 				return false;
 			}
 			
@@ -99,8 +97,9 @@ public class ComponentManager {
 	}
 	
 	public interface ComponentManagerInterface {
-		void addComponent(Pair<String, String> name, Image image, Properties defaultProperties, boolean showInComponentsList);
-
+		void addComponent(
+			Pair<String, String> name, Image image, Properties defaultProperties, boolean showInComponentsList);
+		
 		default void addComponent(Pair<String, String> name, Image image, Properties defaultProperties) {
 			addComponent(name, image, defaultProperties, true);
 		}
@@ -109,19 +108,19 @@ public class ComponentManager {
 	static <T extends ComponentPeer<?>> ComponentCreator<T> forClass(Class<T> clazz) {
 		return (properties, x, y) -> {
 			try {
-				return clazz.getConstructor(Properties.class, Integer.TYPE, Integer.TYPE)
-				            .newInstance(properties, x, y);
-			} catch(NoSuchMethodException exc) {
+				return clazz.getConstructor(Properties.class, Integer.TYPE, Integer.TYPE).newInstance(properties, x,
+				                                                                                      y);
+			} catch (NoSuchMethodException exc) {
 				throw new RuntimeException("Must have constructor taking (Properties props, int x, int y)");
-			} catch(InvocationTargetException exc) {
-				if(exc.getTargetException() instanceof SimulationException) {
+			} catch (InvocationTargetException exc) {
+				if (exc.getTargetException() instanceof SimulationException) {
 					throw (SimulationException)exc.getTargetException();
 				}
 				
 				throw new RuntimeException(exc.getTargetException());
-			} catch(RuntimeException exc) {
+			} catch (RuntimeException exc) {
 				throw exc;
-			} catch(Exception exc) {
+			} catch (Exception exc) {
 				throw new RuntimeException(exc);
 			}
 		};
@@ -133,8 +132,8 @@ public class ComponentManager {
 	}
 	
 	public ComponentLauncherInfo get(Pair<String, String> name) {
-		for(ComponentLauncherInfo component : components) {
-			if(component.name.equals(name)) {
+		for (ComponentLauncherInfo component : components) {
+			if (component.name.equals(name)) {
 				return component;
 			}
 		}
@@ -147,17 +146,17 @@ public class ComponentManager {
 		throws SimulationException {
 		ComponentLauncherInfo firstComponent = null;
 		
-		for(ComponentLauncherInfo component : components) {
-			if(component.clazz == clazz) {
+		for (ComponentLauncherInfo component : components) {
+			if (component.clazz == clazz) {
 				firstComponent = component;
 				
-				if(properties.intersect(component.properties).equals(component.properties)) {
+				if (properties.intersect(component.properties).equals(component.properties)) {
 					return component;
 				}
 			}
 		}
 		
-		if(firstComponent != null) {
+		if (firstComponent != null) {
 			return firstComponent;
 		}
 		
@@ -173,24 +172,27 @@ public class ComponentManager {
 			ComponentCreator<?> creator = forClass(clazz);
 			
 			Method method = clazz.getMethod("installComponent", ComponentManagerInterface.class);
-			method.invoke(null,
-			              (ComponentManagerInterface)(name, image, defaultProperties, showInComponentsList) -> {
-				              if(name == null || defaultProperties == null) {
-					              throw new NullPointerException("Name and Properties cannot be null.");
-				              }
+			method.invoke(null, (ComponentManagerInterface)(name, image, defaultProperties, showInComponentsList) -> {
+				if (name == null || defaultProperties == null) {
+					throw new NullPointerException("Name and Properties cannot be null.");
+				}
 				
-				              ComponentLauncherInfo info = new ComponentLauncherInfo(clazz, name, image, defaultProperties,
-				                                                                     showInComponentsList, creator);
-				              if(!components.contains(info)) {
-					              components.add(info);
-				              }
-			              });
-		} catch(NoSuchMethodException exc) {
-			throw new RuntimeException("Must implement: public static void installComponent" +
-				                           "(ComponentManagerInterface): " + clazz);
-		} catch(RuntimeException exc) {
+				ComponentLauncherInfo info = new ComponentLauncherInfo(clazz,
+				                                                       name,
+				                                                       image,
+				                                                       defaultProperties,
+				                                                       showInComponentsList,
+				                                                       creator);
+				if (!components.contains(info)) {
+					components.add(info);
+				}
+			});
+		} catch (NoSuchMethodException exc) {
+			throw new RuntimeException(
+				"Must implement: public static void installComponent" + "(ComponentManagerInterface): " + clazz);
+		} catch (RuntimeException exc) {
 			throw exc;
-		} catch(Exception exc) {
+		} catch (Exception exc) {
 			throw new RuntimeException(exc);
 		}
 	}

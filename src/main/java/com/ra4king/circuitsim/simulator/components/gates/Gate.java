@@ -27,7 +27,7 @@ public abstract class Gate extends Component {
 	public Gate(String name, int bitSize, int numInputs, boolean[] negateInputs, boolean negateOutput) {
 		super(name, Utils.getFilledArray(numInputs + 1, bitSize));
 		
-		if(negateInputs.length != numInputs) {
+		if (negateInputs.length != numInputs) {
 			throw new IllegalArgumentException("negateInputs array must be the same length as numInputs");
 		}
 		
@@ -59,23 +59,23 @@ public abstract class Gate extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == numInputs) {
+		if (portIndex == numInputs) {
 			return;
 		}
 		
 		WireValue result = new WireValue(value.getBitSize());
-		for(int bit = 0; bit < result.getBitSize(); bit++) {
+		for (int bit = 0; bit < result.getBitSize(); bit++) {
 			State portBit = state.getLastReceived(getPort(0)).getBit(bit);
-			if(negateInputs[0]) {
+			if (negateInputs[0]) {
 				portBit = portBit.negate();
 			}
 			
 			result.setBit(bit, portBit);
 			boolean isX = result.getBit(bit) == State.X;
 			
-			for(int port = 1; port < numInputs; port++) {
+			for (int port = 1; port < numInputs; port++) {
 				portBit = state.getLastReceived(getPort(port)).getBit(bit);
-				if(negateInputs[port]) {
+				if (negateInputs[port]) {
 					portBit = portBit.negate();
 				}
 				
@@ -83,9 +83,9 @@ public abstract class Gate extends Component {
 				result.setBit(bit, operate(result.getBit(bit), portBit));
 			}
 			
-			if(isX) {
+			if (isX) {
 				result.setBit(bit, State.X);
-			} else if(negateOutput) {
+			} else if (negateOutput) {
 				result.setBit(bit, result.getBit(bit) == State.ONE ? State.ZERO : State.ONE);
 			}
 		}

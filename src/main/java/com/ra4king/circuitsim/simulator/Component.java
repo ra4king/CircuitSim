@@ -5,14 +5,14 @@ package com.ra4king.circuitsim.simulator;
  */
 public abstract class Component {
 	private Circuit circuit;
-	private Port[] ports;
+	private final Port[] ports;
 	private String name;
 	
 	protected Component(String name, int[] portBits) {
 		this.name = name;
 		
 		ports = new Port[portBits.length];
-		for(int i = 0; i < portBits.length; i++) {
+		for (int i = 0; i < portBits.length; i++) {
 			ports[i] = new Port(this, i, portBits[i]);
 		}
 	}

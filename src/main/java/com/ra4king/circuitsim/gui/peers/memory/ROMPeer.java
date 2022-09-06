@@ -51,9 +51,9 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		contentsProperty = new Property<>("Contents", new PropertyMemoryValidator(addressBits, dataBits), null);
 		String oldMemory;
 		Property<?> oldContents = props.getProperty("Contents");
-		if(oldContents == null) {
+		if (oldContents == null) {
 			oldMemory = "";
-		} else if(oldContents.validator == null) {
+		} else if (oldContents.validator == null) {
 			oldMemory = props.getValue("Contents");
 		} else {
 			oldMemory = oldContents.getStringValue();
@@ -72,14 +72,15 @@ public class ROMPeer extends ComponentPeer<ROM> {
 	}
 	
 	private static int[] memoryToArray(List<MemoryLine> lines) {
-		if(lines == null) {
+		if (lines == null) {
 			return new int[0];
 		}
 		
-		return lines.stream()
-		            .flatMap(line -> line.values.stream())
-		            .mapToInt(prop -> Integer.parseUnsignedInt(prop.get(), 16))
-		            .toArray();
+		return lines
+			.stream()
+			.flatMap(line -> line.values.stream())
+			.mapToInt(prop -> Integer.parseUnsignedInt(prop.get(), 16))
+			.toArray();
 	}
 	
 	@Override
@@ -93,16 +94,15 @@ public class ROMPeer extends ComponentPeer<ROM> {
 			
 			circuit.getSimulatorWindow().getSimulator().runSync(() -> {
 				int[] memory = getComponent().getMemory();
-				lines.addAll(
-					memoryValidator.parse(memory, (address, value) -> {
-						memory[address] = value;
-						
-						int index = address / 16;
-						MemoryLine line = property.value.get(index);
-						line.values.get(address - index * 16).setValue(memoryValidator.parseValue(value));
-						
-						circuit.getCircuit().forEachState(state -> getComponent().valueChanged(state, null, 0));
-					}));
+				lines.addAll(memoryValidator.parse(memory, (address, value) -> {
+					memory[address] = value;
+					
+					int index = address / 16;
+					MemoryLine line = property.value.get(index);
+					line.values.get(address - index * 16).setValue(memoryValidator.parseValue(value));
+					
+					circuit.getCircuit().forEachState(state -> getComponent().valueChanged(state, null, 0));
+				}));
 			});
 			
 			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), lines);
@@ -119,7 +119,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		
 		graphics.setStroke(Color.BLACK);
 		GuiUtils.drawShape(graphics::strokeRect, this);
-
+		
 		String address = circuitState.getLastReceived(getComponent().getPort(ROM.PORT_ADDRESS)).toHexString();
 		String value = circuitState.getLastPushed(getComponent().getPort(ROM.PORT_DATA)).toHexString();
 		
@@ -129,13 +129,11 @@ public class ROMPeer extends ComponentPeer<ROM> {
 		int height = getScreenHeight();
 		
 		graphics.setFont(GuiUtils.getFont(11, true));
-
+		
 		String text = "ROM";
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), text);
 		graphics.setFill(Color.BLACK);
-		graphics.fillText(text,
-		                  x + (width - bounds.getWidth()) * 0.5,
-		                  y + (height + bounds.getHeight()) * 0.2);
+		graphics.fillText(text, x + (width - bounds.getWidth()) * 0.5, y + (height + bounds.getHeight()) * 0.2);
 		
 		// Draw address
 		text = "A: " + address;

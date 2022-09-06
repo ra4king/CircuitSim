@@ -48,26 +48,34 @@ public class DecoderPeer extends ComponentPeer<Decoder> {
 		
 		int outOffset = 0, selOffset = 0;
 		List<PortConnection> connections = new ArrayList<>();
-		switch(properties.getValue(Properties.DIRECTION)) {
+		switch (properties.getValue(Properties.DIRECTION)) {
 			case EAST:
 				outOffset = getWidth();
 				selOffset = 1;
 			case WEST:
-				for(int i = 0; i < decoder.getNumOutputs(); i++) {
+				for (int i = 0; i < decoder.getNumOutputs(); i++) {
 					connections.add(new PortConnection(this, decoder.getPort(i), String.valueOf(i), outOffset, i + 1));
 				}
-				connections.add(new PortConnection(this, decoder.getSelectorPort(), "Selector",
-				                                   getWidth() / 2 + selOffset, location ? 0 : getHeight()));
+				connections.add(new PortConnection(
+					this,
+					decoder.getSelectorPort(),
+					"Selector",
+					getWidth() / 2 + selOffset,
+					location ? 0 : getHeight()));
 				break;
 			case SOUTH:
 				outOffset = getHeight();
 				selOffset = 1;
 			case NORTH:
-				for(int i = 0; i < decoder.getNumOutputs(); i++) {
+				for (int i = 0; i < decoder.getNumOutputs(); i++) {
 					connections.add(new PortConnection(this, decoder.getPort(i), String.valueOf(i), i + 1, outOffset));
 				}
-				connections.add(new PortConnection(this, decoder.getSelectorPort(), "Selector",
-				                                   location ? 0 : getWidth(), getHeight() / 2 + selOffset));
+				connections.add(new PortConnection(
+					this,
+					decoder.getSelectorPort(),
+					"Selector",
+					location ? 0 : getWidth(),
+					getHeight() / 2 + selOffset));
 				break;
 		}
 		
@@ -86,7 +94,7 @@ public class DecoderPeer extends ComponentPeer<Decoder> {
 		
 		int zeroXOffset = 0;
 		
-		switch(direction) {
+		switch (direction) {
 			case SOUTH:
 				graphics.translate(x, y);
 				graphics.rotate(270);

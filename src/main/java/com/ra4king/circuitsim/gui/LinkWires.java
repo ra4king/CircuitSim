@@ -19,9 +19,9 @@ import javafx.scene.canvas.GraphicsContext;
  * @author Roi Atalla
  */
 public class LinkWires {
-	private Set<PortConnection> ports;
-	private Set<PortConnection> invalidPorts;
-	private Set<Wire> wires;
+	private final Set<PortConnection> ports;
+	private final Set<PortConnection> invalidPorts;
+	private final Set<Wire> wires;
 	
 	private Exception lastException;
 	
@@ -53,7 +53,7 @@ public class LinkWires {
 	}
 	
 	public synchronized void removeWire(Wire wire) {
-		if(wires.contains(wire)) {
+		if (wires.contains(wire)) {
 			wire.setLinkWires(null);
 			wires.remove(wire);
 		}
@@ -68,15 +68,15 @@ public class LinkWires {
 		wires.removeAll(toRemove);
 		
 		Link link = getLink();
-		if(link != null) {
-			for(PortConnection port : ports) {
+		if (link != null) {
+			for (PortConnection port : ports) {
 				link.unlinkPort(port.getPort());
 			}
 		}
 		
 		Set<LinkWires> newLinkWires = new HashSet<>();
 		
-		while(!wires.isEmpty()) {
+		while (!wires.isEmpty()) {
 			Wire nextWire = wires.iterator().next();
 			wires.remove(nextWire);
 			LinkWires linkWires = findAttachedConnections(nextWire);
@@ -87,7 +87,7 @@ public class LinkWires {
 		Set<PortConnection> portsLeft = new HashSet<>(ports);
 		portsLeft.addAll(invalidPorts);
 		
-		while(portsLeft.size() != 0) {
+		while (portsLeft.size() != 0) {
 			LinkWires linkWires = new LinkWires();
 			
 			PortConnection nextPort = portsLeft.iterator().next();
@@ -95,17 +95,17 @@ public class LinkWires {
 			removePort(nextPort);
 			linkWires.addPort(nextPort);
 			
-			for(Iterator<PortConnection> iter = portsLeft.iterator(); iter.hasNext(); ) {
+			for (Iterator<PortConnection> iter = portsLeft.iterator(); iter.hasNext(); ) {
 				PortConnection otherPort = iter.next();
 				
-				if(nextPort.getX() == otherPort.getX() && nextPort.getY() == otherPort.getY()) {
+				if (nextPort.getX() == otherPort.getX() && nextPort.getY() == otherPort.getY()) {
 					iter.remove();
 					removePort(otherPort);
 					linkWires.addPort(otherPort);
 				}
 			}
 			
-			if(linkWires.isEmpty()) {
+			if (linkWires.isEmpty()) {
 				linkWires.clear();
 			} else {
 				newLinkWires.add(linkWires);
@@ -124,22 +124,20 @@ public class LinkWires {
 		
 		Connection start = wire.getStartConnection();
 		Connection end = wire.getEndConnection();
-		for(Iterator<Wire> iter = wires.iterator(); iter.hasNext(); ) {
+		for (Iterator<Wire> iter = wires.iterator(); iter.hasNext(); ) {
 			Wire w = iter.next();
 			
 			Connection wStart = w.getStartConnection();
 			Connection wEnd = w.getEndConnection();
 			
-			if(connsEqual(start, wStart)
-				   || connsEqual(start, wEnd)
-				   || connsEqual(end, wStart)
-				   || connsEqual(end, wEnd)) {
+			if (connsEqual(start, wStart) || connsEqual(start, wEnd) || connsEqual(end, wStart) || connsEqual(end,
+			                                                                                                  wEnd)) {
 				linkWires.addWire(w);
 				iter.remove();
 			}
 		}
 		
-		for(Wire attachedWire : new ArrayList<>(linkWires.getWires())) {
+		for (Wire attachedWire : new ArrayList<>(linkWires.getWires())) {
 			linkWires.merge(findAttachedConnections(attachedWire));
 		}
 		
@@ -147,8 +145,8 @@ public class LinkWires {
 		allPorts.addAll(ports);
 		allPorts.addAll(invalidPorts);
 		allPorts.forEach(port -> {
-			for(Connection c : wire.getConnections()) {
-				if(port.getX() == c.getX() && port.getY() == c.getY()) {
+			for (Connection c : wire.getConnections()) {
+				if (port.getX() == c.getX() && port.getY() == c.getY()) {
 					removePort(port);
 					linkWires.addPort(port);
 					break;
@@ -162,11 +160,11 @@ public class LinkWires {
 	public void addPort(PortConnection port) {
 		port.setLinkWires(this);
 		
-		if(ports.size() > 0) {
+		if (ports.size() > 0) {
 			Link link = getLink();
 			try {
 				link.linkPort(port.getPort());
-			} catch(Exception exc) {
+			} catch (Exception exc) {
 				invalidPorts.add(port);
 				lastException = exc;
 				return;
@@ -185,8 +183,8 @@ public class LinkWires {
 	}
 	
 	public void removePort(PortConnection port) {
-		if(!ports.contains(port)) {
-			if(invalidPorts.remove(port)) {
+		if (!ports.contains(port)) {
+			if (invalidPorts.remove(port)) {
 				port.setLinkWires(null);
 				port.getPort().getLink().unlinkPort(port.getPort());
 			}
@@ -198,11 +196,11 @@ public class LinkWires {
 		ports.remove(port);
 		port.setLinkWires(null);
 		
-		if(ports.isEmpty()) {
+		if (ports.isEmpty()) {
 			Set<PortConnection> invalidPorts = new HashSet<>(this.invalidPorts);
 			this.invalidPorts.clear();
 			
-			for(PortConnection invalid : invalidPorts) {
+			for (PortConnection invalid : invalidPorts) {
 				addPort(invalid);
 			}
 		}
@@ -214,7 +212,7 @@ public class LinkWires {
 	}
 	
 	public LinkWires merge(LinkWires other) {
-		if(other == this) {
+		if (other == this) {
 			return this;
 		}
 		
@@ -243,12 +241,12 @@ public class LinkWires {
 			
 			setLinkWires(linkWires);
 			
-			if(length == 0) {
+			if (length == 0) {
 				throw new SimulationException("Length cannot be 0");
 			}
 			
-			if(length < 0) {
-				if(horizontal) {
+			if (length < 0) {
+				if (horizontal) {
 					setX(startX + length);
 				} else {
 					setY(startY + length);
@@ -263,7 +261,7 @@ public class LinkWires {
 			
 			int xOffset = horizontal ? 1 : 0;
 			int yOffset = horizontal ? 0 : 1;
-			for(int i = 0; i < length; i++) {
+			for (int i = 0; i < length; i++) {
 				connections.add(new WireConnection(this, i * xOffset, i * yOffset));
 			}
 			connections.add(new WireConnection(this, length * xOffset, length * yOffset));
@@ -294,7 +292,7 @@ public class LinkWires {
 		}
 		
 		public void setLinkWires(LinkWires linkWires) {
-			if(linkWires == null) {
+			if (linkWires == null) {
 				linkWires = new LinkWires();
 				linkWires.addWire(this);
 			}
@@ -311,22 +309,19 @@ public class LinkWires {
 		}
 		
 		public boolean isWithin(Wire wire) {
-			return wire.horizontal == this.horizontal
-					       && this.getX() >= wire.getX()
-					       && this.getX() + this.getWidth() <= wire.getX() + wire.getWidth()
-					       && this.getY() >= wire.getY()
-					       && this.getY() + this.getHeight() <= wire.getY() + wire.getHeight();
+			return wire.horizontal == this.horizontal && this.getX() >= wire.getX() &&
+			       this.getX() + this.getWidth() <= wire.getX() + wire.getWidth() && this.getY() >= wire.getY() &&
+			       this.getY() + this.getHeight() <= wire.getY() + wire.getHeight();
 		}
 		
 		public boolean overlaps(Wire wire) {
-			return wire.horizontal == this.horizontal &&
-					       (wire.horizontal
-					        ? wire.getY() == getY()
-							          && !(wire.getX() >= getX() + getLength()
-									               || getX() >= wire.getX() + wire.getLength())
-					        : wire.getX() == getX()
-							          && !(wire.getY() >= getY() + getLength()
-									               || getY() >= wire.getY() + wire.getLength()));
+			return wire.horizontal == this.horizontal && (wire.horizontal ?
+			                                              wire.getY() == getY() &&
+			                                              !(wire.getX() >= getX() + getLength() ||
+			                                                getX() >= wire.getX() + wire.getLength()) :
+			                                              wire.getX() == getX() &&
+			                                              !(wire.getY() >= getY() + getLength() ||
+			                                                getY() >= wire.getY() + wire.getLength()));
 		}
 		
 		public Connection getStartConnection() {
@@ -349,10 +344,10 @@ public class LinkWires {
 		
 		@Override
 		public boolean equals(Object other) {
-			if(other instanceof Wire) {
+			if (other instanceof Wire) {
 				Wire wire = (Wire)other;
-				return this.getX() == wire.getX() && this.getY() == wire.getY() && this.horizontal == wire.horizontal
-						       && this.length == wire.length;
+				return this.getX() == wire.getX() && this.getY() == wire.getY() && this.horizontal == wire.horizontal &&
+				       this.length == wire.length;
 			}
 			
 			return false;
@@ -360,8 +355,8 @@ public class LinkWires {
 		
 		@Override
 		public String toString() {
-			return "Wire(x = " + getX() + ", y = " + getY() +
-				       ", length = " + getLength() + ", horizontal = " + isHorizontal() + ")";
+			return "Wire(x = " + getX() + ", y = " + getY() + ", length = " + getLength() + ", horizontal = " +
+			       isHorizontal() + ")";
 		}
 		
 		@Override
@@ -380,7 +375,8 @@ public class LinkWires {
 		
 		public void paint(GraphicsContext graphics, double width) {
 			graphics.setLineWidth(width);
-			graphics.strokeLine(super.getScreenX(), super.getScreenY(),
+			graphics.strokeLine(super.getScreenX(),
+			                    super.getScreenY(),
 			                    super.getScreenX() + super.getScreenWidth(),
 			                    super.getScreenY() + super.getScreenHeight());
 		}

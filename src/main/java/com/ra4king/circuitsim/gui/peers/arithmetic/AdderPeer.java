@@ -36,8 +36,7 @@ public class AdderPeer extends ComponentPeer<Adder> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
-		Adder adder = new Adder(properties.getValue(Properties.LABEL),
-		                        properties.getValue(Properties.BITSIZE));
+		Adder adder = new Adder(properties.getValue(Properties.LABEL), properties.getValue(Properties.BITSIZE));
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, adder.getPort(Adder.PORT_A), "A", 0, 1));

@@ -34,10 +34,10 @@ public class SimpleTransistorPeer extends ComponentPeer<SimpleTransistor> {
 	private static final Property<Boolean> GATE_LOCATION_PROPERTY;
 	
 	static {
-		TRANSISTOR_TYPE_PROPERTY =
-				new Property<>("Type",
-				               new PropertyListValidator<>(Arrays.asList(true, false),
-				                                           val -> val ? "P-Type" : "N-Type"), true);
+		TRANSISTOR_TYPE_PROPERTY = new Property<>("Type",
+		                                          new PropertyListValidator<>(Arrays.asList(true, false),
+		                                                                      val -> val ? "P-Type" : "N-Type"),
+		                                          true);
 		
 		GATE_LOCATION_PROPERTY = new Property<>("Gate Location", Properties.LOCATION_VALIDATOR, true);
 	}
@@ -65,12 +65,21 @@ public class SimpleTransistorPeer extends ComponentPeer<SimpleTransistor> {
 			yOff = properties.getValue(GATE_LOCATION_PROPERTY) ? 0 : getHeight();
 		}
 		
-		connections.add(new PortConnection(this, transistor.getPort(SimpleTransistor.PORT_SOURCE), "Source",
-		                                   0, getHeight() - yOff));
-		connections.add(new PortConnection(this, transistor.getPort(SimpleTransistor.PORT_GATE), "Gate",
-		                                   getWidth() / 2, yOff));
-		connections.add(new PortConnection(this, transistor.getPort(SimpleTransistor.PORT_DRAIN), "Drain",
-		                                   getWidth(), getHeight() - yOff));
+		connections.add(new PortConnection(this,
+		                                   transistor.getPort(SimpleTransistor.PORT_SOURCE),
+		                                   "Source",
+		                                   0,
+		                                   getHeight() - yOff));
+		connections.add(new PortConnection(this,
+		                                   transistor.getPort(SimpleTransistor.PORT_GATE),
+		                                   "Gate",
+		                                   getWidth() / 2,
+		                                   yOff));
+		connections.add(new PortConnection(this,
+		                                   transistor.getPort(SimpleTransistor.PORT_DRAIN),
+		                                   "Drain",
+		                                   getWidth(),
+		                                   getHeight() - yOff));
 		
 		GuiUtils.rotatePorts(connections, Direction.EAST, direction);
 		GuiUtils.rotateElementSize(this, Direction.EAST, direction);
@@ -84,20 +93,20 @@ public class SimpleTransistorPeer extends ComponentPeer<SimpleTransistor> {
 		Direction direction = effectiveDirection(isPType);
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, direction);
-
+		
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = Math.max(getScreenWidth(), getScreenHeight());
 		int height = Math.min(getScreenWidth(), getScreenHeight());
-
+		
 		boolean gateLoc = (direction == Direction.SOUTH) ^ getProperties().getValue(GATE_LOCATION_PROPERTY);
-
+		
 		int yOff = gateLoc ? 0 : height;
 		int m = gateLoc ? 1 : -1;
-
+		
 		graphics.setStroke(getColor());
 		graphics.setLineWidth(2);
-
+		
 		graphics.beginPath();
 		graphics.moveTo(x, y + height - yOff);
 		graphics.lineTo(x + width / 3.0, y + height - yOff);
@@ -112,20 +121,20 @@ public class SimpleTransistorPeer extends ComponentPeer<SimpleTransistor> {
 		
 		graphics.setLineWidth(1);
 		
-		if(getProperties().getValue(TRANSISTOR_TYPE_PROPERTY)) {
+		if (getProperties().getValue(TRANSISTOR_TYPE_PROPERTY)) {
 			graphics.strokeOval(x + width * 0.5 - 3, y + (gateLoc ? 3 : height - 9), 6, 6);
 		} else {
 			graphics.strokeLine(x + width * 0.5, y + yOff, x + width * 0.5, y + height * 0.5);
 		}
 	}
-
+	
 	private Color getColor() {
-		return getComponent().getIllegallyWired()? Color.RED : Color.BLACK;
+		return getComponent().getIllegallyWired() ? Color.RED : Color.BLACK;
 	}
-
+	
 	// Follow the Patt & Patel convention in which P-type transistors point
 	// downward and N-type transistors point upward
 	private Direction effectiveDirection(boolean isPType) {
-		return isPType? Direction.SOUTH : Direction.NORTH;
+		return isPType ? Direction.SOUTH : Direction.NORTH;
 	}
 }

@@ -32,8 +32,7 @@ public class NotGatePeer extends GatePeer<NotGate> {
 	
 	@Override
 	public NotGate buildGate(Properties properties) {
-		return new NotGate(properties.getValue(Properties.LABEL),
-		                   properties.getValue(Properties.BITSIZE));
+		return new NotGate(properties.getValue(Properties.LABEL), properties.getValue(Properties.BITSIZE));
 	}
 	
 	@Override

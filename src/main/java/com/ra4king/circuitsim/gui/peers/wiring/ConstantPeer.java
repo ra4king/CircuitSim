@@ -52,19 +52,11 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		value = WireValue.of(constant.getValue(), constant.getBitSize());
 		
 		List<PortConnection> connections = new ArrayList<>();
-		switch(properties.getValue(Properties.DIRECTION)) {
-			case EAST:
-				connections.add(new PortConnection(this, constant.getPort(0), getWidth(), getHeight() / 2));
-				break;
-			case WEST:
-				connections.add(new PortConnection(this, constant.getPort(0), 0, getHeight() / 2));
-				break;
-			case NORTH:
-				connections.add(new PortConnection(this, constant.getPort(0), getWidth() / 2, 0));
-				break;
-			case SOUTH:
-				connections.add(new PortConnection(this, constant.getPort(0), getWidth() / 2, getHeight()));
-				break;
+		switch (properties.getValue(Properties.DIRECTION)) {
+			case EAST -> connections.add(new PortConnection(this, constant.getPort(0), getWidth(), getHeight() / 2));
+			case WEST -> connections.add(new PortConnection(this, constant.getPort(0), 0, getHeight() / 2));
+			case NORTH -> connections.add(new PortConnection(this, constant.getPort(0), getWidth() / 2, 0));
+			case SOUTH -> connections.add(new PortConnection(this, constant.getPort(0), getWidth() / 2, getHeight()));
 		}
 		
 		init(constant, properties, connections);
@@ -81,7 +73,7 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		graphics.fillRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 10, 10);
 		graphics.strokeRoundRect(getScreenX(), getScreenY(), getScreenWidth(), getScreenHeight(), 10, 10);
 		
-		if(value.getBitSize() > 1) {
+		if (value.getBitSize() > 1) {
 			graphics.setFill(Color.BLACK);
 		} else {
 			GuiUtils.setBitColor(graphics, value.getBit(0));

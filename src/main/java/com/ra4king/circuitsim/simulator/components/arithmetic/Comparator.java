@@ -30,13 +30,13 @@ public class Comparator extends Component {
 		WireValue inputA = state.getLastReceived(getPort(PORT_A));
 		WireValue inputB = state.getLastReceived(getPort(PORT_B));
 		
-		if(inputA.isValidValue() && inputB.isValidValue()) {
-			long valueA = (long)inputA.getValue();
-			long valueB = (long)inputB.getValue();
+		if (inputA.isValidValue() && inputB.isValidValue()) {
+			long valueA = inputA.getValue();
+			long valueB = inputB.getValue();
 			
-			if(useSignedCompare) {
-				valueA |= (valueA & (0x1 << (bitSize - 1))) != 0 ? (-1 << bitSize) : 0;
-				valueB |= (valueB & (0x1 << (bitSize - 1))) != 0 ? (-1 << bitSize) : 0; 
+			if (useSignedCompare) {
+				valueA |= (valueA & (0x1L << (bitSize - 1))) != 0 ? (-1L << bitSize) : 0;
+				valueB |= (valueB & (0x1L << (bitSize - 1))) != 0 ? (-1L << bitSize) : 0;
 			} else {
 				valueA &= 0xFFFFFFFFL;
 				valueB &= 0xFFFFFFFFL;

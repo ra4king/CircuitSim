@@ -13,9 +13,7 @@ public class BitExtender extends Component {
 	public static final int PORT_OUT = 1;
 	
 	public enum ExtensionType {
-		ZERO,
-		ONE,
-		SIGN
+		ZERO, ONE, SIGN
 	}
 	
 	private final int inputBitSize;
@@ -44,17 +42,17 @@ public class BitExtender extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_IN) {
+		if (portIndex == PORT_IN) {
 			WireValue extended = new WireValue(value, outputBitSize);
-			if(outputBitSize > inputBitSize) {
-				switch(extensionType) {
+			if (outputBitSize > inputBitSize) {
+				switch (extensionType) {
 					case SIGN:
-						if(extended.getBit(inputBitSize - 1) != State.ONE) {
+						if (extended.getBit(inputBitSize - 1) != State.ONE) {
 							break;
 						}
 					
 					case ONE:
-						for(int i = inputBitSize; i < outputBitSize; i++) {
+						for (int i = inputBitSize; i < outputBitSize; i++) {
 							extended.setBit(i, State.ONE);
 						}
 						break;

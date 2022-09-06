@@ -50,7 +50,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		
 		Object value = props.getValueOrDefault(IS_INPUT, false);
 		boolean isInput;
-		if(value instanceof String) {
+		if (value instanceof String) {
 			isInput = Boolean.parseBoolean((String)value);
 		} else {
 			isInput = (Boolean)value;
@@ -58,33 +58,26 @@ public class PinPeer extends ComponentPeer<Pin> {
 		
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
-		properties.ensureProperty(
-				new Property<>(Properties.LABEL_LOCATION, isInput ? Direction.WEST : Direction.EAST));
+		properties.ensureProperty(new Property<>(Properties.LABEL_LOCATION, isInput ? Direction.WEST :
+		                                                                    Direction.EAST));
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(IS_INPUT);
 		properties.mergeIfExists(props);
 		
-		Pin pin = new Pin(properties.getValue(Properties.LABEL),
-		                  properties.getValue(Properties.BITSIZE),
-		                  properties.getValue(IS_INPUT));
+		Pin pin = new Pin(
+			properties.getValue(Properties.LABEL),
+			properties.getValue(Properties.BITSIZE),
+			properties.getValue(IS_INPUT));
 		setWidth(Math.max(2, Math.min(8, pin.getBitSize())));
 		setHeight((int)Math.round((1 + (pin.getBitSize() - 1) / 8) * 1.5));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		switch(properties.getValue(Properties.DIRECTION)) {
-			case EAST:
-				connections.add(new PortConnection(this, pin.getPort(0), getWidth(), getHeight() / 2));
-				break;
-			case WEST:
-				connections.add(new PortConnection(this, pin.getPort(0), 0, getHeight() / 2));
-				break;
-			case NORTH:
-				connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, 0));
-				break;
-			case SOUTH:
-				connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, getHeight()));
-				break;
+		switch (properties.getValue(Properties.DIRECTION)) {
+			case EAST -> connections.add(new PortConnection(this, pin.getPort(0), getWidth(), getHeight() / 2));
+			case WEST -> connections.add(new PortConnection(this, pin.getPort(0), 0, getHeight() / 2));
+			case NORTH -> connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, 0));
+			case SOUTH -> connections.add(new PortConnection(this, pin.getPort(0), getWidth() / 2, getHeight()));
 		}
 		
 		init(pin, properties, connections);
@@ -96,11 +89,11 @@ public class PinPeer extends ComponentPeer<Pin> {
 	
 	@Override
 	public void mousePressed(CircuitManager manager, CircuitState state, double x, double y) {
-		if(!isInput()) {
+		if (!isInput()) {
 			return;
 		}
 		
-		if(state != manager.getCircuit().getTopLevelState()) {
+		if (state != manager.getCircuit().getTopLevelState()) {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.initOwner(manager.getSimulatorWindow().getStage());
 			alert.initModality(Modality.WINDOW_MODAL);
@@ -108,7 +101,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 			alert.setHeaderText("Switch to top-level state?");
 			alert.setContentText("Cannot modify state of a subcircuit. Switch to top-level state?");
 			Optional<ButtonType> buttonType = alert.showAndWait();
-			if(buttonType.isPresent() && buttonType.get() == ButtonType.OK) {
+			if (buttonType.isPresent() && buttonType.get() == ButtonType.OK) {
 				state = manager.getCircuit().getTopLevelState();
 				manager.getCircuitBoard().setCurrentState(state);
 			} else {
@@ -119,9 +112,8 @@ public class PinPeer extends ComponentPeer<Pin> {
 		Pin pin = getComponent();
 		
 		WireValue value = state.getLastPushed(pin.getPort(Pin.PORT));
-		if(pin.getBitSize() == 1) {
-			pin.setValue(state,
-			             new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
+		if (pin.getBitSize() == 1) {
+			pin.setValue(state, new WireValue(1, value.getBit(0) == State.ONE ? State.ZERO : State.ONE));
 		} else {
 			double bitWidth = getScreenWidth() / Math.min(8.0, pin.getBitSize());
 			double bitHeight = getScreenHeight() / ((pin.getBitSize() - 1) / 8 + 1.0);
@@ -130,7 +122,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 			int bitRow = (int)(y / bitHeight);
 			
 			int bit = pin.getBitSize() - 1 - (bitCol + bitRow * 8);
-			if(bit >= 0 && bit < pin.getBitSize()) {
+			if (bit >= 0 && bit < pin.getBitSize()) {
 				WireValue newValue = new WireValue(value);
 				newValue.setBit(bit, value.getBit(bit) == State.ONE ? State.ZERO : State.ONE);
 				pin.setValue(state, newValue);
@@ -140,26 +132,20 @@ public class PinPeer extends ComponentPeer<Pin> {
 	
 	@Override
 	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
-		if(!isInput()) {
+		if (!isInput()) {
 			return false;
 		}
 		
-		switch(keyCode) {
-			case NUMPAD0:
-			case NUMPAD1:
-			case DIGIT0:
-			case DIGIT1:
+		switch (keyCode) {
+			case NUMPAD0, NUMPAD1, DIGIT0, DIGIT1 -> {
 				int value = text.charAt(0) - '0';
-				
 				WireValue currentValue = new WireValue(state.getLastPushed(getComponent().getPort(Pin.PORT)));
-				
-				for(int i = currentValue.getBitSize() - 1; i > 0; i--) {
+				for (int i = currentValue.getBitSize() - 1; i > 0; i--) {
 					currentValue.setBit(i, currentValue.getBit(i - 1));
 				}
-				
 				currentValue.setBit(0, value == 1 ? State.ONE : State.ZERO);
 				getComponent().setValue(state, currentValue);
-				break;
+			}
 		}
 		
 		return false;
@@ -171,12 +157,11 @@ public class PinPeer extends ComponentPeer<Pin> {
 		
 		graphics.setFont(GuiUtils.getFont(16, true));
 		Port port = getComponent().getPort(Pin.PORT);
-		WireValue value = isInput() ? circuitState.getLastPushed(port)
-		                            : circuitState.getLastReceived(port);
-		if(circuitState.isShortCircuited(port.getLink())) {
+		WireValue value = isInput() ? circuitState.getLastPushed(port) : circuitState.getLastReceived(port);
+		if (circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {
-			if(value.getBitSize() == 1) {
+			if (value.getBitSize() == 1) {
 				GuiUtils.setBitColor(graphics, value.getBit(0));
 			} else {
 				graphics.setFill(Color.WHITE);
@@ -184,7 +169,7 @@ public class PinPeer extends ComponentPeer<Pin> {
 		}
 		graphics.setStroke(Color.BLACK);
 		
-		if(isInput()) {
+		if (isInput()) {
 			GuiUtils.drawShape(graphics::fillRect, this);
 			GuiUtils.drawShape(graphics::strokeRect, this);
 		} else {

@@ -50,30 +50,42 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 		
 		int outOffset = 0, selOffset = 0;
 		List<PortConnection> connections = new ArrayList<>();
-		switch(properties.getValue(Properties.DIRECTION)) {
+		switch (properties.getValue(Properties.DIRECTION)) {
 			case EAST:
 				outOffset = getWidth();
 				selOffset = 1;
 			case WEST:
-				for(int i = 0; i < demux.getNumOutputs(); i++) {
+				for (int i = 0; i < demux.getNumOutputs(); i++) {
 					connections.add(new PortConnection(this, demux.getPort(i), String.valueOf(i), outOffset, i + 1));
 				}
-				connections.add(new PortConnection(this, demux.getSelectorPort(), "Selector",
-				                                   getWidth() / 2 + selOffset, location ? 0 : getHeight()));
-				connections.add(new PortConnection(this, demux.getInputPort(), "In",
-				                                   getWidth() - outOffset, getHeight() / 2));
+				connections.add(new PortConnection(this,
+				                                   demux.getSelectorPort(),
+				                                   "Selector",
+				                                   getWidth() / 2 + selOffset,
+				                                   location ? 0 : getHeight()));
+				connections.add(new PortConnection(this,
+				                                   demux.getInputPort(),
+				                                   "In",
+				                                   getWidth() - outOffset,
+				                                   getHeight() / 2));
 				break;
 			case SOUTH:
 				outOffset = getHeight();
 				selOffset = 1;
 			case NORTH:
-				for(int i = 0; i < demux.getNumOutputs(); i++) {
+				for (int i = 0; i < demux.getNumOutputs(); i++) {
 					connections.add(new PortConnection(this, demux.getPort(i), String.valueOf(i), i + 1, outOffset));
 				}
-				connections.add(new PortConnection(this, demux.getSelectorPort(), "Selector",
-				                                   location ? 0 : getWidth(), getHeight() / 2 + selOffset));
-				connections.add(new PortConnection(this, demux.getInputPort(), "In",
-				                                   getWidth() / 2, getHeight() - outOffset));
+				connections.add(new PortConnection(this,
+				                                   demux.getSelectorPort(),
+				                                   "Selector",
+				                                   location ? 0 : getWidth(),
+				                                   getHeight() / 2 + selOffset));
+				connections.add(new PortConnection(this,
+				                                   demux.getInputPort(),
+				                                   "In",
+				                                   getWidth() / 2,
+				                                   getHeight() - outOffset));
 				break;
 		}
 		
@@ -92,7 +104,7 @@ public class DemultiplexerPeer extends ComponentPeer<Demultiplexer> {
 		
 		int zeroXOffset = 0;
 		
-		switch(direction) {
+		switch (direction) {
 			case SOUTH:
 				graphics.translate(x, y);
 				graphics.rotate(270);

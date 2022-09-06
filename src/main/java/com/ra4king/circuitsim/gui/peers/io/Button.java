@@ -25,9 +25,10 @@ import javafx.util.Pair;
  */
 public class Button extends ComponentPeer<Component> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Input/Output", "Button"),
-		                     new Image(Button.class.getResourceAsStream("/images/Button.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Input/Output", "Button"),
+			new Image(Button.class.getResourceAsStream("/images/Button.png")),
+			new Properties());
 	}
 	
 	private boolean isPressed = false;
@@ -73,7 +74,7 @@ public class Button extends ComponentPeer<Component> {
 	
 	@Override
 	public boolean keyPressed(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
-		if(keyCode == KeyCode.SPACE) {
+		if (keyCode == KeyCode.SPACE) {
 			mousePressed(manager, state, 0, 0);
 		}
 		
@@ -82,7 +83,7 @@ public class Button extends ComponentPeer<Component> {
 	
 	@Override
 	public void keyReleased(CircuitManager manager, CircuitState state, KeyCode keyCode, String text) {
-		if(keyCode == KeyCode.SPACE) {
+		if (keyCode == KeyCode.SPACE) {
 			mouseReleased(manager, state, 0, 0);
 		}
 	}
@@ -90,7 +91,7 @@ public class Button extends ComponentPeer<Component> {
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState state) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
-
+		
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = getScreenWidth();
@@ -99,7 +100,7 @@ public class Button extends ComponentPeer<Component> {
 		
 		graphics.setStroke(Color.BLACK);
 		
-		if(isPressed) {
+		if (isPressed) {
 			graphics.setFill(Color.WHITE);
 		} else {
 			graphics.setFill(Color.DARKGRAY);
@@ -108,7 +109,7 @@ public class Button extends ComponentPeer<Component> {
 		graphics.fillRect(x + offset, y + offset, width - offset, height - offset);
 		graphics.strokeRect(x + offset, y + offset, width - offset, height - offset);
 		
-		if(!isPressed) {
+		if (!isPressed) {
 			graphics.setFill(Color.WHITE);
 			
 			graphics.fillRect(x, y, width - offset, height - offset);

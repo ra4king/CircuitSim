@@ -28,7 +28,7 @@ public class Clock extends Component {
 		
 		void reset() {
 			stopClock();
-			if(clock) {
+			if (clock) {
 				tick();
 			}
 		}
@@ -37,7 +37,7 @@ public class Clock extends Component {
 			clock = !clock;
 			WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 			clocks.forEach((clock, o) -> {
-				if(clock.getCircuit() != null) {
+				if (clock.getCircuit() != null) {
 					clock.getCircuit().forEachState(state -> state.pushValue(clock.getPort(PORT), clockValue));
 				}
 			});
@@ -48,15 +48,15 @@ public class Clock extends Component {
 			lastTickTime = lastPrintTime = System.nanoTime();
 			lastTickCount = tickCount = 0;
 			
-			final long nanosPerTick = (long)(1e9 / (2 * hertz));
+			final long nanosPerTick = (long)(1e9 / (2L * hertz));
 			
 			stopClock();
 			Thread clockThread = new Thread(() -> {
 				Thread thread = currentClock;
 				
-				while(thread != null && !thread.isInterrupted()) {
+				while (thread != null && !thread.isInterrupted()) {
 					long now = System.nanoTime();
-					if(now - lastPrintTime >= 1e9) {
+					if (now - lastPrintTime >= 1e9) {
 						lastTickCount = tickCount;
 						tickCount = 0;
 						lastPrintTime = now;
@@ -69,10 +69,10 @@ public class Clock extends Component {
 					lastTickTime += nanosPerTick;
 					
 					long diff = lastTickTime - System.nanoTime();
-					if(diff >= 1e6 || (tickCount >> 1) >= hertz) {
+					if (diff >= 1e6 || (tickCount >> 1) >= hertz) {
 						try {
 							Thread.sleep(Math.max(1, (long)(diff / 1e6)));
-						} catch(InterruptedException exc) {
+						} catch (InterruptedException exc) {
 							break;
 						}
 					}
@@ -87,14 +87,14 @@ public class Clock extends Component {
 		}
 		
 		void stopClock() {
-			if(currentClock != null) {
+			if (currentClock != null) {
 				Thread clockThread = currentClock;
 				
 				currentClock.interrupt();
 				currentClock = null;
 				lastTickCount = 0;
 				
-				while(clockThread.isAlive()) {
+				while (clockThread.isAlive()) {
 					Thread.yield();
 				}
 			}
@@ -114,14 +114,14 @@ public class Clock extends Component {
 		Circuit old = getCircuit();
 		super.setCircuit(circuit);
 		
-		if(old != null) {
+		if (old != null) {
 			ClockInfo clock = simulatorClocks.get(old.getSimulator());
-			if(clock != null) {
+			if (clock != null) {
 				clock.clocks.remove(this);
 			}
 		}
 		
-		if(circuit != null) {
+		if (circuit != null) {
 			ClockInfo clock = get(circuit.getSimulator());
 			clock.clocks.put(this, this);
 		}

@@ -15,9 +15,7 @@ import javafx.util.Pair;
  */
 public class PathFinding {
 	public enum LocationPreference {
-		INVALID,
-		VALID,
-		PREFER
+		INVALID, VALID, PREFER
 	}
 	
 	public interface ValidWireLocation {
@@ -27,7 +25,7 @@ public class PathFinding {
 	private static final Cost INFINITY = new Cost(Integer.MAX_VALUE, Integer.MAX_VALUE);
 	
 	public static Pair<Set<Wire>, Set<Point>> bestPath(int sx, int sy, int dx, int dy, ValidWireLocation valid) {
-		if(dx < 0 || dy < 0) {
+		if (dx < 0 || dy < 0) {
 			return new Pair<>(Collections.emptySet(), Collections.emptySet());
 		}
 		
@@ -47,65 +45,65 @@ public class PathFinding {
 		
 		int iterations = 0;
 		
-		while(!openSet.isEmpty()) {
-			if(Thread.currentThread().isInterrupted()) {
-				return new Pair<>(Collections.emptySet(), closedSet); 
+		while (!openSet.isEmpty()) {
+			if (Thread.currentThread().isInterrupted()) {
+				return new Pair<>(Collections.emptySet(), closedSet);
 			}
 			
 			iterations++;
-			if(iterations == 5000) {
+			if (iterations == 5000) {
 				System.err.println("Path finding taking too long, bail...");
 				return new Pair<>(Collections.emptySet(), closedSet);
 			}
 			
 			Point current = null;
-			for(Point point : openSet) {
-				if(current == null ||
-						   fScore.getOrDefault(point, Integer.MAX_VALUE)
-								   < fScore.getOrDefault(current, Integer.MAX_VALUE)) {
+			for (Point point : openSet) {
+				if (current == null || fScore.getOrDefault(point, Integer.MAX_VALUE) < fScore.getOrDefault(current,
+				                                                                                           Integer.MAX_VALUE)) {
 					current = point;
 				}
 			}
 			
-			if(current == null) {
+			if (current == null) {
 				throw new IllegalStateException("Impossible");
 			}
 			
 			openSet.remove(current);
 			
-			if(current.equalsIgnoreDirection(destination)) {
+			if (current.equalsIgnoreDirection(destination)) {
 				return new Pair<>(constructPath(cameFrom, current), closedSet);
 			}
 			
 			closedSet.add(current);
 			
-			for(Direction direction : Direction.values) {
-				if(direction.isOpposite(current.direction)) {
+			for (Direction direction : Direction.values) {
+				if (direction.isOpposite(current.direction)) {
 					continue;
 				}
 				
 				Point neighbor = direction.move(current);
-				if(neighbor.x < 0 || neighbor.y < 0) {
+				if (neighbor.x < 0 || neighbor.y < 0) {
 					continue;
 				}
 				
-				if(closedSet.contains(neighbor)) {
+				if (closedSet.contains(neighbor)) {
 					continue;
 				}
 				
-				LocationPreference preference =
-						valid.isValidWireLocation(neighbor.x, neighbor.y, 
-						                          direction == Direction.RIGHT || direction == Direction.LEFT);
+				LocationPreference preference = valid.isValidWireLocation(neighbor.x,
+				                                                          neighbor.y,
+				                                                          direction == Direction.RIGHT ||
+				                                                          direction == Direction.LEFT);
 				
-				if(preference == LocationPreference.INVALID) {
+				if (preference == LocationPreference.INVALID) {
 					continue;
 				}
 				
 				int additionalLength = preference == LocationPreference.PREFER ? 0 : 1;
 				
 				int additionalTurns = 0;
-				if(current.direction != null && direction != current.direction) {
-					if(neighbor.x == destination.x || neighbor.y == destination.y) {
+				if (current.direction != null && direction != current.direction) {
+					if (neighbor.x == destination.x || neighbor.y == destination.y) {
 						additionalTurns = 1;
 					} else {
 						additionalTurns = 2;
@@ -115,7 +113,7 @@ public class PathFinding {
 				Cost currentCost = gScore.get(current);
 				Cost totalCost = new Cost(currentCost.length + additionalLength, currentCost.turns + additionalTurns);
 				
-				if(totalCost.compareTo(gScore.getOrDefault(neighbor, INFINITY)) >= 0) {
+				if (totalCost.compareTo(gScore.getOrDefault(neighbor, INFINITY)) >= 0) {
 					continue;
 				}
 				
@@ -137,11 +135,11 @@ public class PathFinding {
 		Set<Wire> totalPath = new HashSet<>();
 		
 		Point lastEndpoint = current;
-		while(cameFrom.containsKey(current)) {
+		while (cameFrom.containsKey(current)) {
 			Point next = cameFrom.get(current);
 			
-			if(!(lastEndpoint.x == current.x && current.x == next.x)
-					   && !(lastEndpoint.y == current.y && current.y == next.y)) {
+			if (!(lastEndpoint.x == current.x && current.x == next.x) &&
+			    !(lastEndpoint.y == current.y && current.y == next.y)) {
 				int len = (current.x - lastEndpoint.x) + (current.y - lastEndpoint.y);
 				totalPath.add(new Wire(null, lastEndpoint.x, lastEndpoint.y, len, lastEndpoint.y == current.y));
 				lastEndpoint = current;
@@ -151,7 +149,7 @@ public class PathFinding {
 		}
 		
 		int len = (current.x - lastEndpoint.x) + (current.y - lastEndpoint.y);
-		if(len != 0) {
+		if (len != 0) {
 			totalPath.add(new Wire(null, lastEndpoint.x, lastEndpoint.y, len, lastEndpoint.y == current.y));
 		}
 		
@@ -167,8 +165,7 @@ public class PathFinding {
 			public boolean isOpposite(Direction other) {
 				return other == LEFT;
 			}
-		},
-		LEFT {
+		}, LEFT {
 			public Point move(Point point) {
 				return new Point(point.x - 1, point.y, LEFT);
 			}
@@ -176,8 +173,7 @@ public class PathFinding {
 			public boolean isOpposite(Direction other) {
 				return other == RIGHT;
 			}
-		},
-		DOWN {
+		}, DOWN {
 			public Point move(Point point) {
 				return new Point(point.x, point.y + 1, DOWN);
 			}
@@ -185,8 +181,7 @@ public class PathFinding {
 			public boolean isOpposite(Direction other) {
 				return other == UP;
 			}
-		},
-		UP {
+		}, UP {
 			public Point move(Point point) {
 				return new Point(point.x, point.y - 1, UP);
 			}
@@ -227,7 +222,7 @@ public class PathFinding {
 		
 		@Override
 		public boolean equals(Object other) {
-			if(other instanceof Point) {
+			if (other instanceof Point) {
 				Point element = (Point)other;
 				return element.x == x && element.y == y && element.direction == direction;
 			}
@@ -257,7 +252,7 @@ public class PathFinding {
 		@Override
 		public int compareTo(Cost other) {
 			int turns = this.turns - other.turns;
-			if(turns != 0) {
+			if (turns != 0) {
 				return turns;
 			}
 			
@@ -271,7 +266,7 @@ public class PathFinding {
 		
 		@Override
 		public boolean equals(Object other) {
-			if(other instanceof Cost) {
+			if (other instanceof Cost) {
 				Cost element = (Cost)other;
 				return element.length == length && element.turns == turns;
 			}

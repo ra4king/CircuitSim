@@ -19,7 +19,7 @@ import javafx.stage.Modality;
  * @author Roi Atalla
  */
 public class DebugUtil {
-	private CircuitSim simulatorWindow;
+	private final CircuitSim simulatorWindow;
 	private volatile boolean showingError;
 	
 	DebugUtil(CircuitSim simulatorWindow) {
@@ -34,10 +34,12 @@ public class DebugUtil {
 		System.err.println(message);
 		throwable.printStackTrace();
 		
-		if(simulatorWindow.isWindowOpen()) {
+		if (simulatorWindow.isWindowOpen()) {
 			Platform.runLater(() -> {
-				synchronized(DebugUtil.this) {
-					if(showingError) return;
+				synchronized (DebugUtil.this) {
+					if (showingError) {
+						return;
+					}
 					showingError = true;
 				}
 				
@@ -62,13 +64,13 @@ public class DebugUtil {
 					alert.getButtonTypes().add(new ButtonType("Cancel", ButtonData.CANCEL_CLOSE));
 					Optional<ButtonType> buttonType = alert.showAndWait();
 					
-					if(buttonType.isPresent()) {
-						if(buttonType.get().getButtonData() == ButtonData.YES) {
+					if (buttonType.isPresent()) {
+						if (buttonType.get().getButtonData() == ButtonData.YES) {
 							sendErrorReport(message + "\n" + errorMessage);
-						} else if(buttonType.get().getButtonData() == ButtonData.APPLY) {
+						} else if (buttonType.get().getButtonData() == ButtonData.APPLY) {
 							try {
 								simulatorWindow.saveCircuits();
-							} catch(Exception exc) {
+							} catch (Exception exc) {
 								exc.printStackTrace();
 							}
 							
@@ -97,11 +99,11 @@ public class DebugUtil {
 		"os.name",
 		"os.arch",
 		"os.version",
-	};
+		};
 	
 	private void sendErrorReport(String message) {
 		StringBuilder messageBuilder = new StringBuilder();
-		for(String property : SYSTEM_PROPERTIES) {
+		for (String property : SYSTEM_PROPERTIES) {
 			messageBuilder.append(property).append("=").append(System.getProperty(property)).append("\n");
 		}
 		
@@ -111,8 +113,8 @@ public class DebugUtil {
 		
 		new Thread(() -> {
 			try {
-				HttpURLConnection httpConnection =
-					(HttpURLConnection)new URL("https://www.roiatalla.com/circuitsimerror").openConnection();
+				HttpURLConnection httpConnection = (HttpURLConnection)new URL(
+					"https://www.roiatalla.com/circuitsimerror").openConnection();
 				httpConnection.setRequestMethod("POST");
 				httpConnection.setDoInput(true);
 				httpConnection.setDoOutput(true);
@@ -121,7 +123,7 @@ public class DebugUtil {
 				printWriter.flush();
 				
 				httpConnection.getInputStream().read();
-			} catch(Exception exc) {
+			} catch (Exception exc) {
 				exc.printStackTrace();
 			}
 		}).start();

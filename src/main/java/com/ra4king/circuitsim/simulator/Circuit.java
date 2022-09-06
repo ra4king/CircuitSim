@@ -56,11 +56,11 @@ public class Circuit {
 	 */
 	public <T extends Component> T addComponent(T component) {
 		simulator.runSync(() -> {
-			if(component.getCircuit() == this) {
+			if (component.getCircuit() == this) {
 				return;
 			}
 			
-			if(component.getCircuit() != null) {
+			if (component.getCircuit() != null) {
 				throw new IllegalArgumentException("Component already belongs to a circuit.");
 			}
 			
@@ -69,8 +69,8 @@ public class Circuit {
 			states.forEach(state -> {
 				try {
 					component.init(state, state.getComponentProperty(component));
-				} catch(RuntimeException exc) {
-					if(exception == null) {
+				} catch (RuntimeException exc) {
+					if (exception == null) {
 						exception = exc;
 					}
 				}
@@ -79,7 +79,7 @@ public class Circuit {
 			listeners.forEach(listener -> listener.circuitChanged(this, component, true));
 		});
 		
-		if(exception != null) {
+		if (exception != null) {
 			RuntimeException exc = exception;
 			exception = null;
 			throw exc;
@@ -106,8 +106,8 @@ public class Circuit {
 			states.forEach(state -> {
 				try {
 					oldComponent.uninit(state);
-				} catch(RuntimeException exc) {
-					if(exception == null) {
+				} catch (RuntimeException exc) {
+					if (exception == null) {
 						exception = exc;
 					}
 				}
@@ -116,7 +116,7 @@ public class Circuit {
 			
 			listeners.forEach(listener -> listener.circuitChanged(this, oldComponent, false));
 			
-			if(inBetween != null) {
+			if (inBetween != null) {
 				inBetween.run();
 			}
 			
@@ -125,8 +125,8 @@ public class Circuit {
 			states.forEach(state -> {
 				try {
 					newComponent.init(state, state.getComponentProperty(oldComponent));
-				} catch(RuntimeException exc) {
-					if(exception == null) {
+				} catch (RuntimeException exc) {
+					if (exception == null) {
 						exception = exc;
 					}
 				}
@@ -135,7 +135,7 @@ public class Circuit {
 			listeners.forEach(listener -> listener.circuitChanged(this, newComponent, true));
 		});
 		
-		if(exception != null) {
+		if (exception != null) {
 			RuntimeException exc = exception;
 			exception = null;
 			throw exc;
@@ -150,7 +150,7 @@ public class Circuit {
 	 */
 	public void removeComponent(Component component) {
 		simulator.runSync(() -> {
-			if(!components.contains(component)) {
+			if (!components.contains(component)) {
 				return;
 			}
 			
@@ -160,8 +160,8 @@ public class Circuit {
 			states.forEach(state -> {
 				try {
 					component.uninit(state);
-				} catch(RuntimeException exc) {
-					if(exception == null) {
+				} catch (RuntimeException exc) {
+					if (exception == null) {
 						exception = exc;
 					}
 				}
@@ -171,7 +171,7 @@ public class Circuit {
 			listeners.forEach(listener -> listener.circuitChanged(this, component, false));
 		});
 		
-		if(exception != null) {
+		if (exception != null) {
 			RuntimeException exc = exception;
 			exception = null;
 			throw exc;

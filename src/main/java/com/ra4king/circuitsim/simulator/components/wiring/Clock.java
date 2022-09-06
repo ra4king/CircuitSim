@@ -73,14 +73,13 @@ public class Clock extends Component {
 		private volatile int lastTickCount;
 		
 		private ClockInfo() {
-			ChangeListener<EnabledInfo> clockEnabledListener = (obs, oldValue, newValue) -> {
+			clockEnabled.addListener((obs, oldValue, newValue) -> {
 				if(newValue.enabled) {
 					startClock(newValue.getHertz());
 				} else {
 					stopClock(false);
 				}
-			};
-			clockEnabled.addListener(clockEnabledListener);
+			});
 		}
 		
 		void reset() {

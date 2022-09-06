@@ -22,7 +22,7 @@ public class ROM extends Component {
 	public ROM(String name, int bitSize, int addressBits, int[] memory) {
 		super(name, new int[] { addressBits, 1, bitSize });
 		
-		if(addressBits > 16 || addressBits <= 0) {
+		if (addressBits > 16 || addressBits <= 0) {
 			throw new IllegalArgumentException("Address bits cannot be more than 16 bits.");
 		}
 		
@@ -44,7 +44,7 @@ public class ROM extends Component {
 	}
 	
 	public WireValue load(int address) {
-		if(address < 0 || address >= memory.length) {
+		if (address < 0 || address >= memory.length) {
 			return null;
 		}
 		
@@ -56,7 +56,7 @@ public class ROM extends Component {
 		boolean enabled = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO;
 		WireValue address = state.getLastReceived(getPort(PORT_ADDRESS));
 		
-		if(enabled && address.isValidValue()) {
+		if (enabled && address.isValidValue()) {
 			state.pushValue(getPort(PORT_DATA), load(address.getValue()));
 		} else {
 			state.pushValue(getPort(PORT_DATA), new WireValue(dataBits));

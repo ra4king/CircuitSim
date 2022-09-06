@@ -41,7 +41,7 @@ public class Pin extends Component {
 	
 	public void removeChangeListener(CircuitState state, PinChangeListener listener) {
 		Set<PinChangeListener> listeners = pinChangeListeners.get(state);
-		if(listeners != null) {
+		if (listeners != null) {
 			listeners.remove(listener);
 		}
 	}
@@ -52,7 +52,7 @@ public class Pin extends Component {
 	
 	@Override
 	public void init(CircuitState state, Object lastProperty) {
-		if(getCircuit() != null && isInput && getCircuit().getTopLevelState() == state) {
+		if (getCircuit() != null && isInput && getCircuit().getTopLevelState() == state) {
 			state.pushValue(getPort(Pin.PORT), WireValue.of(0, getBitSize()));
 		}
 	}
@@ -60,8 +60,8 @@ public class Pin extends Component {
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		Set<PinChangeListener> listeners = pinChangeListeners.get(state);
-		if(listeners != null) {
-			for(PinChangeListener listener : listeners) {
+		if (listeners != null) {
+			for (PinChangeListener listener : listeners) {
 				listener.valueChanged(this, state, value);
 			}
 		}

@@ -17,9 +17,10 @@ import javafx.util.Pair;
  */
 public class XnorGatePeer extends GatePeer<XnorGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Gates", "XNOR"),
-		                     new Image(XnorGatePeer.class.getResourceAsStream("/images/XnorGate.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Gates", "XNOR"),
+			new Image(XnorGatePeer.class.getResourceAsStream("/images/XnorGate.png")),
+			new Properties());
 	}
 	
 	public XnorGatePeer(Properties properties, int x, int y) {
@@ -35,10 +36,11 @@ public class XnorGatePeer extends GatePeer<XnorGate> {
 	@Override
 	public XnorGate buildGate(Properties properties) {
 		int numInputs;
-		return new XnorGate(properties.getValue(Properties.LABEL),
-		                    properties.getValue(Properties.BITSIZE),
-		                    numInputs = properties.getValue(Properties.NUM_INPUTS),
-		                    parseNegatedInputs(numInputs, properties));
+		return new XnorGate(
+			properties.getValue(Properties.LABEL),
+			properties.getValue(Properties.BITSIZE),
+			numInputs = properties.getValue(Properties.NUM_INPUTS),
+			parseNegatedInputs(numInputs, properties));
 	}
 	
 	@Override

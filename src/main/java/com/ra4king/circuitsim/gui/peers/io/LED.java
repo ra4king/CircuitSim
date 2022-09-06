@@ -25,9 +25,10 @@ import javafx.util.Pair;
  */
 public class LED extends ComponentPeer<Component> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Input/Output", "LED"),
-		                     new Image(LED.class.getResourceAsStream("/images/LED.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Input/Output", "LED"),
+			new Image(LED.class.getResourceAsStream("/images/LED.png")),
+			new Properties());
 	}
 	
 	private static final Property<Color> ON_COLOR_PROPERTY;
@@ -71,7 +72,7 @@ public class LED extends ComponentPeer<Component> {
 	@Override
 	public void paint(GraphicsContext graphics, CircuitState state) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
-
+		
 		State bit = state.getLastReceived(getComponent().getPort(0)).getBit(0);
 		
 		graphics.setFill(bit == State.ONE ? onColor : offColor);

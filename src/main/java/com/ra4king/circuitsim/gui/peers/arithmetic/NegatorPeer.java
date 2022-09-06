@@ -22,9 +22,10 @@ import javafx.util.Pair;
  */
 public class NegatorPeer extends ComponentPeer<Negator> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Arithmetic", "Negator"),
-		                     new Image(NegatorPeer.class.getResourceAsStream("/images/Negator.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Arithmetic", "Negator"),
+			new Image(NegatorPeer.class.getResourceAsStream("/images/Negator.png")),
+			new Properties());
 	}
 	
 	public NegatorPeer(Properties props, int x, int y) {
@@ -36,8 +37,7 @@ public class NegatorPeer extends ComponentPeer<Negator> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
-		Negator negator = new Negator(properties.getValue(Properties.LABEL),
-		                              properties.getValue(Properties.BITSIZE));
+		Negator negator = new Negator(properties.getValue(Properties.LABEL), properties.getValue(Properties.BITSIZE));
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, negator.getPort(Negator.PORT_IN), "In", 0, 2));
@@ -58,8 +58,9 @@ public class NegatorPeer extends ComponentPeer<Negator> {
 		graphics.setFont(GuiUtils.getFont(16, true));
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "-x");
 		graphics.setFill(Color.BLACK);
-		graphics.fillText("-x",
-		                  getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-		                  getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
+		graphics.fillText(
+			"-x",
+			getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+			getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 	}
 }

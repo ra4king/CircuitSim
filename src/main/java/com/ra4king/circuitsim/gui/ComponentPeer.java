@@ -18,7 +18,7 @@ public abstract class ComponentPeer<C extends Component> extends GuiElement {
 	}
 	
 	protected final void init(C component, Properties properties, List<PortConnection> connections) {
-		if(this.component != null) {
+		if (this.component != null) {
 			throw new IllegalStateException("ComponentPeer already initialized.");
 		}
 		

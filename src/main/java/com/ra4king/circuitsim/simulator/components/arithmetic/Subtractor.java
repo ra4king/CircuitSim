@@ -28,10 +28,12 @@ public class Subtractor extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT || portIndex == PORT_CARRY_OUT) return;
+		if (portIndex == PORT_OUT || portIndex == PORT_CARRY_OUT) {
+			return;
+		}
 		
-		if(state.getLastReceived(getPort(PORT_A)).isValidValue() &&
-				   state.getLastReceived(getPort(PORT_B)).isValidValue()) {
+		if (state.getLastReceived(getPort(PORT_A)).isValidValue() &&
+		    state.getLastReceived(getPort(PORT_B)).isValidValue()) {
 			int a = state.getLastReceived(getPort(PORT_A)).getValue();
 			int b = state.getLastReceived(getPort(PORT_B)).getValue();
 			WireValue carry = state.getLastReceived(getPort(PORT_CARRY_IN));

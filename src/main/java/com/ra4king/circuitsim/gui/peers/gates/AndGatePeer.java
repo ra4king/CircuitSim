@@ -16,9 +16,10 @@ import javafx.util.Pair;
  */
 public class AndGatePeer extends GatePeer<AndGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Gates", "AND"),
-		                     new Image(AndGatePeer.class.getResourceAsStream("/images/AndGate.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Gates", "AND"),
+			new Image(AndGatePeer.class.getResourceAsStream("/images/AndGate.png")),
+			new Properties());
 	}
 	
 	public AndGatePeer(Properties properties, int x, int y) {
@@ -34,10 +35,11 @@ public class AndGatePeer extends GatePeer<AndGate> {
 	@Override
 	public AndGate buildGate(Properties properties) {
 		int numInputs;
-		return new AndGate(properties.getValue(Properties.LABEL),
-		                   properties.getValue(Properties.BITSIZE),
-		                   numInputs = properties.getValue(Properties.NUM_INPUTS),
-		                   parseNegatedInputs(numInputs, properties));
+		return new AndGate(
+			properties.getValue(Properties.LABEL),
+			properties.getValue(Properties.BITSIZE),
+			numInputs = properties.getValue(Properties.NUM_INPUTS),
+			parseNegatedInputs(numInputs, properties));
 	}
 	
 	@Override

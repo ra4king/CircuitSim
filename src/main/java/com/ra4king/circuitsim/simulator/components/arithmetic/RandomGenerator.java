@@ -27,7 +27,7 @@ public class RandomGenerator extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_CLK && value.getBit(0) == State.ONE) {
+		if (portIndex == PORT_CLK && value.getBit(0) == State.ONE) {
 			state.pushValue(getPort(PORT_OUT), getRandomValue());
 		}
 	}

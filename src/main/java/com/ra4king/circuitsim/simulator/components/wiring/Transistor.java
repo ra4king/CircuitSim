@@ -25,11 +25,11 @@ public class Transistor extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT) {
+		if (portIndex == PORT_OUT) {
 			return;
 		}
 		
-		if(state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
+		if (state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
 			state.pushValue(getPort(PORT_OUT), state.getLastReceived(getPort(PORT_IN)));
 		} else {
 			state.pushValue(getPort(PORT_OUT), X_VALUE);

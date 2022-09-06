@@ -16,9 +16,10 @@ import javafx.util.Pair;
  */
 public class NotGatePeer extends GatePeer<NotGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Gates", "NOT"),
-		                     new Image(NotGatePeer.class.getResourceAsStream("/images/NotGate.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Gates", "NOT"),
+			new Image(NotGatePeer.class.getResourceAsStream("/images/NotGate.png")),
+			new Properties());
 	}
 	
 	public NotGatePeer(Properties properties, int x, int y) {
@@ -32,8 +33,7 @@ public class NotGatePeer extends GatePeer<NotGate> {
 	
 	@Override
 	public NotGate buildGate(Properties properties) {
-		return new NotGate(properties.getValue(Properties.LABEL),
-		                   properties.getValue(Properties.BITSIZE));
+		return new NotGate(properties.getValue(Properties.LABEL), properties.getValue(Properties.BITSIZE));
 	}
 	
 	@Override

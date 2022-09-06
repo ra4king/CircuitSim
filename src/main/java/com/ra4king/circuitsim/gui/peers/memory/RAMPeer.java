@@ -30,15 +30,15 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class RAMPeer extends ComponentPeer<RAM> {
-	public static final Property<Boolean> SEPARATE_LOAD_STORE_PORTS =
-		new Property<>("Separate Load/Store Ports?",
-		               Properties.YESNO_VALIDATOR,
-		               false);
+	public static final Property<Boolean>
+		SEPARATE_LOAD_STORE_PORTS =
+		new Property<>("Separate Load/Store Ports?", Properties.YESNO_VALIDATOR, false);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Memory", "RAM"),
-		                     new Image(RAMPeer.class.getResourceAsStream("/images/RAM.png")),
-		                     new Properties(SEPARATE_LOAD_STORE_PORTS));
+		manager.addComponent(
+			new Pair<>("Memory", "RAM"),
+			new Image(RAMPeer.class.getResourceAsStream("/images/RAM.png")),
+			new Properties(SEPARATE_LOAD_STORE_PORTS));
 	}
 	
 	private final PortConnection clockConnection;
@@ -62,12 +62,12 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ADDRESS), "Address", 0, 2));
-		connections.add(
-			clockConnection = new PortConnection(this, ram.getPort(RAM.PORT_CLK), "Clock", 3, getHeight()));
+		connections.add(clockConnection = new PortConnection(this, ram.getPort(RAM.PORT_CLK), "Clock", 3,
+		                                                     getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_ENABLE), "Enable", 4, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_LOAD), "Load", 5, getHeight()));
 		connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA), "Data", getWidth(), 2));
-		if(separateLoadStore) {
+		if (separateLoadStore) {
 			connections.add(new PortConnection(this, ram.getPort(RAM.PORT_DATA_IN), "Data Input", 0, 4));
 			connections.add(new PortConnection(this, ram.getPort(RAM.PORT_STORE), "Store", 6, getHeight()));
 			connections.add(new PortConnection(this, ram.getPort(RAM.PORT_CLEAR), "Clear", 7, getHeight()));
@@ -86,7 +86,8 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		MenuItem menuItem = new MenuItem("Edit contents");
 		menuItem.setOnAction(event -> {
-			PropertyMemoryValidator memoryValidator =
+			PropertyMemoryValidator
+				memoryValidator =
 				new PropertyMemoryValidator(getComponent().getAddressBits(), getComponent().getDataBits());
 			
 			List<MemoryLine> memory = new ArrayList<>();
@@ -99,9 +100,10 @@ public class RAMPeer extends ComponentPeer<RAM> {
 			// Internal state can change in between and data can get out of sync
 			circuit.getSimulatorWindow().getSimulator().runSync(() -> {
 				CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
-				memory.addAll(
-					memoryValidator.parse(getComponent().getMemoryContents(currentState),
-					                      (address, value) -> getComponent().store(currentState, address, value)));
+				memory.addAll(memoryValidator.parse(getComponent().getMemoryContents(currentState),
+				                                    (address, value) -> getComponent().store(currentState,
+				                                                                             address,
+				                                                                             value)));
 				getComponent().addMemoryListener(listener);
 			});
 			
@@ -127,7 +129,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		
 		WireValue addressVal = circuitState.getLastReceived(getComponent().getPort(RAM.PORT_ADDRESS));
 		WireValue valueVal;
-		if(addressVal.isValidValue()) {
+		if (addressVal.isValidValue()) {
 			int val = getComponent().load(circuitState, addressVal.getValue());
 			valueVal = WireValue.of(val, getComponent().getDataBits());
 		} else {
@@ -147,9 +149,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		String text = "RAM";
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), text);
 		graphics.setFill(Color.BLACK);
-		graphics.fillText(text,
-		                  x + (width - bounds.getWidth()) * 0.5,
-		                  y + (height + bounds.getHeight()) * 0.2);
+		graphics.fillText(text, x + (width - bounds.getWidth()) * 0.5, y + (height + bounds.getHeight()) * 0.2);
 		
 		// Draw address
 		text = "A: " + address;
@@ -167,7 +167,7 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		graphics.fillText("en", x + width * 0.5 - 11.5, y + height - 3.5);
 		graphics.fillText("L", x + width * 0.5 + 2, y + height - 3.5);
 		
-		if(isSeparateLoadStore()) {
+		if (isSeparateLoadStore()) {
 			graphics.fillText("Din", x + 3, y + height * 0.5 + 20);
 			graphics.fillText("St", x + width * 0.5 + 8.5, y + height - 3.5);
 			graphics.fillText("0", x + width * 0.5 + 21.5, y + height - 3.5);

@@ -35,7 +35,7 @@ public class DFlipFlop extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_Q || portIndex == PORT_QN) {
+		if (portIndex == PORT_Q || portIndex == PORT_QN) {
 			return;
 		}
 		
@@ -43,13 +43,13 @@ public class DFlipFlop extends Component {
 		State preset = state.getLastReceived(getPort(PORT_PRESET)).getBit(0);
 		State enable = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0);
 		
-		if(clear == State.ONE) {
+		if (clear == State.ONE) {
 			pushValue(state, State.ZERO);
-		} else if(preset == State.ONE) {
+		} else if (preset == State.ONE) {
 			pushValue(state, State.ONE);
-		} else if(enable != State.ZERO && portIndex == PORT_CLOCK && value.getBit(0) == State.ONE) {
+		} else if (enable != State.ZERO && portIndex == PORT_CLOCK && value.getBit(0) == State.ONE) {
 			State d = state.getLastReceived(getPort(PORT_D)).getBit(0);
-			if(d != State.X) {
+			if (d != State.X) {
 				pushValue(state, d);
 			}
 		}

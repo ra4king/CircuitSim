@@ -30,9 +30,10 @@ public class Text extends ComponentPeer<Component> {
 	private static Image textImage;
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Misc", "Text"),
-		                     textImage = new Image(Text.class.getResourceAsStream("/images/Text.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Misc", "Text"),
+			textImage = new Image(Text.class.getResourceAsStream("/images/Text.png")),
+			new Properties());
 	}
 	
 	private static final Property<String> TEXT = new Property<>("Text", Properties.ANY_STRING_VALIDATOR, "");
@@ -94,14 +95,16 @@ public class Text extends ComponentPeer<Component> {
 	public void keyTyped(CircuitManager manager, CircuitState state, String character) {
 		char c = character.charAt(0);
 		
-		if(c == 8) { // backspace
-			if(!text.isEmpty()) {
+		if (c == 8) { // backspace
+			if (!text.isEmpty()) {
 				String s = text.substring(0, text.length() - 1);
 				setText(s);
 				getProperties().setValue(TEXT, s);
 			}
-		} else if(c == 10 || c == 13 || c >= 32 && c <= 126) { // line feed, carriage return, or visible ASCII char 
-			if(c == 13) c = 10; // convert \r to \n
+		} else if (c == 10 || c == 13 || c >= 32 && c <= 126) { // line feed, carriage return, or visible ASCII char 
+			if (c == 13) {
+				c = 10; // convert \r to \n
+			}
 			
 			String s = text + c;
 			setText(s);
@@ -121,19 +124,17 @@ public class Text extends ComponentPeer<Component> {
 		int width = getScreenWidth();
 		int height = getScreenHeight();
 		
-		if(text.isEmpty()) {
+		if (text.isEmpty()) {
 			graphics.drawImage(textImage, x, y, width, height);
 		} else {
 			graphics.setFont(GuiUtils.getFont(13));
-			for(int i = 0; i < lines.size(); i++) {
+			for (int i = 0; i < lines.size(); i++) {
 				String line = lines.get(i);
 				Bounds bounds = GuiUtils.getBounds(graphics.getFont(), line, false);
 				
-				graphics.fillText(line,
-				                  x + (width - bounds.getWidth()) * 0.5,
-				                  y + 15 * (i + 1));
+				graphics.fillText(line, x + (width - bounds.getWidth()) * 0.5, y + 15 * (i + 1));
 				
-				if(entered && i == lines.size() - 1) {
+				if (entered && i == lines.size() - 1) {
 					double lx = x + (width + bounds.getWidth()) * 0.5 + 3;
 					double ly = y + 15 * (i + 1);
 					graphics.strokeLine(lx, ly - 10, lx, ly);

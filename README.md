@@ -1,4 +1,4 @@
-CircuitSim v1.8.3
+CircuitSim v1.8.4
 =================
 
 Site and download links: https://ra4king.github.io/CircuitSim
@@ -20,6 +20,11 @@ for Windows, Mac, and Linux.
 
 Changelog
 =========
+
+1.8.4
+=====
+
+- Fixed an issue that leads to erroneous Short Circuit messages when there are none.
 
 1.8.3
 =====

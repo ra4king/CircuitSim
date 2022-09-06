@@ -59,22 +59,22 @@ public class Demultiplexer extends Component {
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		Port selectorPort = getSelectorPort();
 		
-		if(getPort(portIndex) == selectorPort) {
-			if(!value.isValidValue()) {
-				for(int i = 0; i < numOutputs; i++) {
+		if (getPort(portIndex) == selectorPort) {
+			if (!value.isValidValue()) {
+				for (int i = 0; i < numOutputs; i++) {
 					state.pushValue(getOutputPort(i), new WireValue(getBitSize()));
 				}
 			} else {
 				int selectedPort = value.getValue();
-				for(int i = 0; i < numOutputs; i++) {
-					if(i == selectedPort) {
+				for (int i = 0; i < numOutputs; i++) {
+					if (i == selectedPort) {
 						state.pushValue(getOutputPort(i), state.getLastReceived(getInputPort()));
 					} else {
 						state.pushValue(getOutputPort(i), WireValue.of(0, getBitSize()));
 					}
 				}
 			}
-		} else if(getPort(portIndex) == getInputPort() && state.getLastReceived(selectorPort).isValidValue()) {
+		} else if (getPort(portIndex) == getInputPort() && state.getLastReceived(selectorPort).isValidValue()) {
 			int selectedPort = state.getLastReceived(selectorPort).getValue();
 			state.pushValue(getOutputPort(selectedPort), value);
 		}

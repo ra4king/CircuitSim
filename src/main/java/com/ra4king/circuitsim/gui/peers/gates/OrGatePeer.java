@@ -16,9 +16,10 @@ import javafx.util.Pair;
  */
 public class OrGatePeer extends GatePeer<OrGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Gates", "OR"),
-		                     new Image(OrGatePeer.class.getResourceAsStream("/images/OrGate.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Gates", "OR"),
+			new Image(OrGatePeer.class.getResourceAsStream("/images/OrGate.png")),
+			new Properties());
 	}
 	
 	public OrGatePeer(Properties properties, int x, int y) {
@@ -34,10 +35,11 @@ public class OrGatePeer extends GatePeer<OrGate> {
 	@Override
 	public OrGate buildGate(Properties properties) {
 		int numInputs;
-		return new OrGate(properties.getValue(Properties.LABEL),
-		                  properties.getValue(Properties.BITSIZE),
-		                  numInputs = properties.getValue(Properties.NUM_INPUTS),
-		                  parseNegatedInputs(numInputs, properties));
+		return new OrGate(
+			properties.getValue(Properties.LABEL),
+			properties.getValue(Properties.BITSIZE),
+			numInputs = properties.getValue(Properties.NUM_INPUTS),
+			parseNegatedInputs(numInputs, properties));
 	}
 	
 	@Override

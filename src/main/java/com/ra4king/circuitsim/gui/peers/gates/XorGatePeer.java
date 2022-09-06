@@ -17,9 +17,10 @@ import javafx.util.Pair;
  */
 public class XorGatePeer extends GatePeer<XorGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Gates", "XOR"),
-		                     new Image(XorGatePeer.class.getResourceAsStream("/images/XorGate.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Gates", "XOR"),
+			new Image(XorGatePeer.class.getResourceAsStream("/images/XorGate.png")),
+			new Properties());
 	}
 	
 	public XorGatePeer(Properties properties, int x, int y) {
@@ -35,10 +36,11 @@ public class XorGatePeer extends GatePeer<XorGate> {
 	@Override
 	public XorGate buildGate(Properties properties) {
 		int numInputs;
-		return new XorGate(properties.getValue(Properties.LABEL),
-		                   properties.getValue(Properties.BITSIZE),
-		                   numInputs = properties.getValue(Properties.NUM_INPUTS),
-		                   parseNegatedInputs(numInputs, properties));
+		return new XorGate(
+			properties.getValue(Properties.LABEL),
+			properties.getValue(Properties.BITSIZE),
+			numInputs = properties.getValue(Properties.NUM_INPUTS),
+			parseNegatedInputs(numInputs, properties));
 	}
 	
 	@Override

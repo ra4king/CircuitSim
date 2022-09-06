@@ -24,6 +24,6 @@ public class OrGate extends Gate {
 	
 	@Override
 	protected State operate(State acc, State bit) {
-		return acc == State.ONE || bit == State.ONE ? State.ONE : State.ZERO; 
+		return acc == State.ONE || bit == State.ONE ? State.ONE : State.ZERO;
 	}
 }

@@ -72,8 +72,8 @@ public abstract class GuiElement {
 	}
 	
 	public boolean containsScreenCoord(int x, int y) {
-		return x >= getScreenX() && x < getScreenX() + getScreenWidth() && y >= getScreenY() && y < getScreenY() +
-				                                                                                            getScreenHeight();
+		return x >= getScreenX() && x < getScreenX() + getScreenWidth() && y >= getScreenY() &&
+		       y < getScreenY() + getScreenHeight();
 	}
 	
 	public boolean contains(int x, int y) {
@@ -97,8 +97,8 @@ public abstract class GuiElement {
 		int screenY = getScreenY();
 		int screenWidth = getScreenWidth();
 		int screenHeight = getScreenHeight();
-		return screenX >= x && screenX + screenWidth <= x + width &&
-				       screenY >= y && screenY + screenHeight <= y + height;
+		return screenX >= x && screenX + screenWidth <= x + width && screenY >= y &&
+		       screenY + screenHeight <= y + height;
 	}
 	
 	public boolean isWithin(int x, int y, int width, int height) {
@@ -110,17 +110,12 @@ public abstract class GuiElement {
 	}
 	
 	public boolean intersectsScreenCoord(int x, int y, int width, int height) {
-		return !(x >= getScreenX() + getScreenWidth() ||
-				         getScreenX() >= x + width ||
-				         y >= getScreenY() + getScreenHeight() ||
-				         getScreenY() >= y + height);
+		return !(x >= getScreenX() + getScreenWidth() || getScreenX() >= x + width ||
+		         y >= getScreenY() + getScreenHeight() || getScreenY() >= y + height);
 	}
 	
 	public boolean intersects(int x, int y, int width, int height) {
-		return !(x >= getX() + getWidth() ||
-				         getX() >= x + width ||
-				         y >= getY() + getHeight() ||
-				         getY() >= y + height);
+		return !(x >= getX() + getWidth() || getX() >= x + width || y >= getY() + getHeight() || getY() >= y + height);
 	}
 	
 	public void mousePressed(CircuitManager manager, CircuitState state, double x, double y) {}

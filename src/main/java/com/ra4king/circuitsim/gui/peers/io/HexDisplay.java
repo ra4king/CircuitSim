@@ -25,9 +25,10 @@ import javafx.util.Pair;
  */
 public class HexDisplay extends ComponentPeer<Component> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Input/Output", "Hex Display"),
-		                     new Image(HexDisplay.class.getResourceAsStream("/images/HexDisplay.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Input/Output", "Hex Display"),
+			new Image(HexDisplay.class.getResourceAsStream("/images/HexDisplay.png")),
+			new Properties());
 	}
 	
 	public HexDisplay(Properties props, int x, int y) {
@@ -60,14 +61,14 @@ public class HexDisplay extends ComponentPeer<Component> {
 		drawDigit(graphics, -1);
 		
 		WireValue value = circuitState.getLastReceived(getComponent().getPort(0));
-		if(value.isValidValue()) {
+		if (value.isValidValue()) {
 			drawDigit(graphics, value.getValue());
 		}
 	}
 	
 	private void drawDigit(GraphicsContext graphics, int num) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
-
+		
 		int x = getScreenX();
 		int y = getScreenY();
 		int width = getScreenWidth();
@@ -76,54 +77,54 @@ public class HexDisplay extends ComponentPeer<Component> {
 		int margin = 4;
 		int size = 6;
 		
-		if(top.contains(num)) {
+		if (top.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
 		graphics.fillRect(x + margin + size, y + margin, width - 2 * margin - 2 * size, size);
 		
-		if(middle.contains(num)) {
+		if (middle.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + margin + size, y + (height - size) / 2, width - 2 * margin - 2 * size, size);
+		graphics.fillRect(x + margin + size, y + (height - size) / 2.0, width - 2 * margin - 2 * size, size);
 		
-		if(bottom.contains(num)) {
+		if (bottom.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
 		graphics.fillRect(x + margin + size, y + height - margin - size, width - 2 * margin - 2 * size, size);
 		
-		if(topRight.contains(num)) {
+		if (topRight.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + width - margin - size, y + margin + size / 2, size, (height - size) / 2 - margin);
+		graphics.fillRect(x + width - margin - size, y + margin + size / 2.0, size, (height - size) / 2.0 - margin);
 		
-		if(topLeft.contains(num)) {
+		if (topLeft.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + margin, y + margin + size / 2, size, (height - size) / 2 - margin);
+		graphics.fillRect(x + margin, y + margin + size / 2.0, size, (height - size) / 2.0 - margin);
 		
-		if(botRight.contains(num)) {
+		if (botRight.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + width - margin - size, y + height / 2, size, (height - size) / 2 - margin);
+		graphics.fillRect(x + width - margin - size, y + height / 2.0, size, (height - size) / 2.0 - margin);
 		
-		if(botLeft.contains(num)) {
+		if (botLeft.contains(num)) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);
 		}
-		graphics.fillRect(x + margin, y + height / 2, size, (height - size) / 2 - margin);
+		graphics.fillRect(x + margin, y + height / 2.0, size, (height - size) / 2.0 - margin);
 	}
 	
 	private static final Set<Integer> top = new HashSet<>(Arrays.asList(0, 2, 3, 5, 6, 7, 8, 9, 10, 12, 14, 15));

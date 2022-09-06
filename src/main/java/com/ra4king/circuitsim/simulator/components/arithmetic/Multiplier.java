@@ -28,10 +28,12 @@ public class Multiplier extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT_LOWER || portIndex == PORT_OUT_UPPER) return;
+		if (portIndex == PORT_OUT_LOWER || portIndex == PORT_OUT_UPPER) {
+			return;
+		}
 		
-		if(state.getLastReceived(getPort(PORT_A)).isValidValue() &&
-				   state.getLastReceived(getPort(PORT_B)).isValidValue()) {
+		if (state.getLastReceived(getPort(PORT_A)).isValidValue() &&
+		    state.getLastReceived(getPort(PORT_B)).isValidValue()) {
 			long a = state.getLastReceived(getPort(PORT_A)).getValue() & 0xFFFFFFFFL;
 			long b = state.getLastReceived(getPort(PORT_B)).getValue() & 0xFFFFFFFFL;
 			WireValue carry = state.getLastReceived(getPort(PORT_CARRY_IN));

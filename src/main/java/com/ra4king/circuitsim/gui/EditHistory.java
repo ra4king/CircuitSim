@@ -25,8 +25,7 @@ public class EditHistory {
 			protected void undo(CircuitManager manager, Object[] params) {
 				manager.getSimulatorWindow().deleteCircuit(manager, true, false);
 			}
-		},
-		RENAME_CIRCUIT {
+		}, RENAME_CIRCUIT {
 			protected void redo(CircuitManager manager, Object[] params) {
 				((CircuitSim)params[0]).renameCircuit((Tab)params[1], (String)params[3]);
 			}
@@ -34,8 +33,7 @@ public class EditHistory {
 			protected void undo(CircuitManager manager, Object[] params) {
 				((CircuitSim)params[0]).renameCircuit((Tab)params[1], (String)params[2]);
 			}
-		},
-		MOVE_CIRCUIT {
+		}, MOVE_CIRCUIT {
 			protected void redo(CircuitManager manager, Object[] params) {
 				@SuppressWarnings("unchecked")
 				List<Tab> tabs = (List<Tab>)params[0];
@@ -43,7 +41,7 @@ public class EditHistory {
 				int fromIdx = (int)params[2];
 				int toIdx = (int)params[3];
 				
-				if(tabs.indexOf(tab) != fromIdx) {
+				if (tabs.indexOf(tab) != fromIdx) {
 					throw new IllegalStateException("Something bad happened!");
 				}
 				
@@ -63,8 +61,7 @@ public class EditHistory {
 				// swap to/from idx
 				redo(manager, new Object[] { tabs, tab, toIdx, fromIdx });
 			}
-		},
-		DELETE_CIRCUIT {
+		}, DELETE_CIRCUIT {
 			protected void redo(CircuitManager manager, Object[] params) {
 				CREATE_CIRCUIT.undo(manager, params);
 			}
@@ -72,8 +69,7 @@ public class EditHistory {
 			protected void undo(CircuitManager manager, Object[] params) {
 				CREATE_CIRCUIT.redo(manager, params);
 			}
-		},
-		ADD_COMPONENT {
+		}, ADD_COMPONENT {
 			protected void redo(CircuitManager manager, Object[] params) {
 				manager.mayThrow(() -> manager.getCircuitBoard().addComponent((ComponentPeer<?>)params[0]));
 			}
@@ -81,31 +77,31 @@ public class EditHistory {
 			protected void undo(CircuitManager manager, Object[] params) {
 				ComponentPeer<?> toRemove = (ComponentPeer<?>)params[0];
 				
-				for(ComponentPeer<?> component : manager.getCircuitBoard().getComponents()) {
-					if(component == toRemove ||
-						   (component.getClass() == toRemove.getClass()
-							    && component.getX() == toRemove.getX()
-							    && component.getY() == toRemove.getY()
-							    && component.getProperties().equals(toRemove.getProperties()))) {
-						manager.mayThrow(() -> manager.getCircuitBoard()
-						                              .removeElements(Collections.singleton(component)));
+				for (ComponentPeer<?> component : manager.getCircuitBoard().getComponents()) {
+					if (component == toRemove ||
+					    (component.getClass() == toRemove.getClass() && component.getX() == toRemove.getX() &&
+					     component.getY() == toRemove.getY() &&
+					     component.getProperties().equals(toRemove.getProperties()))) {
+						manager.mayThrow(() -> manager
+							.getCircuitBoard()
+							.removeElements(Collections.singleton(component)));
 						break;
 					}
 				}
 			}
-		},
-		UPDATE_COMPONENT {
+		}, UPDATE_COMPONENT {
 			protected void redo(CircuitManager manager, Object[] params) {
-				manager.mayThrow(() -> manager.getCircuitBoard().updateComponent((ComponentPeer<?>)params[0],
-				                                                                 (ComponentPeer<?>)params[1]));
+				manager.mayThrow(() -> manager
+					.getCircuitBoard()
+					.updateComponent((ComponentPeer<?>)params[0], (ComponentPeer<?>)params[1]));
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
-				manager.mayThrow(() -> manager.getCircuitBoard().updateComponent((ComponentPeer<?>)params[1],
-				                                                                 (ComponentPeer<?>)params[0]));
+				manager.mayThrow(() -> manager
+					.getCircuitBoard()
+					.updateComponent((ComponentPeer<?>)params[1], (ComponentPeer<?>)params[0]));
 			}
-		},
-		MOVE_ELEMENT {
+		}, MOVE_ELEMENT {
 			protected void redo(CircuitManager manager, Object[] params) {
 				GuiElement element = (GuiElement)params[0];
 				int dx = (int)params[1];
@@ -121,8 +117,7 @@ public class EditHistory {
 				element.setX(element.getX() - dx);
 				element.setY(element.getY() - dy);
 			}
-		},
-		REMOVE_COMPONENT {
+		}, REMOVE_COMPONENT {
 			protected void redo(CircuitManager manager, Object[] params) {
 				ADD_COMPONENT.undo(manager, params);
 			}
@@ -130,21 +125,20 @@ public class EditHistory {
 			protected void undo(CircuitManager manager, Object[] params) {
 				ADD_COMPONENT.redo(manager, params);
 			}
-		},
-		ADD_WIRE {
+		}, ADD_WIRE {
 			protected void redo(CircuitManager manager, Object[] params) {
 				Wire wire = (Wire)params[0];
-				manager.mayThrow(() -> manager.getCircuitBoard()
-				                              .addWire(wire.getX(), wire.getY(), wire.getLength(),
-				                                       wire.isHorizontal()));
+				manager.mayThrow(() -> manager
+					.getCircuitBoard()
+					.addWire(wire.getX(), wire.getY(), wire.getLength(), wire.isHorizontal()));
 			}
 			
 			protected void undo(CircuitManager manager, Object[] params) {
-				manager.mayThrow(() -> manager.getCircuitBoard()
-				                              .removeElements(Collections.singleton((Wire)params[0])));
+				manager.mayThrow(() -> manager
+					.getCircuitBoard()
+					.removeElements(Collections.singleton((Wire)params[0])));
 			}
-		},
-		REMOVE_WIRE {
+		}, REMOVE_WIRE {
 			protected void redo(CircuitManager manager, Object[] params) {
 				ADD_WIRE.undo(manager, params);
 			}
@@ -159,11 +153,10 @@ public class EditHistory {
 		protected abstract void undo(CircuitManager manager, Object[] params);
 	}
 	
-	private class Edit {
-		EditAction action;
-		
-		CircuitManager circuitManager;
-		Object[] params;
+	private static class Edit {
+		private final EditAction action;
+		private final CircuitManager circuitManager;
+		private final Object[] params;
 		
 		Edit(EditAction action, CircuitManager circuitManager, Object[] params) {
 			this.action = action;
@@ -176,14 +169,12 @@ public class EditHistory {
 		void edit(EditAction action, CircuitManager manager, Object[] params);
 	}
 	
-	private CircuitSim circuitSim;
-	
-	private Deque<List<Edit>> editStack;
-	private Deque<List<Edit>> redoStack;
-	
 	private static final int MAX_HISTORY = 300;
 	
-	private List<EditListener> editListeners;
+	private final CircuitSim circuitSim;
+	private final Deque<List<Edit>> editStack;
+	private final Deque<List<Edit>> redoStack;
+	private final List<EditListener> editListeners;
 	
 	public EditHistory(CircuitSim circuitSim) {
 		this.circuitSim = circuitSim;
@@ -204,7 +195,7 @@ public class EditHistory {
 	public void enable() {
 		disableDepth--;
 		
-		if(disableDepth < 0) {
+		if (disableDepth < 0) {
 			throw new IllegalStateException("This should never happen!");
 		}
 	}
@@ -227,8 +218,10 @@ public class EditHistory {
 	public void beginGroup() {
 		groupDepth++;
 		
-		if(groups == null) {
-			if(groupDepth != 1) throw new IllegalStateException("How the hell did this happen??");
+		if (groups == null) {
+			if (groupDepth != 1) {
+				throw new IllegalStateException("How the hell did this happen??");
+			}
 			
 			groups = new ArrayList<>();
 		}
@@ -237,18 +230,24 @@ public class EditHistory {
 	}
 	
 	public void endGroup() {
-		if(groupDepth == 0) throw new IllegalStateException("Mismatched call to endGroup.");
+		if (groupDepth == 0) {
+			throw new IllegalStateException("Mismatched call to endGroup.");
+		}
 		
 		groupDepth--;
 		
-		if(groupDepth == 0) {
-			if(groups == null) throw new IllegalStateException("This can't be null?!");
-			if(groups.size() != 1) throw new IllegalStateException("There should only be a single group left");
+		if (groupDepth == 0) {
+			if (groups == null) {
+				throw new IllegalStateException("This can't be null?!");
+			}
+			if (groups.size() != 1) {
+				throw new IllegalStateException("There should only be a single group left");
+			}
 			
 			List<Edit> edits = groups.get(0);
-			if(!edits.isEmpty()) {
+			if (!edits.isEmpty()) {
 				editStack.push(edits);
-				if(editStack.size() > MAX_HISTORY) {
+				if (editStack.size() > MAX_HISTORY) {
 					editStack.removeLast();
 				}
 			}
@@ -261,14 +260,16 @@ public class EditHistory {
 	}
 	
 	public void clearGroup() {
-		if(groups == null) throw new IllegalStateException("No group started");
+		if (groups == null) {
+			throw new IllegalStateException("No group started");
+		}
 		
 		groups.get(groupDepth - 1).clear();
 		groups.subList(groupDepth, groups.size()).clear();
 	}
 	
 	public void addAction(EditAction action, CircuitManager manager, Object... params) {
-		if(disableDepth == 0) {
+		if (disableDepth == 0) {
 			beginGroup();
 			groups.get(groupDepth - 1).add(new Edit(action, manager, params));
 			endGroup();
@@ -288,7 +289,7 @@ public class EditHistory {
 	}
 	
 	public CircuitManager undo() {
-		if(editStack.isEmpty()) {
+		if (editStack.isEmpty()) {
 			return null;
 		}
 		
@@ -301,7 +302,7 @@ public class EditHistory {
 			try {
 				disable();
 				
-				for(int i = popped.size() - 1; i >= 0; i--) {
+				for (int i = popped.size() - 1; i >= 0; i--) {
 					Edit edit = popped.get(i);
 					
 					circuitManagers.add(edit.circuitManager);
@@ -320,13 +321,13 @@ public class EditHistory {
 	}
 	
 	public CircuitManager redo() {
-		if(redoStack.isEmpty()) {
+		if (redoStack.isEmpty()) {
 			return null;
 		}
 		
 		List<Edit> popped = redoStack.pop();
 		editStack.push(popped);
-		if(editStack.size() > MAX_HISTORY) {
+		if (editStack.size() > MAX_HISTORY) {
 			editStack.removeLast();
 		}
 		
@@ -336,7 +337,7 @@ public class EditHistory {
 			try {
 				disable();
 				
-				for(Edit edit : popped) {
+				for (Edit edit : popped) {
 					circuitManagers.add(edit.circuitManager);
 					edit.circuitManager.getCircuitBoard().disableRejoinWires();
 					

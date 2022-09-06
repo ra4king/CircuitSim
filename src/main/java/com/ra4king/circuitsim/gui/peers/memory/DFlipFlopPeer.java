@@ -23,9 +23,10 @@ import javafx.util.Pair;
  */
 public class DFlipFlopPeer extends ComponentPeer<DFlipFlop> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Memory", "D Flip-Flop"),
-		                     new Image(DFlipFlopPeer.class.getResourceAsStream("/images/DFlipFlop.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Memory", "D Flip-Flop"),
+			new Image(DFlipFlopPeer.class.getResourceAsStream("/images/DFlipFlop.png")),
+			new Properties());
 	}
 	
 	private final PortConnection clockConnection;

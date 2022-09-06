@@ -37,16 +37,21 @@ public class ControlledBufferPeer extends ComponentPeer<ControlledBuffer> {
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.mergeIfExists(props);
 		
-		ControlledBuffer buffer = new ControlledBuffer(properties.getValue(Properties.LABEL),
-		                                               properties.getValue(Properties.BITSIZE));
+		ControlledBuffer
+			buffer =
+			new ControlledBuffer(properties.getValue(Properties.LABEL), properties.getValue(Properties.BITSIZE));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), "In",
-		                                   0, getHeight() / 2));
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_ENABLE), "Enable",
-		                                   getWidth() / 2, getHeight()));
-		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT), "Out",
-		                                   getWidth(), getHeight() / 2));
+		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_IN), "In", 0, getHeight() / 2));
+		connections.add(new PortConnection(this,
+		                                   buffer.getPort(ControlledBuffer.PORT_ENABLE),
+		                                   "Enable",
+		                                   getWidth() / 2,
+		                                   getHeight()));
+		connections.add(new PortConnection(this, buffer.getPort(ControlledBuffer.PORT_OUT),
+		                                   "Out",
+		                                   getWidth(),
+		                                   getHeight() / 2));
 		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		
 		init(buffer, properties, connections);

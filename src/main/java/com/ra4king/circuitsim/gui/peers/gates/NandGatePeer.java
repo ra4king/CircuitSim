@@ -16,9 +16,10 @@ import javafx.util.Pair;
  */
 public class NandGatePeer extends GatePeer<NandGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Gates", "NAND"),
-		                     new Image(NandGatePeer.class.getResourceAsStream("/images/NandGate.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Gates", "NAND"),
+			new Image(NandGatePeer.class.getResourceAsStream("/images/NandGate.png")),
+			new Properties());
 	}
 	
 	public NandGatePeer(Properties properties, int x, int y) {
@@ -34,10 +35,11 @@ public class NandGatePeer extends GatePeer<NandGate> {
 	@Override
 	public NandGate buildGate(Properties properties) {
 		int numInputs;
-		return new NandGate(properties.getValue(Properties.LABEL),
-		                    properties.getValue(Properties.BITSIZE),
-		                    numInputs = properties.getValue(Properties.NUM_INPUTS),
-		                    parseNegatedInputs(numInputs, properties));
+		return new NandGate(
+			properties.getValue(Properties.LABEL),
+			properties.getValue(Properties.BITSIZE),
+			numInputs = properties.getValue(Properties.NUM_INPUTS),
+			parseNegatedInputs(numInputs, properties));
 	}
 	
 	@Override

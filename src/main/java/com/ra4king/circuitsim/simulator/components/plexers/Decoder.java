@@ -48,15 +48,15 @@ public class Decoder extends Component {
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
 		Port selectorPort = getSelectorPort();
 		
-		if(getPort(portIndex) == selectorPort) {
-			if(!value.isValidValue()) {
-				for(int i = 0; i < numOutputs; i++) {
+		if (getPort(portIndex) == selectorPort) {
+			if (!value.isValidValue()) {
+				for (int i = 0; i < numOutputs; i++) {
 					state.pushValue(getOutputPort(i), new WireValue(1));
 				}
 			} else {
 				int selectedPort = value.getValue();
-				for(int i = 0; i < numOutputs; i++) {
-					if(i == selectedPort) {
+				for (int i = 0; i < numOutputs; i++) {
+					if (i == selectedPort) {
 						state.pushValue(getOutputPort(i), WireValue.of(1, 1));
 					} else {
 						state.pushValue(getOutputPort(i), WireValue.of(0, 1));

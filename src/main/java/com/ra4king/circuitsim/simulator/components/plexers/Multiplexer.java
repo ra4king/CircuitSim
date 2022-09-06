@@ -60,15 +60,15 @@ public class Multiplexer extends Component {
 		Port selectorPort = getSelectorPort();
 		WireValue currentSelect = state.getLastReceived(selectorPort);
 		
-		if(getPort(portIndex) == selectorPort) {
-			if(!value.isValidValue() || !state.getLastReceived(getPort(value.getValue())).isValidValue()) {
+		if (getPort(portIndex) == selectorPort) {
+			if (!value.isValidValue() || !state.getLastReceived(getPort(value.getValue())).isValidValue()) {
 				state.pushValue(getOutPort(), new WireValue(getBitSize()));
 			} else {
 				state.pushValue(getOutPort(), state.getLastReceived(getPort(value.getValue())));
 			}
-		} else if(portIndex < getNumPorts() - 2) {
-			if(currentSelect.isValidValue()) {
-				if(currentSelect.getValue() == portIndex) {
+		} else if (portIndex < getNumPorts() - 2) {
+			if (currentSelect.isValidValue()) {
+				if (currentSelect.getValue() == portIndex) {
 					state.pushValue(getOutPort(), value);
 				}
 			} else {

@@ -30,11 +30,12 @@ public class Splitter extends Component {
 	
 	private static int[] setupBitFanIndices(int bitSize, int fanouts) {
 		int numBitsPerFan = bitSize / fanouts;
-		if((bitSize % fanouts) != 0)
+		if ((bitSize % fanouts) != 0) {
 			numBitsPerFan++;
+		}
 		
 		int[] bitFanIndices = new int[bitSize];
-		for(int i = 0; i < bitSize; i++) {
+		for (int i = 0; i < bitSize; i++) {
 			bitFanIndices[i] = i / numBitsPerFan;
 		}
 		
@@ -43,17 +44,19 @@ public class Splitter extends Component {
 	
 	private static int[] setupPortBitsizes(int[] bitFanIndices) {
 		int totalFans = 0;
-		for(int bitFanIdx : bitFanIndices) {
-			if(bitFanIdx > totalFans)
+		for (int bitFanIdx : bitFanIndices) {
+			if (bitFanIdx > totalFans) {
 				totalFans = bitFanIdx;
+			}
 		}
 		
 		int[] fanouts = new int[totalFans + 2];
 		fanouts[totalFans + 1] = bitFanIndices.length;
 		
-		for(int bitFanIndex : bitFanIndices) {
-			if(bitFanIndex >= 0)
+		for (int bitFanIndex : bitFanIndices) {
+			if (bitFanIndex >= 0) {
 				fanouts[bitFanIndex]++;
+			}
 		}
 		
 		return fanouts;
@@ -61,17 +64,18 @@ public class Splitter extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_JOINED) {
-			if(bitFanIndices.length != value.getBitSize()) {
-				throw new IllegalStateException(this + ": something went wrong somewhere. bitFanIndices = " + 
-						                                bitFanIndices.length + ", value.getBitSize() = " + value.getBitSize());
+		if (portIndex == PORT_JOINED) {
+			if (bitFanIndices.length != value.getBitSize()) {
+				throw new IllegalStateException(
+					this + ": something went wrong somewhere. bitFanIndices = " + bitFanIndices.length +
+					", value.getBitSize() = " + value.getBitSize());
 			}
 			
-			for(int i = 0; i < getNumPorts() - 1; i++) {
+			for (int i = 0; i < getNumPorts() - 1; i++) {
 				WireValue result = new WireValue(getPort(i).getLink().getBitSize());
 				int currBit = 0;
-				for(int j = 0; j < bitFanIndices.length; j++) {
-					if(bitFanIndices[j] == i) {
+				for (int j = 0; j < bitFanIndices.length; j++) {
+					if (bitFanIndices[j] == i) {
 						result.setBit(currBit++, value.getBit(j));
 					}
 				}
@@ -80,15 +84,16 @@ public class Splitter extends Component {
 		} else {
 			WireValue result = new WireValue(state.getLastPushed(getPort(PORT_JOINED)));
 			int currBit = 0;
-			for(int i = 0; i < bitFanIndices.length; i++) {
-				if(bitFanIndices[i] == portIndex) {
+			for (int i = 0; i < bitFanIndices.length; i++) {
+				if (bitFanIndices[i] == portIndex) {
 					result.setBit(i, value.getBit(currBit++));
 				}
 			}
 			
-			if(currBit != value.getBitSize()) {
-				throw new IllegalStateException(this + ": something went wrong somewhere. currBit = " + currBit +
-						                                ", value.getBitSize() = " + value.getBitSize());
+			if (currBit != value.getBitSize()) {
+				throw new IllegalStateException(
+					this + ": something went wrong somewhere. currBit = " + currBit + ", value.getBitSize() = " +
+					value.getBitSize());
 			}
 			
 			state.pushValue(getPort(PORT_JOINED), result);

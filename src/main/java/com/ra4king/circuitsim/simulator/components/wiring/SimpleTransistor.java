@@ -8,7 +8,7 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
 
 /**
  * @author Roi Atalla, Austin Adams, and Tom Conte
- *
+ * <p>
  * Abridged related email thread explaining the behavior of Transistors (read
  * top-to-bottom):
  *
@@ -62,7 +62,7 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
  * <p>
  * On the flip side, a P-type turns on when V_gate - V_source &lt; -4V
  * [Editor's note: I've flipped the inequality here from &gt; to &lt; due to
- *  Tom having a possible dyslexic moment]
+ * Tom having a possible dyslexic moment]
  * <p>
  * Consider what happens when a P-type is hooked up correctly. When V_gate = 5V,
  * then 5V - V_source = 5V - 5V = 0V, which is greater than -4V, so the gate is off
@@ -100,11 +100,11 @@ public class SimpleTransistor extends Component {
 	
 	public SimpleTransistor(String name, boolean isPType) {
 		super(name, new int[] { 1, 1, 1 });
-
+		
 		this.isIllegallyWired = false;
 		this.isPType = isPType;
 	}
-
+	
 	public boolean getIllegallyWired() {
 		return this.isIllegallyWired;
 	}
@@ -120,12 +120,12 @@ public class SimpleTransistor extends Component {
 		boolean nTypeOk = isPType || sourceBit != State.ONE;
 		boolean pTypeOk = !isPType || sourceBit != State.ZERO;
 		this.isIllegallyWired = !nTypeOk || !pTypeOk;
-
+		
 		if (pTypeOk && nTypeOk && state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
 			state.pushValue(getPort(PORT_DRAIN), new WireValue(sourceBit));
 		} else {
 			state.pushValue(getPort(PORT_DRAIN), X_VALUE);
-
+			
 			if (!nTypeOk) {
 				throw new SimulationException("N-type transistor must not be connected to logic-level high!");
 			}

@@ -27,10 +27,12 @@ public class Divider extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_QUOTIENT || portIndex == PORT_REMAINDER) return;
+		if (portIndex == PORT_QUOTIENT || portIndex == PORT_REMAINDER) {
+			return;
+		}
 		
-		if(state.getLastReceived(getPort(PORT_DIVIDEND)).isValidValue() &&
-				   state.getLastReceived(getPort(PORT_DIVISOR)).isValidValue()) {
+		if (state.getLastReceived(getPort(PORT_DIVIDEND)).isValidValue() &&
+		    state.getLastReceived(getPort(PORT_DIVISOR)).isValidValue()) {
 			int a = state.getLastReceived(getPort(PORT_DIVIDEND)).getValue();
 			int b = state.getLastReceived(getPort(PORT_DIVISOR)).getValue();
 			

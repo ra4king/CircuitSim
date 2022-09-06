@@ -28,7 +28,8 @@ public class Register extends Component {
 	
 	@Override
 	public void init(CircuitState circuitState, Object lastProperty) {
-		WireValue value =
+		WireValue
+			value =
 			lastProperty == null ? WireValue.of(0, bitSize) : new WireValue((WireValue)lastProperty, bitSize);
 		circuitState.pushValue(getPort(PORT_OUT), value);
 		
@@ -37,14 +38,16 @@ public class Register extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT) return;
+		if (portIndex == PORT_OUT) {
+			return;
+		}
 		
-		if(state.getLastReceived(getPort(PORT_ZERO)).getBit(0) == State.ONE) {
+		if (state.getLastReceived(getPort(PORT_ZERO)).getBit(0) == State.ONE) {
 			WireValue pushValue = WireValue.of(0, bitSize);
 			state.pushValue(getPort(PORT_OUT), pushValue);
 			state.putComponentProperty(this, pushValue);
-		} else if(state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO) {
-			if(portIndex == PORT_CLK && value.getBit(0) == State.ONE) {
+		} else if (state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO) {
+			if (portIndex == PORT_CLK && value.getBit(0) == State.ONE) {
 				WireValue pushValue = state.getLastReceived(getPort(PORT_IN));
 				state.pushValue(getPort(PORT_OUT), pushValue);
 				state.putComponentProperty(this, pushValue);

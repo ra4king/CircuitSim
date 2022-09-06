@@ -16,9 +16,10 @@ import javafx.util.Pair;
  */
 public class NorGatePeer extends GatePeer<NorGate> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Gates", "NOR"),
-		                     new Image(NorGatePeer.class.getResourceAsStream("/images/NorGate.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Gates", "NOR"),
+			new Image(NorGatePeer.class.getResourceAsStream("/images/NorGate.png")),
+			new Properties());
 	}
 	
 	public NorGatePeer(Properties properties, int x, int y) {
@@ -34,10 +35,11 @@ public class NorGatePeer extends GatePeer<NorGate> {
 	@Override
 	public NorGate buildGate(Properties properties) {
 		int numInputs;
-		return new NorGate(properties.getValue(Properties.LABEL),
-		                   properties.getValue(Properties.BITSIZE),
-		                   numInputs = properties.getValue(Properties.NUM_INPUTS),
-		                   parseNegatedInputs(numInputs, properties));
+		return new NorGate(
+			properties.getValue(Properties.LABEL),
+			properties.getValue(Properties.BITSIZE),
+			numInputs = properties.getValue(Properties.NUM_INPUTS),
+			parseNegatedInputs(numInputs, properties));
 	}
 	
 	@Override

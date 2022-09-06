@@ -73,7 +73,7 @@ public class ShifterPeer extends ComponentPeer<Shifter> {
 		
 		ShiftType shiftType = getProperties().getValue("Shift Type");
 		boolean rotateRight = false;
-		switch(shiftType) {
+		switch (shiftType) {
 			case ROTATE_LEFT:
 				graphics.strokeLine(x + width - 5, y + height * 0.5, x + width - 5, y + height * 0.5 - 10);
 				graphics.strokeLine(x + width - 15, y + height * 0.5 - 10, x + width - 5, y + height * 0.5 - 10);
@@ -87,7 +87,7 @@ public class ShifterPeer extends ComponentPeer<Shifter> {
 				graphics.strokeLine(x + width - 15, y + height * 0.5, x + width - 15, y + height * 0.5 - 10);
 				graphics.strokeLine(x + width - 15, y + height * 0.5 - 10, x + width - 5, y + height * 0.5 - 10);
 			case ARITHMETIC_RIGHT:
-				if(!rotateRight) {
+				if (!rotateRight) {
 					graphics.strokeLine(x + width - 20, y + height * 0.5, x + width - 18, y + height * 0.5);
 				}
 			case LOGICAL_RIGHT:

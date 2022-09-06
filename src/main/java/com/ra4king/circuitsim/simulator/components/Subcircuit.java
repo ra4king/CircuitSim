@@ -35,14 +35,17 @@ public class Subcircuit extends Component {
 	}
 	
 	private static List<Pin> getCircuitPins(Circuit circuit) {
-		return circuit.getComponents().stream()
-		              .filter(component -> component instanceof Pin).map(component -> (Pin)component)
-		              .collect(Collectors.toList());
+		return circuit
+			.getComponents()
+			.stream()
+			.filter(component -> component instanceof Pin)
+			.map(component -> (Pin)component)
+			.collect(Collectors.toList());
 	}
 	
 	private static int[] setupPortBits(List<Pin> pins) {
 		int[] portBits = new int[pins.size()];
-		for(int i = 0; i < portBits.length; i++) {
+		for (int i = 0; i < portBits.length; i++) {
 			portBits[i] = pins.get(i).getBitSize();
 		}
 		return portBits;
@@ -57,12 +60,12 @@ public class Subcircuit extends Component {
 	}
 	
 	private void checkCircuitLoop(Circuit circuit) {
-		if(circuit == getCircuit()) {
+		if (circuit == getCircuit()) {
 			throw new SimulationException("Subcircuit loop detected.");
 		}
 		
-		for(Component component : circuit.getComponents()) {
-			if(component != this && component instanceof Subcircuit) {
+		for (Component component : circuit.getComponents()) {
+			if (component != this && component instanceof Subcircuit) {
 				Subcircuit subcircuit = (Subcircuit)component;
 				checkCircuitLoop(subcircuit.getSubcircuit());
 			}
@@ -83,9 +86,9 @@ public class Subcircuit extends Component {
 		
 		Map<Pin, PinChangeListener> listeners = new HashMap<>();
 		
-		for(int i = 0; i < pins.size(); i++) {
+		for (int i = 0; i < pins.size(); i++) {
 			Pin pin = pins.get(i);
-			if(!pin.isInput()) {
+			if (!pin.isInput()) {
 				Port port = getPort(i);
 				
 				PinChangeListener listener = (p, state, value) -> circuitState.pushValue(port, value);
@@ -99,12 +102,11 @@ public class Subcircuit extends Component {
 		
 		CircuitState oldState = (CircuitState)lastProperty;
 		
-		for(Component component : subcircuit.getComponents()) {
-			component.init(subcircuitState,
-			               oldState == null ? null : oldState.getComponentProperty(component));
+		for (Component component : subcircuit.getComponents()) {
+			component.init(subcircuitState, oldState == null ? null : oldState.getComponentProperty(component));
 		}
 		
-		if(oldState != null) {
+		if (oldState != null) {
 			getCircuit().removeState(oldState);
 		}
 	}
@@ -118,10 +120,10 @@ public class Subcircuit extends Component {
 		CircuitState subcircuitState = (CircuitState)circuitState.getComponentProperty(this);
 		subcircuit.getComponents().forEach(component -> component.uninit(subcircuitState));
 		subcircuit.removeState(subcircuitState);
-		if(pinListeners.containsKey(subcircuitState)) {
+		if (pinListeners.containsKey(subcircuitState)) {
 			Map<Pin, PinChangeListener> listeners = pinListeners.get(subcircuitState);
 			pins.forEach(pin -> {
-				if(listeners.containsKey(pin)) {
+				if (listeners.containsKey(pin)) {
 					pin.removeChangeListener(subcircuitState, listeners.get(pin));
 				}
 			});
@@ -130,7 +132,7 @@ public class Subcircuit extends Component {
 	
 	public Port getPort(Pin pin) {
 		int index = pins.indexOf(pin);
-		if(index == -1) {
+		if (index == -1) {
 			return null;
 		}
 		return getPort(index);
@@ -141,7 +143,7 @@ public class Subcircuit extends Component {
 		CircuitState subcircuitState = (CircuitState)state.getComponentProperty(this);
 		Pin pin = pins.get(portIndex);
 		// Sometimes we get updates for pins that were just removed
-		if(pin.isInput() && pin.getCircuit() != null) {
+		if (pin.isInput() && pin.getCircuit() != null) {
 			subcircuitState.pushValue(pin.getPort(0), value);
 		}
 	}

@@ -31,9 +31,10 @@ public class LEDMatrix extends ComponentPeer<Component> {
 	}
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Input/Output", "LED Matrix"),
-		                     new Image(LEDMatrix.class.getResourceAsStream("/images/LEDMatrix.png")),
-		                     new Properties());
+		manager.addComponent(
+			new Pair<>("Input/Output", "LED Matrix"),
+			new Image(LEDMatrix.class.getResourceAsStream("/images/LEDMatrix.png")),
+			new Properties());
 	}
 	
 	public LEDMatrix(Properties props, int x, int y) {
@@ -61,7 +62,7 @@ public class LEDMatrix extends ComponentPeer<Component> {
 		};
 		
 		List<PortConnection> connections = new ArrayList<>();
-		for(int i = 0; i < rows; i++) {
+		for (int i = 0; i < rows; i++) {
 			connections.add(new PortConnection(this, component.getPort(i), 0, i));
 		}
 		
@@ -77,13 +78,15 @@ public class LEDMatrix extends ComponentPeer<Component> {
 	public void paint(GraphicsContext graphics, CircuitState circuitState) {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
-		for(int i = 0; i < getComponent().getNumPorts(); i++) {
+		for (int i = 0; i < getComponent().getNumPorts(); i++) {
 			WireValue value = circuitState.getLastReceived(getComponent().getPort(i));
-			for(int b = value.getBitSize() - 1; b >= 0; b--) {
+			for (int b = value.getBitSize() - 1; b >= 0; b--) {
 				GuiUtils.setBitColor(graphics, value.getBit(b));
-				graphics.fillRect(getScreenX() + (value.getBitSize() - b - 1) * GuiUtils.BLOCK_SIZE,
-				                  getScreenY() + i * GuiUtils.BLOCK_SIZE,
-				                  GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
+				graphics.fillRect(
+					getScreenX() + (value.getBitSize() - b - 1) * GuiUtils.BLOCK_SIZE,
+					getScreenY() + i * GuiUtils.BLOCK_SIZE,
+					GuiUtils.BLOCK_SIZE,
+					GuiUtils.BLOCK_SIZE);
 			}
 		}
 		

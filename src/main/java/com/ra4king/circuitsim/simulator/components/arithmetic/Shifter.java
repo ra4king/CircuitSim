@@ -14,11 +14,7 @@ public class Shifter extends Component {
 	public static final int PORT_OUT = 2;
 	
 	public enum ShiftType {
-		LOGICAL_LEFT,
-		LOGICAL_RIGHT,
-		ARITHMETIC_RIGHT,
-		ROTATE_LEFT,
-		ROTATE_RIGHT
+		LOGICAL_LEFT, LOGICAL_RIGHT, ARITHMETIC_RIGHT, ROTATE_LEFT, ROTATE_RIGHT
 	}
 	
 	private final int bitSize;
@@ -37,7 +33,7 @@ public class Shifter extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT) {
+		if (portIndex == PORT_OUT) {
 			return;
 		}
 		
@@ -46,35 +42,35 @@ public class Shifter extends Component {
 		
 		WireValue result = new WireValue(bitSize);
 		
-		if(shift.isValidValue()) {
+		if (shift.isValidValue()) {
 			result.setAllBits(State.ZERO);
 			
 			int shiftValue = shift.getValue();
 			
 			boolean rotateRight = false;
-			switch(shiftType) {
+			switch (shiftType) {
 				case ROTATE_LEFT:
-					for(int i = shiftValue - 1; i >= 0; i--) {
+					for (int i = shiftValue - 1; i >= 0; i--) {
 						result.setBit(i, valueIn.getBit(bitSize - (shiftValue - i)));
 					}
 				case LOGICAL_LEFT:
-					for(int i = bitSize - 1; i >= shiftValue; i--) {
+					for (int i = bitSize - 1; i >= shiftValue; i--) {
 						result.setBit(i, valueIn.getBit(i - shiftValue));
 					}
 					break;
 				case ROTATE_RIGHT:
 					rotateRight = true;
-					for(int i = bitSize - shiftValue; i < bitSize; i++) {
+					for (int i = bitSize - shiftValue; i < bitSize; i++) {
 						result.setBit(i, valueIn.getBit(i - (bitSize - shiftValue)));
 					}
 				case ARITHMETIC_RIGHT:
-					if(!rotateRight) {
-						for(int i = bitSize - shiftValue; i < bitSize; i++) {
+					if (!rotateRight) {
+						for (int i = bitSize - shiftValue; i < bitSize; i++) {
 							result.setBit(i, valueIn.getBit(bitSize - 1));
 						}
 					}
 				case LOGICAL_RIGHT:
-					for(int i = 0; i < bitSize - shiftValue; i++) {
+					for (int i = 0; i < bitSize - shiftValue; i++) {
 						result.setBit(i, valueIn.getBit(i + shiftValue));
 					}
 					break;

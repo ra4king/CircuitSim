@@ -36,13 +36,13 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		properties.mergeIfExists(props);
 		
 		int negationCounts = 0;
-		while(true) {
+		while (true) {
 			String propName = "Negate " + negationCounts++;
 			
-			if(props.containsProperty(propName)) {
+			if (props.containsProperty(propName)) {
 				boolean negate;
 				Object value = props.getValue(propName);
-				if(value instanceof Boolean) {
+				if (value instanceof Boolean) {
 					negate = (Boolean)value;
 				} else {
 					negate = value.equals("Yes");
@@ -57,25 +57,25 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		T gate = buildGate(properties);
 		int gateNum = gate.getNumInputs();
 		
-		for(int i = 0; i < Math.max(gateNum, negationCounts); i++) {
+		for (int i = 0; i < Math.max(gateNum, negationCounts); i++) {
 			String propName = "Negate " + i;
 			
-			if(i < gateNum) {
+			if (i < gateNum) {
 				boolean negate = false;
 				
-				if(!properties.containsProperty(propName)) {
+				if (!properties.containsProperty(propName)) {
 					properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, false));
 				} else {
 					negate = properties.<Boolean>getProperty(propName).value;
 				}
 				
-				if(i == 0) {
+				if (i == 0) {
 					properties.getProperty(propName).display += " Top/Left";
-				} else if(i == gateNum - 1) {
+				} else if (i == gateNum - 1) {
 					properties.getProperty(propName).display += " Bottom/Right";
 				}
 				
-				if(negate && !hasNegatedInput) {
+				if (negate && !hasNegatedInput) {
 					hasNegatedInput = true;
 					setWidth(width + 1);
 				}
@@ -89,32 +89,38 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		List<PortConnection> connections = new ArrayList<>();
 		
 		int inputOffset = 0;
-		switch(properties.getValue(Properties.DIRECTION)) {
+		switch (properties.getValue(Properties.DIRECTION)) {
 			case WEST:
 				inputOffset = getWidth();
 			case EAST:
-				for(int i = 0; i < gateNum; i++) {
+				for (int i = 0; i < gateNum; i++) {
 					int add = (gateNum % 2 == 0 && i >= gateNum / 2) ? 3 : 2;
-					connections.add(
-						new PortConnection(this, gate.getPort(i),
-						                   inputOffset, i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0)));
+					connections.add(new PortConnection(this,
+					                                   gate.getPort(i),
+					                                   inputOffset,
+					                                   i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0)));
 				}
 				
-				connections.add(new PortConnection(this, gate.getPort(gateNum),
-				                                   getWidth() - inputOffset, getHeight() / 2));
+				connections.add(new PortConnection(this,
+				                                   gate.getPort(gateNum),
+				                                   getWidth() - inputOffset,
+				                                   getHeight() / 2));
 				break;
 			case NORTH:
 				inputOffset = getHeight();
 			case SOUTH:
-				for(int i = 0; i < gateNum; i++) {
+				for (int i = 0; i < gateNum; i++) {
 					int add = (gateNum % 2 == 0 && i >= gateNum / 2) ? 3 : 2;
-					connections.add(
-						new PortConnection(this, gate.getPort(i),
-						                   i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0), inputOffset));
+					connections.add(new PortConnection(this,
+					                                   gate.getPort(i),
+					                                   i + add - gateNum / 2 - (gateNum == 1 ? 1 : 0),
+					                                   inputOffset));
 				}
 				
-				connections.add(new PortConnection(this, gate.getPort(gateNum),
-				                                   getWidth() / 2, getHeight() - inputOffset));
+				connections.add(new PortConnection(this,
+				                                   gate.getPort(gateNum),
+				                                   getWidth() / 2,
+				                                   getHeight() - inputOffset));
 				break;
 		}
 		
@@ -124,7 +130,7 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 	protected static boolean[] parseNegatedInputs(int inputs, Properties properties) {
 		boolean[] negated = new boolean[inputs];
 		
-		for(int i = 0; i < negated.length; i++) {
+		for (int i = 0; i < negated.length; i++) {
 			negated[i] = properties.getValueOrDefault("Negate " + i, false);
 		}
 		
@@ -140,13 +146,13 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		graphics.setFill(Color.WHITE);
 		graphics.setStroke(Color.BLACK);
 		
-		for(int i = 0; i < getConnections().size() - 1; i++) {
-			if(getComponent().getNegateInputs()[i]) {
+		for (int i = 0; i < getConnections().size() - 1; i++) {
+			if (getComponent().getNegateInputs()[i]) {
 				PortConnection c = getConnections().get(i);
 				int x = c.getX() * GuiUtils.BLOCK_SIZE;
 				int y = c.getY() * GuiUtils.BLOCK_SIZE;
 				
-				switch(getProperties().getValue(Properties.DIRECTION)) {
+				switch (getProperties().getValue(Properties.DIRECTION)) {
 					case WEST:
 						x -= GuiUtils.BLOCK_SIZE;
 					case EAST:
@@ -167,7 +173,7 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));
 		
-		if(hasNegatedInput) {
+		if (hasNegatedInput) {
 			graphics.translate(GuiUtils.BLOCK_SIZE, 0);
 		}
 		

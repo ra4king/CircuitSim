@@ -25,9 +25,10 @@ import javafx.util.Pair;
  */
 public class Probe extends ComponentPeer<Component> {
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Wiring", "Probe"),
-		                     new Image(Probe.class.getResourceAsStream("/images/Probe.png")),
-		                     new Properties(new Property<>(Properties.DIRECTION, Direction.SOUTH)));
+		manager.addComponent(
+			new Pair<>("Wiring", "Probe"),
+			new Image(Probe.class.getResourceAsStream("/images/Probe.png")),
+			new Properties(new Property<>(Properties.DIRECTION, Direction.SOUTH)));
 	}
 	
 	public Probe(Properties props, int x, int y) {
@@ -42,8 +43,7 @@ public class Probe extends ComponentPeer<Component> {
 		
 		int bitSize = properties.getValue(Properties.BITSIZE);
 		
-		Component probe = new Component(properties.getValue(Properties.LABEL),
-		                                new int[] { bitSize }) {
+		Component probe = new Component(properties.getValue(Properties.LABEL), new int[] { bitSize }) {
 			@Override
 			public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
 		};
@@ -52,19 +52,11 @@ public class Probe extends ComponentPeer<Component> {
 		setHeight((int)Math.round((1 + (bitSize - 1) / 8) * 1.5));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		switch(properties.getValue(Properties.DIRECTION)) {
-			case EAST:
-				connections.add(new PortConnection(this, probe.getPort(0), getWidth(), getHeight() / 2));
-				break;
-			case WEST:
-				connections.add(new PortConnection(this, probe.getPort(0), 0, getHeight() / 2));
-				break;
-			case NORTH:
-				connections.add(new PortConnection(this, probe.getPort(0), getWidth() / 2, 0));
-				break;
-			case SOUTH:
-				connections.add(new PortConnection(this, probe.getPort(0), getWidth() / 2, getHeight()));
-				break;
+		switch (properties.getValue(Properties.DIRECTION)) {
+			case EAST -> connections.add(new PortConnection(this, probe.getPort(0), getWidth(), getHeight() / 2));
+			case WEST -> connections.add(new PortConnection(this, probe.getPort(0), 0, getHeight() / 2));
+			case NORTH -> connections.add(new PortConnection(this, probe.getPort(0), getWidth() / 2, 0));
+			case SOUTH -> connections.add(new PortConnection(this, probe.getPort(0), getWidth() / 2, getHeight()));
 		}
 		
 		init(probe, properties, connections);
@@ -77,7 +69,7 @@ public class Probe extends ComponentPeer<Component> {
 		graphics.setFont(GuiUtils.getFont(16));
 		Port port = getComponent().getPort(0);
 		WireValue value = circuitState.getLastReceived(port);
-		if(circuitState.isShortCircuited(port.getLink())) {
+		if (circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {
 			graphics.setFill(Color.LIGHTGRAY);

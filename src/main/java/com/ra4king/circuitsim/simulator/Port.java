@@ -68,23 +68,25 @@ public class Port {
 		}
 		
 		public Link linkPort(Port port) {
-			if(participants.contains(port)) return this;
+			if (participants.contains(port)) {
+				return this;
+			}
 			
 			Circuit circuit = getCircuit();
 			
-			if(circuit == null) {
+			if (circuit == null) {
 				throw new IllegalStateException("Link does not belong to a circuit.");
 			}
 			
-			if(port.getLink().getCircuit() == null) {
+			if (port.getLink().getCircuit() == null) {
 				throw new IllegalStateException("Port does not belong to a circuit.");
 			}
 			
-			if(port.getLink().getCircuit() != circuit) {
+			if (port.getLink().getCircuit() != circuit) {
 				throw new IllegalArgumentException("Links belong to different circuits.");
 			}
 			
-			if(port.getLink().bitSize != bitSize) {
+			if (port.getLink().bitSize != bitSize) {
 				throw new IllegalArgumentException("Links have different bit sizes.");
 			}
 			
@@ -93,7 +95,7 @@ public class Port {
 			Set<Port> portParticipants = port.getLink().participants;
 			participants.addAll(portParticipants);
 			
-			for(Port p : portParticipants) {
+			for (Port p : portParticipants) {
 				p.link = this;
 			}
 			
@@ -101,11 +103,11 @@ public class Port {
 		}
 		
 		public Link unlinkPort(Port port) {
-			if(!participants.contains(port)) {
+			if (!participants.contains(port)) {
 				return this;
 			}
 			
-			if(participants.size() == 1) {
+			if (participants.size() == 1) {
 				return this;
 			}
 			

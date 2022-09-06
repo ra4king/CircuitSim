@@ -40,19 +40,17 @@ public class ClockPeer extends ComponentPeer<Clock> {
 		Clock clock = new Clock(properties.getValue(Properties.LABEL));
 		
 		List<PortConnection> connections = new ArrayList<>();
-		switch(properties.getValue(Properties.DIRECTION)) {
-			case EAST:
-				connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth(), getHeight() / 2));
-				break;
-			case WEST:
-				connections.add(new PortConnection(this, clock.getPort(Clock.PORT), 0, getHeight() / 2));
-				break;
-			case NORTH:
-				connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth() / 2, 0));
-				break;
-			case SOUTH:
-				connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth() / 2, getHeight()));
-				break;
+		switch (properties.getValue(Properties.DIRECTION)) {
+			case EAST -> connections.add(new PortConnection(this,
+			                                                clock.getPort(Clock.PORT),
+			                                                getWidth(),
+			                                                getHeight() / 2));
+			case WEST -> connections.add(new PortConnection(this, clock.getPort(Clock.PORT), 0, getHeight() / 2));
+			case NORTH -> connections.add(new PortConnection(this, clock.getPort(Clock.PORT), getWidth() / 2, 0));
+			case SOUTH -> connections.add(new PortConnection(this,
+			                                                 clock.getPort(Clock.PORT),
+			                                                 getWidth() / 2,
+			                                                 getHeight()));
 		}
 		
 		init(clock, properties, connections);
@@ -68,7 +66,7 @@ public class ClockPeer extends ComponentPeer<Clock> {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		
 		Port port = getComponent().getPort(Clock.PORT);
-		if(circuitState.isShortCircuited(port.getLink())) {
+		if (circuitState.isShortCircuited(port.getLink())) {
 			graphics.setFill(Color.RED);
 		} else {
 			GuiUtils.setBitColor(graphics, circuitState.getLastPushed(port).getBit(0));

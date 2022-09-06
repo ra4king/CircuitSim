@@ -22,9 +22,11 @@ public class ControlledBuffer extends Component {
 	
 	@Override
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {
-		if(portIndex == PORT_OUT) return;
+		if (portIndex == PORT_OUT) {
+			return;
+		}
 		
-		if(state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) == State.ONE) {
+		if (state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) == State.ONE) {
 			state.pushValue(getPort(PORT_OUT), state.getLastReceived(getPort(PORT_IN)));
 		} else {
 			state.pushValue(getPort(PORT_OUT), X_VALUE);

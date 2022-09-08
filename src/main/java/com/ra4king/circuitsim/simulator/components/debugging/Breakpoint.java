@@ -19,12 +19,13 @@ public class Breakpoint extends Component {
         super(name, new int[] { bitSize, 1 });
         this.value = WireValue.of(value, bitSize);
     }
-    
+
     @Override
     public void valueChanged(CircuitState state, WireValue value, int portIndex) {
+        boolean dataChanged = portIndex == PORT_DATA;
         boolean enabled = state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) != State.ZERO;
-        // If clock is enabled and the value is the desired breakpoint value, stop the clock
-        if (enabled && state.getLastReceived(getPort(PORT_DATA)).equals(this.value)) {
+        // If clock is enabled, the data value changed, and the value is the desired breakpoint value, stop the clock
+        if (dataChanged && enabled && state.getLastReceived(getPort(PORT_DATA)).equals(this.value)) {
             Clock.stopClock(getCircuit().getSimulator());
         }
     }

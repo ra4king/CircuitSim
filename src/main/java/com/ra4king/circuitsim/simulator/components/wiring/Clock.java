@@ -83,7 +83,7 @@ public class Clock extends Component {
 		}
 		
 		void reset() {
-			stopClock();
+			stopClock(true);
 			if (clock) {
 				tick();
 			}

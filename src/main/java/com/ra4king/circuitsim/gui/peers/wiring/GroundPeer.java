@@ -22,12 +22,12 @@ import javafx.util.Pair;
 public class GroundPeer extends ComponentPeer<Ground> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Ground"),
-		                     new Image(ConstantPeer.class.getResourceAsStream("/images/Ground.png")),
+		                     new Image(GroundPeer.class.getResourceAsStream("/images/Ground.png")),
 		                     new Properties());
 	}
 
 	public GroundPeer(Properties props, int x, int y) {
-		super(x, y, 0, 0);
+		super(x, y, 2, 3);
 
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
@@ -35,9 +35,6 @@ public class GroundPeer extends ComponentPeer<Ground> {
 		properties.mergeIfExists(props);
 
 		Ground ground = new Ground(properties.getValue(Properties.LABEL));
-
-		setWidth(2);
-		setHeight(3);
 
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, ground.getPort(0), getWidth() / 2, 0));
@@ -60,11 +57,11 @@ public class GroundPeer extends ComponentPeer<Ground> {
 
 		graphics.beginPath();
 		graphics.moveTo(x + 0.5 * width, y);
-		graphics.lineTo(x + 0.5 * width, y + height / 2.0);
-		graphics.lineTo(x, y + height / 2.0);
+		graphics.lineTo(x + 0.5 * width, y + 0.5 * height);
+		graphics.lineTo(x, y + 0.5 * height);
 		graphics.lineTo(x + 0.5 * width, y + height);
-		graphics.lineTo(x + width, y + height / 2.0);
-		graphics.lineTo(x, y + height / 2.0);
+		graphics.lineTo(x + width, y + 0.5 * height);
+		graphics.lineTo(x, y + 0.5 * height);
 		graphics.stroke();
 	}
 }

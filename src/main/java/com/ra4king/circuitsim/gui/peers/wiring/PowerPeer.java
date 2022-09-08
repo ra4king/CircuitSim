@@ -22,12 +22,12 @@ import javafx.util.Pair;
 public class PowerPeer extends ComponentPeer<Power> {
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Power"),
-		                     new Image(ConstantPeer.class.getResourceAsStream("/images/Power.png")),
+		                     new Image(PowerPeer.class.getResourceAsStream("/images/Power.png")),
 		                     new Properties());
 	}
 
 	public PowerPeer(Properties props, int x, int y) {
-		super(x, y, 0, 0);
+		super(x, y, 2, 3);
 
 		Properties properties = new Properties();
 		properties.ensureProperty(Properties.LABEL);
@@ -35,9 +35,6 @@ public class PowerPeer extends ComponentPeer<Power> {
 		properties.mergeIfExists(props);
 
 		Power power = new Power(properties.getValue(Properties.LABEL));
-
-		setWidth(2);
-		setHeight(3);
 
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, power.getPort(0), getWidth() / 2, getHeight()));

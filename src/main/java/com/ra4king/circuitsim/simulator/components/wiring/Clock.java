@@ -1,6 +1,7 @@
 package com.ra4king.circuitsim.simulator.components.wiring;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.ra4king.circuitsim.simulator.Circuit;
@@ -10,15 +11,60 @@ import com.ra4king.circuitsim.simulator.Simulator;
 import com.ra4king.circuitsim.simulator.Utils;
 import com.ra4king.circuitsim.simulator.WireValue;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+
 /**
  * @author Roi Atalla
  */
 public class Clock extends Component {
+	public static class EnabledInfo {
+		private final boolean enabled;
+		private final int hertz;
+		
+		public EnabledInfo(boolean enabled, int hertz) {
+			this.enabled = enabled;
+			this.hertz = hertz;
+		}
+		
+		public boolean getEnabled() {
+			return enabled;
+		}
+		
+		public int getHertz() {
+			return hertz;
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			if (o == this) {
+				return true;
+			}
+			
+			if (!(o instanceof EnabledInfo)) {
+				return false;
+			}
+			
+			EnabledInfo e = (EnabledInfo) o;
+			
+			return enabled == e.enabled && hertz == e.hertz;
+		}
+		
+		@Override
+		public int hashCode() {
+			return Objects.hash(enabled, hertz);
+		}
+	}
+	
 	private static class ClockInfo {
 		private final Map<Clock, Object> clocks = new ConcurrentHashMap<>();
 		private final Map<ClockChangeListener, Object> clockChangeListeners = new ConcurrentHashMap<>();
 		
 		private Thread currentClock;
+		private final SimpleObjectProperty<Clock.EnabledInfo> clockEnabled = new SimpleObjectProperty<>(
+				new Clock.EnabledInfo(false, 0));
 		private boolean clock;
 		
 		private long lastTickTime;
@@ -26,8 +72,18 @@ public class Clock extends Component {
 		private int tickCount;
 		private volatile int lastTickCount;
 		
+		private ClockInfo() {
+			clockEnabled.addListener((obs, oldValue, newValue) -> {
+				if(newValue.enabled) {
+					startClock(newValue.getHertz());
+				} else {
+					stopClock(false);
+				}
+			});
+		}
+		
 		void reset() {
-			stopClock();
+			stopClock(true);
 			if (clock) {
 				tick();
 			}
@@ -50,7 +106,7 @@ public class Clock extends Component {
 			
 			final long nanosPerTick = (long)(1e9 / (2L * hertz));
 			
-			stopClock();
+			stopClock(true);
 			Thread clockThread = new Thread(() -> {
 				Thread thread = currentClock;
 				
@@ -86,14 +142,14 @@ public class Clock extends Component {
 			clockThread.start();
 		}
 		
-		void stopClock() {
+		void stopClock(boolean shouldYield) {
 			if (currentClock != null) {
 				Thread clockThread = currentClock;
 				
 				currentClock.interrupt();
 				currentClock = null;
 				
-				while (clockThread.isAlive()) {
+				while (clockThread.isAlive() && shouldYield) {
 					Thread.yield();
 				}
 				
@@ -163,17 +219,22 @@ public class Clock extends Component {
 	
 	public static void startClock(Simulator simulator, int hertz) {
 		ClockInfo clock = get(simulator);
-		clock.startClock(hertz);
+		clock.clockEnabled.set(new Clock.EnabledInfo(true, hertz));
 	}
 	
 	public static boolean isRunning(Simulator simulator) {
 		ClockInfo clock = get(simulator);
-		return clock.currentClock != null;
+		return clock.clockEnabled.get().enabled;
+	}
+	
+	public static SimpleObjectProperty<Clock.EnabledInfo> clockEnabledProperty(Simulator simulator) {
+		ClockInfo clock = get(simulator);
+		return clock.clockEnabled;
 	}
 	
 	public static void stopClock(Simulator simulator) {
 		ClockInfo clock = get(simulator);
-		clock.stopClock();
+		clock.clockEnabled.set(new Clock.EnabledInfo(false, 0));
 	}
 	
 	public static void addChangeListener(Simulator simulator, ClockChangeListener listener) {

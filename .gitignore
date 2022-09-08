@@ -1,6 +1,7 @@
 /.idea/
 /out/
 /misc/
+/bin/
 *.iml
 
 # Created by https://www.gitignore.io/api/java,gradle
@@ -26,6 +27,9 @@ hs_err_pid*
 ### Gradle ###
 .gradle
 **/build/
+.classpath
+.project
+.settings
 
 # Ignore Gradle GUI config
 gradle-app.setting

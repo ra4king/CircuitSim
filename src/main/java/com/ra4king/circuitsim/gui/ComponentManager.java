@@ -15,6 +15,7 @@ import com.ra4king.circuitsim.gui.peers.arithmetic.NegatorPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.RandomGeneratorPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.ShifterPeer;
 import com.ra4king.circuitsim.gui.peers.arithmetic.SubtractorPeer;
+import com.ra4king.circuitsim.gui.peers.debugging.BreakpointPeer;
 import com.ra4king.circuitsim.gui.peers.gates.AndGatePeer;
 import com.ra4king.circuitsim.gui.peers.gates.ControlledBufferPeer;
 import com.ra4king.circuitsim.gui.peers.gates.NandGatePeer;
@@ -240,6 +241,8 @@ public class ComponentManager {
 		register(HexDisplay.class);
 		
 		register(Text.class);
+
+		register(BreakpointPeer.class);
 	}
 	
 	public interface ComponentCreator<T extends ComponentPeer<?>> {

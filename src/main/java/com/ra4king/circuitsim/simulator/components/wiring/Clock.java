@@ -3,6 +3,7 @@ package com.ra4king.circuitsim.simulator.components.wiring;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.CircuitState;
@@ -11,10 +12,7 @@ import com.ra4king.circuitsim.simulator.Simulator;
 import com.ra4king.circuitsim.simulator.Utils;
 import com.ra4king.circuitsim.simulator.WireValue;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 
 /**
  * @author Roi Atalla
@@ -47,7 +45,7 @@ public class Clock extends Component {
 				return false;
 			}
 			
-			EnabledInfo e = (EnabledInfo) o;
+			EnabledInfo e = (EnabledInfo)o;
 			
 			return enabled == e.enabled && hertz == e.hertz;
 		}
@@ -62,9 +60,19 @@ public class Clock extends Component {
 		private final Map<Clock, Object> clocks = new ConcurrentHashMap<>();
 		private final Map<ClockChangeListener, Object> clockChangeListeners = new ConcurrentHashMap<>();
 		
-		private Thread currentClock;
-		private final SimpleObjectProperty<Clock.EnabledInfo> clockEnabled = new SimpleObjectProperty<>(
-				new Clock.EnabledInfo(false, 0));
+		private static class InternalClockInfo {
+			private final Thread thread;
+			private final AtomicBoolean enabled = new AtomicBoolean(true);
+			
+			InternalClockInfo(Thread thread) {
+				this.thread = thread;
+			}
+		}
+		
+		private InternalClockInfo currentClock;
+		private final SimpleObjectProperty<Clock.EnabledInfo>
+			clockEnabled
+			= new SimpleObjectProperty<>(new Clock.EnabledInfo(false, 0));
 		private boolean clock;
 		
 		private long lastTickTime;
@@ -74,22 +82,22 @@ public class Clock extends Component {
 		
 		private ClockInfo() {
 			clockEnabled.addListener((obs, oldValue, newValue) -> {
-				if(newValue.enabled) {
+				if (newValue.enabled) {
 					startClock(newValue.getHertz());
 				} else {
-					stopClock(false);
+					stopClock();
 				}
 			});
 		}
 		
 		void reset() {
-			stopClock(true);
+			stopClock();
 			if (clock) {
 				tick();
 			}
 		}
 		
-		void tick() {
+		synchronized void tick() {
 			clock = !clock;
 			WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 			clocks.forEach((clock, o) -> {
@@ -100,17 +108,20 @@ public class Clock extends Component {
 			clockChangeListeners.forEach((listener, o) -> listener.valueChanged(clockValue));
 		}
 		
-		void startClock(int hertz) {
+		synchronized void startClock(int hertz) {
 			lastTickTime = lastPrintTime = System.nanoTime();
 			lastTickCount = tickCount = 0;
 			
 			final long nanosPerTick = (long)(1e9 / (2L * hertz));
 			
-			stopClock(true);
+			stopClock();
 			Thread clockThread = new Thread(() -> {
-				Thread thread = currentClock;
+				InternalClockInfo currentClock = this.currentClock;
+				if (currentClock == null || !Thread.currentThread().equals(currentClock.thread)) {
+					return;
+				}
 				
-				while (thread != null && !thread.isInterrupted()) {
+				while (currentClock.enabled.get()) {
 					long now = System.nanoTime();
 					if (now - lastPrintTime >= 1e9) {
 						lastTickCount = tickCount;
@@ -138,18 +149,20 @@ public class Clock extends Component {
 			clockThread.setName("Clock thread");
 			clockThread.setDaemon(true);
 			
-			currentClock = clockThread;
+			currentClock = new InternalClockInfo(clockThread);
 			clockThread.start();
 		}
 		
-		void stopClock(boolean shouldYield) {
+		synchronized void stopClock() {
 			if (currentClock != null) {
-				Thread clockThread = currentClock;
+				InternalClockInfo currentClock = this.currentClock;
 				
-				currentClock.interrupt();
-				currentClock = null;
+				currentClock.enabled.set(false);
+				this.currentClock = null;
 				
-				while (clockThread.isAlive() && shouldYield) {
+				boolean isClockThread = Thread.currentThread().equals(currentClock.thread);
+				// Wait for the clock thread to die if we're not already in the clock thread.
+				while (currentClock.thread.isAlive() && !isClockThread) {
 					Thread.yield();
 				}
 				

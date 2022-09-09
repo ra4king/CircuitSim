@@ -40,7 +40,9 @@ import com.ra4king.circuitsim.gui.peers.plexers.MultiplexerPeer;
 import com.ra4king.circuitsim.gui.peers.plexers.PriorityEncoderPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.ClockPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.ConstantPeer;
+import com.ra4king.circuitsim.gui.peers.wiring.GroundPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.PinPeer;
+import com.ra4king.circuitsim.gui.peers.wiring.PowerPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.Probe;
 import com.ra4king.circuitsim.gui.peers.wiring.SimpleTransistorPeer;
 import com.ra4king.circuitsim.gui.peers.wiring.SplitterPeer;
@@ -203,6 +205,8 @@ public class ComponentManager {
 		register(SplitterPeer.class);
 		register(Tunnel.class);
 		register(SimpleTransistorPeer.class);
+		register(PowerPeer.class);
+		register(GroundPeer.class);
 		register(TransistorPeer.class);
 		
 		register(AndGatePeer.class);

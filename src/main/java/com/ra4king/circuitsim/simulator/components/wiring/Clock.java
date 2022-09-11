@@ -153,20 +153,27 @@ public class Clock extends Component {
 			clockThread.start();
 		}
 		
-		synchronized void stopClock() {
+		void stopClock() {
 			if (currentClock != null) {
-				InternalClockInfo currentClock = this.currentClock;
-				
-				currentClock.enabled.set(false);
-				this.currentClock = null;
-				
-				boolean isClockThread = Thread.currentThread().equals(currentClock.thread);
-				// Wait for the clock thread to die if we're not already in the clock thread.
-				while (currentClock.thread.isAlive() && !isClockThread) {
-					Thread.yield();
+				InternalClockInfo clock = null;
+				synchronized (this) {
+					if (currentClock != null) {
+						clock = currentClock;
+						clock.enabled.set(false);
+					}
 				}
 				
-				lastTickCount = 0;
+				if (clock != null) {
+					boolean isClockThread = Thread.currentThread().equals(clock.thread);
+					// Wait for the clock thread to die if we're not already in the clock thread.
+					while (clock.thread.isAlive() && !isClockThread) {
+						Thread.yield();
+					}
+					
+					synchronized (this) {
+						currentClock = null;
+					}
+				}
 			}
 		}
 	}

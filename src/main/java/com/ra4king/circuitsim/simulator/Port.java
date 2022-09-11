@@ -114,8 +114,9 @@ public class Port {
 			Circuit circuit = getCircuit();
 			
 			participants.remove(port);
-			port.link = new Link(bitSize);
-			port.link.participants.add(port);
+			Link link = new Link(bitSize);
+			link.participants.add(port);
+			port.link = link;
 			
 			circuit.forEachState(state -> state.unlink(this, port));
 			

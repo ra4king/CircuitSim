@@ -825,18 +825,16 @@ public class CircuitBoard {
 			Wire right = toSplice.getX() < overlap.getX() ? overlap : toSplice;
 			
 			Wire leftPiece = new Wire(left.getLinkWires(), left.getX(), left.getY(), right.getX() - left.getX(), true);
-			Wire
-				midPiece =
-				new Wire(right.getLinkWires(),
-				         right.getX(),
-				         right.getY(),
-				         left.getX() + left.getLength() - right.getX(),
-				         true);
+			Wire midPiece = new Wire(right.getLinkWires(),
+				right.getX(),
+				right.getY(),
+				left.getX() + left.getLength() - right.getX(),
+				true);
 			Wire rightPiece = new Wire(right.getLinkWires(),
-			                           left.getX() + left.getLength(),
-			                           left.getY(),
-			                           right.getX() + right.getLength() - left.getX() - left.getLength(),
-			                           true);
+				left.getX() + left.getLength(),
+				left.getY(),
+				right.getX() + right.getLength() - left.getX() - left.getLength(),
+				true);
 			
 			if (left == toSplice) {
 				return new Pair<>(leftPiece, new Pair<>(midPiece, rightPiece));
@@ -848,14 +846,16 @@ public class CircuitBoard {
 			Wire bottom = toSplice.getY() < overlap.getY() ? overlap : toSplice;
 			
 			Wire topPiece = new Wire(top.getLinkWires(), top.getX(), top.getY(), bottom.getY() - top.getY(), false);
-			Wire midPiece = new Wire(bottom.getLinkWires(), bottom.getX(), bottom.getY(),
-			
-			                         top.getY() + top.getLength() - bottom.getY(), false);
+			Wire midPiece = new Wire(bottom.getLinkWires(),
+				bottom.getX(),
+				bottom.getY(),
+				top.getY() + top.getLength() - bottom.getY(),
+				false);
 			Wire bottomPiece = new Wire(bottom.getLinkWires(),
-			                            top.getX(),
-			                            top.getY() + top.getLength(),
-			                            bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
-			                            false);
+				top.getX(),
+				top.getY() + top.getLength(),
+				bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
+				false);
 			
 			if (top == toSplice) {
 				return new Pair<>(topPiece, new Pair<>(midPiece, bottomPiece));
@@ -1206,33 +1206,38 @@ public class CircuitBoard {
 		
 		if (moveElements != null) {
 			graphics.save();
-			graphics.setGlobalAlpha(0.5);
-			
-			for (GuiElement element : moveElements) {
-				if (element instanceof ComponentPeer<?>) {
-					paintComponent(graphics, currentState, (ComponentPeer<?>)element);
-				} else if (element instanceof Wire) {
-					paintWire(graphics, currentState, (Wire)element, false);
-				}
-			}
-			
-			MoveComputeResult result = this.moveResult;
-			if (result != null) {
-				graphics.setFill(Color.RED);
-				result.wiresToRemove.forEach(wire -> wire.paint(graphics));
+			try {
+				graphics.setGlobalAlpha(0.5);
 				
-				graphics.setFill(Color.BLACK);
-				result.wiresToAdd.forEach(wire -> wire.paint(graphics));
+				for (GuiElement element : moveElements) {
+					if (element instanceof ComponentPeer<?>) {
+						paintComponent(graphics, currentState, (ComponentPeer<?>)element);
+					} else if (element instanceof Wire) {
+						paintWire(graphics, currentState, (Wire)element, false);
+					}
+				}
+				
+				MoveComputeResult result = this.moveResult;
+				if (result != null) {
+					graphics.setFill(Color.RED);
+					result.wiresToRemove.forEach(wire -> wire.paint(graphics));
+					
+					graphics.setFill(Color.BLACK);
+					result.wiresToAdd.forEach(wire -> wire.paint(graphics));
+				}
+			} finally {
+				graphics.restore();
 			}
-			
-			graphics.restore();
 		}
 	}
 	
 	private void paintComponent(GraphicsContext graphics, CircuitState state, ComponentPeer<?> component) {
 		graphics.save();
-		component.paint(graphics, state);
-		graphics.restore();
+		try {
+			component.paint(graphics, state);
+		} finally {
+			graphics.restore();
+		}
 		
 		for (PortConnection connection : component.getConnections()) {
 			connection.paint(graphics, state);
@@ -1241,8 +1246,11 @@ public class CircuitBoard {
 	
 	private void paintWire(GraphicsContext graphics, CircuitState state, Wire wire, boolean highlight) {
 		graphics.save();
-		wire.paint(graphics, state, highlight ? 4.0 : 2.0);
-		graphics.restore();
+		try {
+			wire.paint(graphics, state, highlight ? 4.0 : 2.0);
+		} finally {
+			graphics.restore();
+		}
 		
 		Connection startConn = wire.getStartConnection();
 		if (getConnections(startConn.getX(), startConn.getY()).size() > 2) {

@@ -357,192 +357,212 @@ public class CircuitManager {
 		GraphicsContext graphics = getCanvas().getGraphicsContext2D();
 		
 		graphics.save();
-		
-		graphics.setFont(GuiUtils.getFont(13));
-		graphics.setFontSmoothingType(FontSmoothingType.LCD);
-		
-		graphics.setFill(Color.LIGHTGRAY);
-		graphics.fillRect(0, 0, getCanvas().getWidth(), getCanvas().getHeight());
-		
-		graphics.scale(simulatorWindow.getScaleFactor(), simulatorWindow.getScaleFactor());
-		
-		graphics.setFill(Color.BLACK);
-		double scaleInverted = simulatorWindow.getScaleFactorInverted();
-		for (int i = 0; i < getCanvas().getWidth() * scaleInverted; i += GuiUtils.BLOCK_SIZE) {
-			for (int j = 0; j < getCanvas().getHeight() * scaleInverted; j += GuiUtils.BLOCK_SIZE) {
-				graphics.fillRect(i, j, 1, 1);
-			}
-		}
-		
 		try {
-			circuitBoard.paint(graphics, inspectLinkWires);
-		} catch (Exception exc) {
-			getSimulatorWindow().getDebugUtil().logException(exc);
-		}
-		
-		for (GuiElement selectedElement : selectedElements) {
-			graphics.setStroke(Color.ORANGERED);
-			if (selectedElement instanceof Wire) {
-				double xOff = ((Wire)selectedElement).isHorizontal() ? 0 : 1;
-				double yOff = ((Wire)selectedElement).isHorizontal() ? 1 : 0;
-				
-				graphics.strokeRect(selectedElement.getScreenX() - xOff,
-				                    selectedElement.getScreenY() - yOff,
-				                    selectedElement.getScreenWidth() + xOff * 2,
-				                    selectedElement.getScreenHeight() + yOff * 2);
-			} else {
-				GuiUtils.drawShape(graphics::strokeRect, selectedElement);
-			}
-		}
-		
-		if (!simulatorWindow.isSimulationEnabled()) {
-			graphics.save();
-			graphics.setStroke(Color.RED);
+			graphics.setFont(GuiUtils.getFont(13));
+			graphics.setFontSmoothingType(FontSmoothingType.LCD);
 			
-			simulatorWindow.getSimulator().runSync(() -> {
-				for (Pair<CircuitState, Link> linkToUpdate : simulatorWindow.getSimulator().getLinksToUpdate()) {
-					for (Port port : linkToUpdate.getValue().getParticipants()) {
-						Optional<PortConnection>
-							connection =
-							circuitBoard
-								.getComponents()
-								.stream()
-								.flatMap(c -> c.getConnections().stream())
-								.filter(p -> p.getPort() == port)
-								.findFirst();
-						if (connection.isPresent()) {
-							PortConnection portConn = connection.get();
-							graphics.strokeOval(portConn.getScreenX() - 2, portConn.getScreenY() - 2, 10, 10);
-						}
-					}
-				}
-			});
+			graphics.setFill(Color.LIGHTGRAY);
+			graphics.fillRect(0, 0, getCanvas().getWidth(), getCanvas().getHeight());
 			
-			graphics.restore();
-		}
-		
-		if (inspectLinkWires != null && inspectLinkWires.getLink() != null && inspectLinkWires.isLinkValid()) {
-			String value;
-			try {
-				value = circuitBoard.getCurrentState().getMergedValue(inspectLinkWires.getLink()).toString();
-			} catch (Exception exc) {
-				value = "Error";
-			}
-			
-			Text text = new Text(value);
-			text.setFont(graphics.getFont());
-			Bounds bounds = text.getLayoutBounds();
-			
-			double x = lastMousePressed.getX() - bounds.getWidth() / 2 - 3;
-			double y = lastMousePressed.getY() + 30;
-			double width = bounds.getWidth() + 6;
-			double height = bounds.getHeight() + 3;
-			
-			graphics.setLineWidth(1);
-			graphics.setStroke(Color.BLACK);
-			graphics.setFill(Color.ORANGE.brighter());
-			graphics.fillRect(x, y, width, height);
-			graphics.strokeRect(x, y, width, height);
+			graphics.scale(simulatorWindow.getScaleFactor(), simulatorWindow.getScaleFactor());
 			
 			graphics.setFill(Color.BLACK);
-			graphics.fillText(value, x + 3, y + height - 5);
-		}
-		
-		switch (currentState) {
-			case IDLE:
-			case CONNECTION_SELECTED:
-				if (startConnection != null) {
-					graphics.save();
+			double scaleInverted = simulatorWindow.getScaleFactorInverted();
+			for (int i = 0; i < getCanvas().getWidth() * scaleInverted; i += GuiUtils.BLOCK_SIZE) {
+				for (int j = 0; j < getCanvas().getHeight() * scaleInverted; j += GuiUtils.BLOCK_SIZE) {
+					graphics.fillRect(i, j, 1, 1);
+				}
+			}
+			
+			try {
+				circuitBoard.paint(graphics, inspectLinkWires);
+			} catch (Exception exc) {
+				getSimulatorWindow().getDebugUtil().logException(exc);
+			}
+			
+			for (GuiElement selectedElement : selectedElements) {
+				graphics.setStroke(Color.ORANGERED);
+				if (selectedElement instanceof Wire) {
+					double xOff = ((Wire)selectedElement).isHorizontal() ? 0 : 1;
+					double yOff = ((Wire)selectedElement).isHorizontal() ? 1 : 0;
 					
-					graphics.setLineWidth(2);
-					graphics.setStroke(Color.GREEN);
-					graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10, 10);
+					graphics.strokeRect(selectedElement.getScreenX() - xOff,
+						selectedElement.getScreenY() - yOff,
+						selectedElement.getScreenWidth() + xOff * 2,
+						selectedElement.getScreenHeight() + yOff * 2);
+				} else {
+					GuiUtils.drawShape(graphics::strokeRect, selectedElement);
+				}
+			}
+			
+			if (!simulatorWindow.isSimulationEnabled()) {
+				graphics.save();
+				try {
+					graphics.setStroke(Color.RED);
 					
-					if (endConnection != null) {
-						graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10, 10);
-					}
-					
-					if (startConnection instanceof PortConnection) {
-						PortConnection portConnection = (PortConnection)startConnection;
-						String name = portConnection.getName();
-						if (!name.isEmpty()) {
-							Text text = new Text(name);
-							text.setFont(graphics.getFont());
-							Bounds bounds = text.getLayoutBounds();
+					simulatorWindow.getSimulator().runSync(() -> {
+						for (Pair<CircuitState, Link> linkToUpdate : simulatorWindow.getSimulator()
+						                                                            .getLinksToUpdate()) {
+							for (Port port : linkToUpdate.getValue().getParticipants()) {
+								Optional<PortConnection> connection = circuitBoard.getComponents()
+								                                                  .stream()
+								                                                  .flatMap(c -> c.getConnections()
+								                                                                 .stream())
+								                                                  .filter(p -> p.getPort() == port)
+								                                                  .findFirst();
+								if (connection.isPresent()) {
+									PortConnection portConn = connection.get();
+									graphics.strokeOval(portConn.getScreenX() - 2, portConn.getScreenY() - 2, 10, 10);
+								}
+							}
+						}
+					});
+				} finally {
+					graphics.restore();
+				}
+			}
+			
+			if (inspectLinkWires != null && inspectLinkWires.getLink() != null && inspectLinkWires.isLinkValid()) {
+				String value;
+				try {
+					value = circuitBoard.getCurrentState().getMergedValue(inspectLinkWires.getLink()).toString();
+				} catch (Exception exc) {
+					value = "Error";
+				}
+				
+				Text text = new Text(value);
+				text.setFont(graphics.getFont());
+				Bounds bounds = text.getLayoutBounds();
+				
+				double x = lastMousePressed.getX() - bounds.getWidth() / 2 - 3;
+				double y = lastMousePressed.getY() + 30;
+				double width = bounds.getWidth() + 6;
+				double height = bounds.getHeight() + 3;
+				
+				graphics.setLineWidth(1);
+				graphics.setStroke(Color.BLACK);
+				graphics.setFill(Color.ORANGE.brighter());
+				graphics.fillRect(x, y, width, height);
+				graphics.strokeRect(x, y, width, height);
+				
+				graphics.setFill(Color.BLACK);
+				graphics.fillText(value, x + 3, y + height - 5);
+			}
+			
+			switch (currentState) {
+				case IDLE:
+				case CONNECTION_SELECTED:
+					if (startConnection != null) {
+						graphics.save();
+						try {
 							
-							double x = startConnection.getScreenX() - bounds.getWidth() / 2 - 3;
-							double y = startConnection.getScreenY() + 30;
-							double width = bounds.getWidth() + 6;
-							double height = bounds.getHeight() + 3;
+							graphics.setLineWidth(2);
+							graphics.setStroke(Color.GREEN);
+							graphics.strokeOval(startConnection.getScreenX() - 2,
+								startConnection.getScreenY() - 2,
+								10,
+								10);
 							
-							graphics.setLineWidth(1);
-							graphics.setStroke(Color.BLACK);
-							graphics.setFill(Color.ORANGE.brighter());
-							graphics.fillRect(x, y, width, height);
-							graphics.strokeRect(x, y, width, height);
+							if (endConnection != null) {
+								graphics.strokeOval(endConnection.getScreenX() - 2,
+									endConnection.getScreenY() - 2,
+									10,
+									10);
+							}
 							
-							graphics.setFill(Color.BLACK);
-							graphics.fillText(name, x + 3, y + height - 5);
+							if (startConnection instanceof PortConnection) {
+								PortConnection portConnection = (PortConnection)startConnection;
+								String name = portConnection.getName();
+								if (!name.isEmpty()) {
+									Text text = new Text(name);
+									text.setFont(graphics.getFont());
+									Bounds bounds = text.getLayoutBounds();
+									
+									double x = startConnection.getScreenX() - bounds.getWidth() / 2 - 3;
+									double y = startConnection.getScreenY() + 30;
+									double width = bounds.getWidth() + 6;
+									double height = bounds.getHeight() + 3;
+									
+									graphics.setLineWidth(1);
+									graphics.setStroke(Color.BLACK);
+									graphics.setFill(Color.ORANGE.brighter());
+									graphics.fillRect(x, y, width, height);
+									graphics.strokeRect(x, y, width, height);
+									
+									graphics.setFill(Color.BLACK);
+									graphics.fillText(name, x + 3, y + height - 5);
+								}
+							}
+						} finally {
+							graphics.restore();
 						}
 					}
-					
-					graphics.restore();
-				}
-				break;
-			case CONNECTION_DRAGGED: {
-				graphics.save();
-				
-				graphics.setLineWidth(2);
-				graphics.setStroke(Color.GREEN);
-				graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10, 10);
-				
-				if (endConnection != null) {
-					graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10, 10);
-				}
-				
-				int startX = startConnection.getScreenX() + startConnection.getScreenWidth() / 2;
-				int startY = startConnection.getScreenY() + startConnection.getScreenHeight() / 2;
-				int pointX = GuiUtils.getScreenCircuitCoord(lastMousePosition.getX());
-				int pointY = GuiUtils.getScreenCircuitCoord(lastMousePosition.getY());
-				graphics.setStroke(isShiftDown ? Color.RED : Color.BLACK);
-				if (isDraggedHorizontally) {
-					graphics.strokeLine(startX, startY, pointX, startY);
-					graphics.strokeLine(pointX, startY, pointX, pointY);
-				} else {
-					graphics.strokeLine(startX, startY, startX, pointY);
-					graphics.strokeLine(startX, pointY, pointX, pointY);
-				}
-				
-				graphics.restore();
-				break;
-			}
-			case PLACING_COMPONENT: {
-				if (potentialComponent != null && isMouseInsideCanvas) {
+					break;
+				case CONNECTION_DRAGGED: {
 					graphics.save();
-					potentialComponent.paint(graphics, dummyCircuit.getTopLevelState());
-					graphics.restore();
-					
-					for (Connection connection : potentialComponent.getConnections()) {
-						graphics.save();
-						connection.paint(graphics, dummyCircuit.getTopLevelState());
+					try {
+						
+						graphics.setLineWidth(2);
+						graphics.setStroke(Color.GREEN);
+						graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10,
+							10);
+						
+						if (endConnection != null) {
+							graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10,
+								10);
+						}
+						
+						int startX = startConnection.getScreenX() + startConnection.getScreenWidth() / 2;
+						int startY = startConnection.getScreenY() + startConnection.getScreenHeight() / 2;
+						int pointX = GuiUtils.getScreenCircuitCoord(lastMousePosition.getX());
+						int pointY = GuiUtils.getScreenCircuitCoord(lastMousePosition.getY());
+						graphics.setStroke(isShiftDown ? Color.RED : Color.BLACK);
+						if (isDraggedHorizontally) {
+							graphics.strokeLine(startX, startY, pointX, startY);
+							graphics.strokeLine(pointX, startY, pointX, pointY);
+						} else {
+							graphics.strokeLine(startX, startY, startX, pointY);
+							graphics.strokeLine(startX, pointY, pointX, pointY);
+						}
+					} finally {
 						graphics.restore();
 					}
+					break;
 				}
-				break;
+				case PLACING_COMPONENT: {
+					if (potentialComponent != null && isMouseInsideCanvas) {
+						graphics.save();
+						try {
+							potentialComponent.paint(graphics, dummyCircuit.getTopLevelState());
+						} finally {
+							graphics.restore();
+						}
+						
+						for (Connection connection : potentialComponent.getConnections()) {
+							graphics.save();
+							try {
+								connection.paint(graphics, dummyCircuit.getTopLevelState());
+							} finally {
+								graphics.restore();
+							}
+						}
+					}
+					break;
+				}
+				case HIGHLIGHT_DRAGGED: {
+					double startX = Math.min(lastMousePressed.getX(), lastMousePosition.getX());
+					double startY = Math.min(lastMousePressed.getY(), lastMousePosition.getY());
+					double width = Math.abs(lastMousePosition.getX() - lastMousePressed.getX());
+					double height = Math.abs(lastMousePosition.getY() - lastMousePressed.getY());
+					
+					graphics.setStroke(Color.GREEN.darker());
+					graphics.strokeRect(startX, startY, width, height);
+					break;
+				}
 			}
-			case HIGHLIGHT_DRAGGED: {
-				double startX = Math.min(lastMousePressed.getX(), lastMousePosition.getX());
-				double startY = Math.min(lastMousePressed.getY(), lastMousePosition.getY());
-				double width = Math.abs(lastMousePosition.getX() - lastMousePressed.getX());
-				double height = Math.abs(lastMousePosition.getY() - lastMousePressed.getY());
-				
-				graphics.setStroke(Color.GREEN.darker());
-				graphics.strokeRect(startX, startY, width, height);
-				break;
-			}
+		} finally {
+			graphics.restore();
 		}
-		
-		graphics.restore();
 	}
 	
 	interface ThrowableRunnable {

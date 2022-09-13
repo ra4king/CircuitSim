@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -143,19 +144,19 @@ public class Simulator {
 			.forEach(linksToUpdate::remove));
 	}
 	
-	private boolean stepping = false;
+	private final AtomicBoolean stepping = new AtomicBoolean(false);
 	
 	/**
 	 * Perform only a single propagation step. This is thread-safe.
 	 */
 	public void step() {
 		runSync(() -> {
-			if (stepping) {
+			if (stepping.get()) {
 				return;
 			}
 			
 			try {
-				stepping = true;
+				stepping.set(true);
 				
 				Set<Pair<CircuitState, Link>> tmp = linksToUpdate;
 				linksToUpdate = temp;
@@ -201,7 +202,7 @@ public class Simulator {
 					lastShortCircuitedLinks.clear();
 				}
 			} finally {
-				stepping = false;
+				stepping.set(false);
 			}
 		});
 	}
@@ -211,7 +212,7 @@ public class Simulator {
 	 */
 	public void stepAll() {
 		runSync(() -> {
-			if (stepping) {
+			if (stepping.get()) {
 				return;
 			}
 			

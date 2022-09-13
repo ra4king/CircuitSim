@@ -1406,14 +1406,14 @@ public class CircuitSim extends Application {
 					switch (key) {
 						case "WindowX":
 							try {
-								stage.setX(Integer.parseInt(value) + (newWindow ? 20 : 0));
+								stage.setX(Math.max(Integer.parseInt(value) + (newWindow ? 20 : 0), 0));
 							} catch (NumberFormatException exc) {
 								// ignore
 							}
 							break;
 						case "WindowY":
 							try {
-								stage.setY(Integer.parseInt(value) + (newWindow ? 20 : 0));
+								stage.setY(Math.max(Integer.parseInt(value) + (newWindow ? 20 : 0), 0));
 							} catch (NumberFormatException exc) {
 								// ignore
 							}

@@ -126,7 +126,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class CircuitSim extends Application {
-	public static final String VERSION = "1.8.4";
+	public static final String VERSION = "1.8.5";
 	public static final String VERSION_TAG_LINE = "CircuitSim v" + VERSION + ", created by Roi Atalla © 2022";
 	
 	private static boolean mainCalled = false;
@@ -2423,9 +2423,9 @@ public class CircuitSim extends Application {
 			Clock.clockEnabledProperty(simulator).set(new Clock.EnabledInfo(newValue, getCurrentClockSpeed()));
 		});
 		
-		Clock.clockEnabledProperty(simulator).addListener((observable, oldValue, newValue) -> {
-			clockEnabled.setSelected(newValue.getEnabled());
-		});
+		Clock
+			.clockEnabledProperty(simulator)
+			.addListener((observable, oldValue, newValue) -> clockEnabled.setSelected(newValue.getEnabled()));
 		
 		frequenciesMenu = new Menu("Frequency");
 		ToggleGroup freqToggleGroup = new ToggleGroup();
@@ -2462,8 +2462,7 @@ public class CircuitSim extends Application {
 			alert.setHeaderText(VERSION_TAG_LINE);
 			
 			String msg = "";
-			msg += "- [New in 1.8.3] RAM now has the option to have separate load/store ports.\n\n";
-			msg += "- [New in 1.8.3] The transistor has been updated with a more accurate version.\n\n";
+			msg += "- [New in 1.8.5] New components: Breakpoint, Power, and Ground.\n\n";
 			msg += "- Right clicking works! Try it on components, subcircuits, and circuit tabs.\n\n";
 			msg += "- Double clicking on a subcircuit will automatically go to its circuit tab as a child state.\n\n";
 			msg += "- Holding Shift will enable Click Mode which will click through to components.\n\n";

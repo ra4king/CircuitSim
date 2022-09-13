@@ -387,9 +387,9 @@ public class CircuitManager {
 					double yOff = ((Wire)selectedElement).isHorizontal() ? 1 : 0;
 					
 					graphics.strokeRect(selectedElement.getScreenX() - xOff,
-						selectedElement.getScreenY() - yOff,
-						selectedElement.getScreenWidth() + xOff * 2,
-						selectedElement.getScreenHeight() + yOff * 2);
+					                    selectedElement.getScreenY() - yOff,
+					                    selectedElement.getScreenWidth() + xOff * 2,
+					                    selectedElement.getScreenHeight() + yOff * 2);
 				} else {
 					GuiUtils.drawShape(graphics::strokeRect, selectedElement);
 				}
@@ -401,15 +401,18 @@ public class CircuitManager {
 					graphics.setStroke(Color.RED);
 					
 					simulatorWindow.getSimulator().runSync(() -> {
-						for (Pair<CircuitState, Link> linkToUpdate : simulatorWindow.getSimulator()
-						                                                            .getLinksToUpdate()) {
+						for (Pair<CircuitState, Link> linkToUpdate : simulatorWindow
+							.getSimulator()
+							.getLinksToUpdate()) {
 							for (Port port : linkToUpdate.getValue().getParticipants()) {
-								Optional<PortConnection> connection = circuitBoard.getComponents()
-								                                                  .stream()
-								                                                  .flatMap(c -> c.getConnections()
-								                                                                 .stream())
-								                                                  .filter(p -> p.getPort() == port)
-								                                                  .findFirst();
+								Optional<PortConnection>
+									connection =
+									circuitBoard
+										.getComponents()
+										.stream()
+										.flatMap(c -> c.getConnections().stream())
+										.filter(p -> p.getPort() == port)
+										.findFirst();
 								if (connection.isPresent()) {
 									PortConnection portConn = connection.get();
 									graphics.strokeOval(portConn.getScreenX() - 2, portConn.getScreenY() - 2, 10, 10);
@@ -455,19 +458,18 @@ public class CircuitManager {
 					if (startConnection != null) {
 						graphics.save();
 						try {
-							
 							graphics.setLineWidth(2);
 							graphics.setStroke(Color.GREEN);
 							graphics.strokeOval(startConnection.getScreenX() - 2,
-								startConnection.getScreenY() - 2,
-								10,
-								10);
+							                    startConnection.getScreenY() - 2,
+							                    10,
+							                    10);
 							
 							if (endConnection != null) {
 								graphics.strokeOval(endConnection.getScreenX() - 2,
-									endConnection.getScreenY() - 2,
-									10,
-									10);
+								                    endConnection.getScreenY() - 2,
+								                    10,
+								                    10);
 							}
 							
 							if (startConnection instanceof PortConnection) {
@@ -501,15 +503,14 @@ public class CircuitManager {
 				case CONNECTION_DRAGGED: {
 					graphics.save();
 					try {
-						
 						graphics.setLineWidth(2);
 						graphics.setStroke(Color.GREEN);
 						graphics.strokeOval(startConnection.getScreenX() - 2, startConnection.getScreenY() - 2, 10,
-							10);
+						                    10);
 						
 						if (endConnection != null) {
 							graphics.strokeOval(endConnection.getScreenX() - 2, endConnection.getScreenY() - 2, 10,
-								10);
+							                    10);
 						}
 						
 						int startX = startConnection.getScreenX() + startConnection.getScreenWidth() / 2;
@@ -567,6 +568,7 @@ public class CircuitManager {
 	
 	interface ThrowableRunnable {
 		void run() throws Exception;
+		
 	}
 	
 	boolean mayThrow(ThrowableRunnable runnable) {
@@ -883,7 +885,8 @@ public class CircuitManager {
 							((SubcircuitPeer)selectedElement).switchToSubcircuit(this);
 						} else if (simulatorWindow.isClickMode() && lastPressed == null) {
 							lastPressed = selectedElement;
-							selectedElement.mousePressed(this, circuitBoard.getCurrentState(),
+							selectedElement.mousePressed(this,
+							                             circuitBoard.getCurrentState(),
 							                             lastMousePosition.getX() - selectedElement.getScreenX(),
 							                             lastMousePosition.getY() - selectedElement.getScreenY());
 						} else if (isCtrlDown) {

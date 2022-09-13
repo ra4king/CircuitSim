@@ -69,10 +69,12 @@ public class Clock extends Component {
 			}
 		}
 		
+		private final Simulator simulator;
+		
 		private InternalClockInfo currentClock;
 		private final SimpleObjectProperty<Clock.EnabledInfo>
-			clockEnabled
-			= new SimpleObjectProperty<>(new Clock.EnabledInfo(false, 0));
+			clockEnabled =
+			new SimpleObjectProperty<>(new Clock.EnabledInfo(false, 0));
 		private boolean clock;
 		
 		private long lastTickTime;
@@ -80,7 +82,9 @@ public class Clock extends Component {
 		private int tickCount;
 		private volatile int lastTickCount;
 		
-		private ClockInfo() {
+		private ClockInfo(Simulator simulator) {
+			this.simulator = simulator;
+			
 			clockEnabled.addListener((obs, oldValue, newValue) -> {
 				if (newValue.enabled) {
 					startClock(newValue.getHertz());
@@ -100,15 +104,14 @@ public class Clock extends Component {
 		synchronized void tick() {
 			clock = !clock;
 			WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
-			clocks.forEach((clock, o) -> {
-				Circuit circuit = clock.getCircuit();
-				if (circuit != null) {
-					circuit.getSimulator().runSync(() -> {
-						if (circuit != null) {
-							circuit.forEachState(state -> state.pushValue(clock.getPort(PORT), clockValue));
-						}
-					});
-				}
+			
+			simulator.runSync(() -> {
+				clocks.forEach((clock, o) -> {
+					Circuit circuit = clock.getCircuit();
+					if (circuit != null) {
+						circuit.forEachState(state -> state.pushValue(clock.getPort(PORT), clockValue));
+					}
+				});
 			});
 			clockChangeListeners.forEach((listener, o) -> listener.valueChanged(clockValue));
 		}
@@ -222,7 +225,7 @@ public class Clock extends Component {
 	public void valueChanged(CircuitState state, WireValue value, int portIndex) {}
 	
 	private static ClockInfo get(Simulator simulator) {
-		return simulatorClocks.computeIfAbsent(simulator, s -> new ClockInfo());
+		return simulatorClocks.computeIfAbsent(simulator, ClockInfo::new);
 	}
 	
 	public static void tick(Simulator simulator) {

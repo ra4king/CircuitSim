@@ -2422,11 +2422,11 @@ public class CircuitSim extends Application {
 			tickClock.setDisable(newValue);
 			Clock.clockEnabledProperty(simulator).set(new Clock.EnabledInfo(newValue, getCurrentClockSpeed()));
 		});
-
+		
 		Clock.clockEnabledProperty(simulator).addListener((observable, oldValue, newValue) -> {
 			clockEnabled.setSelected(newValue.getEnabled());
 		});
-
+		
 		frequenciesMenu = new Menu("Frequency");
 		ToggleGroup freqToggleGroup = new ToggleGroup();
 		for (int i = 0; i <= 14; i++) {
@@ -2580,24 +2580,23 @@ public class CircuitSim extends Application {
 		Pane blank = new Pane();
 		HBox.setHgrow(blank, Priority.ALWAYS);
 		
-		toolBar
-			.getItems()
-			.addAll(clickMode,
-			        new Separator(Orientation.VERTICAL),
-			        inputPinButton,
-			        outputPinButton,
-			        andButton,
-			        orButton,
-		                          notButton,
-		                          xorButton,
-		                          tunnelButton,
-		                          textButton,
-		                          new Separator(Orientation.VERTICAL),
-		                          new Label("Global bit size:"),
-		                          bitSizeSelect,
-		                          blank,
-		                          new Label("Scale:"),
-		                          scaleFactorSelect);
+		toolBar.getItems().addAll(
+			clickMode,
+			new Separator(Orientation.VERTICAL),
+			inputPinButton,
+			outputPinButton,
+			andButton,
+			orButton,
+			notButton,
+			xorButton,
+			tunnelButton,
+			textButton,
+			new Separator(Orientation.VERTICAL),
+			new Label("Global bit size:"),
+			bitSizeSelect,
+			blank,
+			new Label("Scale:"),
+			scaleFactorSelect);
 		
 		VBox.setVgrow(canvasPropsSplit, Priority.ALWAYS);
 		scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));
@@ -2674,7 +2673,7 @@ public class CircuitSim extends Application {
 					if (manager != null) {
 						if ((needsRepaint || manager.needsRepaint())) {
 							needsRepaint = false;
-							manager.paint();
+							simulator.runSync(manager::paint);
 						}
 						
 						if (!loadingFile) {

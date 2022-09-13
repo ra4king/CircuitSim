@@ -825,16 +825,18 @@ public class CircuitBoard {
 			Wire right = toSplice.getX() < overlap.getX() ? overlap : toSplice;
 			
 			Wire leftPiece = new Wire(left.getLinkWires(), left.getX(), left.getY(), right.getX() - left.getX(), true);
-			Wire midPiece = new Wire(right.getLinkWires(),
-				right.getX(),
-				right.getY(),
-				left.getX() + left.getLength() - right.getX(),
-				true);
+			Wire
+				midPiece =
+				new Wire(right.getLinkWires(),
+				         right.getX(),
+				         right.getY(),
+				         left.getX() + left.getLength() - right.getX(),
+				         true);
 			Wire rightPiece = new Wire(right.getLinkWires(),
-				left.getX() + left.getLength(),
-				left.getY(),
-				right.getX() + right.getLength() - left.getX() - left.getLength(),
-				true);
+			                           left.getX() + left.getLength(),
+			                           left.getY(),
+			                           right.getX() + right.getLength() - left.getX() - left.getLength(),
+			                           true);
 			
 			if (left == toSplice) {
 				return new Pair<>(leftPiece, new Pair<>(midPiece, rightPiece));
@@ -847,15 +849,15 @@ public class CircuitBoard {
 			
 			Wire topPiece = new Wire(top.getLinkWires(), top.getX(), top.getY(), bottom.getY() - top.getY(), false);
 			Wire midPiece = new Wire(bottom.getLinkWires(),
-				bottom.getX(),
-				bottom.getY(),
-				top.getY() + top.getLength() - bottom.getY(),
-				false);
+			                         bottom.getX(),
+			                         bottom.getY(),
+			                         top.getY() + top.getLength() - bottom.getY(),
+			                         false);
 			Wire bottomPiece = new Wire(bottom.getLinkWires(),
-				top.getX(),
-				top.getY() + top.getLength(),
-				bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
-				false);
+			                            top.getX(),
+			                            top.getY() + top.getLength(),
+			                            bottom.getY() + bottom.getLength() - top.getY() - top.getLength(),
+			                            false);
 			
 			if (top == toSplice) {
 				return new Pair<>(topPiece, new Pair<>(midPiece, bottomPiece));
@@ -1172,8 +1174,6 @@ public class CircuitBoard {
 	}
 	
 	public void paint(GraphicsContext graphics, LinkWires highlightLinkWires) {
-		CircuitState currentState = new CircuitState(this.currentState);
-		
 		components.forEach(component -> {
 			if (moveElements == null || !moveElements.contains(component)) {
 				paintComponent(graphics, currentState, component);

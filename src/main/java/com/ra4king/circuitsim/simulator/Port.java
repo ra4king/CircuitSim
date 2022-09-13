@@ -1,6 +1,7 @@
 package com.ra4king.circuitsim.simulator;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -56,7 +57,12 @@ public class Port {
 		}
 		
 		public Circuit getCircuit() {
-			return participants.isEmpty() ? null : participants.iterator().next().component.getCircuit();
+			return participants
+				.stream()
+				.map(port -> port.component.getCircuit())
+				.filter(Objects::nonNull)
+				.findFirst()
+				.orElse(null);
 		}
 		
 		public int getBitSize() {

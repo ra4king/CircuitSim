@@ -192,7 +192,8 @@ public class Simulator {
 				// reached a steady state
 				if (!lastShortCircuitedLinks.isEmpty() && linksToUpdate.isEmpty()) {
 					for (Pair<CircuitState, Link> pair : lastShortCircuitedLinks) {
-						if (pair.getKey().isShortCircuited(pair.getValue())) {
+						// Check if the link is still valid and if there's a short circuit
+						if (pair.getValue().getCircuit() != null && pair.getKey().isShortCircuited(pair.getValue())) {
 							// Cause a ShortCircuitException to be thrown
 							pair.getKey().getMergedValue(pair.getValue());
 						}

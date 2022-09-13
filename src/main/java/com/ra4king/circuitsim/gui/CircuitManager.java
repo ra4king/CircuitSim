@@ -361,18 +361,19 @@ public class CircuitManager {
 			graphics.setFont(GuiUtils.getFont(13));
 			graphics.setFontSmoothingType(FontSmoothingType.LCD);
 			
-			graphics.setFill(Color.LIGHTGRAY);
+			//graphics.setFill(Color.LIGHTGRAY);
+			graphics.setFill(Color.WHITE);
 			graphics.fillRect(0, 0, getCanvas().getWidth(), getCanvas().getHeight());
 			
 			graphics.scale(simulatorWindow.getScaleFactor(), simulatorWindow.getScaleFactor());
 			
 			graphics.setFill(Color.BLACK);
-			double scaleInverted = simulatorWindow.getScaleFactorInverted();
-			for (int i = 0; i < getCanvas().getWidth() * scaleInverted; i += GuiUtils.BLOCK_SIZE) {
-				for (int j = 0; j < getCanvas().getHeight() * scaleInverted; j += GuiUtils.BLOCK_SIZE) {
-					graphics.fillRect(i, j, 1, 1);
-				}
-			}
+			//double scaleInverted = simulatorWindow.getScaleFactorInverted();
+			//for (int i = 0; i < getCanvas().getWidth() * scaleInverted; i += GuiUtils.BLOCK_SIZE) {
+			//	for (int j = 0; j < getCanvas().getHeight() * scaleInverted; j += GuiUtils.BLOCK_SIZE) {
+			//		graphics.fillRect(i, j, 1, 1);
+			//	}
+			//}
 			
 			try {
 				circuitBoard.paint(graphics, inspectLinkWires);

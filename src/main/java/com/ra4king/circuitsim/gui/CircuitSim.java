@@ -33,6 +33,7 @@ import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.google.gson.JsonSyntaxException;
@@ -65,6 +66,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
+import javafx.print.PrinterJob;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -2261,6 +2263,54 @@ public class CircuitSim extends Application {
 			
 			updateTitle();
 		});
+
+		MenuItem print = new MenuItem("Print");
+		print.setOnAction(event -> {
+			PrinterJob job;
+			System.err.println("Making print job");
+			if ((job = PrinterJob.createPrinterJob()) == null) {
+				System.err.println("OOPS! couldn't get a print job");
+				return;
+			}
+			System.err.println("Successfully made print job");
+
+			System.err.println("showing print dialog");
+			if (!job.showPrintDialog(stage)) {
+				System.err.println("cant show print dialog");
+				return;
+			}
+			System.err.println("showed print dialog");
+
+			circuitManagers.entrySet()
+			               .stream()
+			               .sorted((left, right) -> {
+			                   String leftName = left.getKey();
+			                   String rightName = right.getKey();
+			                   ObservableList<Tab> tabs = canvasTabPane.getTabs();
+			                   int leftIdx = IntStream.range(0, tabs.size()).filter(ix -> tabs.get(ix).getText().equals(leftName)).findFirst().orElse(-1);
+			                   int rightIdx = IntStream.range(0, tabs.size()).filter(ix -> tabs.get(ix).getText().equals(rightName)).findFirst().orElse(-1);
+			                   if (leftIdx == -1 || rightIdx == -1) {
+			                       return 0;
+			                   } else {
+			                       return leftIdx - rightIdx;
+			                   }
+			               })
+			               .map(Map.Entry::getValue)
+			               .map(Pair::getValue)
+			               .forEach(circuitManager -> {
+			                   System.err.println("Printing a circuitmanager canvas...");
+			                   if (!job.printPage(circuitManager.getCanvas())) {
+			                       System.err.println("OOPS! couldn't print this page");
+			                   }
+			                   System.err.println("Printed circuitmanager canvas...");
+			               });
+
+			System.err.println("ending job...");
+			if (!job.endJob()) {
+				System.err.println("OOPS! couldn't spool the job");
+			}
+			System.err.println("Done job");
+		});
 		
 		MenuItem exit = new MenuItem("Exit");
 		exit.setOnAction(event -> {
@@ -2272,7 +2322,10 @@ public class CircuitSim extends Application {
 		Menu fileMenu = new Menu("File");
 		fileMenu
 			.getItems()
-			.addAll(newInstance, clear, new SeparatorMenuItem(), load, save, saveAs, new SeparatorMenuItem(), exit);
+			.addAll(newInstance, clear, new SeparatorMenuItem(),
+			        load, save, saveAs, new SeparatorMenuItem(),
+			        print, new SeparatorMenuItem(),
+			        exit);
 		
 		// EDIT Menu
 		undo = new MenuItem("Undo");

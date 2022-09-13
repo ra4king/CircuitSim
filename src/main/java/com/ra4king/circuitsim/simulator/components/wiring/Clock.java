@@ -108,49 +108,52 @@ public class Clock extends Component {
 			clockChangeListeners.forEach((listener, o) -> listener.valueChanged(clockValue));
 		}
 		
-		synchronized void startClock(int hertz) {
-			lastTickTime = lastPrintTime = System.nanoTime();
-			lastTickCount = tickCount = 0;
-			
-			final long nanosPerTick = (long)(1e9 / (2L * hertz));
-			
+		void startClock(int hertz) {
 			stopClock();
-			Thread clockThread = new Thread(() -> {
-				InternalClockInfo currentClock = this.currentClock;
-				if (currentClock == null || !Thread.currentThread().equals(currentClock.thread)) {
-					return;
-				}
+			
+			synchronized (this) {
+				lastTickTime = lastPrintTime = System.nanoTime();
+				lastTickCount = tickCount = 0;
 				
-				while (currentClock.enabled.get()) {
-					long now = System.nanoTime();
-					if (now - lastPrintTime >= 1e9) {
-						lastTickCount = tickCount;
-						tickCount = 0;
-						lastPrintTime = now;
-						lastTickTime = now;
+				final long nanosPerTick = (long)(1e9 / (2L * hertz));
+				
+				Thread clockThread = new Thread(() -> {
+					InternalClockInfo currentClock = this.currentClock;
+					if (currentClock == null || !Thread.currentThread().equals(currentClock.thread)) {
+						return;
 					}
 					
-					tick();
-					tickCount++;
-					
-					lastTickTime += nanosPerTick;
-					
-					long diff = lastTickTime - System.nanoTime();
-					if (diff >= 1e6 || (tickCount >> 1) >= hertz) {
-						try {
-							Thread.sleep(Math.max(1, (long)(diff / 1e6)));
-						} catch (InterruptedException exc) {
-							break;
+					while (currentClock.enabled.get()) {
+						long now = System.nanoTime();
+						if (now - lastPrintTime >= 1e9) {
+							lastTickCount = tickCount;
+							tickCount = 0;
+							lastPrintTime = now;
+							lastTickTime = now;
+						}
+						
+						tick();
+						tickCount++;
+						
+						lastTickTime += nanosPerTick;
+						
+						long diff = lastTickTime - System.nanoTime();
+						if (diff >= 1e6 || (tickCount >> 1) >= hertz) {
+							try {
+								Thread.sleep(Math.max(1, (long)(diff / 1e6)));
+							} catch (InterruptedException exc) {
+								break;
+							}
 						}
 					}
-				}
-			});
-			
-			clockThread.setName("Clock thread");
-			clockThread.setDaemon(true);
-			
-			currentClock = new InternalClockInfo(clockThread);
-			clockThread.start();
+				});
+				
+				clockThread.setName("Clock thread");
+				clockThread.setDaemon(true);
+				
+				currentClock = new InternalClockInfo(clockThread);
+				clockThread.start();
+			}
 		}
 		
 		void stopClock() {

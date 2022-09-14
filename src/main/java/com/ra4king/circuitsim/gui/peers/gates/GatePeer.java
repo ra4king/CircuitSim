@@ -143,15 +143,16 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 	
 	@Override
 	public final void paint(GraphicsContext graphics, CircuitState circuitState) {
-		graphics.setFill(Color.WHITE);
-		graphics.setStroke(Color.BLACK);
-		
 		for (int i = 0; i < getConnections().size() - 1; i++) {
+			PortConnection c = getConnections().get(i);
+			int x = c.getX() * GuiUtils.BLOCK_SIZE;
+			int y = c.getY() * GuiUtils.BLOCK_SIZE;
+
 			if (getComponent().getNegateInputs()[i]) {
-				PortConnection c = getConnections().get(i);
-				int x = c.getX() * GuiUtils.BLOCK_SIZE;
-				int y = c.getY() * GuiUtils.BLOCK_SIZE;
-				
+				graphics.setFill(Color.WHITE);
+				graphics.setStroke(Color.BLACK);
+				graphics.setLineWidth(1.0);
+
 				switch (getProperties().getValue(Properties.DIRECTION)) {
 					case WEST:
 						x -= GuiUtils.BLOCK_SIZE;
@@ -167,8 +168,33 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 				
 				graphics.fillOval(x, y, GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
 				graphics.strokeOval(x, y, GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
+			} else if (hasNegatedInput) {
+				// Imitate how a wire is drawn in Wire.paint()
+				GuiUtils.setBitColor(graphics, circuitState, c.getLinkWires());
+				graphics.setLineWidth(2.0);
+
+				int dx = 0, dy = 0;
+				switch (getProperties().getValue(Properties.DIRECTION)) {
+					case WEST:
+						dx = -GuiUtils.BLOCK_SIZE;
+						break;
+					case EAST:
+						dx = GuiUtils.BLOCK_SIZE;
+						break;
+					case NORTH:
+						dy = -GuiUtils.BLOCK_SIZE;
+						break;
+					case SOUTH:
+						dy = GuiUtils.BLOCK_SIZE;
+						break;
+				}
+
+				graphics.strokeLine(x, y, x + dx, y + dy);
 			}
 		}
+
+		// Reset the line width to the default after possibly drawing some fake wires above
+		graphics.setLineWidth(1.0);
 		
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));

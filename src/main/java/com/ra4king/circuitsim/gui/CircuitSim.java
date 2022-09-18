@@ -1,5 +1,6 @@
 package com.ra4king.circuitsim.gui;
 
+import java.awt.image.RenderedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,12 +29,16 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.imageio.ImageIO;
 
 import com.google.gson.JsonSyntaxException;
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentCreator;
@@ -62,6 +67,7 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
@@ -116,6 +122,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
@@ -1718,6 +1725,9 @@ public class CircuitSim extends Application {
 								
 								latch.countDown();
 							});
+							
+							// Do an initial paint of all the tabs
+							simulator.runSync(() -> getCircuitManagers().values().forEach(CircuitManager::paint));
 						});
 						tasksThread.setName("LoadCircuits Tasks Thread");
 						tasksThread.start();
@@ -2262,6 +2272,109 @@ public class CircuitSim extends Application {
 			updateTitle();
 		});
 		
+		MenuItem print = new MenuItem("Export as Images");
+		print.setOnAction(event -> {
+			simulator.runSync(() -> {
+				// Repaint first, so it can flush while the user chooses an output directory.
+				circuitManagers.values().stream().map(Pair::getValue).forEach(CircuitManager::paint);
+			});
+			
+			DirectoryChooser directoryChooser = new DirectoryChooser();
+			directoryChooser.setTitle("Choose output directory");
+			directoryChooser.setInitialDirectory(
+				lastSaveFile == null ? new File(System.getProperty("user.dir")) : lastSaveFile.getParentFile());
+			File outputDirectory = directoryChooser.showDialog(stage);
+			
+			int count = circuitManagers.size();
+			double progressPerCircuit = 1.0 / count;
+			
+			ProgressBar bar = new ProgressBar(0.0);
+			
+			Dialog<ButtonType> dialog = new Dialog<>();
+			dialog.initOwner(stage);
+			dialog.initModality(Modality.WINDOW_MODAL);
+			dialog.setTitle("Exporting images");
+			dialog.setHeaderText("Exporting images");
+			dialog.setContentText("Exporting images");
+			dialog.setGraphic(bar);
+			dialog.show();
+			
+			new Thread(() -> {
+				try {
+					HashMap<String, RenderedImage> images = new HashMap<>();
+					runFxSync(() -> simulator.runSync(() -> circuitManagers.forEach((name, managerPair) -> {
+						Canvas canvas = managerPair.getValue().getCanvas();
+						Image image = canvas.snapshot(null, null);
+						RenderedImage rendered = SwingFXUtils.fromFXImage(image, null);
+						images.put(name, rendered);
+					})));
+					
+					AtomicInteger counter = new AtomicInteger(0);
+					canvasTabPane.getTabs().forEach(tab -> {
+						if (!images.containsKey(tab.getText())) {
+							System.err.println("Missing image for " + tab.getText());
+							return;
+						}
+						
+						String name = tab.getText();
+						Platform.runLater(() -> dialog.setContentText("Exporting tab: " + name));
+						
+						String fileName = String.format("%02d-%s.png", counter.getAndIncrement(), name);
+						File file = new File(outputDirectory, fileName);
+						if (file.exists()) {
+							AtomicReference<Optional<ButtonType>>
+								alreadyExistsDecision =
+								new AtomicReference<>(Optional.empty());
+							CountDownLatch latch = new CountDownLatch(1);
+							
+							Platform.runLater(() -> {
+								try {
+									Alert alert = new Alert(AlertType.CONFIRMATION,
+									                        "Overwrite existing file? " + fileName,
+									                        ButtonType.OK,
+									                        ButtonType.CANCEL);
+									alert.initOwner(stage);
+									alert.setTitle("File already exists");
+									alert.setHeaderText("File already exists");
+									Optional<ButtonType> buttonType = alert.showAndWait();
+									alreadyExistsDecision.set(buttonType);
+								} finally {
+									latch.countDown();
+								}
+							});
+							
+							while (latch.getCount() > 0) {
+								try {
+									latch.await();
+								} catch (InterruptedException exception) {
+									// ignore
+								}
+							}
+							
+							if (alreadyExistsDecision.get().isEmpty() ||
+							    alreadyExistsDecision.get().get() != ButtonType.OK) {
+								return;
+							}
+						}
+						
+						try {
+							ImageIO.write(images.get(name), "png", file);
+						} catch (Exception e) {
+							System.err.println("Error writing " + fileName + ":");
+							e.printStackTrace();
+						} finally {
+							Platform.runLater(() -> bar.setProgress(bar.getProgress() + progressPerCircuit));
+						}
+					});
+				} finally {
+					Platform.runLater(() -> {
+						dialog.setResult(ButtonType.OK);
+						dialog.close();
+					});
+				}
+			}).start();
+		});
+		
 		MenuItem exit = new MenuItem("Exit");
 		exit.setOnAction(event -> {
 			if (!checkUnsavedChanges()) {
@@ -2272,7 +2385,15 @@ public class CircuitSim extends Application {
 		Menu fileMenu = new Menu("File");
 		fileMenu
 			.getItems()
-			.addAll(newInstance, clear, new SeparatorMenuItem(), load, save, saveAs, new SeparatorMenuItem(), exit);
+			.addAll(newInstance,
+			        clear,
+			        new SeparatorMenuItem(),
+			        load,
+			        save,
+			        saveAs,
+			        print,
+			        new SeparatorMenuItem(),
+			        exit);
 		
 		// EDIT Menu
 		undo = new MenuItem("Undo");
@@ -2468,9 +2589,11 @@ public class CircuitSim extends Application {
 			msg += "- Holding Shift will enable Click Mode which will click through to components.\n\n";
 			msg += "- Holding Shift after dragging a new wire will delete existing wires.\n\n";
 			msg +=
-				"- Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire on" +
-				" " + "click.\n\n";
-			msg += "- Holding Ctrl while selecting components and wires will include them in the selection group.\n\n";
+				"- Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire " +
+				"on" + " " + "click.\n\n";
+			msg +=
+				"- Holding Ctrl while selecting components and wires will include them in the selection group" +
+				".\n\n";
 			msg += "- Holding Ctrl while dragging components will disable preserving connections.\n\n";
 			msg += "- Holding Ctrl while placing a new component will keep the component selected.\n\n";
 			
@@ -2579,23 +2702,22 @@ public class CircuitSim extends Application {
 		Pane blank = new Pane();
 		HBox.setHgrow(blank, Priority.ALWAYS);
 		
-		toolBar.getItems().addAll(
-			clickMode,
-			new Separator(Orientation.VERTICAL),
-			inputPinButton,
-			outputPinButton,
-			andButton,
-			orButton,
-			notButton,
-			xorButton,
-			tunnelButton,
-			textButton,
-			new Separator(Orientation.VERTICAL),
-			new Label("Global bit size:"),
-			bitSizeSelect,
-			blank,
-			new Label("Scale:"),
-			scaleFactorSelect);
+		toolBar.getItems().addAll(clickMode,
+		                          new Separator(Orientation.VERTICAL),
+		                          inputPinButton,
+		                          outputPinButton,
+		                          andButton,
+		                          orButton,
+		                          notButton,
+		                          xorButton,
+		                          tunnelButton,
+		                          textButton,
+		                          new Separator(Orientation.VERTICAL),
+		                          new Label("Global bit size:"),
+		                          bitSizeSelect,
+		                          blank,
+		                          new Label("Scale:"),
+		                          scaleFactorSelect);
 		
 		VBox.setVgrow(canvasPropsSplit, Priority.ALWAYS);
 		scene = new Scene(new VBox(menuBar, toolBar, canvasPropsSplit));

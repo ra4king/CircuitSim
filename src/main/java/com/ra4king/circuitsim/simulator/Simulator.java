@@ -64,11 +64,10 @@ public class Simulator {
 		return linksToUpdate;
 	}
 	
-	private boolean tmp;
-	
 	public boolean hasLinksToUpdate() {
-		runSync(() -> tmp = !linksToUpdate.isEmpty());
-		return tmp;
+		AtomicBoolean tmp = new AtomicBoolean();
+		runSync(() -> tmp.set(!linksToUpdate.isEmpty()));
+		return tmp.get();
 	}
 	
 	/**

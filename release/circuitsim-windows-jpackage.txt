@@ -1,0 +1,13 @@
+--type exe
+--name CircuitSim
+--vendor "Roi Atalla"
+--dest out/
+--icon ./icon.ico
+--java-options "-Xmx2520M"
+--input ../build/libs/
+--main-jar CircuitSim.jar
+--main-class com.ra4king.circuitsim.gui.CircuitSimRunner
+--win-dir-chooser
+--win-menu
+--win-menu-group CircuitSim
+--win-shortcut

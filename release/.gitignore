@@ -3,6 +3,7 @@
 !jar2app_basefiles/*
 !.gitignore
 !build.sh
+!circuitsim-windows-jpackage.txt
 !create_exe.xml
 !icon.icns
 !icon.ico

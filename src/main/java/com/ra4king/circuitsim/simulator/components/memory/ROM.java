@@ -1,6 +1,9 @@
 package com.ra4king.circuitsim.simulator.components.memory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
@@ -43,12 +46,35 @@ public class ROM extends Component {
 		return memory;
 	}
 	
-	public WireValue load(int address) {
+	private List<BiConsumer<Integer, Integer>> listeners = new ArrayList<>();
+	
+	public void addMemoryListener(BiConsumer<Integer, Integer> listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeMemoryListener(BiConsumer<Integer, Integer> listener) {
+		listeners.remove(listener);
+	}
+	
+	private void notifyListeners(int address, int data) {
+		listeners.forEach(listener -> listener.accept(address, data));
+	}
+	
+	public WireValue loadWireValue(int address) {
 		if (address < 0 || address >= memory.length) {
 			return null;
 		}
 		
-		return WireValue.of(memory[address], dataBits);
+		return WireValue.of(load(address), dataBits);
+	}
+	
+	public int load(int address) {
+		return memory[address];
+	}
+	
+	public void store(int address, int value) {
+		memory[address] = value;
+		notifyListeners(address, value);
 	}
 	
 	@Override
@@ -57,7 +83,7 @@ public class ROM extends Component {
 		WireValue address = state.getLastReceived(getPort(PORT_ADDRESS));
 		
 		if (enabled && address.isValidValue()) {
-			state.pushValue(getPort(PORT_DATA), load(address.getValue()));
+			state.pushValue(getPort(PORT_DATA), loadWireValue(address.getValue()));
 		} else {
 			state.pushValue(getPort(PORT_DATA), new WireValue(dataBits));
 		}

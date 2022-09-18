@@ -146,6 +146,18 @@ public class EditHistory {
 			protected void undo(CircuitManager manager, Object[] params) {
 				ADD_WIRE.redo(manager, params);
 			}
+		}, CUSTOM_EDIT_ACTION {
+			@Override
+			protected void redo(CircuitManager manager, Object[] params) {
+				Runnable redo = (Runnable)params[2];
+				redo.run();
+			}
+			
+			@Override
+			protected void undo(CircuitManager manager, Object[] params) {
+				Runnable undo = (Runnable)params[1];
+				undo.run();
+			}
 		};
 		
 		protected abstract void redo(CircuitManager manager, Object[] params);
@@ -278,6 +290,10 @@ public class EditHistory {
 			
 			editListeners.forEach(listener -> listener.edit(action, manager, params));
 		}
+	}
+	
+	public void addCustomAction(CircuitManager manager, String actionName, Runnable undo, Runnable redo) {
+		addAction(EditAction.CUSTOM_EDIT_ACTION, manager, actionName, undo, redo);
 	}
 	
 	public int editStackSize() {

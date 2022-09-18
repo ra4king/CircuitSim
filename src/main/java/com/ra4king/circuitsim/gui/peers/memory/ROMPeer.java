@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 
 import com.ra4king.circuitsim.gui.CircuitManager;
+import com.ra4king.circuitsim.gui.CircuitSim;
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
@@ -91,33 +93,50 @@ public class ROMPeer extends ComponentPeer<ROM> {
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		MenuItem menuItem = new MenuItem("Edit contents");
 		menuItem.setOnAction(event -> {
+			ROM rom = getComponent();
+			
+			Property<List<MemoryLine>> property = getProperties().getProperty(contentsProperty.name);
+			PropertyMemoryValidator memoryValidator = (PropertyMemoryValidator)property.validator;
+			
+			List<MemoryLine> lines = new ArrayList<>();
+			BiConsumer<Integer, Integer> listener = (address, data) -> {
+				int index = address / 16;
+				MemoryLine line = lines.get(index);
+				line.values.get(address - index * 16).setValue(memoryValidator.parseValue(data));
+				circuit.getCircuit().forEachState(state -> rom.valueChanged(state, null, 0));
+			};
+			
 			if (isEditorOpen.getAndSet(true)) {
 				return;
 			}
 			
 			try {
-				Property<List<MemoryLine>> property = getProperties().getProperty(contentsProperty.name);
-				PropertyMemoryValidator memoryValidator = (PropertyMemoryValidator)property.validator;
-				
-				List<MemoryLine> lines = new ArrayList<>();
-				
-				circuit.getSimulatorWindow().getSimulator().runSync(() -> {
-					int[] memory = getComponent().getMemory();
-					lines.addAll(memoryValidator.parse(memory, (address, value) -> {
-						circuit.getSimulatorWindow().getSimulator().runSync(() -> {
-							memory[address] = value;
+				CircuitSim simulatorWindow = circuit.getSimulatorWindow();
+				simulatorWindow.getSimulator().runSync(() -> {
+					rom.addMemoryListener(listener);
+					
+					lines.addAll(memoryValidator.parse(rom.getMemory(), (address, newValue) -> {
+						simulatorWindow.getSimulator().runSync(() -> {
+							// Component has been removed
+							if (rom.getCircuit() == null) {
+								return;
+							}
 							
-							int index = address / 16;
-							MemoryLine line = property.value.get(index);
-							line.values.get(address - index * 16).setValue(memoryValidator.parseValue(value));
+							int oldValue = rom.load(address);
+							rom.store(address, newValue);
 							
-							circuit.getCircuit().forEachState(state -> getComponent().valueChanged(state, null, 0));
+							simulatorWindow.getEditHistory().addCustomAction(
+								circuit,
+								"Edit ROM",
+								() -> rom.store(address, oldValue),
+								() -> rom.store(address, newValue));
 						});
 					}));
 				});
 				
-				memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), lines);
+				memoryValidator.createAndShowMemoryWindow(simulatorWindow.getStage(), lines);
 			} finally {
+				rom.removeMemoryListener(listener);
 				isEditorOpen.set(false);
 			}
 		});

@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import com.ra4king.circuitsim.gui.CircuitManager;
+import com.ra4king.circuitsim.gui.CircuitSim;
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
 import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
@@ -88,9 +89,11 @@ public class RAMPeer extends ComponentPeer<RAM> {
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		MenuItem menuItem = new MenuItem("Edit contents");
 		menuItem.setOnAction(event -> {
+			RAM ram = getComponent();
+			
 			PropertyMemoryValidator
 				memoryValidator =
-				new PropertyMemoryValidator(getComponent().getAddressBits(), getComponent().getDataBits());
+				new PropertyMemoryValidator(ram.getAddressBits(), ram.getDataBits());
 			
 			List<MemoryLine> memory = new ArrayList<>();
 			BiConsumer<Integer, Integer> listener = (address, data) -> {
@@ -105,18 +108,26 @@ public class RAMPeer extends ComponentPeer<RAM> {
 			
 			try {
 				// Internal state can change in between and data can get out of sync
-				circuit.getSimulatorWindow().getSimulator().runSync(() -> {
+				CircuitSim simulatorWindow = circuit.getSimulatorWindow();
+				simulatorWindow.getSimulator().runSync(() -> {
+					ram.addMemoryListener(listener);
+					
 					CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
-					memory.addAll(memoryValidator.parse(getComponent().getMemoryContents(currentState),
-					                                    (address, value) -> getComponent().store(currentState,
-					                                                                             address,
-					                                                                             value)));
-					getComponent().addMemoryListener(listener);
+					memory.addAll(memoryValidator.parse(ram.getMemoryContents(currentState), (address, value) -> {
+						simulatorWindow.getSimulator().runSync(() -> {
+							// Component has been removed
+							if (ram.getCircuit() == null) {
+								return;
+							}
+							
+							ram.store(currentState, address, value);
+						});
+					}));
 				});
 				
-				memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), memory);
+				memoryValidator.createAndShowMemoryWindow(simulatorWindow.getStage(), memory);
 			} finally {
-				getComponent().removeMemoryListener(listener);
+				ram.removeMemoryListener(listener);
 				isEditorOpen.set(false);
 			}
 		});

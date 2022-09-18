@@ -28,6 +28,7 @@ import com.ra4king.circuitsim.gui.peers.io.Button;
 import com.ra4king.circuitsim.gui.peers.io.HexDisplay;
 import com.ra4king.circuitsim.gui.peers.io.LED;
 import com.ra4king.circuitsim.gui.peers.io.LEDMatrix;
+import com.ra4king.circuitsim.gui.peers.io.SevenSegmentDisplay;
 import com.ra4king.circuitsim.gui.peers.memory.DFlipFlopPeer;
 import com.ra4king.circuitsim.gui.peers.memory.RAMPeer;
 import com.ra4king.circuitsim.gui.peers.memory.ROMPeer;
@@ -243,9 +244,10 @@ public class ComponentManager {
 		register(LED.class);
 		register(LEDMatrix.class);
 		register(HexDisplay.class);
+		register(SevenSegmentDisplay.class);
 		
 		register(Text.class);
-
+		
 		register(BreakpointPeer.class);
 	}
 	

@@ -3,6 +3,7 @@ package com.ra4king.circuitsim.gui.peers.memory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import com.ra4king.circuitsim.gui.CircuitManager;
@@ -35,10 +36,9 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		new Property<>("Separate Load/Store Ports?", Properties.YESNO_VALIDATOR, false);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(
-			new Pair<>("Memory", "RAM"),
-			new Image(RAMPeer.class.getResourceAsStream("/images/RAM.png")),
-			new Properties(SEPARATE_LOAD_STORE_PORTS));
+		manager.addComponent(new Pair<>("Memory", "RAM"),
+		                     new Image(RAMPeer.class.getResourceAsStream("/images/RAM.png")),
+		                     new Properties(SEPARATE_LOAD_STORE_PORTS));
 	}
 	
 	private final PortConnection clockConnection;
@@ -82,6 +82,8 @@ public class RAMPeer extends ComponentPeer<RAM> {
 		return getComponent().isSeparateLoadStore();
 	}
 	
+	private final AtomicBoolean isEditorOpen = new AtomicBoolean(false);
+	
 	@Override
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		MenuItem menuItem = new MenuItem("Edit contents");
@@ -97,19 +99,26 @@ public class RAMPeer extends ComponentPeer<RAM> {
 				line.values.get(address - index * 16).setValue(memoryValidator.parseValue(data));
 			};
 			
-			// Internal state can change in between and data can get out of sync
-			circuit.getSimulatorWindow().getSimulator().runSync(() -> {
-				CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
-				memory.addAll(memoryValidator.parse(getComponent().getMemoryContents(currentState),
-				                                    (address, value) -> getComponent().store(currentState,
-				                                                                             address,
-				                                                                             value)));
-				getComponent().addMemoryListener(listener);
-			});
+			if (isEditorOpen.getAndSet(true)) {
+				return;
+			}
 			
-			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), memory);
-			
-			getComponent().removeMemoryListener(listener);
+			try {
+				// Internal state can change in between and data can get out of sync
+				circuit.getSimulatorWindow().getSimulator().runSync(() -> {
+					CircuitState currentState = circuit.getCircuitBoard().getCurrentState();
+					memory.addAll(memoryValidator.parse(getComponent().getMemoryContents(currentState),
+					                                    (address, value) -> getComponent().store(currentState,
+					                                                                             address,
+					                                                                             value)));
+					getComponent().addMemoryListener(listener);
+				});
+				
+				memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), memory);
+			} finally {
+				getComponent().removeMemoryListener(listener);
+				isEditorOpen.set(false);
+			}
 		});
 		return Collections.singletonList(menuItem);
 	}

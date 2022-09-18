@@ -3,6 +3,7 @@ package com.ra4king.circuitsim.gui.peers.memory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ra4king.circuitsim.gui.CircuitManager;
 import com.ra4king.circuitsim.gui.ComponentManager.ComponentManagerInterface;
@@ -84,29 +85,41 @@ public class ROMPeer extends ComponentPeer<ROM> {
 			.toArray();
 	}
 	
+	private final AtomicBoolean isEditorOpen = new AtomicBoolean(false);
+	
 	@Override
 	public List<MenuItem> getContextMenuItems(CircuitManager circuit) {
 		MenuItem menuItem = new MenuItem("Edit contents");
 		menuItem.setOnAction(event -> {
-			Property<List<MemoryLine>> property = getProperties().getProperty(contentsProperty.name);
-			PropertyMemoryValidator memoryValidator = (PropertyMemoryValidator)property.validator;
+			if (isEditorOpen.getAndSet(true)) {
+				return;
+			}
 			
-			List<MemoryLine> lines = new ArrayList<>();
-			
-			circuit.getSimulatorWindow().getSimulator().runSync(() -> {
-				int[] memory = getComponent().getMemory();
-				lines.addAll(memoryValidator.parse(memory, (address, value) -> {
-					memory[address] = value;
-					
-					int index = address / 16;
-					MemoryLine line = property.value.get(index);
-					line.values.get(address - index * 16).setValue(memoryValidator.parseValue(value));
-					
-					circuit.getCircuit().forEachState(state -> getComponent().valueChanged(state, null, 0));
-				}));
-			});
-			
-			memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), lines);
+			try {
+				Property<List<MemoryLine>> property = getProperties().getProperty(contentsProperty.name);
+				PropertyMemoryValidator memoryValidator = (PropertyMemoryValidator)property.validator;
+				
+				List<MemoryLine> lines = new ArrayList<>();
+				
+				circuit.getSimulatorWindow().getSimulator().runSync(() -> {
+					int[] memory = getComponent().getMemory();
+					lines.addAll(memoryValidator.parse(memory, (address, value) -> {
+						circuit.getSimulatorWindow().getSimulator().runSync(() -> {
+							memory[address] = value;
+							
+							int index = address / 16;
+							MemoryLine line = property.value.get(index);
+							line.values.get(address - index * 16).setValue(memoryValidator.parseValue(value));
+							
+							circuit.getCircuit().forEachState(state -> getComponent().valueChanged(state, null, 0));
+						});
+					}));
+				});
+				
+				memoryValidator.createAndShowMemoryWindow(circuit.getSimulatorWindow().getStage(), lines);
+			} finally {
+				isEditorOpen.set(false);
+			}
 		});
 		return Collections.singletonList(menuItem);
 	}

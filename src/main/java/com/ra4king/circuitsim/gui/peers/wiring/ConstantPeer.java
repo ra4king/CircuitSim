@@ -8,8 +8,6 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
-import com.ra4king.circuitsim.gui.Properties.IntegerString;
-import com.ra4king.circuitsim.gui.Properties.Property;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.components.wiring.Constant;
@@ -23,10 +21,6 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class ConstantPeer extends ComponentPeer<Constant> {
-	private static final Property<IntegerString>
-		VALUE =
-		new Property<>("Value", Properties.INTEGER_VALIDATOR, new IntegerString(0));
-	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(
 			new Pair<>("Wiring", "Constant"),
@@ -45,13 +39,13 @@ public class ConstantPeer extends ComponentPeer<Constant> {
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
 		properties.ensureProperty(Properties.BASE);
-		properties.ensureProperty(VALUE);
+		properties.ensureProperty(Properties.VALUE);
 		properties.mergeIfExists(props);
 		
 		Constant constant = new Constant(
 			properties.getValue(Properties.LABEL),
 			properties.getValue(Properties.BITSIZE),
-			properties.getValue(VALUE).getValue());
+			properties.getValue(Properties.VALUE).getValue());
 		
 		int bitSize = constant.getBitSize();
 		switch (properties.getValue(Properties.BASE)) {

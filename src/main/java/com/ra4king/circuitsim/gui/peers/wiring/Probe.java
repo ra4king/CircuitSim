@@ -50,21 +50,21 @@ public class Probe extends ComponentPeer<Component> {
 		};
 		
 		switch (properties.getValue(Properties.BASE)) {
-			case BINARY:
+			case BINARY -> {
 				setWidth(Math.max(2, Math.min(8, bitSize)));
 				setHeight((int)Math.round((1 + (bitSize - 1) / 8) * 1.5));
-				break;
-			case HEXADECIMAL:
+			}
+			case HEXADECIMAL -> {
 				setWidth(Math.max(2, 1 + (bitSize - 1) / 4));
 				setHeight(2);
-				break;
-			case DECIMAL:
+			}
+			case DECIMAL -> {
 				// 3.322 ~ log_2(10)
 				int width = Math.max(2, (int)Math.ceil(bitSize / 3.322));
 				width += bitSize == 32 ? 1 : 0;
 				setWidth(width);
 				setHeight(2);
-				break;
+			}
 		}
 		
 		List<PortConnection> connections = new ArrayList<>();

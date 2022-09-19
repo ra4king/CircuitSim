@@ -120,7 +120,7 @@ public class Properties {
 					value = ourProperty.value == null ? property.value : ourProperty.value;
 				}
 				
-				properties.put(property.name, new Property<>(property.name, validator, value));
+				properties.put(property.name, new Property<>(property, validator, value));
 			}
 		}
 	}
@@ -326,11 +326,12 @@ public class Properties {
 	public static final Property<Direction> DIRECTION;
 	public static final Property<Boolean> SELECTOR_LOCATION;
 	public static final Property<Base> BASE;
+	public static final Property<IntegerString> VALUE;
 	
 	public enum Direction {
 		NORTH, SOUTH, EAST, WEST
 	}
-
+	
 	public enum Base {
 		BINARY, HEXADECIMAL, DECIMAL
 	}
@@ -368,22 +369,34 @@ public class Properties {
 		SELECTOR_BITS = new Property<>("Selector bits", new PropertyListValidator<>(selBits), 1);
 		
 		SELECTOR_LOCATION = new Property<>("Selector location", LOCATION_VALIDATOR, false);
-
-		BASE = new Property<>("Base", new PropertyListValidator<>(Base.values()), Base.BINARY);
+		
+		BASE = new Property<>("Base", "Display Base", new PropertyListValidator<>(Base.values()), Base.BINARY);
+		
+		VALUE = new Property<>(
+			"Value",
+			"Value",
+			"Three input formats supported: decimal, hexadecimal (with 0x prefix), and binary " + "(with 0b prefix).",
+			Properties.INTEGER_VALIDATOR,
+			new IntegerString(0));
 	}
 	
 	public static class Property<T> {
 		public final String name;
 		public String display;
+		public final String helpText;
 		public final PropertyValidator<T> validator;
 		public final T value;
 		
 		public Property(Property<T> property) {
-			this(property.name, property.display, property.validator, property.value);
+			this(property, property.value);
 		}
 		
 		public Property(Property<T> property, T value) {
-			this(property.name, property.validator, value);
+			this(property.name, property.display, property.helpText, property.validator, value);
+		}
+		
+		public Property(Property<T> property, PropertyValidator<T> validator, T value) {
+			this(property.name, property.display, property.helpText, validator, value);
 		}
 		
 		public Property(String name, PropertyValidator<T> validator, T value) {
@@ -391,8 +404,13 @@ public class Properties {
 		}
 		
 		public Property(String name, String displayName, PropertyValidator<T> validator, T value) {
+			this(name, displayName, "", validator, value);
+		}
+		
+		public Property(String name, String displayName, String helpText, PropertyValidator<T> validator, T value) {
 			this.name = name;
 			this.display = displayName;
+			this.helpText = helpText;
 			this.validator = validator;
 			this.value = value;
 		}

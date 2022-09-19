@@ -122,11 +122,13 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.Pair;
 
 /**
@@ -664,6 +666,14 @@ public class CircuitSim extends Application {
 					int size = propertiesTable.getChildren().size();
 					
 					Label name = new Label(property.display);
+					
+					if (!property.helpText.isEmpty()) {
+						Tooltip tooltip = new Tooltip(property.helpText);
+						tooltip.setShowDelay(Duration.millis(200));
+						tooltip.setFont(Font.font(11));
+						name.setTooltip(tooltip);
+					}
+					
 					GridPane.setHgrow(name, Priority.ALWAYS);
 					name.setMaxWidth(Double.MAX_VALUE);
 					name.setMinHeight(30);

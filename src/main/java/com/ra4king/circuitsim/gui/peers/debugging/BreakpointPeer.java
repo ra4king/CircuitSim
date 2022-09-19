@@ -8,8 +8,6 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
-import com.ra4king.circuitsim.gui.Properties.IntegerString;
-import com.ra4king.circuitsim.gui.Properties.Property;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.debugging.Breakpoint;
 
@@ -23,10 +21,6 @@ import javafx.util.Pair;
  * @author Charles Jenkins
  */
 public class BreakpointPeer extends ComponentPeer<Breakpoint> {
-	private static final Property<IntegerString>
-		VALUE =
-		new Property<>("Value", Properties.INTEGER_VALIDATOR, new IntegerString(0));
-	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(
 			new Pair<>("Debugging", "Breakpoint"),
@@ -41,13 +35,13 @@ public class BreakpointPeer extends ComponentPeer<Breakpoint> {
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.LABEL_LOCATION);
 		properties.ensureProperty(Properties.BITSIZE);
-		properties.ensureProperty(VALUE);
+		properties.ensureProperty(Properties.VALUE);
 		properties.mergeIfExists(props);
 		
 		Breakpoint breakpoint = new Breakpoint(
 			properties.getValue(Properties.LABEL),
 			properties.getValue(Properties.BITSIZE),
-			properties.getValue(VALUE).getValue());
+			properties.getValue(Properties.VALUE).getValue());
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, breakpoint.getPort(Breakpoint.PORT_ENABLE), "ENABLE", 0, 1));

@@ -224,23 +224,23 @@ public class Properties {
 		true, false
 	}, bool -> bool ? "Yes" : "No");
 	public static final PropertyValidator<Integer> INTEGER_VALIDATOR = value -> {
+		int base;
+		String newValue;
+		if (value.startsWith("0x") || value.startsWith("x")) {
+			base = 16;
+			newValue = value.substring(value.startsWith("x") ? 1 : 2);
+		} else if (value.startsWith("0b") || value.startsWith("b")) {
+			base = 2;
+			newValue = value.substring(value.startsWith("b") ? 1 : 2);
+		} else {
+			base = 10;
+			newValue = value;
+		}
+		
 		try {
-			return (int)Long.parseLong(value);
+			return (int)Long.parseLong(newValue, base);
 		} catch (NumberFormatException exc) {
-			String modified;
-			if (value.startsWith("0x")) {
-				modified = value.substring(2);
-			} else if (value.startsWith("x")) {
-				modified = value.substring(1);
-			} else {
-				modified = value;
-			}
-			
-			try {
-				return (int)Long.parseLong(modified, 16);
-			} catch (NumberFormatException exc2) {
-				throw new SimulationException(value + " is not a valid integer.");
-			}
+			throw new SimulationException(newValue + " is not a valid value of base " + base);
 		}
 	};
 	public static final PropertyListValidator<Boolean>

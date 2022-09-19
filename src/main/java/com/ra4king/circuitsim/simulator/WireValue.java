@@ -157,15 +157,27 @@ public class WireValue {
 	 * getBitSize() 'x's
 	 */
 	public String toHexString() {
-		StringBuilder value;
 		int hexDigits = 1 + (getBitSize() - 1) / 4;
 		if (isValidValue()) {
-			value = new StringBuilder(String.format("%0" + hexDigits + "x", getValue()));
+			return String.format("%0" + hexDigits + "x", getValue());
 		} else {
-			value = new StringBuilder();
-			value.append("x".repeat(Math.max(0, hexDigits)));
+			return "x".repeat(Math.max(0, hexDigits));
 		}
-		return value.toString();
+	}
+	
+	/**
+	 * Converts the value held on this wire to a decimal string.
+	 *
+	 * @return a decimal string if all bits are defined, otherwise
+	 * getBitSize() 'x's
+	 */
+	public String toDecString() {
+		int decDigits = (int)Math.ceil(getBitSize() / 3.322);
+		if (isValidValue()) {
+			return String.format("%0" + decDigits + "d", getValue());
+		} else {
+			return "x".repeat(Math.max(0, decDigits));
+		}
 	}
 	
 	@Override

@@ -8,9 +8,9 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
+import com.ra4king.circuitsim.gui.Properties.IntegerString;
 import com.ra4king.circuitsim.gui.Properties.Property;
 import com.ra4king.circuitsim.simulator.CircuitState;
-import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.components.debugging.Breakpoint;
 
 import javafx.geometry.Bounds;
@@ -23,12 +23,15 @@ import javafx.util.Pair;
  * @author Charles Jenkins
  */
 public class BreakpointPeer extends ComponentPeer<Breakpoint> {
-	private static final Property<Integer> VALUE = new Property<>("Value", Properties.INTEGER_VALIDATOR, 0);
+	private static final Property<IntegerString>
+		VALUE =
+		new Property<>("Value", Properties.INTEGER_VALIDATOR, new IntegerString(0));
 	
 	public static void installComponent(ComponentManagerInterface manager) {
-		manager.addComponent(new Pair<>("Debugging", "Breakpoint"),
-				new Image(BreakpointPeer.class.getResourceAsStream("/images/Breakpoint.png")),
-				new Properties());
+		manager.addComponent(
+			new Pair<>("Debugging", "Breakpoint"),
+			new Image(BreakpointPeer.class.getResourceAsStream("/images/Breakpoint.png")),
+			new Properties());
 	}
 	
 	public BreakpointPeer(Properties props, int x, int y) {
@@ -41,9 +44,10 @@ public class BreakpointPeer extends ComponentPeer<Breakpoint> {
 		properties.ensureProperty(VALUE);
 		properties.mergeIfExists(props);
 		
-		Breakpoint breakpoint = new Breakpoint(properties.getValue(Properties.LABEL),
-				properties.getValue(Properties.BITSIZE),
-				properties.getValue(VALUE));
+		Breakpoint breakpoint = new Breakpoint(
+			properties.getValue(Properties.LABEL),
+			properties.getValue(Properties.BITSIZE),
+			properties.getValue(VALUE).getValue());
 		
 		List<PortConnection> connections = new ArrayList<>();
 		connections.add(new PortConnection(this, breakpoint.getPort(Breakpoint.PORT_ENABLE), "ENABLE", 0, 1));
@@ -64,8 +68,9 @@ public class BreakpointPeer extends ComponentPeer<Breakpoint> {
 		graphics.setFont(GuiUtils.getFont(16, true));
 		Bounds bounds = GuiUtils.getBounds(graphics.getFont(), "BP");
 		graphics.setFill(Color.BLACK);
-		graphics.fillText("BP",
-				getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
-				getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
+		graphics.fillText(
+			"BP",
+			getScreenX() + (getScreenWidth() - bounds.getWidth()) * 0.5,
+			getScreenY() + (getScreenHeight() + bounds.getHeight()) * 0.45);
 	}
 }

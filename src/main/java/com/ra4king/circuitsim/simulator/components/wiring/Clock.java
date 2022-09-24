@@ -89,15 +89,17 @@ public class Clock extends Component {
 				if (newValue.enabled) {
 					startClock(newValue.getHertz());
 				} else {
-					stopClock();
+					stopClock(/* waitForClockToStop= */ false);
 				}
 			});
 		}
 		
 		void reset() {
-			stopClock();
-			if (clock) {
-				tick();
+			stopClock(/* waitForClockToStop= */ true);
+			synchronized (this) {
+				if (clock) {
+					tick();
+				}
 			}
 		}
 		
@@ -105,84 +107,79 @@ public class Clock extends Component {
 			clock = !clock;
 			WireValue clockValue = WireValue.of(clock ? 1 : 0, 1);
 			
-			simulator.runSync(() -> {
-				clocks.forEach((clock, o) -> {
-					Circuit circuit = clock.getCircuit();
-					if (circuit != null) {
-						circuit.forEachState(state -> state.pushValue(clock.getPort(PORT), clockValue));
-					}
-				});
-			});
+			simulator.runSync(() -> clocks.forEach((clock, o) -> {
+				Circuit circuit = clock.getCircuit();
+				if (circuit != null) {
+					circuit.forEachState(state -> state.pushValue(clock.getPort(PORT), clockValue));
+				}
+			}));
 			clockChangeListeners.forEach((listener, o) -> listener.valueChanged(clockValue));
 		}
 		
-		void startClock(int hertz) {
-			stopClock();
+		synchronized void startClock(int hertz) {
+			if (currentClock != null) {
+				stopClock(/* waitForClockToStop= */ false);
+			}
 			
-			synchronized (this) {
-				lastTickTime = lastPrintTime = System.nanoTime();
-				lastTickCount = tickCount = 0;
+			lastTickTime = lastPrintTime = System.nanoTime();
+			lastTickCount = tickCount = 0;
+			
+			final long nanosPerTick = (long)(1e9 / (2L * hertz));
+			
+			Thread clockThread = new Thread(() -> {
+				InternalClockInfo currentClock = this.currentClock;
+				if (currentClock == null || !Thread.currentThread().equals(currentClock.thread)) {
+					return;
+				}
 				
-				final long nanosPerTick = (long)(1e9 / (2L * hertz));
-				
-				Thread clockThread = new Thread(() -> {
-					InternalClockInfo currentClock = this.currentClock;
-					if (currentClock == null || !Thread.currentThread().equals(currentClock.thread)) {
-						return;
+				while (currentClock.enabled.get()) {
+					long now = System.nanoTime();
+					if (now - lastPrintTime >= 1e9) {
+						lastTickCount = tickCount;
+						tickCount = 0;
+						lastPrintTime = now;
+						lastTickTime = now;
 					}
 					
-					while (currentClock.enabled.get()) {
-						long now = System.nanoTime();
-						if (now - lastPrintTime >= 1e9) {
-							lastTickCount = tickCount;
-							tickCount = 0;
-							lastPrintTime = now;
-							lastTickTime = now;
-						}
-						
-						tick();
-						tickCount++;
-						
-						lastTickTime += nanosPerTick;
-						
-						long diff = lastTickTime - System.nanoTime();
-						if (diff >= 1e6 || (tickCount >> 1) >= hertz) {
-							try {
-								Thread.sleep(Math.max(1, (long)(diff / 1e6)));
-							} catch (InterruptedException exc) {
-								break;
-							}
+					tick();
+					tickCount++;
+					
+					lastTickTime += nanosPerTick;
+					
+					long diff = lastTickTime - System.nanoTime();
+					if (diff >= 1e6 || (tickCount >> 1) >= hertz) {
+						try {
+							Thread.sleep(Math.max(1, (long)(diff / 1e6)));
+						} catch (InterruptedException exc) {
+							break;
 						}
 					}
-				});
-				
-				clockThread.setName("Clock thread");
-				clockThread.setDaemon(true);
-				
-				currentClock = new InternalClockInfo(clockThread);
-				clockThread.start();
-			}
+				}
+			});
+			
+			clockThread.setName("Clock thread");
+			clockThread.setDaemon(true);
+			
+			currentClock = new InternalClockInfo(clockThread);
+			clockThread.start();
 		}
 		
-		void stopClock() {
+		void stopClock(boolean waitForClockToStop) {
 			if (currentClock != null) {
 				InternalClockInfo clock = null;
 				synchronized (this) {
 					if (currentClock != null) {
 						clock = currentClock;
+						currentClock = null;
 						clock.enabled.set(false);
 					}
 				}
 				
-				if (clock != null) {
+				if (clock != null && waitForClockToStop) {
 					boolean isClockThread = Thread.currentThread().equals(clock.thread);
 					// Wait for the clock thread to die if we're not already in the clock thread.
 					while (clock.thread.isAlive() && !isClockThread) {
 						Thread.yield();
-					}
-					
-					synchronized (this) {
-						currentClock = null;
 					}
 				}
 			}

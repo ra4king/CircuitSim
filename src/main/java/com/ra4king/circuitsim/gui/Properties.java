@@ -826,16 +826,24 @@ public class Properties {
 							}
 						} else {
 							updateText(item);
+							if (textField != null) {
+								textField.setText(item);
+							}
 						}
 						
 						setGraphic(null);
+						tableView.requestFocus();
 					}
 					
 					@Override
 					public void cancelEdit() {
 						super.cancelEdit();
-						updateText(textField.getText());
-						setGraphic(null);
+						if (textField != null) {
+							updateText(textField.getText());
+							textField = null;
+							setGraphic(null);
+							tableView.requestFocus();
+						}
 					}
 					
 					private void updateText(String newText) {
@@ -968,9 +976,10 @@ public class Properties {
 						}
 					}
 				} else if (tableView.getEditingCell() == null &&
+				           tableView.getSelectionModel().getSelectedCells().size() == 1 &&
 				           (keyEvent.getCode().isLetterKey() || keyEvent.getCode().isDigitKey())) {
-					TablePosition focusedCellPosition = tableView.getFocusModel().getFocusedCell();
-					tableView.edit(focusedCellPosition.getRow(), focusedCellPosition.getTableColumn());
+					TablePosition<MemoryLine, String> selectedCell = tableView.getFocusModel().getFocusedCell();
+					tableView.edit(selectedCell.getRow(), selectedCell.getTableColumn());
 				}
 			});
 			

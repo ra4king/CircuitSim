@@ -12,6 +12,7 @@ import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.Property;
+import com.ra4king.circuitsim.gui.properties.PropertyValidators;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Port;
 import com.ra4king.circuitsim.simulator.WireValue;
@@ -32,7 +33,9 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class PinPeer extends ComponentPeer<Pin> {
-	public static final Property<Boolean> IS_INPUT = new Property<>("Is input?", Properties.YESNO_VALIDATOR, true);
+	public static final Property<Boolean>
+		IS_INPUT =
+		new Property<>("Is input?", PropertyValidators.YESNO_VALIDATOR, true);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Wiring", "Input Pin"),

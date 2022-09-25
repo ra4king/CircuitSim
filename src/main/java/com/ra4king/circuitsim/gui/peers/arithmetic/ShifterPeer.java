@@ -9,7 +9,7 @@ import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Property;
-import com.ra4king.circuitsim.gui.Properties.PropertyListValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyListValidator;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.arithmetic.Shifter;
 import com.ra4king.circuitsim.simulator.components.arithmetic.Shifter.ShiftType;

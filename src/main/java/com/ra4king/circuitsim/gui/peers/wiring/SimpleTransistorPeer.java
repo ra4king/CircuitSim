@@ -11,7 +11,8 @@ import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.Property;
-import com.ra4king.circuitsim.gui.Properties.PropertyListValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyListValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyValidators;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.wiring.SimpleTransistor;
 
@@ -39,7 +40,7 @@ public class SimpleTransistorPeer extends ComponentPeer<SimpleTransistor> {
 			               new PropertyListValidator<>(Arrays.asList(true, false), val -> val ? "P-Type" : "N-Type"),
 			               true);
 		
-		GATE_LOCATION_PROPERTY = new Property<>("Gate Location", Properties.LOCATION_VALIDATOR, true);
+		GATE_LOCATION_PROPERTY = new Property<>("Gate Location", PropertyValidators.LOCATION_VALIDATOR, true);
 	}
 	
 	public SimpleTransistorPeer(Properties props, int x, int y) {

@@ -14,9 +14,10 @@ import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
-import com.ra4king.circuitsim.gui.Properties.MemoryLine;
 import com.ra4king.circuitsim.gui.Properties.Property;
-import com.ra4king.circuitsim.gui.Properties.PropertyMemoryValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyMemoryValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyMemoryValidator.MemoryLine;
+import com.ra4king.circuitsim.gui.properties.PropertyValidators;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.WireValue;
 import com.ra4king.circuitsim.simulator.components.memory.RAM;
@@ -34,7 +35,7 @@ import javafx.util.Pair;
 public class RAMPeer extends ComponentPeer<RAM> {
 	public static final Property<Boolean>
 		SEPARATE_LOAD_STORE_PORTS =
-		new Property<>("Separate Load/Store Ports?", Properties.YESNO_VALIDATOR, false);
+		new Property<>("Separate Load/Store Ports?", PropertyValidators.YESNO_VALIDATOR, false);
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(new Pair<>("Memory", "RAM"),

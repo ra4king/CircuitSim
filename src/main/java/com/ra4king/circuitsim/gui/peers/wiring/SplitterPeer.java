@@ -10,8 +10,9 @@ import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.Property;
-import com.ra4king.circuitsim.gui.Properties.PropertyListValidator;
 import com.ra4king.circuitsim.gui.Properties.PropertyValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyListValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyValidators;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.wiring.Splitter;
 
@@ -35,7 +36,7 @@ public class SplitterPeer extends ComponentPeer<Splitter> {
 		
 		FANOUTS = new Property<>("Fanouts", new PropertyListValidator<>(fanOuts), 2);
 		
-		INPUT_LOCATION = new Property<>("Input location", Properties.LOCATION_VALIDATOR, true);
+		INPUT_LOCATION = new Property<>("Input location", PropertyValidators.LOCATION_VALIDATOR, true);
 	}
 	
 	public static void installComponent(ComponentManagerInterface manager) {

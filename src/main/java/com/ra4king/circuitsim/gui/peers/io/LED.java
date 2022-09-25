@@ -10,6 +10,7 @@ import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.Property;
+import com.ra4king.circuitsim.gui.properties.PropertyValidators;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
 import com.ra4king.circuitsim.simulator.WireValue;
@@ -35,8 +36,8 @@ public class LED extends ComponentPeer<Component> {
 	private static final Property<Color> OFF_COLOR_PROPERTY;
 	
 	static {
-		OFF_COLOR_PROPERTY = new Property<>("Off Color", Properties.COLOR_VALIDATOR, Color.DARKGRAY);
-		ON_COLOR_PROPERTY = new Property<>("On Color", Properties.COLOR_VALIDATOR, Color.RED);
+		OFF_COLOR_PROPERTY = new Property<>("Off Color", PropertyValidators.COLOR_VALIDATOR, Color.DARKGRAY);
+		ON_COLOR_PROPERTY = new Property<>("On Color", PropertyValidators.COLOR_VALIDATOR, Color.RED);
 	}
 	
 	private final Color offColor;

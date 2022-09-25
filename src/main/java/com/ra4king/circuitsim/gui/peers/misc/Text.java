@@ -10,6 +10,7 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Property;
+import com.ra4king.circuitsim.gui.properties.PropertyValidators;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
 import com.ra4king.circuitsim.simulator.WireValue;
@@ -36,7 +37,7 @@ public class Text extends ComponentPeer<Component> {
 			new Properties());
 	}
 	
-	private static final Property<String> TEXT = new Property<>("Text", Properties.ANY_STRING_VALIDATOR, "");
+	private static final Property<String> TEXT = new Property<>("Text", PropertyValidators.ANY_STRING_VALIDATOR, "");
 	
 	private String text;
 	private List<String> lines;

@@ -9,6 +9,7 @@ import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.Property;
+import com.ra4king.circuitsim.gui.properties.PropertyValidators;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.gates.Gate;
 
@@ -48,7 +49,7 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 					negate = value.equals("Yes");
 				}
 				
-				properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, negate));
+				properties.setProperty(new Property<>(propName, PropertyValidators.YESNO_VALIDATOR, negate));
 			} else {
 				break;
 			}
@@ -64,7 +65,7 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 				boolean negate = false;
 				
 				if (!properties.containsProperty(propName)) {
-					properties.setProperty(new Property<>(propName, Properties.YESNO_VALIDATOR, false));
+					properties.setProperty(new Property<>(propName, PropertyValidators.YESNO_VALIDATOR, false));
 				} else {
 					negate = properties.<Boolean>getProperty(propName).value;
 				}

@@ -13,9 +13,9 @@ import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
-import com.ra4king.circuitsim.gui.Properties.MemoryLine;
 import com.ra4king.circuitsim.gui.Properties.Property;
-import com.ra4king.circuitsim.gui.Properties.PropertyMemoryValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyMemoryValidator;
+import com.ra4king.circuitsim.gui.properties.PropertyMemoryValidator.MemoryLine;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.components.memory.ROM;
 

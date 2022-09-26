@@ -24,6 +24,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -51,7 +52,7 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 		this.dataBits = dataBits;
 	}
 	
-	public String parseValue(int value) {
+	public String formatValue(int value) {
 		if (dataBits < 32) {
 			value &= (1 << dataBits) - 1;
 		}
@@ -86,7 +87,7 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 				currLine = new MemoryLine(address);
 			}
 			
-			SimpleStringProperty prop = new SimpleStringProperty(parseValue(value));
+			SimpleStringProperty prop = new SimpleStringProperty(formatValue(value));
 			
 			if (memoryListener != null) {
 				MemoryLine currMemoryLine = currLine;
@@ -184,13 +185,8 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 	
 	@Override
 	public Node createGui(Stage stage, List<MemoryLine> value, Consumer<List<MemoryLine>> onAction) {
-		Button button = new Button("Click to edit");
-		button.setOnAction(event -> {
-			List<MemoryLine> lines = value == null ? parse(new int[0], null) : value;
-			createAndShowMemoryWindow(stage, lines);
-			onAction.accept(lines);
-		});
-		return button;
+		Label label = new Label("Right click component to edit contents.");
+		return label;
 	}
 	
 	private void copyMemoryValues(List<MemoryLine> dest, List<MemoryLine> src) {
@@ -297,7 +293,7 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 				private void updateText(String newText) {
 					String newValue;
 					try {
-						newValue = parseValue(parseValue(newText));
+						newValue = formatValue(parseValue(newText));
 					} catch (SimulationException exc) {
 						newValue = oldText;
 					}
@@ -385,7 +381,7 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 								
 								if (col >= 0) {
 									for (int value : values) {
-										lines.get(row).get(col).set(parseValue(value));
+										lines.get(row).get(col).set(formatValue(value));
 										
 										if (++col == lines.get(0).values.size()) {
 											col = 0;
@@ -403,7 +399,7 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 									if (selectedCell.getColumn() > 0) {
 										lines.get(selectedCell.getRow()).values
 											.get(selectedCell.getColumn() - 1)
-											.set(parseValue(values[i]));
+											.set(formatValue(values[i]));
 									}
 								}
 							}
@@ -416,7 +412,7 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 			} else if (keyEvent.getCode() == KeyCode.DELETE || keyEvent.getCode() == KeyCode.BACK_SPACE) {
 				for (TablePosition<?, ?> selectedCell : tableView.getSelectionModel().getSelectedCells()) {
 					if (selectedCell.getColumn() > 0) {
-						lines.get(selectedCell.getRow()).values.get(selectedCell.getColumn() - 1).set(parseValue(0));
+						lines.get(selectedCell.getRow()).values.get(selectedCell.getColumn() - 1).set(formatValue(0));
 					}
 				}
 			} else if (tableView.getEditingCell() == null &&
@@ -424,6 +420,7 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 			           (keyEvent.getCode().isLetterKey() || keyEvent.getCode().isDigitKey())) {
 				@SuppressWarnings("unchecked")
 				TablePosition<MemoryLine, String> selectedCell = tableView.getFocusModel().getFocusedCell();
+				lines.get(selectedCell.getRow()).get(selectedCell.getColumn() - 1).set(keyEvent.getText());
 				tableView.edit(selectedCell.getRow(), selectedCell.getTableColumn());
 			}
 		});

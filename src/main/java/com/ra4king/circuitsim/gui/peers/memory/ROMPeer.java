@@ -102,7 +102,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 			BiConsumer<Integer, Integer> listener = (address, data) -> {
 				int index = address / 16;
 				MemoryLine line = lines.get(index);
-				line.values.get(address - index * 16).setValue(memoryValidator.parseValue(data));
+				line.values.get(address - index * 16).setValue(memoryValidator.formatValue(data));
 				circuit.getCircuit().forEachState(state -> rom.valueChanged(state, null, 0));
 			};
 			

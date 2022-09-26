@@ -120,6 +120,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -651,60 +652,58 @@ public class CircuitSim extends Application {
 	
 	void setProperties(String componentName, Properties properties) {
 		propertiesTable.getChildren().clear();
+		componentLabel.setText(componentName);
 		
-		if (properties != null) {
-			componentLabel.setText(componentName);
+		if (properties == null) {
+			return;
+		}
+		
+		properties.forEach(new Consumer<>() {
+			@Override
+			public void accept(Property<?> property) {
+				acceptProperty(property);
+			}
 			
-			properties.forEach(new Consumer<>() {
-				@Override
-				public void accept(Property<?> property) {
-					acceptProperty(property);
+			// This is an interesting trick to force all usage of "property" to work on the same type.
+			private <T> void acceptProperty(Property<T> property) {
+				int size = propertiesTable.getChildren().size();
+				
+				Label name = new Label(property.display);
+				
+				if (!property.helpText.isEmpty()) {
+					Tooltip tooltip = new Tooltip(property.helpText);
+					tooltip.setShowDelay(Duration.millis(200));
+					tooltip.setFont(Font.font(11));
+					name.setTooltip(tooltip);
 				}
 				
-				// This is an interesting trick to force that all usage of "property" work on the same type.
-				private <T> void acceptProperty(Property<T> property) {
-					int size = propertiesTable.getChildren().size();
-					
-					Label name = new Label(property.display);
-					
-					if (!property.helpText.isEmpty()) {
-						Tooltip tooltip = new Tooltip(property.helpText);
-						tooltip.setShowDelay(Duration.millis(200));
-						tooltip.setFont(Font.font(11));
-						name.setTooltip(tooltip);
-					}
-					
-					GridPane.setHgrow(name, Priority.ALWAYS);
-					name.setMaxWidth(Double.MAX_VALUE);
-					name.setMinHeight(30);
-					name.setBackground(new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY :
-					                                                     Color.WHITE,
-					                                                     null,
-					                                                     null)));
-					
-					Node
-						node =
-						property.validator.createGui(stage, property.value, newValue -> Platform.runLater(() -> {
-							Properties newProperties = new Properties(properties);
-							newProperties.setValue(property, newValue);
-							updateProperties(newProperties);
-						}));
-					
-					if (node != null) {
-						Pane valuePane = new Pane(node);
-						valuePane.setBackground(new Background(new BackgroundFill((size / 2) % 2 == 0 ?
-						                                                          Color.LIGHTGRAY : Color.WHITE,
-						                                                          null,
-						                                                          null)));
-						
-						GridPane.setHgrow(valuePane, Priority.ALWAYS);
-						propertiesTable.addRow(size, name, valuePane);
-					}
+				GridPane.setHgrow(name, Priority.ALWAYS);
+				name.setMaxWidth(Double.MAX_VALUE);
+				name.setMinHeight(30);
+				name.setBackground(new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY :
+				                                                     Color.WHITE,
+				                                                     null,
+				                                                     null)));
+				
+				Node node = property.validator.createGui(stage, property.value, newValue -> Platform.runLater(() -> {
+					Properties newProperties = new Properties(properties);
+					newProperties.setValue(property, newValue);
+					updateProperties(newProperties);
+				}));
+				
+				if (node != null) {
+					StackPane valuePane = new StackPane(node);
+					StackPane.setAlignment(node, Pos.CENTER_LEFT);
+					valuePane.setBackground(new Background(new BackgroundFill((size / 2) % 2 == 0 ? Color.LIGHTGRAY :
+					                                                          Color.WHITE,
+					                                                          null,
+					                                                          null)));
+					GridPane.setHgrow(valuePane, Priority.ALWAYS);
+					GridPane.setVgrow(valuePane, Priority.ALWAYS);
+					propertiesTable.addRow(size, name, valuePane);
 				}
-			});
-		} else {
-			componentLabel.setText("");
-		}
+			}
+		});
 	}
 	
 	private Properties getDefaultProperties() {

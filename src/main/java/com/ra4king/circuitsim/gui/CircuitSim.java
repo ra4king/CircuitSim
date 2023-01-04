@@ -66,6 +66,8 @@ import com.ra4king.circuitsim.simulator.components.wiring.Pin;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Orientation;
@@ -156,6 +158,7 @@ public class CircuitSim extends Application {
 	private Simulator simulator;
 	private CheckMenuItem simulationEnabled;
 	
+	private BooleanProperty showGridProp;
 	private MenuItem undo, redo;
 	private CheckMenuItem clockEnabled;
 	private Menu frequenciesMenu;
@@ -412,7 +415,7 @@ public class CircuitSim extends Application {
 	public boolean isSimulationEnabled() {
 		return simulationEnabled.isSelected();
 	}
-	
+
 	private void runSim() {
 		try {
 			if (isSimulationEnabled() && simulator.hasLinksToUpdate()) {
@@ -461,6 +464,10 @@ public class CircuitSim extends Application {
 		}
 		
 		throw new IllegalStateException("This can't happen lol");
+	}
+
+	private void repaintAllCircuits() {
+		simulator.runSync(() -> circuitManagers.values().stream().map(Pair::getValue).forEach(CircuitManager::paint));
 	}
 	
 	private CircuitManager getCurrentCircuit() {
@@ -1736,7 +1743,7 @@ public class CircuitSim extends Application {
 							});
 							
 							// Do an initial paint of all the tabs
-							simulator.runSync(() -> getCircuitManagers().values().forEach(CircuitManager::paint));
+							repaintAllCircuits();
 						});
 						tasksThread.setName("LoadCircuits Tasks Thread");
 						tasksThread.start();
@@ -1983,7 +1990,7 @@ public class CircuitSim extends Application {
 			ScrollPane canvasScrollPane = new ScrollPane(canvas);
 			canvasScrollPane.setFocusTraversable(true);
 			
-			CircuitManager circuitManager = new CircuitManager(n, this, canvasScrollPane, simulator);
+			CircuitManager circuitManager = new CircuitManager(n, this, canvasScrollPane, simulator, showGridProp);
 			circuitManager.getCircuit().addListener(this::circuitModified);
 			
 			canvas.addEventHandler(MouseEvent.ANY, e -> canvas.requestFocus());
@@ -2128,6 +2135,8 @@ public class CircuitSim extends Application {
 		}
 		
 		this.stage = stage;
+		// Default to showing the grid background
+		this.showGridProp = new SimpleBooleanProperty(true);
 		
 		stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/Icon.png")));
 		
@@ -2283,10 +2292,8 @@ public class CircuitSim extends Application {
 		
 		MenuItem print = new MenuItem("Export as Images");
 		print.setOnAction(event -> {
-			simulator.runSync(() -> {
-				// Repaint first, so it can flush while the user chooses an output directory.
-				circuitManagers.values().stream().map(Pair::getValue).forEach(CircuitManager::paint);
-			});
+			// Repaint first, so it can flush while the user chooses an output directory.
+			repaintAllCircuits();
 			
 			DirectoryChooser directoryChooser = new DirectoryChooser();
 			directoryChooser.setTitle("Choose output directory");
@@ -2469,6 +2476,17 @@ public class CircuitSim extends Application {
 		editMenu
 			.getItems()
 			.addAll(undo, redo, new SeparatorMenuItem(), copy, cut, paste, new SeparatorMenuItem(), selectAll);
+
+		// VIEW Menu
+		CheckMenuItem showGrid = new CheckMenuItem("Show grid");
+		showGrid.selectedProperty().bindBidirectional(showGridProp);
+		showGridProp.addListener((observable, oldValue, newValue) -> {
+			// CircuitManagers already have access to showGridProp
+			needsRepaint = true;
+		});
+
+		Menu viewMenu = new Menu("View");
+		viewMenu.getItems().addAll(showGrid);
 		
 		// COMPONENTS Menu
 		MenuItem loadLibrary = new MenuItem("Load library");
@@ -2626,7 +2644,7 @@ public class CircuitSim extends Application {
 		});
 		helpMenu.getItems().addAll(help, checkUpdate, about);
 		
-		MenuBar menuBar = new MenuBar(fileMenu, editMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
+		MenuBar menuBar = new MenuBar(fileMenu, editMenu, viewMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
 		menuBar.setUseSystemMenuBar(true);
 		
 		ScrollPane propertiesScrollPane = new ScrollPane(propertiesTable);

@@ -143,17 +143,30 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 	
 	@Override
 	public final void paint(GraphicsContext graphics, CircuitState circuitState) {
+		int minPortX = 0, minPortY = 0, maxPortX = 0, maxPortY = 0;
+		Direction direction = getProperties().getValue(Properties.DIRECTION);
+
 		for (int i = 0; i < getConnections().size() - 1; i++) {
 			PortConnection portConnection = getConnections().get(i);
 			int x = portConnection.getX() * GuiUtils.BLOCK_SIZE;
 			int y = portConnection.getY() * GuiUtils.BLOCK_SIZE;
+
+			if (i == 0) {
+				minPortX = maxPortX = x;
+				minPortY = maxPortY = y;
+			} else {
+				minPortX = Math.min(minPortX, x);
+				minPortY = Math.min(minPortY, y);
+				maxPortX = Math.max(maxPortX, x);
+				maxPortY = Math.max(maxPortY, y);
+			}
 
 			if (getComponent().getNegateInputs()[i]) {
 				graphics.setFill(Color.WHITE);
 				graphics.setStroke(Color.BLACK);
 				graphics.setLineWidth(1.0);
 
-				switch (getProperties().getValue(Properties.DIRECTION)) {
+				switch (direction) {
 					case WEST:
 						x -= GuiUtils.BLOCK_SIZE;
 					case EAST:
@@ -173,14 +186,17 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 				GuiUtils.setBitColor(graphics, circuitState.getLastReceived(portConnection.getPort()));
 				graphics.setLineWidth(2.0);
 
-				int dx = switch (getProperties().getValue(Properties.DIRECTION)) {
-					case WEST -> -GuiUtils.BLOCK_SIZE;
-					case EAST -> GuiUtils.BLOCK_SIZE;
+				int dx = switch (direction) {
+					// The -1 here is to account for the width of these fake wires themselves.
+					// Without this, the wires will pass the line that reaches out to ports beyond
+					// the width/height of the gate (drawn below)
+					case WEST -> -(GuiUtils.BLOCK_SIZE - 1);
+					case EAST -> GuiUtils.BLOCK_SIZE - 1;
 					default -> 0;
 				};
-				int dy = switch (getProperties().getValue(Properties.DIRECTION)) {
-					case NORTH -> -GuiUtils.BLOCK_SIZE;
-					case SOUTH -> GuiUtils.BLOCK_SIZE;
+				int dy = switch (direction) {
+					case NORTH -> -(GuiUtils.BLOCK_SIZE - 1);
+					case SOUTH -> GuiUtils.BLOCK_SIZE - 1;
 					default -> 0;
 				};
 
@@ -188,11 +204,53 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 			}
 		}
 
-		// Reset the line width to the default after possibly drawing some fake wires above
+		// Reset the line width to the default after possibly drawing some fake wires drawn above
 		graphics.setLineWidth(1.0);
+		graphics.setStroke(Color.BLACK);
+
+		// Draw a thin black line to reach ports that are beyond the width/height of the gate.
+		// This prevents fake wires or ports from hanging off the edge of the gate, which can
+		// confuse students.
+		int pad;
+		if (hasNegatedInput) {
+			// Need to account for the bubbles drawn above
+			pad = switch (direction) {
+				case NORTH, WEST -> -GuiUtils.BLOCK_SIZE;
+				case EAST, SOUTH -> GuiUtils.BLOCK_SIZE;
+			};
+		} else {
+			pad = 0;
+		}
+
+		pad += switch (direction) {
+			case WEST -> getScreenWidth();
+			case NORTH -> getScreenHeight();
+			default -> 0;
+		};
+
+		switch (direction) {
+			case WEST, EAST -> {
+				if (minPortY < getScreenY()) {
+					// The -1s and +1s here are to account for the width of fake wires drawn above
+					// (otherwise they overhang this little black line)
+					graphics.strokeLine(getScreenX() + pad, minPortY - 1, getScreenX() + pad, getScreenY());
+				}
+				if (maxPortY > getScreenY() + getScreenHeight()) {
+					graphics.strokeLine(getScreenX() + pad, maxPortY + 1, getScreenX() + pad, getScreenY() + getScreenHeight());
+				}
+			}
+			case NORTH, SOUTH -> {
+				if (minPortX < getScreenX()) {
+					graphics.strokeLine(minPortX - 1, getScreenY() + pad, getScreenX(), getScreenY() + pad);
+				}
+				if (maxPortX > getScreenX() + getScreenWidth()) {
+					graphics.strokeLine(maxPortX + 1, getScreenY() + pad, getScreenX() + getScreenWidth(), getScreenY() + pad);
+				}
+			}
+		}
 		
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
-		GuiUtils.rotateGraphics(this, graphics, getProperties().getValue(Properties.DIRECTION));
+		GuiUtils.rotateGraphics(this, graphics, direction);
 		
 		if (hasNegatedInput) {
 			graphics.translate(GuiUtils.BLOCK_SIZE, 0);

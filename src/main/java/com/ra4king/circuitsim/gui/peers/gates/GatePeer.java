@@ -23,10 +23,10 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 	private boolean hasNegatedInput = false;
 	
 	public GatePeer(Properties props, int x, int y) {
-		this(props, x, y, 4, 4);
+		this(props, x, y, 4, 4, true);
 	}
 	
-	public GatePeer(Properties props, int x, int y, int width, int height) {
+	public GatePeer(Properties props, int x, int y, int width, int height, boolean allowNegatingInputs) {
 		super(x, y, width, height);
 		
 		Properties properties = new Properties();
@@ -58,30 +58,32 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		T gate = buildGate(properties);
 		int gateNum = gate.getNumInputs();
 		
-		for (int i = 0; i < Math.max(gateNum, negationCounts); i++) {
-			String propName = "Negate " + i;
-			
-			if (i < gateNum) {
-				boolean negate = false;
+		if (allowNegatingInputs) {
+			for (int i = 0; i < Math.max(gateNum, negationCounts); i++) {
+				String propName = "Negate " + i;
 				
-				if (!properties.containsProperty(propName)) {
-					properties.setProperty(new Property<>(propName, PropertyValidators.YESNO_VALIDATOR, false));
+				if (i < gateNum) {
+					boolean negate = false;
+					
+					if (!properties.containsProperty(propName)) {
+						properties.setProperty(new Property<>(propName, PropertyValidators.YESNO_VALIDATOR, false));
+					} else {
+						negate = properties.<Boolean>getProperty(propName).value;
+					}
+					
+					if (i == 0) {
+						properties.getProperty(propName).display += " Top/Left";
+					} else if (i == gateNum - 1) {
+						properties.getProperty(propName).display += " Bottom/Right";
+					}
+					
+					if (negate && !hasNegatedInput) {
+						hasNegatedInput = true;
+						setWidth(width + 1);
+					}
 				} else {
-					negate = properties.<Boolean>getProperty(propName).value;
+					properties.clearProperty(propName);
 				}
-				
-				if (i == 0) {
-					properties.getProperty(propName).display += " Top/Left";
-				} else if (i == gateNum - 1) {
-					properties.getProperty(propName).display += " Bottom/Right";
-				}
-				
-				if (negate && !hasNegatedInput) {
-					hasNegatedInput = true;
-					setWidth(width + 1);
-				}
-			} else {
-				properties.clearProperty(propName);
 			}
 		}
 		

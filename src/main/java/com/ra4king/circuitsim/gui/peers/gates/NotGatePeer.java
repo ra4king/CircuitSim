@@ -23,7 +23,7 @@ public class NotGatePeer extends GatePeer<NotGate> {
 	}
 	
 	public NotGatePeer(Properties properties, int x, int y) {
-		super(properties, x, y, 3, 2);
+		super(properties, x, y, 3, 2, false);
 	}
 	
 	@Override

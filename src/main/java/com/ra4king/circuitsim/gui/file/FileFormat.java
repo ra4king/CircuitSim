@@ -51,18 +51,23 @@ public class FileFormat {
 	}
 	
 	public static class CircuitFile {
-		private final String version = CircuitSim.VERSION;
-		
+		public final String version;
 		public final int globalBitSize;
 		public final int clockSpeed;
 		public final Set<String> libraryPaths;
 		public final List<CircuitInfo> circuits;
 		
-		public CircuitFile(int globalBitSize, int clockSpeed, Set<String> libraryPaths, List<CircuitInfo> circuits) {
+		CircuitFile(
+			String version, int globalBitSize, int clockSpeed, Set<String> libraryPaths, List<CircuitInfo> circuits) {
+			this.version = version;
 			this.globalBitSize = globalBitSize;
 			this.clockSpeed = clockSpeed;
 			this.libraryPaths = libraryPaths;
 			this.circuits = circuits;
+		}
+		
+		public CircuitFile(int globalBitSize, int clockSpeed, Set<String> libraryPaths, List<CircuitInfo> circuits) {
+			this(CircuitSim.VERSION, globalBitSize, clockSpeed, libraryPaths, circuits);
 		}
 	}
 	
@@ -84,7 +89,7 @@ public class FileFormat {
 		public final int y;
 		public final Map<String, String> properties;
 		
-		public ComponentInfo(String name, int x, int y, Map<String, String> properties) {
+		ComponentInfo(String name, int x, int y, Map<String, String> properties) {
 			this.name = name;
 			this.x = x;
 			this.y = y;
@@ -92,10 +97,7 @@ public class FileFormat {
 		}
 		
 		public ComponentInfo(String name, int x, int y, Properties properties) {
-			this.name = name;
-			this.x = x;
-			this.y = y;
-			this.properties = new HashMap<>();
+			this(name, x, y, new HashMap<>());
 			properties.forEach(prop -> this.properties.put(prop.name, prop.getStringValue()));
 		}
 		

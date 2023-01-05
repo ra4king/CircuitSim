@@ -21,9 +21,20 @@ import javafx.stage.Stage;
 @SuppressWarnings("unchecked")
 public class Properties {
 	private final Map<String, Property<?>> properties;
+	private final CircuitSimVersion version;
+	
+	private Properties(
+		Map<String, Property<?>> properties, CircuitSimVersion version) {
+		this.properties = properties;
+		this.version = version;
+	}
+	
+	Properties(CircuitSimVersion version) {
+		this(new LinkedHashMap<>(), version);
+	}
 	
 	public Properties() {
-		properties = new LinkedHashMap<>();
+		this(CircuitSimVersion.VERSION);
 	}
 	
 	public Properties(Property<?>... props) {
@@ -34,8 +45,12 @@ public class Properties {
 	}
 	
 	public Properties(Properties prop) {
-		this();
+		this(prop.version);
 		union(prop);
+	}
+	
+	public CircuitSimVersion getVersion() {
+		return version;
 	}
 	
 	public List<String> getProperties() {

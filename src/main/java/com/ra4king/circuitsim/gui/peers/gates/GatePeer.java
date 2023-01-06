@@ -21,15 +21,14 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
-	private static final CircuitSimVersion MINIMUM_VERSION_FOR_LEGACY_GATE_INPUT_PLACEMENT =
-		new CircuitSimVersion("1.8.6");
-	private static final Property<Boolean> LEGACY_GATE_INPUT_PLACEMENT = new Property<>("Legacy Gate Input Placement",
-	                                                                                    "Legacy Gate Input Placement",
-	                                                                                    "If enabled, no offset is " +
-	                                                                                    "used for gates with more " +
-	                                                                                    "than 5 inputs.",
-	                                                                                    PropertyValidators.YESNO_VALIDATOR,
-	                                                                                    false);
+	private static final CircuitSimVersion MAXIMUM_VERSION_FOR_LEGACY_GATE_INPUT_PLACEMENT =
+		new CircuitSimVersion("1.8.5");
+	private static final Property<Boolean> LEGACY_GATE_INPUT_PLACEMENT = new Property<>(
+		"Legacy Gate Input Placement",
+		"Legacy Gate Input Placement",
+		"If enabled, no offset is " + "used for gates with more " + "than 5 inputs.",
+		PropertyValidators.YESNO_VALIDATOR,
+		false);
 	
 	private boolean hasExpandedInputs = false;
 	
@@ -90,7 +89,7 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		props.ensurePropertyIfExists(LEGACY_GATE_INPUT_PLACEMENT);
 		
 		boolean forceLegacyInputPlacement =
-			props.getVersion().compareTo(MINIMUM_VERSION_FOR_LEGACY_GATE_INPUT_PLACEMENT) < 0 ||
+			props.getVersion().compareTo(MAXIMUM_VERSION_FOR_LEGACY_GATE_INPUT_PLACEMENT) <= 0 ||
 			props.getValueOrDefault(LEGACY_GATE_INPUT_PLACEMENT, false);
 		
 		// Expand the width (in the default configuration) by 1 if any inputs are negated or if there are more than

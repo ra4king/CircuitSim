@@ -365,11 +365,7 @@ public class CircuitManager {
 			graphics.setFontSmoothingType(FontSmoothingType.LCD);
 			
 			boolean drawGrid = showGrid.getValue();
-			if (drawGrid) {
-				graphics.setFill(Color.LIGHTGRAY);
-			} else {
-				graphics.setFill(Color.WHITE);
-			}
+			graphics.setFill(drawGrid ? Color.LIGHTGRAY : Color.WHITE);
 			graphics.fillRect(0, 0, getCanvas().getWidth(), getCanvas().getHeight());
 			
 			graphics.scale(simulatorWindow.getScaleFactor(), simulatorWindow.getScaleFactor());

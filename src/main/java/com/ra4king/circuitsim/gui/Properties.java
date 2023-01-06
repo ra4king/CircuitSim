@@ -77,6 +77,12 @@ public class Properties {
 		setProperty(property, false);
 	}
 	
+	public void ensurePropertyIfExists(Property<?> property) {
+		if (containsProperty(property)) {
+			setProperty(property, false);
+		}
+	}
+	
 	public void setProperty(Property<?> property) {
 		setProperty(property, true);
 	}

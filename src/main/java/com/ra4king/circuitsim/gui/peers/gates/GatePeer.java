@@ -3,6 +3,7 @@ package com.ra4king.circuitsim.gui.peers.gates;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ra4king.circuitsim.gui.CircuitSimVersion;
 import com.ra4king.circuitsim.gui.ComponentPeer;
 import com.ra4king.circuitsim.gui.Connection.PortConnection;
 import com.ra4king.circuitsim.gui.GuiUtils;
@@ -20,7 +21,17 @@ import javafx.scene.paint.Color;
  * @author Roi Atalla
  */
 public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
-	private boolean hasNegatedInput = false;
+	private static final CircuitSimVersion MINIMUM_VERSION_FOR_LEGACY_GATE_INPUT_PLACEMENT =
+		new CircuitSimVersion("1.8.6");
+	private static final Property<Boolean> LEGACY_GATE_INPUT_PLACEMENT = new Property<>("Legacy Gate Input Placement",
+	                                                                                    "Legacy Gate Input Placement",
+	                                                                                    "If enabled, no offset is " +
+	                                                                                    "used for gates with more " +
+	                                                                                    "than 5 inputs.",
+	                                                                                    PropertyValidators.YESNO_VALIDATOR,
+	                                                                                    false);
+	
+	private boolean hasExpandedInputs = false;
 	
 	public GatePeer(Properties props, int x, int y) {
 		this(props, x, y, 4, 4, true);
@@ -37,54 +48,59 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		properties.mergeIfExists(props);
 		
 		int negationCounts = 0;
-		while (true) {
-			String propName = "Negate " + negationCounts++;
-			
-			if (props.containsProperty(propName)) {
-				boolean negate;
-				Object value = props.getValue(propName);
-				if (value instanceof Boolean) {
-					negate = (Boolean)value;
+		if (allowNegatingInputs) {
+			while (true) {
+				String propName = "Negate " + negationCounts++;
+				Property<Boolean> property = new Property<>(propName, PropertyValidators.YESNO_VALIDATOR, false);
+				if (props.containsProperty(propName)) {
+					props.ensureProperty(property);
+					properties.setProperty(new Property<>(property, props.getValue(property)));
 				} else {
-					negate = value.equals("Yes");
+					break;
 				}
-				
-				properties.setProperty(new Property<>(propName, PropertyValidators.YESNO_VALIDATOR, negate));
-			} else {
-				break;
 			}
 		}
 		
 		T gate = buildGate(properties);
 		int gateNum = gate.getNumInputs();
 		
+		boolean hasNegatedInput = false;
 		if (allowNegatingInputs) {
 			for (int i = 0; i < Math.max(gateNum, negationCounts); i++) {
 				String propName = "Negate " + i;
 				
 				if (i < gateNum) {
-					boolean negate = false;
-					
-					if (!properties.containsProperty(propName)) {
-						properties.setProperty(new Property<>(propName, PropertyValidators.YESNO_VALIDATOR, false));
-					} else {
-						negate = properties.<Boolean>getProperty(propName).value;
-					}
-					
+					Property<Boolean> property = new Property<>(propName, PropertyValidators.YESNO_VALIDATOR, false);
 					if (i == 0) {
-						properties.getProperty(propName).display += " Top/Left";
+						property.display += " Top/Left";
 					} else if (i == gateNum - 1) {
-						properties.getProperty(propName).display += " Bottom/Right";
+						property.display += " Bottom/Right";
 					}
 					
-					if (negate && !hasNegatedInput) {
-						hasNegatedInput = true;
-						setWidth(width + 1);
-					}
+					boolean negate = props.getValueOrDefault(property, false);
+					properties.setProperty(new Property<>(property, negate));
+					
+					hasNegatedInput |= negate;
 				} else {
 					properties.clearProperty(propName);
 				}
 			}
+		}
+		
+		props.ensurePropertyIfExists(LEGACY_GATE_INPUT_PLACEMENT);
+		
+		boolean forceLegacyInputPlacement =
+			props.getVersion().compareTo(MINIMUM_VERSION_FOR_LEGACY_GATE_INPUT_PLACEMENT) < 0 ||
+			props.getValueOrDefault(LEGACY_GATE_INPUT_PLACEMENT, false);
+		
+		// Expand the width (in the default configuration) by 1 if any inputs are negated or if there are more than
+		// five inputs. This will show the additional line in for each gate to avoid confusing "floating" ports.
+		if (hasNegatedInput || (gateNum > 5 && !forceLegacyInputPlacement)) {
+			hasExpandedInputs = true;
+			setWidth(width + 1);
+		} else if (gateNum > 5 && forceLegacyInputPlacement) {
+			// Legacy behavior where the file was saved with an older version
+			properties.setValue(LEGACY_GATE_INPUT_PLACEMENT, true);
 		}
 		
 		GuiUtils.rotateElementSize(this, Direction.EAST, properties.getValue(Properties.DIRECTION));
@@ -148,12 +164,12 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 	public final void paint(GraphicsContext graphics, CircuitState circuitState) {
 		int minPortX = 0, minPortY = 0, maxPortX = 0, maxPortY = 0;
 		Direction direction = getProperties().getValue(Properties.DIRECTION);
-
+		
 		for (int i = 0; i < getConnections().size() - 1; i++) {
 			PortConnection portConnection = getConnections().get(i);
 			int x = portConnection.getX() * GuiUtils.BLOCK_SIZE;
 			int y = portConnection.getY() * GuiUtils.BLOCK_SIZE;
-
+			
 			if (i == 0) {
 				minPortX = maxPortX = x;
 				minPortY = maxPortY = y;
@@ -163,12 +179,12 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 				maxPortX = Math.max(maxPortX, x);
 				maxPortY = Math.max(maxPortY, y);
 			}
-
+			
 			if (getComponent().getNegateInputs()[i]) {
 				graphics.setFill(Color.WHITE);
 				graphics.setStroke(Color.BLACK);
 				graphics.setLineWidth(1.0);
-
+				
 				switch (direction) {
 					case WEST:
 						x -= GuiUtils.BLOCK_SIZE;
@@ -184,11 +200,11 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 				
 				graphics.fillOval(x, y, GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
 				graphics.strokeOval(x, y, GuiUtils.BLOCK_SIZE, GuiUtils.BLOCK_SIZE);
-			} else if (hasNegatedInput) {
+			} else if (hasExpandedInputs) {
 				// Imitate how a wire is drawn in Wire.paint()
 				GuiUtils.setBitColor(graphics, circuitState.getLastReceived(portConnection.getPort()));
 				graphics.setLineWidth(2.0);
-
+				
 				int dx = switch (direction) {
 					// The -1 here is to account for the width of these fake wires themselves.
 					// Without this, the wires will pass the line that reaches out to ports beyond
@@ -202,20 +218,20 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 					case SOUTH -> GuiUtils.BLOCK_SIZE - 1;
 					default -> 0;
 				};
-
+				
 				graphics.strokeLine(x, y, x + dx, y + dy);
 			}
 		}
-
+		
 		// Reset the line width to the default after possibly drawing some fake wires drawn above
 		graphics.setLineWidth(1.0);
 		graphics.setStroke(Color.BLACK);
-
+		
 		// Draw a thin black line to reach ports that are beyond the width/height of the gate.
 		// This prevents fake wires or ports from hanging off the edge of the gate, which can
 		// confuse students.
 		int pad;
-		if (hasNegatedInput) {
+		if (hasExpandedInputs) {
 			// Need to account for the bubbles drawn above
 			pad = switch (direction) {
 				case NORTH, WEST -> -GuiUtils.BLOCK_SIZE;
@@ -224,13 +240,13 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		} else {
 			pad = 0;
 		}
-
+		
 		pad += switch (direction) {
 			case WEST -> getScreenWidth();
 			case NORTH -> getScreenHeight();
 			default -> 0;
 		};
-
+		
 		switch (direction) {
 			case WEST, EAST -> {
 				if (minPortY < getScreenY()) {
@@ -239,7 +255,10 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 					graphics.strokeLine(getScreenX() + pad, minPortY - 1, getScreenX() + pad, getScreenY());
 				}
 				if (maxPortY > getScreenY() + getScreenHeight()) {
-					graphics.strokeLine(getScreenX() + pad, maxPortY + 1, getScreenX() + pad, getScreenY() + getScreenHeight());
+					graphics.strokeLine(getScreenX() + pad,
+					                    maxPortY + 1,
+					                    getScreenX() + pad,
+					                    getScreenY() + getScreenHeight());
 				}
 			}
 			case NORTH, SOUTH -> {
@@ -247,7 +266,10 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 					graphics.strokeLine(minPortX - 1, getScreenY() + pad, getScreenX(), getScreenY() + pad);
 				}
 				if (maxPortX > getScreenX() + getScreenWidth()) {
-					graphics.strokeLine(maxPortX + 1, getScreenY() + pad, getScreenX() + getScreenWidth(), getScreenY() + pad);
+					graphics.strokeLine(maxPortX + 1,
+					                    getScreenY() + pad,
+					                    getScreenX() + getScreenWidth(),
+					                    getScreenY() + pad);
 				}
 			}
 		}
@@ -255,7 +277,7 @@ public abstract class GatePeer<T extends Gate> extends ComponentPeer<T> {
 		GuiUtils.drawName(graphics, this, getProperties().getValue(Properties.LABEL_LOCATION));
 		GuiUtils.rotateGraphics(this, graphics, direction);
 		
-		if (hasNegatedInput) {
+		if (hasExpandedInputs) {
 			graphics.translate(GuiUtils.BLOCK_SIZE, 0);
 		}
 		

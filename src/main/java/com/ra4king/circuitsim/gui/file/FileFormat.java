@@ -98,7 +98,11 @@ public class FileFormat {
 		
 		public ComponentInfo(String name, int x, int y, Properties properties) {
 			this(name, x, y, new HashMap<>());
-			properties.forEach(prop -> this.properties.put(prop.name, prop.getStringValue()));
+			properties.forEach(prop -> {
+				if (!prop.ephemeral) {
+					this.properties.put(prop.name, prop.getStringValue());
+				}
+			});
 		}
 		
 		@Override

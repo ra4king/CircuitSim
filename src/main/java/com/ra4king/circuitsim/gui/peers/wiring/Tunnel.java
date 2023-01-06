@@ -14,6 +14,8 @@ import com.ra4king.circuitsim.gui.GuiUtils;
 import com.ra4king.circuitsim.gui.Properties;
 import com.ra4king.circuitsim.gui.Properties.Direction;
 import com.ra4king.circuitsim.gui.Properties.Property;
+import com.ra4king.circuitsim.gui.properties.IntegerString;
+import com.ra4king.circuitsim.gui.properties.PropertyValidators;
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
@@ -31,6 +33,11 @@ import javafx.util.Pair;
  */
 public class Tunnel extends ComponentPeer<Component> {
 	private static final Map<Circuit, Map<String, Set<Tunnel>>> tunnels = new HashMap<>();
+	
+	private static final Property<IntegerString> WIDTH =
+		new Property<>("Width", "", "", PropertyValidators.INTEGER_VALIDATOR, true, false, new IntegerString(0));
+	private static final Property<String> PREVIOUS_TEXT =
+		new Property<>("Previous text", "", "", PropertyValidators.ANY_STRING_VALIDATOR, true, true, "");
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(
@@ -50,13 +57,24 @@ public class Tunnel extends ComponentPeer<Component> {
 		properties.ensureProperty(Properties.LABEL);
 		properties.ensureProperty(Properties.DIRECTION);
 		properties.ensureProperty(Properties.BITSIZE);
+		properties.ensureProperty(WIDTH);
 		properties.mergeIfExists(props);
 		
 		label = properties.getValue(Properties.LABEL);
 		bitSize = properties.getValue(Properties.BITSIZE);
 		
-		Bounds bounds = GuiUtils.getBounds(GuiUtils.getFont(13), label);
-		setWidth(Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1));
+		// Avoid recalculating the width if the previous text hasn't changed
+		int width;
+		if (props.containsProperty(WIDTH) &&
+		    (!props.containsProperty(PREVIOUS_TEXT) || props.getValue(PREVIOUS_TEXT).equals(label))) {
+			width = properties.getValue(WIDTH).getValue();
+		} else {
+			Bounds bounds = GuiUtils.getBounds(GuiUtils.getFont(13), label);
+			width = Math.max((int)Math.ceil(bounds.getWidth() / GuiUtils.BLOCK_SIZE), 1);
+			properties.setValue(WIDTH, new IntegerString(width));
+		}
+		setWidth(width);
+		properties.setValue(PREVIOUS_TEXT, label);
 		
 		tunnel = new Component(label, new int[] { bitSize }) {
 			@Override

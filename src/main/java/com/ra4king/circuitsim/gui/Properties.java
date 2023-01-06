@@ -277,6 +277,8 @@ public class Properties {
 		public String display;
 		public final String helpText;
 		public final PropertyValidator<T> validator;
+		public final boolean hidden; // hidden in the UI
+		public final boolean ephemeral; // won't be written to disk
 		public final T value;
 		
 		public Property(Property<T> property) {
@@ -284,11 +286,18 @@ public class Properties {
 		}
 		
 		public Property(Property<T> property, T value) {
-			this(property.name, property.display, property.helpText, property.validator, value);
+			this(property, property.validator, value);
 		}
 		
 		public Property(Property<T> property, PropertyValidator<T> validator, T value) {
-			this(property.name, property.display, property.helpText, validator, value);
+			this(
+				property.name,
+				property.display,
+				property.helpText,
+				validator,
+				property.hidden,
+				property.ephemeral,
+				value);
 		}
 		
 		public Property(String name, PropertyValidator<T> validator, T value) {
@@ -300,10 +309,23 @@ public class Properties {
 		}
 		
 		public Property(String name, String displayName, String helpText, PropertyValidator<T> validator, T value) {
+			this(name, displayName, helpText, validator, false, false, value);
+		}
+		
+		public Property(
+			String name,
+			String displayName,
+			String helpText,
+			PropertyValidator<T> validator,
+			boolean hidden,
+			boolean ephemeral,
+			T value) {
 			this.name = name;
 			this.display = displayName;
 			this.helpText = helpText;
 			this.validator = validator;
+			this.hidden = hidden;
+			this.ephemeral = ephemeral;
 			this.value = value;
 		}
 		

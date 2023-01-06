@@ -16,9 +16,9 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 
 public final class CircuitSimVersion implements Comparable<CircuitSimVersion> {
-	public static final CircuitSimVersion VERSION = new CircuitSimVersion("1.8.5");
-	
 	private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)(b?)");
+	
+	public static final CircuitSimVersion VERSION = new CircuitSimVersion("1.8.5");
 	
 	private final String version;
 	private final int major;
@@ -58,7 +58,7 @@ public final class CircuitSimVersion implements Comparable<CircuitSimVersion> {
 				} else if (this.bugfix == o.bugfix) {
 					if (this.beta == o.beta) {
 						return 0;
-					} else if (this.beta) {
+					} else if (o.beta) {
 						return 1;
 					}
 				}

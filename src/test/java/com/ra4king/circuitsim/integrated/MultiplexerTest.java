@@ -1,4 +1,6 @@
-package com.ra4king.circuitsim;
+package com.ra4king.circuitsim.integrated;
+
+import org.junit.jupiter.api.Test;
 
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.Simulator;
@@ -14,7 +16,8 @@ import com.ra4king.circuitsim.simulator.components.wiring.Pin;
  * @author Roi Atalla
  */
 public class MultiplexerTest {
-	public static void main(String[] args) {
+	@Test
+	public void testMultiplexer() {
 		Simulator simulator = new Simulator();
 		Circuit circuit = new Circuit("Multiplexer Test", simulator);
 		

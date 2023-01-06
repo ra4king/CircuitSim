@@ -30,7 +30,7 @@ import javafx.util.Pair;
  * @author Roi Atalla
  */
 public class Tunnel extends ComponentPeer<Component> {
-	private static Map<Circuit, Map<String, Set<Tunnel>>> tunnels = new HashMap<>();
+	private static final Map<Circuit, Map<String, Set<Tunnel>>> tunnels = new HashMap<>();
 	
 	public static void installComponent(ComponentManagerInterface manager) {
 		manager.addComponent(

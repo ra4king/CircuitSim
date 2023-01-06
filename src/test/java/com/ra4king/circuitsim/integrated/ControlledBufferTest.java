@@ -1,4 +1,12 @@
-package com.ra4king.circuitsim;
+package com.ra4king.circuitsim.integrated;
+
+
+import static com.google.common.truth.Truth.assertThat;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
 
 import com.ra4king.circuitsim.simulator.Circuit;
 import com.ra4king.circuitsim.simulator.Simulator;
@@ -13,7 +21,8 @@ import com.ra4king.circuitsim.simulator.components.wiring.Pin;
  * @author Roi Atalla
  */
 public class ControlledBufferTest {
-	public static void main(String[] args) {
+	@Test
+	public void testControlledBuffer() {
 		Simulator sim = new Simulator();
 		Circuit circuit = new Circuit("Controlled Buffer Test", sim);
 		
@@ -44,23 +53,37 @@ public class ControlledBufferTest {
 		bufferC.getPort(ControlledBuffer.PORT_ENABLE).linkPort(selC.getPort(Pin.PORT));
 		bufferC.getPort(ControlledBuffer.PORT_OUT).linkPort(out.getPort(Pin.PORT));
 		
-		out.addChangeListener(
-			circuit.getTopLevelState(), (pin, state, value) -> System.out.println(value));
-		
-		System.out.println("Selecting 1:");
 		inA.setValue(circuit.getTopLevelState(), WireValue.of(5, 4));
 		inB.setValue(circuit.getTopLevelState(), WireValue.of(3, 4));
+		
+		List<WireValue> values = new ArrayList<>();
+		out.addChangeListener(circuit.getTopLevelState(), (pin, state, value) -> values.add(value));
+		
+		// Select AND gate
 		selA.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
 		sim.stepAll();
 		
-		System.out.println("\nSelecting 2:");
+		assertThat(values.size()).isEqualTo(1);
+		assertThat(values.get(0)).isEqualTo(WireValue.of(1, 4)); // The AND of 5 and 3 is 1
+		
 		selA.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
+		
+		// Select OR gate
 		selB.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
+		values.clear();
 		sim.stepAll();
 		
-		System.out.println("\nSelecting 3:");
+		assertThat(values.size()).isEqualTo(1);
+		assertThat(values.get(0)).isEqualTo(WireValue.of(7, 4)); // The OR of 5 and 3 is 7
+		
 		selB.setValue(circuit.getTopLevelState(), WireValue.of(0, 1));
+		
+		// Select XOR gate
 		selC.setValue(circuit.getTopLevelState(), WireValue.of(1, 1));
+		values.clear();
 		sim.stepAll();
+		
+		assertThat(values.size()).isEqualTo(1);
+		assertThat(values.get(0)).isEqualTo(WireValue.of(6, 4)); // The XOR of 5 and 3 is 6
 	}
 }

@@ -199,9 +199,9 @@ public class CircuitState {
 		}
 	}
 	
-	private class LinkState {
-		private final Link link;
-		private final HashMap<Port, PortStateInfo> participants;
+	class LinkState {
+		final Link link;
+		final HashMap<Port, PortStateInfo> participants;
 		private WireValue cachedMergedValue;
 		private Boolean isShortCircuited;
 		
@@ -211,7 +211,8 @@ public class CircuitState {
 			private final WireValue lastReceived;
 			
 			PortStateInfo() {
-				this(new WireValue(link.getBitSize()),
+				this(
+					new WireValue(link.getBitSize()),
 				     new WireValue(link.getBitSize()),
 				     new WireValue(link.getBitSize()));
 			}

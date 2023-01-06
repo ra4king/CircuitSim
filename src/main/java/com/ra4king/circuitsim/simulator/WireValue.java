@@ -66,15 +66,7 @@ public class WireValue {
 	}
 	
 	public static WireValue of(long value, int bitSize) {
-		WireValue wireValue = new WireValue(bitSize);
-		for (int i = bitSize - 1; i >= 0; i--) {
-			if ((value & (1L << i)) == 0) {
-				wireValue.setBit(i, State.ZERO);
-			} else {
-				wireValue.setBit(i, State.ONE);
-			}
-		}
-		return wireValue;
+		return new WireValue(bitSize).set(value);
 	}
 	
 	public void setAllBits(State state) {
@@ -108,6 +100,13 @@ public class WireValue {
 		}
 		
 		System.arraycopy(other.bits, 0, bits, 0, bits.length);
+		return this;
+	}
+	
+	public WireValue set(long value) {
+		for (int i = this.getBitSize() - 1; i >= 0; i--) {
+			setBit(i, (value & (1L << i)) == 0 ? State.ZERO : State.ONE);
+		}
 		return this;
 	}
 	

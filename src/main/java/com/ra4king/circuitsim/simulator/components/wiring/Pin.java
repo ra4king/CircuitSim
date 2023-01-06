@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.ra4king.circuitsim.simulator.CircuitState;
 import com.ra4king.circuitsim.simulator.Component;
+import com.ra4king.circuitsim.simulator.Port;
 import com.ra4king.circuitsim.simulator.Utils;
 import com.ra4king.circuitsim.simulator.WireValue;
 
@@ -25,6 +26,10 @@ public class Pin extends Component {
 		pinChangeListeners = new HashMap<>();
 		this.bitSize = bitSize;
 		this.isInput = isInput;
+	}
+	
+	public Port getPort() {
+		return getPort(PORT);
 	}
 	
 	public int getBitSize() {

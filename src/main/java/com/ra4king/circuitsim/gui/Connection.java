@@ -105,6 +105,11 @@ public abstract class Connection {
 		public LinkWires getLinkWires() {
 			return linkWires;
 		}
+		
+		@Override
+		public String toString() {
+			return "PortConnection(Port=" + port + ", name=" + name + ")";
+		}
 	}
 	
 	public static class WireConnection extends Connection {

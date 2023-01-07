@@ -124,6 +124,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -413,7 +414,7 @@ public class CircuitSim extends Application {
 	public boolean isSimulationEnabled() {
 		return simulationEnabled.isSelected();
 	}
-
+	
 	private void runSim() {
 		try {
 			if (isSimulationEnabled() && simulator.hasLinksToUpdate()) {
@@ -463,7 +464,7 @@ public class CircuitSim extends Application {
 		
 		throw new IllegalStateException("This can't happen lol");
 	}
-
+	
 	private void repaintAllCircuits() {
 		simulator.runSync(() -> circuitManagers.values().stream().map(Pair::getValue).forEach(CircuitManager::paint));
 	}
@@ -2165,7 +2166,7 @@ public class CircuitSim extends Application {
 			updateTitle();
 		});
 		
-		MenuItem print = new MenuItem("Export as Images");
+		MenuItem print = new MenuItem("Export as images");
 		print.setOnAction(event -> {
 			// Repaint first, so it can flush while the user chooses an output directory.
 			repaintAllCircuits();
@@ -2350,7 +2351,7 @@ public class CircuitSim extends Application {
 		editMenu
 			.getItems()
 			.addAll(undo, redo, new SeparatorMenuItem(), copy, cut, paste, new SeparatorMenuItem(), selectAll);
-
+		
 		// VIEW Menu
 		CheckMenuItem showGrid = new CheckMenuItem("Show grid");
 		showGrid.selectedProperty().bindBidirectional(showGridProp);
@@ -2358,7 +2359,7 @@ public class CircuitSim extends Application {
 			// CircuitManagers already have access to showGridProp
 			needsRepaint = true;
 		});
-
+		
 		Menu viewMenu = new Menu("View");
 		viewMenu.getItems().addAll(showGrid);
 		
@@ -2483,20 +2484,30 @@ public class CircuitSim extends Application {
 			alert.setTitle("Help");
 			alert.setHeaderText(VERSION_TAG_LINE);
 			
-			String msg = "";
-			msg += "- [New in 1.8.5] New components: Breakpoint, Power, and Ground.\n\n";
-			msg += "- Right clicking works! Try it on components, subcircuits, and circuit tabs.\n\n";
-			msg += "- Double clicking on a subcircuit will automatically go to its circuit tab as a child state.\n\n";
-			msg += "- Holding Shift will enable Click Mode which will click through to components.\n\n";
-			msg += "- Holding Shift after dragging a new wire will delete existing wires.\n\n";
-			msg += "- Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the wire " +
-			       "on" + " " + "click.\n\n";
-			msg += "- Holding Ctrl while selecting components and wires will include them in the selection group" +
-			       ".\n\n";
-			msg += "- Holding Ctrl while dragging components will disable preserving connections.\n\n";
-			msg += "- Holding Ctrl while placing a new component will keep the component selected.\n\n";
+			String msg = " - [New in 1.9.0] You can turn off the grid background: View -> Show grid\n" +
+			             " - [New in 1.9.0] You can export your circuits to image files: File -> Export as images\n" +
+			             " - [New in 1.9.0] New component: 7-segment display.\n" +
+			             " - [New in 1.9.0] Updated components: probes and constants can now in display multiple " +
+			             "formats.\n" +
+			             " - [New in 1.9.0] Integer inputs now accept multiple formats: decimal, binary, and hex" +
+			             ".\n\n - Right clicking works! Try it on components, subcircuits, and circuit tabs.\n" +
+			             " - Double clicking on a subcircuit will automatically go to its circuit tab as a child " +
+			             "state.\n" +
+			             " - Holding Shift will enable Click Mode which will click through to components.\n" +
+			             " - Holding Shift and clicking on a wire will show you value on the wire in binary.\n" +
+			             " - Holding Shift after dragging a new wire will delete existing wires.\n" +
+			             " - Holding Ctrl while dragging a new wire allows release of the mouse, and continuing the " +
+			             "wire on click.\n" +
+			             " - Holding Ctrl while selecting components and wires will include them in the selection " +
+			             "group.\n" +
+			             " - Holding Ctrl while dragging components will disable preserving connections.\n" +
+			             " - Holding Ctrl while placing a new component will keep the component selected.\n";
 			
-			alert.setContentText(msg);
+			Text helpText = new Text();
+			helpText.setText(msg);
+			helpText.setFont(new Font(14));
+			alert.getDialogPane().setContent(helpText);
+			
 			alert.show();
 			alert.setResizable(true);
 			alert.setWidth(650);
@@ -2511,12 +2522,13 @@ public class CircuitSim extends Application {
 			alert.initModality(Modality.WINDOW_MODAL);
 			alert.setTitle("About");
 			alert.setHeaderText(VERSION_TAG_LINE);
-			alert.setContentText("Third party tools:\n• GSON by Google");
+			alert.setContentText("Third party tools:\nGSON by Google");
 			alert.show();
 		});
 		helpMenu.getItems().addAll(help, checkUpdate, about);
 		
-		MenuBar menuBar = new MenuBar(fileMenu, editMenu, viewMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
+		MenuBar menuBar =
+			new MenuBar(fileMenu, editMenu, viewMenu, componentsMenu, circuitsMenu, simulationMenu, helpMenu);
 		menuBar.setUseSystemMenuBar(true);
 		
 		ScrollPane propertiesScrollPane = new ScrollPane(propertiesTable);

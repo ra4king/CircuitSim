@@ -21,25 +21,39 @@ for Windows, Mac, and Linux.
 Changelog
 =========
 
+1.9.0
+=====
+
+- The grid background can now be hidden: View -> uncheck Show grid
+- Circuits can be exported as image files: File -> Export as images
+- New component: 7-segment display
+- Updated components: probes and constants can now display in multiple formats.
+- Integer inputs now accept multiple formats: decimal, binary, and hex
+- RAM and ROM editors have been improveds, and ROM edits now support undo and redo.
+- Remove the ability to negate the NOT gate's input, this looks to have been an oversight.
+- Improve placement and display of gates with negated inputs and more than 5 inputs: no more "floating" inputs. Inputs
+  are now either directly attached to the gate's body or have a line linking them to the gate. This is backwards
+  compatible by maintaining the old behavior for older save files.
+
 1.8.5
 -----
 
 - New component: Breakpoint component that automatically stops the clock at a particular input value
-- New component: Power and Ground components that are pretty much just the 1-bit constants 1 and 0 respectively.
+- New component: Power and Ground components that are pretty much just the 1-bit constants 1 and 0 respectively
 - Fixed a deadlock issue in Clock
 - Fixed possible race conditions where the circuit was modified while it's being accessed outside the simulator lock
 
 1.8.4
 -----
 
-- Hotfix for an issue that leads to erroneous Short Circuit messages when there are none.
+- Hotfix for an issue that leads to erroneous Short Circuit messages when there are none
 
 1.8.3
 -----
 
-- RAM now has the option to have separate load/store ports.
+- RAM now has the option to have separate load/store ports
 - The transistor has been updated with a more accurate version. This is backwards compatible by deprecating the old
-  transistor and replacing it with a new component.
+  transistor and replacing it with a new component
 
 1.8.2
 -----
@@ -112,13 +126,13 @@ Changelog
 -----
 
 - Big thanks to Cem Gokmen for helping with the Mac issues and Austin Adams for gradle-ifying the repo!
-- Now supporting both Java 8 and 9 - thanks to Austin Adams for figuring out how to create a multi-release Jar.
+- Now supporting both Java 8 and 9 - thanks to Austin Adams for figuring out how to create a multi-release Jar
 - Huge rendering performance improvements, especially for Mac
 - Fixed keyboard shortcut issue on Mac
 - Use system menu bar on Mac instead of the in-app bar
 - Added an update checker that notifies you when there is a new version
 - Fixed a bug with subcircuits where it pushed values through output pins, causing seemingly un-explainable short
-  circuits.
+  circuits
 - Improved behavior of tab selection when moving them or deleting them, especially with undo/redo
 - Many minor bug fixes and improvements
 
@@ -127,7 +141,7 @@ Changelog
 
 - Fixed exceptions being thrown when using Tunnels
 - Now you don't have hit enter to update a text or value property, someone complained that it was annoying. The
-  component is automatically updated when you unfocus from the text input.
+  component is automatically updated when you unfocus from the text input
 - Multi-bit wires with a floating bit (X) now show up as dark blue instead of black
 - Button now has directions
 
@@ -135,15 +149,15 @@ Changelog
 -----
 
 - Improved behavior when dragging components to also delete wires whenever they overlap existing ones
-- Huge performance increases with subcircuits and tunnels. Bad designs will still be very slow to run the autograder in.
-- Now showing Help dialog on first run.
+- Huge performance increases with subcircuits and tunnels. Bad designs will still be very slow to run the autograder in
+- Now showing Help dialog on first run
 
 1.6.0
 -----
 
 - Added creation of new wires when dragging components. This allows maintaining existing connections when dragging
-  components to new locations.
-- Hold CTRL before beginning the drag to disable this.
-- Fixed file load issue where an error was thrown if the folder doesn't exist anymore.
+  components to new locations
+- Hold CTRL before beginning the drag to disable this
+- Fixed file load issue where an error was thrown if the folder doesn't exist anymore
 - Fixed issues with dragging + keyboard shortcuts
 - Fixed an undo bug when updating components

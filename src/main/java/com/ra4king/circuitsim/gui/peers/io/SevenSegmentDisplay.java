@@ -43,7 +43,7 @@ public class SevenSegmentDisplay extends ComponentPeer<Component> {
 		};
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, component.getPort(0), getWidth() / 2, getHeight()));
+		connections.add(new PortConnection(this, component.getPort(0), "7-bit input", getWidth() / 2, getHeight()));
 		init(component, properties, connections);
 	}
 	

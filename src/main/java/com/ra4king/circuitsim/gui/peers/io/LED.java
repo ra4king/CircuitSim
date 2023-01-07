@@ -63,7 +63,7 @@ public class LED extends ComponentPeer<Component> {
 		};
 		
 		List<PortConnection> connections = new ArrayList<>();
-		connections.add(new PortConnection(this, component.getPort(0), 0, 1));
+		connections.add(new PortConnection(this, component.getPort(0), "1-bit input", 0, 1));
 		
 		GuiUtils.rotatePorts(connections, Direction.EAST, properties.getValue(Properties.DIRECTION));
 		

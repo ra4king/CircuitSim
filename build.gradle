@@ -48,6 +48,7 @@ test {
 }
 
 jar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	into 'resources', {
 		from 'resources'
 	}

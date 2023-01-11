@@ -59,6 +59,8 @@ public class SimulatorTest {
 		
 		ShortCircuitException shortCircuitException = new ShortCircuitException(new WireValue(), new WireValue());
 		doThrow(shortCircuitException).when(state).propagateSignal(link);
+		doThrow(shortCircuitException).when(state).getMergedValue(link);
+		when(state.isShortCircuited(link)).thenReturn(true);
 		
 		ShortCircuitException exception = assertThrows(ShortCircuitException.class, simulator::step);
 		assertThat(exception).isEqualTo(shortCircuitException);

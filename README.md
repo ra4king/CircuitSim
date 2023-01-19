@@ -29,11 +29,11 @@ Changelog
 - New component: 7-segment display
 - Updated components: probes and constants can now display in multiple formats.
 - Integer inputs now accept multiple formats: decimal, binary, and hex
-- RAM and ROM editors have been improveds, and ROM edits now support undo and redo.
+- RAM and ROM editors have been improved, and ROM edits now support undo and redo.
 - Remove the ability to negate the NOT gate's input, this looks to have been an oversight.
 - Improve placement and display of gates with negated inputs and more than 5 inputs: no more "floating" inputs. Inputs
   are now either directly attached to the gate's body or have a line linking them to the gate. This is backwards
-  compatible by maintaining the old behavior for older save files.
+  compatible by maintaining the previous behavior for older save files.
 
 1.8.5
 -----

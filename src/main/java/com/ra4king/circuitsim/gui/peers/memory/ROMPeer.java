@@ -101,7 +101,7 @@ public class ROMPeer extends ComponentPeer<ROM> {
 			List<MemoryLine> lines = new ArrayList<>();
 			BiConsumer<Integer, Integer> listener = (address, data) -> {
 				int index = address / 16;
-				MemoryLine line = lines.get(index);
+				MemoryLine line = property.value.get(index);
 				line.values.get(address - index * 16).setValue(memoryValidator.formatValue(data));
 				circuit.getCircuit().forEachState(state -> rom.valueChanged(state, null, 0));
 			};
@@ -113,8 +113,6 @@ public class ROMPeer extends ComponentPeer<ROM> {
 			try {
 				CircuitSim simulatorWindow = circuit.getSimulatorWindow();
 				simulatorWindow.getSimulator().runSync(() -> {
-					rom.addMemoryListener(listener);
-					
 					lines.addAll(memoryValidator.parse(rom.getMemory(), (address, newValue) -> {
 						simulatorWindow.getSimulator().runSync(() -> {
 							// Component has been removed
@@ -132,6 +130,8 @@ public class ROMPeer extends ComponentPeer<ROM> {
 								() -> rom.store(address, newValue));
 						});
 					}));
+					
+					rom.addMemoryListener(listener);
 				});
 				
 				memoryValidator.createAndShowMemoryWindow(simulatorWindow.getStage(), lines);

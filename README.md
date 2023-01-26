@@ -1,4 +1,4 @@
-CircuitSim v1.9.0
+CircuitSim v1.9.1
 =================
 
 Site and download links: https://ra4king.github.io/CircuitSim
@@ -20,6 +20,11 @@ for Windows, Mac, and Linux.
 
 Changelog
 =========
+
+1.9.1
+=====
+
+- Hotfix for ROM component not saving its contents to disk.
 
 1.9.0
 =====

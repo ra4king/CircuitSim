@@ -18,7 +18,7 @@ import javafx.stage.Modality;
 public final class CircuitSimVersion implements Comparable<CircuitSimVersion> {
 	private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)(b?)");
 	
-	public static final CircuitSimVersion VERSION = new CircuitSimVersion("1.9.0");
+	public static final CircuitSimVersion VERSION = new CircuitSimVersion("1.9.1");
 	
 	private final String version;
 	private final int major;

@@ -18,23 +18,21 @@ repositories {
 	mavenCentral()
 }
 
-def currentOS = org.gradle.internal.os.OperatingSystem.current()
-def platform
-if (currentOS.isWindows()) {
-	platform = 'win'
-} else if (currentOS.isLinux()) {
-	platform = 'linux'
-} else if (currentOS.isMacOsX()) {
-	platform = 'mac'
-}
-
 dependencies {
 	implementation 'com.google.code.gson:gson:2.10'
 
-	implementation "org.openjfx:javafx-base:19:${platform}"
-	implementation "org.openjfx:javafx-controls:19:${platform}"
-	implementation "org.openjfx:javafx-graphics:19:${platform}"
-	implementation "org.openjfx:javafx-swing:19:${platform}"
+	implementation "org.openjfx:javafx-base:19:win"
+	implementation "org.openjfx:javafx-base:19:linux"
+	implementation "org.openjfx:javafx-base:19:mac"
+	implementation "org.openjfx:javafx-controls:19:win"
+	implementation "org.openjfx:javafx-controls:19:linux"
+	implementation "org.openjfx:javafx-controls:19:mac"
+	implementation "org.openjfx:javafx-graphics:19:win"
+	implementation "org.openjfx:javafx-graphics:19:linux"
+	implementation "org.openjfx:javafx-graphics:19:mac"
+	implementation "org.openjfx:javafx-swing:19:win"
+	implementation "org.openjfx:javafx-swing:19:linux"
+	implementation "org.openjfx:javafx-swing:19:mac"
 
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
 	testImplementation 'org.mockito:mockito-core:4.11.0'

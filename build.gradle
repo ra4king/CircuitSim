@@ -77,9 +77,9 @@ jar {
 	// directories inside the fat jar. We can tell ARM from x86 libraries by
 	// checking the filename of their containing jar (strangely, x86 is never
 	// mentioned in the jar names explicitly — instead, it's the absence of
-	// aarch64). At runtime, a stub will extract the proper libraries to a
-	// temporary directory and add them to java.library.path.
-	into 'x86_64', {
+	// aarch64). At runtime, we will extract the libraries for the current
+	// architecture so that JavaFX can load them.
+	into 'amd64', {
 		from configurations.runtimeClasspath.filter { it.isFile()
 		                                              && it.getName().contains('javafx')
 		                                              && !it.getName().contains("aarch64") }

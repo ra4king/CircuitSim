@@ -22,16 +22,24 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.10'
 
 	implementation "org.openjfx:javafx-base:19:win"
+	implementation "org.openjfx:javafx-base:19:linux-aarch64"
 	implementation "org.openjfx:javafx-base:19:linux"
+	implementation "org.openjfx:javafx-base:19:mac-aarch64"
 	implementation "org.openjfx:javafx-base:19:mac"
 	implementation "org.openjfx:javafx-controls:19:win"
+	implementation "org.openjfx:javafx-controls:19:linux-aarch64"
 	implementation "org.openjfx:javafx-controls:19:linux"
+	implementation "org.openjfx:javafx-controls:19:mac-aarch64"
 	implementation "org.openjfx:javafx-controls:19:mac"
 	implementation "org.openjfx:javafx-graphics:19:win"
+	implementation "org.openjfx:javafx-graphics:19:linux-aarch64"
 	implementation "org.openjfx:javafx-graphics:19:linux"
+	implementation "org.openjfx:javafx-graphics:19:mac-aarch64"
 	implementation "org.openjfx:javafx-graphics:19:mac"
 	implementation "org.openjfx:javafx-swing:19:win"
+	implementation "org.openjfx:javafx-swing:19:linux-aarch64"
 	implementation "org.openjfx:javafx-swing:19:linux"
+	implementation "org.openjfx:javafx-swing:19:mac-aarch64"
 	implementation "org.openjfx:javafx-swing:19:mac"
 
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
@@ -57,8 +65,40 @@ jar {
 				'Main-Class': mainClassName
 		)
 	}
-	from {
-		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+
+	// Skip native libraries initially
+	from configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it).matching {
+		exclude '*.dylib'
+		exclude '*.so'
+		exclude '*.dll'
+	}}
+
+	// Okay, now put native libraries in their own architecture-specific
+	// directories inside the fat jar. We can tell ARM from x86 libraries by
+	// checking the filename of their containing jar (strangely, x86 is never
+	// mentioned in the jar names explicitly — instead, it's the absence of
+	// aarch64). At runtime, a stub will extract the proper libraries to a
+	// temporary directory and add them to java.library.path.
+	into 'x86_64', {
+		from configurations.runtimeClasspath.filter { it.isFile()
+		                                              && it.getName().contains('javafx')
+		                                              && !it.getName().contains("aarch64") }
+		                                    .collectMany { zipTree(it).matching {
+		                                        include '*.dylib'
+		                                        include '*.so'
+		                                        include '*.dll'
+		                                    }.getFiles() }
+	}
+
+	into 'aarch64', {
+		from configurations.runtimeClasspath.filter { it.isFile()
+		                                              && it.getName().contains('javafx')
+		                                              && it.getName().contains("aarch64") }
+		                                    .collectMany { zipTree(it).matching {
+		                                        include '*.dylib'
+		                                        include '*.so'
+		                                        include '*.dll'
+		                                    }.getFiles() }
 	}
 }
 

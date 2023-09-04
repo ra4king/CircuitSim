@@ -77,12 +77,28 @@ public class CircuitSimRunner {
 			return foo_dot_dll.substring(dot_idx);
 		}
 
-		public void extractNativeLibs() {
-			String nativeLibraryExtension = guessNativeLibraryExtension();
+		private String guessArchitecture() {
 			String arch = System.getProperty("os.arch");
 			if (arch == null) {
 				throw new RuntimeException("JRE did not give us an architecture, no way to load native libraries");
 			}
+			// Handle special case of amd64 being named x86_64 on Macs:
+			// https://github.com/openjdk/jdk/blob/9def4538ab5456d689fd289bdef66fd1655773bc/make/autoconf/platform.m4#L480
+			// This appears to have been done for backwards compatibilty with
+			// Apple's JRE:
+			// https://mail.openjdk.org/pipermail/macosx-port-dev/2012-February/002850.html
+			// But our Gradle build script will place all x86_64/amd64 binaries
+			// in a directory in the jar named "amd64", not "x86_64", so we
+			// need to return that name instead
+			if (arch.equals("x86_64")) {
+				arch = "amd64";
+			}
+			return arch;
+		}
+
+		public void extractNativeLibs() {
+			String nativeLibraryExtension = guessNativeLibraryExtension();
+			String arch = guessArchitecture();
 
 			String archDirPathName = "/" + arch;
 			URL archDirResource = NativeLibraryExtractor.class.getResource(archDirPathName);

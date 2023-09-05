@@ -7,7 +7,7 @@ import java.util.Arrays;
  */
 public class WireValue {
 	public enum State {
-		ONE('1'), ZERO('0'), X('x');
+		ONE('1'), ZERO('0'), Z('z');
 		
 		public final char repr;
 		
@@ -16,14 +16,14 @@ public class WireValue {
 		}
 		
 		public State negate() {
-			return this == X ? X : this == ONE ? ZERO : ONE;
+			return this == Z ? Z : this == ONE ? ZERO : ONE;
 		}
 	}
 	
 	private State[] bits;
 	
 	public WireValue(int bitSize) {
-		this(bitSize, State.X);
+		this(bitSize, State.Z);
 	}
 	
 	public WireValue(int bitSize, State state) {
@@ -53,9 +53,9 @@ public class WireValue {
 		}
 		
 		for (int i = 0; i < getBitSize(); i++) {
-			if (getBit(i) == State.X) {
+			if (getBit(i) == State.Z) {
 				setBit(i, value.getBit(i));
-			} else if (value.getBit(i) == State.X) {
+			} else if (value.getBit(i) == State.Z) {
 				setBit(i, getBit(i));
 			} else if (value.getBit(i) != getBit(i)) {
 				throw new ShortCircuitException(this, value);
@@ -81,7 +81,7 @@ public class WireValue {
 		State[] oldBits = bits;
 		
 		bits = new State[bitSize];
-		setAllBits(State.X);
+		setAllBits(State.Z);
 		System.arraycopy(oldBits, 0, bits, 0, Math.min(bitSize, oldBits.length));
 	}
 	
@@ -129,7 +129,7 @@ public class WireValue {
 		}
 		
 		for (State bit : bits) {
-			if (bit == State.X) {
+			if (bit == State.Z) {
 				return false;
 			}
 		}
@@ -140,7 +140,7 @@ public class WireValue {
 	public int getValue() {
 		int value = 0;
 		for (int i = 0; i < bits.length; i++) {
-			if (bits[i] == State.X) {
+			if (bits[i] == State.Z) {
 				throw new IllegalStateException("Invalid value");
 			}
 			
@@ -153,14 +153,14 @@ public class WireValue {
 	 * Converts the value held on this wire to a hex string.
 	 *
 	 * @return a lowercase hex string if all bits are defined, otherwise
-	 * getBitSize() 'x's
+	 * getBitSize() 'z's
 	 */
 	public String toHexString() {
 		int hexDigits = 1 + (getBitSize() - 1) / 4;
 		if (isValidValue()) {
 			return String.format("%0" + hexDigits + "x", getValue());
 		} else {
-			return "x".repeat(Math.max(0, hexDigits));
+			return "z".repeat(Math.max(0, hexDigits));
 		}
 	}
 	
@@ -168,14 +168,14 @@ public class WireValue {
 	 * Converts the value held on this wire to a decimal string.
 	 *
 	 * @return a decimal string if all bits are defined, otherwise
-	 * getBitSize() 'x's
+	 * getBitSize() 'z's
 	 */
 	public String toDecString() {
 		int decDigits = (int)Math.ceil(getBitSize() / 3.322);
 		if (isValidValue()) {
 			return String.format("%0" + decDigits + "d", getValue());
 		} else {
-			return "x".repeat(Math.max(0, decDigits));
+			return "z".repeat(Math.max(0, decDigits));
 		}
 	}
 	

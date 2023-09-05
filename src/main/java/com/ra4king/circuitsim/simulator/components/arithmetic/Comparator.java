@@ -46,7 +46,7 @@ public class Comparator extends Component {
 			state.pushValue(getPort(PORT_EQ), new WireValue(1, valueA == valueB ? State.ONE : State.ZERO));
 			state.pushValue(getPort(PORT_GT), new WireValue(1, valueA > valueB ? State.ONE : State.ZERO));
 		} else {
-			WireValue xValue = new WireValue(1, State.X);
+			WireValue xValue = new WireValue(1, State.Z);
 			state.pushValue(getPort(PORT_LT), xValue);
 			state.pushValue(getPort(PORT_EQ), xValue);
 			state.pushValue(getPort(PORT_GT), xValue);

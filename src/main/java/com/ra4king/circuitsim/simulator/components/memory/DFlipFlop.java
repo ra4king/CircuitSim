@@ -49,7 +49,7 @@ public class DFlipFlop extends Component {
 			pushValue(state, State.ONE);
 		} else if (enable != State.ZERO && portIndex == PORT_CLOCK && value.getBit(0) == State.ONE) {
 			State d = state.getLastReceived(getPort(PORT_D)).getBit(0);
-			if (d != State.X) {
+			if (d != State.Z) {
 				pushValue(state, d);
 			}
 		}

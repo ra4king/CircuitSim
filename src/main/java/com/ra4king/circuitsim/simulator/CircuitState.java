@@ -353,7 +353,7 @@ public class CircuitState {
 			
 			cachedMergedValue = null;
 			isShortCircuited = null;
-			participants.forEach((port, info) -> info.lastPropagated.setAllBits(State.X));
+			participants.forEach((port, info) -> info.lastPropagated.setAllBits(State.Z));
 			
 			linkStates.remove(other.link);
 			getCircuit().getSimulator().linkRemoved(other.link);

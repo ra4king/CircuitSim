@@ -42,7 +42,7 @@ public class PriorityEncoder extends Component {
 		// The only other input Port are the indexed inputs
 		if (!this.isEnabled) {
 			state.pushValue(getEnabledOutPort(), new WireValue(1, State.ZERO));
-			state.pushValue(out, new WireValue(out.getLink().getBitSize(), State.X));
+			state.pushValue(out, new WireValue(out.getLink().getBitSize(), State.Z));
 			state.pushValue(getGroupSignalPort(), new WireValue(1, State.ZERO));
 			return;
 		}
@@ -59,7 +59,7 @@ public class PriorityEncoder extends Component {
 		
 		if (highest == -1) {
 			state.pushValue(getEnabledOutPort(), new WireValue(1, State.ONE));
-			state.pushValue(out, new WireValue(out.getLink().getBitSize(), State.X));
+			state.pushValue(out, new WireValue(out.getLink().getBitSize(), State.Z));
 			state.pushValue(getGroupSignalPort(), new WireValue(1, State.ZERO));
 			
 		} else {

@@ -13,7 +13,7 @@ public class Transistor extends Component {
 	public static final int PORT_GATE = 1;
 	public static final int PORT_OUT = 2;
 	
-	private static final WireValue X_VALUE = new WireValue(1);
+	private static final WireValue Z_VALUE = new WireValue(1);
 	
 	private State enableBit;
 	
@@ -32,7 +32,7 @@ public class Transistor extends Component {
 		if (state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
 			state.pushValue(getPort(PORT_OUT), state.getLastReceived(getPort(PORT_IN)));
 		} else {
-			state.pushValue(getPort(PORT_OUT), X_VALUE);
+			state.pushValue(getPort(PORT_OUT), Z_VALUE);
 		}
 	}
 }

@@ -28,38 +28,37 @@ light green wire - 1-bit wire with value of 1
 
 ![pt-1-light-green-wire]
 
-### Part 2: Blue
+### Part 2: Light Blue / Dark Blue
 
-blue indicates an unitialized 1-bit wire
+Light blue indicates a 1-bit wire that is "floating" or in a "high impedance
+state" — in other words, the wire is not connected to anything.
 
-The wire below is unitialized because no value is being driven onto it.
+The wire below is floating because no value is being driven onto it.
 
 ![pt-2-blue-wire]
 
-Since you may have both initialized and unitialized wires in a 
-properly functioning circuit, an unitialized wire is not considered an error.
+Dark blue indicates a floating multi-bit wire.
 
+![pt-3-dark-blue-wire-uninit]
+
+Since you may have both floating wires and wires with 0/1 on them in a properly
+functioning circuit, a floating wire is not considered an error.
 
 ### Part 3: Black
 
-black indicates either an initialized or unitialized multi-bit wire
+Black indicates a multi-bit wire carrying no floating values (only 0s and 1s).
 
-black wire - multi-bit wire, initialized
+Black wire - multi-bit wire carrying only 0s and 1s:
 
 ![pt-3-black-wire]
 
-black wire - multi-bit wire, unitialized
+Also note that a multi-bit wire can carry both floating and 0/1 bits.
+This usually pops up when you combine wires together with a splitter, and
+some of the individual wires that make up the multi-bit wire are floating.
 
-![pt-3-black-wire-unint]
-
-Also note that a multi-bit wire can have both initialized and unitialized bits.
-This error usually pops up when you combine wires together with a splitter, and
-some of the individual wires that make up the multi-bit wire are unitialized.
-
-As stated above, since you may have both initialized and unitialized wires in a 
-properly functioning circuit, an unitialized wire is not considered an error.
-
-
+As stated above, since you may have both floating wires and wires with 0/1 on
+them in a properly functioning circuit, a floating wire is not considered an
+error.
 
 ## Error State Wires
 
@@ -101,6 +100,6 @@ These multi-bit wires are known as "wire bundles" in industry.
 [pt-1-dark-green-wire]: img/wire-colors-pt-1-dark-green-wire.PNG "dark green CircuitSim wire"
 [pt-2-blue-wire]: img/wire-colors-pt-2-blue-wire.PNG "blue CircuitSim wire"
 [pt-3-black-wire]: img/wire-colors-pt-3-black-wire.PNG "black CircuitSim wire"
-[pt-3-black-wire-unint]: img/wire-colors-pt-3-black-wire-uninit.PNG "black CircuitSim wire uninitialized"
+[pt-3-dark-blue-wire-uninit]: img/wire-colors-pt-3-dark-blue-wire-uninit.PNG "dark blue CircuitSim wire"
 [pt-4-orange-wire]: img/wire-colors-pt-4-orange-wire.PNG "orange CircuitSim wire"
 [pt-5-red-wire]: img/wire-colors-pt-5-red-wire.PNG "red CircuitSim wire"

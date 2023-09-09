@@ -61,17 +61,8 @@ public class CircuitSimRunner {
 	public static class NativeLibraryExtractor implements AutoCloseable {
 		private Path tempDir;
 
-		public NativeLibraryExtractor() {
-			try {
-				tempDir = Files.createTempDirectory("circuitsim-libs");
-			} catch (IOException exc) {
-				tempDir = null;
-				throw new RuntimeException("Couldn't create temporary directory for native libraries", exc);
-			}
-		}
-
 		// Return .dll on Windows, .so on Linux, .dylib on macOS, etc.
-		private String guessNativeLibraryExtension() {
+		private static String guessNativeLibraryExtension() {
 			String foo_dot_dll = System.mapLibraryName("foo");
 			int dot_idx;
 			if (foo_dot_dll == null || (dot_idx = foo_dot_dll.lastIndexOf('.')) == -1) {
@@ -80,7 +71,7 @@ public class CircuitSimRunner {
 			return foo_dot_dll.substring(dot_idx);
 		}
 
-		private String guessArchitecture() {
+		private static String guessArchitecture() {
 			String arch = System.getProperty("os.arch");
 			if (arch == null) {
 				throw new RuntimeException("JRE did not give us an architecture, no way to load native libraries");
@@ -101,6 +92,32 @@ public class CircuitSimRunner {
 
 		public void extractNativeLibs() {
 			String nativeLibraryExtension = guessNativeLibraryExtension();
+
+			// Skip this whole process on Windows and let JavaFX grab the
+			// .dlls from the root of the jar. Why do this? Well, we only
+			// support amd64 on Windows anyway. But more importantly,
+			// there is not a good way for us to clean up the temporary
+			// .dlls after ourselves on Windows. That's because the JRE
+			// keeps JNI libraries open until the ClassLoader under which
+			// they were System.load()ed is garbage collected. So until
+			// then, we cannot remove the .dlls, since Windows keeps them
+			// locked on-disk. But the only problem is that the
+			// ClassLoader will never be garbage collected until the JVM
+			// exits entirely, since we are using the built-in
+			// ClassLoader! So admit defeat to avoid filling up students'
+			// hard drives with .dlls and showing them confusing error
+			// messages.
+			if (nativeLibraryExtension.equals(".dll")) {
+				return;
+			}
+
+			try {
+				tempDir = Files.createTempDirectory("circuitsim-libs");
+			} catch (IOException exc) {
+				tempDir = null;
+				throw new RuntimeException("Couldn't create temporary directory for native libraries", exc);
+			}
+
 			String arch = guessArchitecture();
 
 			String archDirPathName = "/" + arch;
@@ -147,7 +164,8 @@ public class CircuitSimRunner {
 
 		@Override
 		public void close() {
-			// Creating the temporary directory failed, nothing to do here
+			// No temporary directory created (we might be on Windows),
+			// so nothing to do here
 			if (tempDir == null) {
 				return;
 			}

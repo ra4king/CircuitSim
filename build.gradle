@@ -66,19 +66,30 @@ jar {
 		)
 	}
 
-	// Skip native libraries initially
+	// Skip native libraries for aarch64-supported platforms initially.
+	// Why let Windows .dlls slip by? The naive answer is that there aren't
+	// even aarch64 builds for JavaFX, so the architecture is not a concern
+	// since we can always assume amd64. The truthful answer is that our
+	// strategy for dealing with amd64/aarch64 dlls is to put them in
+	// different subdirectories in the jar, and then extract them to a
+	// temporary directory at runtime based on the running architecture.
+	// Unfortunately, on Windows, we can't delete the native .dlls from the
+	// temporary directory while the JVM is still running, since it hasn't
+	// closed the .dlls, meaning Windows keeps all those .dlls locked.
+	// So the solution we take here is to use this cross-architecture hack
+	// for macOS/Linux native libraries and leave the Windows native
+	// libraries alone.
 	from configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it).matching {
 		exclude '*.dylib'
 		exclude '*.so'
-		exclude '*.dll'
 	}}
 
-	// Okay, now put native libraries in their own architecture-specific
-	// directories inside the fat jar. We can tell ARM from x86 libraries by
-	// checking the filename of their containing jar (strangely, x86 is never
-	// mentioned in the jar names explicitly — instead, it's the absence of
-	// aarch64). At runtime, we will extract the libraries for the current
-	// architecture so that JavaFX can load them.
+	// Okay, now put native libraries for macOS/Linux in their own
+	// architecture-specific directories inside the fat jar. We can tell ARM
+	// from x86 libraries by checking the filename of their containing jar
+	// (strangely, x86 is never mentioned in the jar names explicitly —
+	// instead, it's the absence of aarch64). At runtime, we will extract
+	// the libraries for the current architecture so that JavaFX can load them.
 	into 'amd64', {
 		from configurations.runtimeClasspath.filter { it.isFile()
 		                                              && it.getName().contains('javafx')
@@ -86,7 +97,6 @@ jar {
 		                                    .collectMany { zipTree(it).matching {
 		                                        include '*.dylib'
 		                                        include '*.so'
-		                                        include '*.dll'
 		                                    }.getFiles() }
 	}
 
@@ -97,7 +107,6 @@ jar {
 		                                    .collectMany { zipTree(it).matching {
 		                                        include '*.dylib'
 		                                        include '*.so'
-		                                        include '*.dll'
 		                                    }.getFiles() }
 	}
 }

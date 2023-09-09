@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.stream.Stream;
 
+import javafx.application.Platform;
+
 /**
  * @author Roi Atalla
  */
@@ -20,6 +22,7 @@ public class CircuitSimRunner {
 		try (NativeLibraryExtractor extractor = new NativeLibraryExtractor()) {
 			extractor.extractNativeLibs();
 			CircuitSim.run(args);
+			Platform.exit();
 		}
 	}
 
@@ -149,6 +152,8 @@ public class CircuitSimRunner {
 				return;
 			}
 
+			boolean success = true;
+
 			// When we catch IOExceptions here, print the errors instead of
 			// re-throwing. The idea is that even if one deletion fails, we
 			// want to try and delete as many of the rest as we can
@@ -156,25 +161,28 @@ public class CircuitSimRunner {
 			try {
 				children = Files.list(tempDir);
 			} catch (IOException exc) {
-				System.err.println("Could not get children of temporary directory with native libraries. Trying to delete it anyway...");
-				exc.printStackTrace();
+				success = false;
 			}
 
 			if (children != null) {
-				children.forEach(fp -> {
+				for (Path child : children.toArray(Path[]::new)) {
 					try {
-						Files.delete(fp);
+						Files.delete(child);
 					} catch (IOException exc) {
-						System.err.println("Could not delete native library:");
-						exc.printStackTrace();
+						success = false;
 					}
-				});
+				}
 			}
 
 			try {
 				Files.delete(tempDir);
 			} catch (IOException exc) {
-				throw new RuntimeException("Could not delete temporary directory " + tempDir.toString(), exc);
+				success = false;
+			}
+
+			if (!success) {
+				System.err.println("Warning: Could not delete some temporarily-extracted native JavaFX libraries. "
+				                   + "If you care, the following directory is now wasting your disk space: " + tempDir.toString());
 			}
 		}
 	}

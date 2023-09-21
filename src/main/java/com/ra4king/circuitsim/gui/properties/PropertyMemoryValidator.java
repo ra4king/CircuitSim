@@ -185,8 +185,7 @@ public class PropertyMemoryValidator implements PropertyValidator<List<MemoryLin
 	
 	@Override
 	public Node createGui(Stage stage, List<MemoryLine> value, Consumer<List<MemoryLine>> onAction) {
-		Label label = new Label("Right click component to edit contents.");
-		return label;
+		return new Label("Right click component to edit contents.");
 	}
 	
 	private void copyMemoryValues(List<MemoryLine> dest, List<MemoryLine> src) {

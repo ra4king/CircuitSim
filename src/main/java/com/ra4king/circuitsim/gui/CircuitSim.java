@@ -920,35 +920,38 @@ public class CircuitSim extends Application {
 	}
 	
 	void updateCanvasSize(CircuitManager circuitManager) {
-		OptionalInt maxX = Stream
-			.concat(circuitManager.getSelectedElements().stream(),
-			        Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
-			                      circuitManager
-				                      .getCircuitBoard()
-				                      .getLinks()
-				                      .stream()
-				                      .flatMap(links -> links.getWires().stream())))
-			.mapToInt(componentPeer -> componentPeer.getX() + componentPeer.getWidth())
-			.max();
-		
-		double maxWidth = Math.min(5000, getScaleFactor() * (maxX.orElse(0) + 5) * GuiUtils.BLOCK_SIZE);
-		circuitManager.getCanvas().setWidth(Math.max(maxWidth, circuitManager.getCanvasScrollPane().getWidth()));
-		
-		OptionalInt maxY = Stream
-			.concat(circuitManager.getSelectedElements().stream(),
-			        Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
-			                      circuitManager
-				                      .getCircuitBoard()
-				                      .getLinks()
-				                      .stream()
-				                      .flatMap(links -> links.getWires().stream())))
-			.mapToInt(componentPeer -> componentPeer.getY() + componentPeer.getHeight())
-			.max();
-		
-		double maxHeight = Math.min(5000, getScaleFactor() * (maxY.orElse(0) + 5) * GuiUtils.BLOCK_SIZE);
-		circuitManager.getCanvas().setHeight(Math.max(maxHeight, circuitManager.getCanvasScrollPane().getHeight()));
-		
-		needsRepaint = true;
+		runFxSync(() -> {
+			OptionalInt maxX = Stream
+				.concat(circuitManager.getSelectedElements().stream(),
+				        Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
+				                      circuitManager
+					                      .getCircuitBoard()
+					                      .getLinks()
+					                      .stream()
+					                      .flatMap(links -> links.getWires().stream())))
+				.mapToInt(componentPeer -> componentPeer.getX() + componentPeer.getWidth())
+				.max();
+			
+			double maxWidth = Math.min(5000, getScaleFactor() * (maxX.orElse(0) + 5) * GuiUtils.BLOCK_SIZE);
+			circuitManager.getCanvas().setWidth(Math.max(maxWidth, circuitManager.getCanvasScrollPane().getWidth()));
+			
+			OptionalInt maxY = Stream
+				.concat(circuitManager.getSelectedElements().stream(),
+				        Stream.concat(circuitManager.getCircuitBoard().getComponents().stream(),
+				                      circuitManager
+					                      .getCircuitBoard()
+					                      .getLinks()
+					                      .stream()
+					                      .flatMap(links -> links.getWires().stream())))
+				.mapToInt(componentPeer -> componentPeer.getY() + componentPeer.getHeight())
+				.max();
+			
+			double maxHeight = Math.min(5000, getScaleFactor() * (maxY.orElse(0) + 5) * GuiUtils.BLOCK_SIZE);
+			circuitManager.getCanvas().setHeight(Math.max(maxHeight,
+			                                              circuitManager.getCanvasScrollPane().getHeight()));
+			
+			needsRepaint = true;
+		});
 	}
 	
 	/**
@@ -960,29 +963,19 @@ public class CircuitSim extends Application {
 				refreshCircuitsTab();
 				
 				circuitManagers.values().forEach(componentPair -> {
-					for (ComponentPeer<?> componentPeer : new HashSet<>(componentPair
-						                                                    .getValue()
-						                                                    .getCircuitBoard()
-						                                                    .getComponents())) {
-						
+					CircuitManager manager = componentPair.getValue();
+					for (ComponentPeer<?> componentPeer : new HashSet<>(manager.getCircuitBoard().getComponents())) {
 						if (componentPeer.getClass() == SubcircuitPeer.class) {
 							SubcircuitPeer peer = (SubcircuitPeer)componentPeer;
 							if (peer.getComponent().getSubcircuit() == circuit) {
 								CircuitNode node = getSubcircuitStates(peer.getComponent(),
-								                                       componentPair
-									                                       .getValue()
-									                                       .getCircuitBoard()
-									                                       .getCurrentState());
-								
-								componentPair.getValue().getSelectedElements().remove(peer);
+								                                       manager.getCircuitBoard().getCurrentState());
+								manager.getSelectedElements().remove(peer);
 								
 								if (component == null) {
-									componentPair
-										.getValue()
-										.mayThrow(() -> componentPair
-											.getValue()
-											.getCircuitBoard()
-											.removeElements(Collections.singleton(peer)));
+									manager.mayThrow(() -> manager
+										.getCircuitBoard()
+										.removeElements(Collections.singleton(peer)));
 									
 									resetSubcircuitStates(node);
 								} else {
@@ -991,20 +984,13 @@ public class CircuitSim extends Application {
 									                                                  componentPeer.getY());
 									
 									editHistory.disable();
-									componentPair
-										.getValue()
-										.mayThrow(() -> componentPair
-											.getValue()
-											.getCircuitBoard()
-											.updateComponent(peer, newSubcircuit));
+									manager.mayThrow(() -> manager
+										.getCircuitBoard()
+										.updateComponent(peer, newSubcircuit));
 									editHistory.enable();
 									
 									node.subcircuit = newSubcircuit.getComponent();
-									updateSubcircuitStates(node,
-									                       componentPair
-										                       .getValue()
-										                       .getCircuitBoard()
-										                       .getCurrentState());
+									updateSubcircuitStates(node, manager.getCircuitBoard().getCurrentState());
 								}
 							}
 						}
@@ -1036,6 +1022,11 @@ public class CircuitSim extends Application {
 		CircuitState subcircuitState = subcircuit.getSubcircuitState(parentState);
 		
 		CircuitNode circuitNode = new CircuitNode(subcircuit, subcircuitState);
+		
+		// TODO(ra4king): figure out why this happens sometimes
+		if (subcircuitState == null) {
+			return circuitNode;
+		}
 		
 		for (Component component : subcircuit.getSubcircuit().getComponents()) {
 			if (component instanceof Subcircuit) {

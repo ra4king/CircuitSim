@@ -675,9 +675,8 @@ public class CircuitBoard {
 	
 	synchronized void removeElements(Set<? extends GuiElement> elements, boolean removeFromCircuit) {
 		circuit.getSimulator().runSync(() -> {
+			editHistory.beginGroup();
 			try {
-				editHistory.beginGroup();
-				
 				Map<LinkWires, Set<Wire>> wiresToRemove = new HashMap<>();
 				
 				Set<GuiElement> elementsToRemove = new HashSet<>(elements);

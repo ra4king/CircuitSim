@@ -71,7 +71,7 @@ public abstract class Gate extends Component {
 			}
 			
 			result.setBit(bit, portBit);
-			boolean isX = result.getBit(bit) == State.X;
+			boolean isX = result.getBit(bit) == State.Z;
 			
 			for (int port = 1; port < numInputs; port++) {
 				portBit = state.getLastReceived(getPort(port)).getBit(bit);
@@ -79,12 +79,12 @@ public abstract class Gate extends Component {
 					portBit = portBit.negate();
 				}
 				
-				isX &= portBit == State.X;
+				isX &= portBit == State.Z;
 				result.setBit(bit, operate(result.getBit(bit), portBit));
 			}
 			
 			if (isX) {
-				result.setBit(bit, State.X);
+				result.setBit(bit, State.Z);
 			} else if (negateOutput) {
 				result.setBit(bit, result.getBit(bit) == State.ONE ? State.ZERO : State.ONE);
 			}

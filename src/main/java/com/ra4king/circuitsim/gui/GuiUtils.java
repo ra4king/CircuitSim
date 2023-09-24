@@ -220,7 +220,7 @@ public class GuiUtils {
 					setBitColor(graphics, circuitState.getMergedValue(link));
 				}
 			} else {
-				setBitColor(graphics, State.X);
+				setBitColor(graphics, State.Z);
 			}
 		} else {
 			graphics.setStroke(Color.ORANGE);
@@ -230,8 +230,8 @@ public class GuiUtils {
 	
 	private static final Color ONE_COLOR = Color.GREEN.brighter();
 	private static final Color ZERO_COLOR = Color.GREEN.darker();
-	private static final Color X_1BIT_COLOR = Color.BLUE;
-	private static final Color X_MULTIBIT_COLOR = Color.BLUE.darker();
+	private static final Color Z_1BIT_COLOR = Color.BLUE;
+	private static final Color Z_MULTIBIT_COLOR = Color.BLUE.darker();
 	
 	public static void setBitColor(GraphicsContext graphics, WireValue value) {
 		if (value.getBitSize() == 1) {
@@ -240,8 +240,8 @@ public class GuiUtils {
 			graphics.setStroke(Color.BLACK);
 			graphics.setFill(Color.BLACK);
 		} else {
-			graphics.setStroke(X_MULTIBIT_COLOR);
-			graphics.setFill(X_MULTIBIT_COLOR);
+			graphics.setStroke(Z_MULTIBIT_COLOR);
+			graphics.setFill(Z_MULTIBIT_COLOR);
 		}
 	}
 	
@@ -255,9 +255,9 @@ public class GuiUtils {
 				graphics.setStroke(ZERO_COLOR);
 				graphics.setFill(ZERO_COLOR);
 			}
-			case X -> {
-				graphics.setStroke(X_1BIT_COLOR);
-				graphics.setFill(X_1BIT_COLOR);
+			case Z -> {
+				graphics.setStroke(Z_1BIT_COLOR);
+				graphics.setFill(Z_1BIT_COLOR);
 			}
 		}
 	}

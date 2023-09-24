@@ -15,7 +15,7 @@ public class WireValueTest {
 	public void testBasic() {
 		WireValue value = new WireValue(10);
 		assertThat(value.getBitSize()).isEqualTo(10);
-		assertThat(WireValueUtils.allBitsEqualTo(value, State.X)).isTrue();
+		assertThat(WireValueUtils.allBitsEqualTo(value, State.Z)).isTrue();
 		
 		value = new WireValue(15, State.ONE);
 		assertThat(value.getBitSize()).isEqualTo(15);
@@ -44,7 +44,7 @@ public class WireValueTest {
 		value2.setBit(2, State.ZERO);
 		
 		WireValue merge = new WireValue(value1).merge(value2);
-		assertThat(WireValueUtils.allBitsEqualTo(merge, State.ONE, State.ZERO, State.ZERO, State.X)).isTrue();
+		assertThat(WireValueUtils.allBitsEqualTo(merge, State.ONE, State.ZERO, State.ZERO, State.Z)).isTrue();
 	}
 	
 	@Test

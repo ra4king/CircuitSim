@@ -9,7 +9,7 @@ import com.ra4king.circuitsim.simulator.WireValue.State;
  * @author Roi Atalla
  */
 public class ControlledBuffer extends Component {
-	private final WireValue X_VALUE;
+	private final WireValue Z_VALUE;
 	
 	public static final int PORT_IN = 0;
 	public static final int PORT_ENABLE = 1;
@@ -17,7 +17,7 @@ public class ControlledBuffer extends Component {
 	
 	public ControlledBuffer(String name, int bitSize) {
 		super(name, new int[] { bitSize, 1, bitSize });
-		X_VALUE = new WireValue(bitSize);
+		Z_VALUE = new WireValue(bitSize);
 	}
 	
 	@Override
@@ -29,7 +29,7 @@ public class ControlledBuffer extends Component {
 		if (state.getLastReceived(getPort(PORT_ENABLE)).getBit(0) == State.ONE) {
 			state.pushValue(getPort(PORT_OUT), state.getLastReceived(getPort(PORT_IN)));
 		} else {
-			state.pushValue(getPort(PORT_OUT), X_VALUE);
+			state.pushValue(getPort(PORT_OUT), Z_VALUE);
 		}
 	}
 }

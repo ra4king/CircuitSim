@@ -24,6 +24,6 @@ public class XorGate extends Gate {
 	
 	@Override
 	protected State operate(State acc, State bit) {
-		return acc != State.X && bit != State.X && acc != bit ? State.ONE : State.ZERO;
+		return acc != State.Z && bit != State.Z && acc != bit ? State.ONE : State.ZERO;
 	}
 }

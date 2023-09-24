@@ -93,7 +93,7 @@ public class SimpleTransistor extends Component {
 	public static final int PORT_GATE = 1;
 	public static final int PORT_DRAIN = 2;
 	
-	private static final WireValue X_VALUE = new WireValue(1);
+	private static final WireValue Z_VALUE = new WireValue(1);
 	
 	private boolean isIllegallyWired;
 	private boolean isPType;
@@ -124,7 +124,7 @@ public class SimpleTransistor extends Component {
 		if (pTypeOk && nTypeOk && state.getLastReceived(getPort(PORT_GATE)).getBit(0) == enableBit) {
 			state.pushValue(getPort(PORT_DRAIN), new WireValue(sourceBit));
 		} else {
-			state.pushValue(getPort(PORT_DRAIN), X_VALUE);
+			state.pushValue(getPort(PORT_DRAIN), Z_VALUE);
 			
 			if (!nTypeOk) {
 				throw new SimulationException("N-type transistor must not be connected to logic-level high!");

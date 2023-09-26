@@ -1465,6 +1465,9 @@ public class CircuitSim extends Application {
 						
 						CircuitFile circuitFile = FileFormat.load(lastSaveFile);
 						
+						if (circuitFile == null) {
+							throw new NullPointerException("File is empty!");
+						}
 						if (circuitFile.circuits == null) {
 							throw new NullPointerException("File missing circuits");
 						}
